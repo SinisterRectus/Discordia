@@ -2,7 +2,7 @@ local los = require('los')
 local json = require('json')
 local websocket = require('coro-websocket')
 
-class('WebSocket')
+local WebSocket = class('WebSocket')
 
 function WebSocket:__init(gateway)
 	if gateway then self:connect(gateway) end

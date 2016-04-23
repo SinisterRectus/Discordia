@@ -1,11 +1,11 @@
-local Object = require('./object')
-local endpoints = require('../endpoints')
+local Base = require('./base')
+local endpoints = require('../../endpoints')
 
-class('Role', Object)
+local Role = class('Role', Base)
 
 function Role:__init(data, server)
 
-	Object.__init(self, data.id, server.client)
+	Base.__init(self, data.id, server.client)
 
 	self.server = server
 	self:update(data)

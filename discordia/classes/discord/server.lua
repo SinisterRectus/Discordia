@@ -1,18 +1,18 @@
 local Role = require('./role')
 local User = require('./user')
 local Member = require('./member')
-local Object = require('./object')
+local Base = require('./base')
 local Invite = require('./invite')
-local endpoints = require('../endpoints')
+local endpoints = require('../../endpoints')
 local VoiceState = require('./voicestate')
 local ServerTextChannel = require('./servertextchannel')
 local ServerVoiceChannel = require('./servervoicechannel')
 
-class("Server", Object)
+local Server  = class("Server", Base)
 
 function Server:__init(data, client)
 
-	Object.__init(self, data.id, client)
+	Base.__init(self, data.id, client)
 
 	self.large = data.large -- boolean
 	self.joinedAt = data.joinedAt -- string

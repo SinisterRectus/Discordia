@@ -1,4 +1,4 @@
-class('Deque')
+local Deque = class('Deque')
 
 function Deque:__init()
 	self.list = {}

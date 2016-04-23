@@ -1,21 +1,21 @@
-local Object = require('./object')
+local Base = require('./base')
 local Invite = require('./invite')
-local endpoints = require('../endpoints')
+local endpoints = require('../../endpoints')
 
-class('ServerChannel', Object)
+local ServerChannel = class('ServerChannel', Base)
 
 function ServerChannel:__init(data, server)
 
-    Object.__init(self, data.id, server.client)
-    self.server = server
+	Base.__init(self, data.id, server.client)
+	self.server = server
 
-    self.type = data.type
-    self:update(data)
+	self.type = data.type
+	self:update(data)
 
 end
 
 function ServerChannel:createInvite()
-    self.client:request('POST', {endpoints.channels, self.id, 'invites'}, {})
+	self.client:request('POST', {endpoints.channels, self.id, 'invites'}, {})
 end
 
 function ServerChannel:getInvites()
@@ -29,14 +29,14 @@ function ServerChannel:getInvites()
 end
 
 function ServerChannel:update(data)
-    self.name = data.name
-    self.topic = data.topic
-    self.position = data.position
-    self.permissionOverwrites = data.permissionOverwrites
+	self.name = data.name
+	self.topic = data.topic
+	self.position = data.position
+	self.permissionOverwrites = data.permissionOverwrites
 end
 
 function ServerChannel:delete(data)
-    self.client:request('DELETE', {endpoints.channels, self.id})
+	self.client:request('DELETE', {endpoints.channels, self.id})
 end
 
 return ServerChannel

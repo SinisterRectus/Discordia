@@ -7,11 +7,11 @@ local events = require('./events')
 local package = require('./package')
 local endpoints = require('./endpoints')
 
-local Error = require('./classes/error')
-local Invite = require('./classes/invite')
-local Server = require('./classes/server')
-local Warning = require('./classes/warning')
-local WebSocket = require('./classes/websocket')
+local Error = require('./classes/utils/error')
+local Invite = require('./classes/discord/invite')
+local Server = require('./classes/discord/server')
+local Warning = require('./classes/utils/warning')
+local WebSocket = require('./classes/utils/websocket')
 
 local camelify = utils.camelify
 

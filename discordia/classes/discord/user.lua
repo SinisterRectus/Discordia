@@ -1,11 +1,11 @@
-local Object = require('./object')
-local endpoints = require('../endpoints')
+local Base = require('./base')
+local endpoints = require('../../endpoints')
 
-class('User', Object)
+local User = class('User', Base)
 
 function User:__init(data, client)
 
-	Object.__init(self, data.id, client)
+	Base.__init(self, data.id, client)
 
 	self.avatar = data.avatar or ''
 	self.username = data.username

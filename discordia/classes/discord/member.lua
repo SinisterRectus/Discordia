@@ -1,7 +1,7 @@
 local User = require('./user')
-local endpoints = require('../endpoints')
+local endpoints = require('../../endpoints')
 
-class('Member', User)
+local Member = class('Member', User)
 
 function Member:__init(data, server)
 

@@ -1,12 +1,12 @@
 local User = require('./user')
-local Object = require('./object')
-local endpoints = require('../endpoints')
+local Base = require('./base')
+local endpoints = require('../../endpoints')
 
-class('Message', Object)
+local Message = class('Message', Base)
 
 function Message:__init(data, channel)
 
-	Object.__init(self, data.id, channel.client)
+	Base.__init(self, data.id, channel.client)
 
 	self.channel = channel
 	self.server = channel.server

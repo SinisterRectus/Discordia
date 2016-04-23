@@ -1,5 +1,5 @@
 ## Server
-Extends the **Object** class. Servers, also known as Guilds, are a core component of Discord communication. Servers contain text channels and voice channels in which member may communicate with each other.
+Extends the **Base** class. Servers, also known as Guilds, are a core component of Discord communication. Servers contain text channels and voice channels in which member may communicate with each other.
 
 ---
 

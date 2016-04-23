@@ -1,12 +1,14 @@
-local User = require('./classes/user')
-local Role = require('./classes/role')
-local Member = require('./classes/member')
-local Server = require('./classes/server')
-local Message = require('./classes/message')
-local VoiceState = require('./classes/voicestate')
-local PrivateChannel = require('./classes/privatechannel')
-local ServerTextChannel = require('./classes/servertextchannel')
-local ServerVoiceChannel = require('./classes/servervoicechannel')
+local path = './classes/discord'
+
+local User = require(path .. '/user')
+local Role = require(path .. '/role')
+local Member = require(path .. '/member')
+local Server = require(path .. '/server')
+local Message = require(path .. '/message')
+local VoiceState = require(path .. '/voicestate')
+local PrivateChannel = require(path .. '/privatechannel')
+local ServerTextChannel = require(path .. '/servertextchannel')
+local ServerVoiceChannel = require(path .. '/servervoicechannel')
 
 local events = {}
 
