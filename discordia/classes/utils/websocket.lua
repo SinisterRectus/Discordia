@@ -1,4 +1,4 @@
-local los = require('los')
+local jit = require('jit')
 local json = require('json')
 local websocket = require('coro-websocket')
 
@@ -21,25 +21,24 @@ end
 
 function WebSocket:receive()
 	local message = self.read()
-	if not message then return end -- need to handle this
+	if not message then return end
 	return json.decode(message.payload)
 end
 
-function WebSocket:op1(sequence)
+function WebSocket:heartbeat(sequence)
 	self:send({
 		op = 1,
-		d = sequence -- formerly os.time()
+		d = sequence
 	})
 end
 
-function WebSocket:op2(token)
+function WebSocket:identify(token)
 	self:send({
 		op = 2,
 		d = {
 			token = token,
-			v = 3,
 			properties = {
-				['$os'] = los.type(),
+				['$os'] = jit.os,
 				['$browser'] = 'Discordia',
 				['$device'] = 'Discordia',
 				['$referrer'] = '',
@@ -51,7 +50,36 @@ function WebSocket:op2(token)
 	})
 end
 
-function WebSocket:op8(guildId)
+function WebSocket:statusUpdate(idleSince, gameName)
+	self:send({
+		op = 3,
+		d = {
+			idle_since = idleSince or json.null,
+			game = {name = gameName or json.null}
+		}
+	})
+end
+
+function WebSocket:voiceStateUpdate(guildId, channelId, selfMute, selfDeaf)
+	self:send({
+		op = 4,
+		d = {
+			guild_id = guildId,
+			channel_id = channelId or json.null,
+			self_mute = selfMute,
+			self_deaf = selfDeaf
+		}
+	})
+end
+
+function WebSocket:voiceServerPing()
+	-- not documented
+end
+
+function WebSocket:resume()
+end
+
+function WebSocket:requestGuildMembers(guildId)
 	self:send({
 		op = 8,
 		d = {

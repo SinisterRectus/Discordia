@@ -32,10 +32,12 @@ end
 
 -- overwrite original emit method to make it non-blocking
 local emit = Client.emit
+local wrappedEmit = function(self, name, ...)
+	return emit(self, name, ...)
+end
+
 function Client:emit(name, ...)
-	return coroutine.wrap(function(name, ...)
-		return emit(self, name, ...)
-	end)(name, ...)
+	return coroutine.wrap(wrappedEmit)(self, name, ...)
 end
 
 function Client:run(email, password)
@@ -49,8 +51,9 @@ end
 
 function Client:login(email, password)
 
+	local token
 	local filename = md5.sumhexa(email) .. '.cache'
-	local cache, token = io.open(filename, 'r')
+	local cache = io.open(filename, 'r')
 	if not cache then
 		token = self:getToken(email, password)
 		io.open(filename, 'w'):write(token):close()
@@ -122,8 +125,9 @@ end
 
 function Client:websocketConnect()
 
+	local gateway
 	local filename ='gateway.cache'
-	local cache, gateway = io.open(filename, 'r')
+	local cache = io.open(filename, 'r')
 	if not cache then
 		gateway = self:getGateway()
 		io.open(filename, 'w'):write(gateway):close()
@@ -132,7 +136,7 @@ function Client:websocketConnect()
 	end
 
 	self.websocket = WebSocket(gateway)
-	self.websocket:op2(self.token)
+	self.websocket:identify(self.token)
 
 	self:websocketReceiver()
 
@@ -143,16 +147,21 @@ function Client:websocketReceiver()
 	return coroutine.wrap(function()
 		while true do
 			local payload = self.websocket:receive()
-			if payload.op == 0 then
-				self.sequence = payload.s
-				local event = camelify(payload.t)
-				local data = camelify(payload.d)
-				self:emit('raw', event, data)
-				if not events[event] then error('Unhandled event ' .. event) end
-				events[event](data, self)
-			else
-				error('Unhandled payload ' .. payload.op)
-			end
+			-- if payload then
+				if payload.op == 0 then
+					self.sequence = payload.s
+					self:emit('raw', payload)
+					local event = camelify(payload.t)
+					local data = camelify(payload.d)
+					if not events[event] then error('Unhandled event ' .. event) end
+					events[event](data, self)
+				else
+					error('Unhandled payload ' .. payload.op)
+				end
+			-- else
+				-- timer.sleep(5000)
+				-- return self:websocketConnect()
+			-- end
 		end
 	end)()
 	-- need to handle websocket disconnection
@@ -164,7 +173,7 @@ function Client:keepAliveHandler(interval)
 	return coroutine.wrap(function(interval)
 		while true do
 			timer.sleep(interval)
-			self.websocket:op1(self.sequence)
+			self.websocket:heartbeat(self.sequence)
 		end
 	end)(interval)
 	-- need to handle websocket disconnection
@@ -212,6 +221,20 @@ function Client:setPassword(newPassword, password)
 		new_password = newPassword
 	}
 	self:request('PATCH', {endpoints.me}, body)
+end
+
+function Client:setStatusIdle()
+	self.idleSince = os.time()
+	self.websocket:statusUpdate(self.idleSince, self.user.gameName)
+end
+
+function Client:setStatusOnline()
+	self.idleSince = nil
+	self.websocket:statusUpdate(self.idleSince, self.user.gameName)
+end
+
+function Client:setGameName(gameName)
+	self.websocket:statusUpdate(self.idleSince, gameName)
 end
 
 -- Invites --

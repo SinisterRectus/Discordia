@@ -18,7 +18,7 @@ function Server:__init(data, client)
 	self.joinedAt = data.joinedAt -- string
 	self.memberCount = data.memberCount -- number
 
-	if self.large then client.websocket:op8(self.id) end
+	if self.large then client.websocket:requestGuildMembers(self.id) end
 
 	self.roles = {}
 	self.members = {}
