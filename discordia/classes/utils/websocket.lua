@@ -60,22 +60,6 @@ function WebSocket:statusUpdate(idleSince, gameName)
 	})
 end
 
-function WebSocket:voiceStateUpdate(guildId, channelId, selfMute, selfDeaf)
-	self:send({
-		op = 4,
-		d = {
-			guild_id = guildId,
-			channel_id = channelId or json.null,
-			self_mute = selfMute,
-			self_deaf = selfDeaf
-		}
-	})
-end
-
-function WebSocket:voiceServerPing()
-	-- not documented
-end
-
 function WebSocket:resume()
 end
 

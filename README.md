@@ -39,9 +39,16 @@ Does Discordia support voice chat?
 
 - Future
 	- Overhauled class system
-	- Added Error and Warning classes
+	- Implemented exception handling
+		- New Error and Warning classes
+		- HTTP 400 is raised
+		- HTTP 403 is warned
+		- HTTP 429 is handled and warned
+		- Unhandled HTTP errors are raised
+		- Unhandled WebSocket events are warned
+		- Unhandled WebSocket payloads are warned
 	- Implemented Invite handling
-	- 403 (forbidden) and 429 (too many requests) HTTP errors are now handled
+	- Added statusUpdate WebSocket method
 
 
 - 0.1.0

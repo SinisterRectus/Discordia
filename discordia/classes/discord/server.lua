@@ -181,14 +181,14 @@ end
 
 function Server:createTextChannel(name)
 	local body = {name = name, type = 'text'}
-	local data = self.client:request('POST', {endpoints.servers, self.id, 'channels'}, body)
-	return ServerTextChannel(data, self) -- not the same object that is cached
+	local data, success = self.client:request('POST', {endpoints.servers, self.id, 'channels'}, body)
+	if success then return ServerTextChannel(data, self) end
 end
 
 function Server:createVoiceChannel(name)
 	local body = {name = name, type = 'voice'}
-	local data = self.client:request('POST', {endpoints.servers, self.id, 'channels'}, body)
-	return ServerVoiceChannel(data, self) -- not the same object that is cached
+	local data, success = self.client:request('POST', {endpoints.servers, self.id, 'channels'}, body)
+	if success then return ServerVoiceChannel(data, self) end
 end
 
 function Server:getChannelById(id) -- Client:getChannelById(id)

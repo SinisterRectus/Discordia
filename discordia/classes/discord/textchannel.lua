@@ -20,8 +20,8 @@ end
 
 function TextChannel:createMessage(content)
 	local body = {content = content}
-	local data = self.client:request('POST', {endpoints.channels, self.id, 'messages'}, body)
-	return Message(data, self) -- not the same object that is cached
+	local data, success = self.client:request('POST', {endpoints.channels, self.id, 'messages'}, body)
+	if success then return Message(data, self) end
 end
 
 function TextChannel:sendMessage(content) -- alias for createMessage

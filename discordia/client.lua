@@ -7,9 +7,10 @@ local events = require('./events')
 local package = require('./package')
 local endpoints = require('./endpoints')
 
-local Error = require('./classes/utils/error')
 local Invite = require('./classes/discord/invite')
 local Server = require('./classes/discord/server')
+
+local Error = require('./classes/utils/error')
 local Warning = require('./classes/utils/warning')
 local WebSocket = require('./classes/utils/websocket')
 
@@ -97,23 +98,33 @@ function Client:request(method, url, body)
 
 	local res, data = http.request(method, url, headers, encodedBody)
 
-	if res.code == 403 then -- forbidden
-		return self:emit('error', Error('Forbidden request attempted. Check client permissions.', debug.traceback()))
-	elseif res.code == 429 then -- too many requests
-		local delay
-		for _, header in ipairs(res) do
-			if header[1] == 'Retry-After' then
-				delay = header[2]
-				break
-			end
-		end
-		self:emit('warning', Warning(string.format('Too many requests, retrying in %i ms', delay)))
-		timer.sleep(delay)
-		return self:request(method, url, body)
-	end
+	if res.code > 299 then
 
-	local obj = json.decode(data)
-	return camelify(obj)
+		if res.code == 400 then -- bad request
+			Error('Bad request. Check arguments.', debug.traceback())
+		elseif res.code == 403 then -- forbidden
+			Warning('Forbidden request attempted. Check client permissions.', debug.traceback())
+		elseif res.code == 429 then -- too many requests
+			local delay
+			for _, header in ipairs(res) do
+				if header[1] == 'Retry-After' then
+					delay = header[2]
+					break
+				end
+			end
+			Warning('Too many requests. Retrying in' .. delay .. 'ms.', debug.traceback())
+			timer.sleep(delay)
+			return self:request(method, url, body)
+		else
+			Error(string.format('Unhandled HTTP error: %i / %s', res.code, res.reason), debug.traceback())
+		end
+
+	elseif res.code > 199 then
+
+		local obj = json.decode(data)
+		return camelify(obj), true
+
+	end
 
 end
 
@@ -147,21 +158,23 @@ function Client:websocketReceiver()
 	return coroutine.wrap(function()
 		while true do
 			local payload = self.websocket:receive()
-			-- if payload then
+			if payload then
 				if payload.op == 0 then
 					self.sequence = payload.s
 					self:emit('raw', payload)
 					local event = camelify(payload.t)
 					local data = camelify(payload.d)
-					if not events[event] then error('Unhandled event ' .. event) end
-					events[event](data, self)
+					if events[event] then
+						events[event](data, self)
+					else
+						Warning('Unhandled WebSocket event: ' .. payload.t, debug.traceback())
+					end
 				else
-					error('Unhandled payload ' .. payload.op)
+					Warning('Unhandled WebSocket payload: ' .. payload.op, debug.traceback())
 				end
-			-- else
-				-- timer.sleep(5000)
-				-- return self:websocketConnect()
-			-- end
+			else
+				Error('WebSocket disconnected', debug.traceback())
+			end
 		end
 	end)()
 	-- need to handle websocket disconnection
@@ -248,8 +261,8 @@ end
 
 function Client:createServer(name, regionId)
 	local body = {name = name, region = regionId}
-	local data = self:request('POST', {endpoints.servers}, body)
-	return Server(data, self) -- not the same object that is cached
+	local data, success = self:request('POST', {endpoints.servers}, body)
+	if success then return Server(data, self) end
 end
 
 function Client:getServerById(id)

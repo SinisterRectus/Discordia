@@ -85,10 +85,6 @@ function events.voiceStateUpdate(data, client)
 
 end
 
-function events.voiceServerUpdate(data, client)
-	-- not documented
-end
-
 function events.messageCreate(data, client)
 
 	local channel = client:getChannelById(data.channelId)
