@@ -26,18 +26,16 @@ Does Discordia support voice chat?
 
 ### To-Do
 - Finish documentation
-- Expand websocket support
 - Bot accounts
 - Permissions and Roles
 - Embeds, mentions, and file sending
-- Container class with get/add/find methods
 - ???
 
 ### Changelog
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-- Future
+- 0.2.0
 	- Overhauled class system
 	- Implemented exception handling
 		- New Error and Warning classes
@@ -48,7 +46,7 @@ Does Discordia support voice chat?
 		- Unhandled WebSocket events are warned
 		- Unhandled WebSocket payloads are warned
 	- Implemented Invite handling
-	- Added statusUpdate WebSocket method
+	- Added statusUpdate WebSocket method and corresponding client methods setStatusIdle, setStatusOnline, and setGameGame
 	- Implemented WebSocket reconnecting
 
 
