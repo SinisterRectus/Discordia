@@ -16,6 +16,14 @@ This library provides an object-oriented environment for developing Discord bots
 - To install the Discord library, run `lit install SinisterRectus/discordia`
 - Run your Lua scripts using, for example, `luvit bot.lua`
 
+### FAQs
+
+Can I run this on different Lua distribution?
+- The development and deployment of Discordia relies on the Luvit framework, which is built on top of LuaJIT. Porting Discordia and its dependencies to pure LuaJIT or Lua 5.x may be possible, but it is not currently a priority.
+
+Does Discordia support voice chat?
+- The API can be used to move in and out of  voice channels, but there are no plans to implement voice chat at this time.
+
 ### To-Do
 - Finish documentation
 - Expand websocket support
@@ -24,8 +32,6 @@ This library provides an object-oriented environment for developing Discord bots
 - Embeds, mentions, and file sending
 - Container class with get/add/find methods
 - ???
-
-*There are currently no plans to implement full voice support*
 
 ### Changelog
 
