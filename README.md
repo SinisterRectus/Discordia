@@ -35,6 +35,10 @@ Does Discordia support voice chat?
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+- 0.2.1
+	- Fixed package path issue
+
+
 - 0.2.0
 	- Overhauled class system
 	- Implemented exception handling
