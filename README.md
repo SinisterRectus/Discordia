@@ -49,6 +49,7 @@ Does Discordia support voice chat?
 		- Unhandled WebSocket payloads are warned
 	- Implemented Invite handling
 	- Added statusUpdate WebSocket method
+	- Implemented WebSocket reconnecting
 
 
 - 0.1.0

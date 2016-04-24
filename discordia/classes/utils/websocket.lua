@@ -60,7 +60,15 @@ function WebSocket:statusUpdate(idleSince, gameName)
 	})
 end
 
-function WebSocket:resume()
+function WebSocket:resume(token, sessionId, sequence)
+	self:send({
+		op = 6,
+		d = {
+			token = token,
+			session_id = sessionId,
+			seq = sequence
+		}
+	})
 end
 
 function WebSocket:requestGuildMembers(guildId)

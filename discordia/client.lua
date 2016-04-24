@@ -23,6 +23,7 @@ function Client:initialize(email, password)
 	self.servers = {}
 	self.maxMessages = 100 -- per channel
 	self.privateChannels = {}
+	self.keepAliveHandlers = {}
 
 	self.headers = {
 		['Content-Type'] = 'application/json',
@@ -149,13 +150,13 @@ function Client:websocketConnect()
 	self.websocket = WebSocket(gateway)
 	self.websocket:identify(self.token)
 
-	self:websocketReceiver()
+	self:websocketReceiver(gateway)
 
 end
 
-function Client:websocketReceiver()
+function Client:websocketReceiver(gateway)
 
-	return coroutine.wrap(function()
+	return coroutine.wrap(function(gateway)
 		while true do
 			local payload = self.websocket:receive()
 			if payload then
@@ -173,24 +174,34 @@ function Client:websocketReceiver()
 					Warning('Unhandled WebSocket payload: ' .. payload.op, debug.traceback())
 				end
 			else
-				Error('WebSocket disconnected', debug.traceback())
+				Warning('WebSocket disconnected. Reconnecting after 5 seconds.', debug.traceback())
+				self:stopKeepAliveHandlers()
+				timer.sleep(5000)
+				self.websocket:connect(gateway)
+				self.websocket:resume(self.token, self.sessionId, self.sequence)
 			end
 		end
-	end)()
-	-- need to handle websocket disconnection
+	end)(gateway)
 
 end
 
-function Client:keepAliveHandler(interval)
-
+function Client:startKeepAliveHandler(interval)
+	local handler = {}
+	table.insert(self.keepAliveHandlers, handler)
 	return coroutine.wrap(function(interval)
 		while true do
 			timer.sleep(interval)
+			if handler.stopped then return end
 			self.websocket:heartbeat(self.sequence)
 		end
 	end)(interval)
-	-- need to handle websocket disconnection
+end
 
+function Client:stopKeepAliveHandlers()
+	for _, handler in ipairs(self.keepAliveHandlers) do
+		handler.stopped = true
+	end
+	self.keepAliveHandlers = {}
 end
 
 -- Profile --

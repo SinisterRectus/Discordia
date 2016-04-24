@@ -14,9 +14,10 @@ local events = {}
 
 function events.ready(data, client)
 
-	client.user = User(data.user, client) -- object
-	client.email = data.user.email -- string
-	client.verified = data.user.verified -- boolean
+	client.user = User(data.user, client)
+	client.email = data.user.email
+	client.verified = data.user.verified
+	client.sessionId = data.sessionId
 
 	for _, serverData in ipairs(data.guilds) do
 		local server = Server(serverData, client)
@@ -28,9 +29,15 @@ function events.ready(data, client)
 		client.privateChannels[privateChannel.id] = privateChannel
 	end
 
-	client:keepAliveHandler(data.heartbeatInterval)
-
+	client:startKeepAliveHandler(data.heartbeatInterval)
 	client:emit('ready')
+
+end
+
+function events.resumed(data, client)
+
+	client:startKeepAliveHandler(data.heartbeatInterval)
+	client:emit('resumed')
 
 end
 
