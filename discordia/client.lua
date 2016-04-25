@@ -123,7 +123,7 @@ function Client:request(method, url, body)
 	elseif res.code > 199 then
 
 		local obj = json.decode(data)
-		return camelify(obj), true
+		return camelify(obj)
 
 	end
 
@@ -272,8 +272,8 @@ end
 
 function Client:createServer(name, regionId)
 	local body = {name = name, region = regionId}
-	local data, success = self:request('POST', {endpoints.servers}, body)
-	if success then return Server(data, self) end
+	local data = self:request('POST', {endpoints.servers}, body)
+	if data then return Server(data, self) end
 end
 
 function Client:getServerById(id)

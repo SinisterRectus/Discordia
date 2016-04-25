@@ -20,8 +20,8 @@ end
 
 function TextChannel:createMessage(content)
 	local body = {content = content}
-	local data, success = self.client:request('POST', {endpoints.channels, self.id, 'messages'}, body)
-	if success then return Message(data, self) end
+	local data = self.client:request('POST', {endpoints.channels, self.id, 'messages'}, body)
+	if data then return Message(data, self) end
 end
 
 function TextChannel:sendMessage(content) -- alias for createMessage
