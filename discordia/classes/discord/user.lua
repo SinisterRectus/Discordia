@@ -1,4 +1,5 @@
 local Base = require('./base')
+local Message = require('./message')
 local endpoints = require('../../endpoints')
 
 local User = class('User', Base)
@@ -15,6 +16,22 @@ function User:__init(data, client)
 
 end
 
+function User:update(data)
+	self.avatar = data.avatar or ''
+	self.username = data.username
+	self.discriminator = data.discriminator
+end
+
+function User:sendMessage(content)
+	local channelBody = {recipient_id = self.id}
+	local channelData = self.client:request('POST', {endpoints.me, 'channels'}, channelBody)
+	if channelData then
+		local messageBody = {content = content}
+		local messageData = self.client:request('POST', {endpoints.channels, channelData.id, 'messages'}, messageBody)
+		if messageData then return Message(messageData, self) end
+	end
+end
+
 function User:ban(server) -- Server:banUser(user)
 	-- do they need to be a member?
 	self.client:request('PUT', {endpoints.servers, server.id, 'bans', self.id}, {})
@@ -27,12 +44,6 @@ end
 
 function User:kick(server) -- Server:kickUser(user)
 	self.client:request('DELETE', {endpoints.servers, server.id, 'members', self.id})
-end
-
-function User:update(data)
-	self.avatar = data.avatar or ''
-	self.username = data.username
-	self.discriminator = data.discriminator
 end
 
 function User:getAvatarUrl()
