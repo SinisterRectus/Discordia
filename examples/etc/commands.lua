@@ -15,17 +15,7 @@ local commands = {
             
             bot:setGameName(name)
         end
-    }
-
-    {
-        trigger = ".this";
-        defined = "";
-        process = function(bot, message)
-            if bot.verified then
-               message.channel:sendMessage("that")
-            end
-        end
-    }
+    };
 }
 
 local function splice(array, index)
