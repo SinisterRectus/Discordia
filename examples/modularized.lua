@@ -8,21 +8,21 @@ client:on('ready', function()
 end)
 
 local function getPrefix(message)
-    local prefix = string.sub(message, 1)
-
-    if (prefix == ".") then
-        return true
-    end
+	local prefix = string.sub(message, 1)
+	
+	if (prefix == ".") then
+		return true
+	end
 end
 
 client:on('messageCreate', function(message)
-    local prefix = getPrefix(message)
-    local sender = message.author
-    local client = client.user
-    
+	local prefix = getPrefix(message)
+	local sender = message.author
+	local client = client.user
+	
 	if sender ~= client and prefix then
-	    handle(client, message)
-    end
+		handle(client, message)
+	end
 end)
 
-client:run(config.token)
+client:run(config.auth.token)
