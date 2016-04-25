@@ -1,5 +1,6 @@
-local discordia = require('discordia')
-local client = discordia.Client:new()
+local config = require('.etc/config.json');
+local discordia = require('discordia');
+local client = discordia.Client:new();
 
 client:on('ready', function()
 	p(string.format('Logged in as %s', client.user.username))
@@ -21,4 +22,4 @@ end)
 
 -- run your client
 -- don't forget to change the email and password
-client:run('email', 'password')
+client:runUser(config.auth.mail, config.auth.pass)
