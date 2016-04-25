@@ -1,5 +1,4 @@
 local path = './classes/discord'
-
 local User = require(path .. '/user')
 local Role = require(path .. '/role')
 local Member = require(path .. '/member')
@@ -9,6 +8,7 @@ local VoiceState = require(path .. '/voicestate')
 local PrivateChannel = require(path .. '/privatechannel')
 local ServerTextChannel = require(path .. '/servertextchannel')
 local ServerVoiceChannel = require(path .. '/servervoicechannel')
+local timer = require('timer')
 
 local events = {}
 
@@ -20,8 +20,10 @@ function events.ready(data, client)
 	client.sessionId = data.sessionId
 
 	for _, serverData in ipairs(data.guilds) do
-		local server = Server(serverData, client)
-		client.servers[server.id] = server
+		if not serverData.unavailable then
+			local server = Server(serverData, client)
+			client.servers[server.id] = server
+		end
 	end
 
 	for _, privateChannelData in ipairs(data.privateChannels) do
@@ -30,7 +32,10 @@ function events.ready(data, client)
 	end
 
 	client:startKeepAliveHandler(data.heartbeatInterval)
-	client:emit('ready')
+
+	client.readyTimeout = timer.setTimeout(1000, function()
+		client:emit('ready')
+	end)
 
 end
 
@@ -207,6 +212,10 @@ function events.guildCreate(data, client)
 	client.servers[server.id] = server
 	client:emit('serverCreate', server)
 
+	if client.readyTimeout then
+		client.readyTimeout:again()
+	end
+
 end
 
 function events.guildDelete(data, client)
@@ -270,6 +279,10 @@ function events.guildMembersChunk(data, client)
 	end
 
 	client:emit('membersChunk', server)
+
+	if client.readyTimeout then
+		client.readyTimeout:again()
+	end
 
 end
 

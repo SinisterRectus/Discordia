@@ -18,7 +18,7 @@ local camelify = utils.camelify
 
 local Client = require('core').Emitter:extend()
 
-function Client:initialize(email, password)
+function Client:initialize()
 
 	self.servers = {}
 	self.maxMessages = 100 -- per channel
@@ -42,16 +42,23 @@ function Client:emit(name, ...)
 	return coroutine.wrap(wrappedEmit)(self, name, ...)
 end
 
-function Client:run(email, password)
-	return coroutine.wrap(function()
-		self:login(email, password)
-		self:websocketConnect()
-	end)()
+function Client:run(a, b)
+	if not b then
+		return coroutine.wrap(function()
+			self:botLogin(a)
+			self:websocketConnect()
+		end)()
+	else
+		return coroutine.wrap(function()
+			self:userLogin(a, b)
+			self:websocketConnect()
+		end)()
+	end
 end
 
 -- Authentication --
 
-function Client:login(email, password)
+function Client:userLogin(email, password)
 
 	local token
 	local filename = md5.sumhexa(email) .. '.cache'
@@ -66,6 +73,11 @@ function Client:login(email, password)
 	self.headers['Authorization'] = token
 	self.token = token
 
+end
+
+function Client:botLogin(token)
+	self.headers['Authorization'] = 'Bot ' .. token
+	self.token = token
 end
 
 function Client:logout()
