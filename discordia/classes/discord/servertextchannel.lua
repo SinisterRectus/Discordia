@@ -10,4 +10,8 @@ function ServerTextChannel:__init(data, server)
 
 end
 
+function ServerTextChannel:setTopic(topic)
+	self:edit(nil, nil, topic, nil)
+end
+
 return ServerTextChannel

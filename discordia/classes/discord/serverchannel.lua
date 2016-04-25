@@ -14,6 +14,27 @@ function ServerChannel:__init(data, server)
 
 end
 
+function ServerChannel:update(data)
+	self.name = data.name
+	self.topic = data.topic
+	self.position = data.position
+	self.permissionOverwrites = data.permissionOverwrites
+end
+
+function ServerChannel:edit(name, position, topic, bitrate)
+	local body = {
+		name = name or self.name,
+		position = position or self.position,
+		topic = topic or self.topic,
+		bitrate = bitrate or self.bitrate
+	}
+	self.client:request('PATCH', {endpoints.channels, self.id}, body)
+end
+
+function ServerChannel:setName(name)
+	self:edit(name, nil, nil, nil)
+end
+
 function ServerChannel:createInvite()
 	self.client:request('POST', {endpoints.channels, self.id, 'invites'}, {})
 end
@@ -26,13 +47,6 @@ function ServerChannel:getInvites()
 		invites[invite.id] = invite
 	end
 	return invites
-end
-
-function ServerChannel:update(data)
-	self.name = data.name
-	self.topic = data.topic
-	self.position = data.position
-	self.permissionOverwrites = data.permissionOverwrites
 end
 
 function ServerChannel:delete(data)

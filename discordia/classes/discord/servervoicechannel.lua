@@ -12,4 +12,8 @@ function ServerVoiceChannel:update(data)
 	self.bitrate = data.bitrate
 end
 
+function ServerVoiceChannel:setBitrate(bitrate)
+	self:edit(nil, nil, nil, bitrate)
+end
+
 return ServerVoiceChannel
