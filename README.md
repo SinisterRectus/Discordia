@@ -26,7 +26,6 @@ Does Discordia support voice chat?
 
 ### To-Do
 - Finish documentation
-- Bot accounts
 - Permissions and Roles
 - Embeds, mentions, and file sending
 - ???
@@ -34,6 +33,20 @@ Does Discordia support voice chat?
 ### Changelog
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
+
+- 0.3.0
+	- Added User:sendMessage() method
+	- Implemented support for bot accounts
+		- Client:run() now accepts email and password or token
+		- Renamed Client:login(email, pass) to Client:userLogin(email, pass)
+		- Added Client:botLogin(token)
+		- Initially unavailable servers are now accounted for
+	- Implemented channel editing
+		- Added general edit method for ServerChannel
+		- Added setName method for ServerChannel
+		- Added setTopic method for ServerTextChannel
+		- Added setBitrate method for ServerVoiceChannel
+
 
 - 0.2.1
 	- Fixed package path issue
