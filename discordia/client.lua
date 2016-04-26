@@ -65,7 +65,9 @@ function Client:userLogin(email, password)
 	local cache = io.open(filename, 'r')
 	if not cache then
 		token = self:getToken(email, password)
-		io.open(filename, 'w'):write(token):close()
+		if token then
+			io.open(filename, 'w'):write(token):close()
+		end
 	else
 		token = cache:read()
 	end
@@ -154,7 +156,9 @@ function Client:connectWebsocket()
 	local cache = io.open(filename, 'r')
 	if not cache then
 		gateway = self:getGateway()
-		io.open(filename, 'w'):write(gateway):close()
+		if gateway then
+			io.open(filename, 'w'):write(gateway):close()
+		end
 	else
 		gateway = cache:read()
 	end
