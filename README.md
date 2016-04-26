@@ -34,6 +34,17 @@ Does Discordia support voice chat?
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+- 0.3.1
+	- Fixed issue where offline member status was nil
+	- Fixed issue where nil gateways or tokens could potentially be cached as empty files
+	- Fixed issue where ready was not properly delayed
+	- Reworked login process
+		- loginWithEmail accepts email and password for regular accounts only
+		- loginWithToken accepts a token for any account
+		- Client:run() calls the appropriate login method
+		- Bot is prepended to the token according to the READY data
+
+
 - 0.3.0
 	- Added User:sendMessage() method
 	- Implemented support for bot accounts
