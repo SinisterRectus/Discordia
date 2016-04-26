@@ -2,6 +2,8 @@ local discordia = require('discordia')
 local client = discordia.Client:new()
 
 client:on('ready', function()
+	-- print to the console on a successful login
+	-- p is luvit's global pretty print function
 	p(string.format('Logged in as %s', client.user.username))
 end)
 
@@ -9,16 +11,17 @@ client:on('messageCreate', function(message)
 	-- exit early if the author is the same as the client
 	if message.author == client.user then return end
 
-	-- split the message content into and command and everything else
+	-- split the message content into a command and everything else
 	local cmd, arg = string.match(message.content, '(%S+) (.*)')
 	cmd = cmd or message.content
 
 	if cmd == '!hello' then
-		-- respond to the user
+		-- respond to the user if they type '!hello'
 		message.channel:sendMessage(string.format('Hello, %s', message.author.username))
 	end
 end)
 
 -- run your client
 -- don't forget to change the email and password
+-- or use a bot token with client:run(token)
 client:run('email', 'password')
