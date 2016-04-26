@@ -25,4 +25,4 @@ client:on('messageCreate', function(message)
 	end
 end)
 
-client:run(config.auth.token)
+client:runBot(config.auth.token)
