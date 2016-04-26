@@ -12,18 +12,18 @@ Extends Luvit's built-in **Emitter** object. This is the main class used for int
 - password - *string*
 - token - *string*
 
-Calls the `login` and `connectWebsocket` methods from within a coroutine. If you do not want to manually manage coroutines and the connection process, use this method to run your client. If an email address and password are provided, the client will be considered a regular user. If a token is provided, the client will be considered a bot.
+Calls the `loginWithEmail` or `loginWithToken` and `connectWebsocket` methods from within a coroutine. If you do not want to manually manage coroutines and the connection process, use this method to run your client. If an email address and password are provided, the client will be considered a regular user. If a token is provided, the client will be considered a bot.
 
-#### `userLogin(email, password)`
+#### `loginWithEmail(email, password)`
 - email - *string*
 - password - *string*
 
-Initializes a user token for the client, either by getting it from a local cache file or from Discord via `getToken`. Called by `run` from within a coroutine.
+Authenticates the user by either getting a token a local cache file or from Discord via `getToken`. Called by `run` from within a coroutine. This cannot be used for bot accounts.
 
-#### `botLogin(token)`
+#### `loginWithToken(token)`
 - token - *string*
 
-Initializes a bot token for the client. Note that this is for bot accounts only. Do not use a normal user account's token.
+Authenticates the user by storing the provided token. Called by `run` from within a coroutine. This can be used for any account.
 
 #### `logout()`
 Sends a logout request to Discord. (WebSocket disconnection not yet implemented.)

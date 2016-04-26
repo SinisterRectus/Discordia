@@ -14,6 +14,10 @@ local events = {}
 
 function events.ready(data, client)
 
+	if data.user.bot then
+		client.headers['Authorization'] = 'Bot ' .. client.headers['Authorization']
+	end
+
 	client.user = User(data.user, client)
 	client.email = data.user.email
 	client.verified = data.user.verified

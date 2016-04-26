@@ -45,12 +45,12 @@ end
 function Client:run(a, b)
 	if not b then
 		return coroutine.wrap(function()
-			self:botLogin(a)
+			self:loginWithToken(a)
 			self:connectWebsocket()
 		end)()
 	else
 		return coroutine.wrap(function()
-			self:userLogin(a, b)
+			self:loginWithEmail(a, b)
 			self:connectWebsocket()
 		end)()
 	end
@@ -58,7 +58,7 @@ end
 
 -- Authentication --
 
-function Client:userLogin(email, password)
+function Client:loginWithEmail(email, password)
 
 	local token
 	local filename = md5.sumhexa(email) .. '.cache'
@@ -72,13 +72,12 @@ function Client:userLogin(email, password)
 		token = cache:read()
 	end
 
-	self.headers['Authorization'] = token
-	self.token = token
+	self:loginWithToken(token)
 
 end
 
-function Client:botLogin(token)
-	self.headers['Authorization'] = 'Bot ' .. token
+function Client:loginWithToken(token)
+	self.headers['Authorization'] = token
 	self.token = token
 end
 
