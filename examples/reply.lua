@@ -22,4 +22,4 @@ end)
 
 -- run your client
 -- don't forget to change the email and password
-client:runUser(config.auth.mail, config.auth.pass)
+client:run(config.auth.mail, config.auth.pass)
