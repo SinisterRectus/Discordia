@@ -46,12 +46,12 @@ function Client:run(a, b)
 	if not b then
 		return coroutine.wrap(function()
 			self:botLogin(a)
-			self:websocketConnect()
+			self:connectWebsocket()
 		end)()
 	else
 		return coroutine.wrap(function()
 			self:userLogin(a, b)
-			self:websocketConnect()
+			self:connectWebsocket()
 		end)()
 	end
 end
@@ -147,7 +147,7 @@ function Client:getGateway()
 	return self:request('GET', {endpoints.gateway}).url
 end
 
-function Client:websocketConnect()
+function Client:connectWebsocket()
 
 	local gateway
 	local filename ='gateway.cache'
@@ -162,11 +162,11 @@ function Client:websocketConnect()
 	self.websocket = WebSocket(gateway)
 	self.websocket:identify(self.token)
 
-	self:websocketReceiver(gateway)
+	self:startWebsocketReceiver(gateway)
 
 end
 
-function Client:websocketReceiver(gateway)
+function Client:startWebsocketReceiver(gateway)
 
 	return coroutine.wrap(function(gateway)
 		while true do
@@ -288,6 +288,10 @@ function Client:createServer(name, regionId)
 	if data then return Server(data, self) end
 end
 
+function Client:getRegions()
+	return self:request('GET', {endpoints.voice, 'regions'})
+end
+
 function Client:getServerById(id)
 	return self.servers[id]
 end
@@ -299,10 +303,6 @@ function Client:getServerByName(name)
 		end
 	end
 	return nil
-end
-
-function Client:getRegions()
-	return self:request('GET', {endpoints.voice, 'regions'})
 end
 
 -- Channels --
