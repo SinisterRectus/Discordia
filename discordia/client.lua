@@ -190,6 +190,7 @@ function Client:startWebsocketReceiver(gateway)
 				end
 			else
 				Warning('WebSocket disconnected. Reconnecting after 5 seconds.', debug.traceback())
+				self:emit('disconnect')
 				self:stopKeepAliveHandlers()
 				timer.sleep(5000)
 				self.websocket:connect(gateway)
