@@ -21,7 +21,7 @@ local Client = require('core').Emitter:extend()
 function Client:initialize()
 
 	self.servers = {}
-	self.maxMessages = 100 -- per channel
+	self.maxMessages = 500 -- per channel
 	self.privateChannels = {}
 	self.keepAliveHandlers = {}
 
