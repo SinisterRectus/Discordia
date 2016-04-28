@@ -70,11 +70,11 @@ function events.presenceUpdate(data, client)
 	-- seems to fire for username/avatar/email changes, too
 	-- see guildMemberUpdate for role changes
 	local server = client:getServerById(data.guildId)
-	if not server then return end -- probably "unavailable"
+	if not server then return end
 	local member = server:getMemberById(data.user.id)
-	if not member then return end -- invalid user, probably large server
+	if not member then return end
 	member:update(data)
-	client:emit('presenceUpdate', user)
+	client:emit('presenceUpdate', member)
 
 end
 
@@ -216,7 +216,6 @@ end
 
 function events.guildCreate(data, client)
 
-	if data.unavailable then return end
 	local server = Server(data, client)
 	client.servers[server.id] = server
 	client:emit('serverCreate', server)
