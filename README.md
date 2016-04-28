@@ -10,6 +10,8 @@
 
 This library provides an object-oriented environment for developing Discord bots or clients using Lua. Coroutines are used internally for asynchronous operations, while emitters and callbacks are used for event handling.
 
+Join the [Discord API server](https://discord.gg/0SBTUU1wZTWVpm07) to discuss Discordia and other Discord libraries!
+
 ### Installation
 
 - To install Luvit, visit https://luvit.io and follow the instructions provide for your platform.
