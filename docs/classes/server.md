@@ -165,6 +165,12 @@ Returns a locally cached *Message* object that has the provided ID, or *nil* if 
 #### `owner`
 *Member* object representing the server's owner. Edit with `Server:setOwner(user)`
 
+#### `me`
+
+#### `defaultChannel`
+
+#### `defaultRole`
+
 #### `afkTimeout`
 
 #### `afkChannel`
