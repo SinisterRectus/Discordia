@@ -36,6 +36,15 @@ Does Discordia support voice chat?
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+- 0.3.2
+	- Added HTTP 502 handling
+	- Caught exceptions no longer terminate the program
+	- Added convenient Server attributes defaultRole, defaultChannel, and me
+	- Added disconnect event
+	- Fixed missing presenceUpdate arguments
+	- Increased max messages to 500 per channel
+
+
 - 0.3.1
 	- Fixed issue where offline member status was nil
 	- Fixed issue where nil gateways or tokens could potentially be cached as empty files
