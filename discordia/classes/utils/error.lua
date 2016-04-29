@@ -6,7 +6,6 @@ function Error:__init(message, traceback)
 	self.message = message
 	self.traceback = traceback
 	print(self)
-	os.exit()
 end
 
 function Error:__tostring()
