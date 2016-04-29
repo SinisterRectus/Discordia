@@ -93,11 +93,14 @@ end
 
 -- HTTP --
 
-function Client:request(method, url, body)
+function Client:request(method, url, body, tries)
+
+	local tries = tries or 1
 
 	if type(url) == 'table' then
 		url = table.concat(url, '/')
 	end
+	p(url, tries)
 
 	local headers = {}
 	for k, v in pairs(self.headers) do
@@ -117,7 +120,7 @@ function Client:request(method, url, body)
 		if res.code == 400 then -- bad request
 			Error('Bad request. Check arguments.', debug.traceback())
 		elseif res.code == 403 then -- forbidden
-			Warning('Forbidden request attempted. Check client permissions.', debug.traceback())
+			Error('Forbidden request attempted. Check client permissions.', debug.traceback())
 		elseif res.code == 429 then -- too many requests
 			local delay
 			for _, header in ipairs(res) do
@@ -129,6 +132,14 @@ function Client:request(method, url, body)
 			Warning('Too many requests. Retrying in' .. delay .. 'ms.', debug.traceback())
 			timer.sleep(delay)
 			return self:request(method, url, body)
+		elseif res.code == 502 then
+			if tries < 5 then
+				Warning('Bad gateway. Retrying request.', debug.traceback())
+				timer.sleep(3000)
+				return self:request(method, url, body, tries + 1)
+			else
+				Error('Bad gateway. Request cancelled.', debug.traceback())
+			end
 		else
 			Error(string.format('Unhandled HTTP error: %i / %s', res.code, res.reason), debug.traceback())
 		end
