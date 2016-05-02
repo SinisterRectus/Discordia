@@ -44,6 +44,7 @@ Does Discordia support voice chat?
 		- Renamed startWebsocketReceiver to startWebsocketHandler
 		- Added condition for an expected WS disconnection, which should be only after logout() is called.
 		- Added 'expected' argument to disconnect event.
+	- Added User.name alias for User.username
 
 
 - 0.3.2

@@ -10,7 +10,7 @@ function Base:__eq(other)
 end
 
 function Base:__tostring()
-	return string.format('%s: %s', self.__name, self.content or self.name or self.username or self.id)
+	return string.format('%s: %s', self.__name, self.content or self.name or self.id)
 end
 
 return Base

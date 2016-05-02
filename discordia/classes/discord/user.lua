@@ -8,6 +8,7 @@ function User:__init(data, client)
 
 	Base.__init(self, data.id, client)
 
+	self.name = data.username
 	self.avatar = data.avatar or ''
 	self.username = data.username
 	self.discriminator = data.discriminator
