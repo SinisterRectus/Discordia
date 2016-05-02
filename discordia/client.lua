@@ -100,7 +100,6 @@ function Client:request(method, url, body, tries)
 	if type(url) == 'table' then
 		url = table.concat(url, '/')
 	end
-	p(url, tries)
 
 	local headers = {}
 	for k, v in pairs(self.headers) do
