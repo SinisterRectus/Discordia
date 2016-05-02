@@ -56,6 +56,12 @@ function Client:run(a, b)
 	end
 end
 
+function Client:stop()
+	self:logout()
+	self:disconnectWebsocket()
+	os.exit()
+end
+
 -- Authentication --
 
 function Client:loginWithEmail(email, password)
@@ -81,7 +87,9 @@ function Client:loginWithToken(token)
 	self.token = token
 end
 
-function Client:logout()
+function Client:logout(exit)
+	self.headers['Authorization'] = nil
+	self.token = nil
 	local body = {token = self.token}
 	self:request('POST', {endpoints.logout}, body)
 end
@@ -128,7 +136,7 @@ function Client:request(method, url, body, tries)
 					break
 				end
 			end
-			Warning('Too many requests. Retrying in' .. delay .. 'ms.', debug.traceback())
+			Warning('Too many requests. Retrying in ' .. delay .. ' ms.', debug.traceback())
 			timer.sleep(delay)
 			return self:request(method, url, body)
 		elseif res.code == 502 then
@@ -175,11 +183,18 @@ function Client:connectWebsocket()
 	self.websocket = WebSocket(gateway)
 	self.websocket:identify(self.token)
 
-	self:startWebsocketReceiver(gateway)
+	self:startWebsocketHandler(gateway)
 
 end
 
-function Client:startWebsocketReceiver(gateway)
+function Client:disconnectWebsocket()
+	if self.websocket then
+		self.websocket:disconnect()
+		timer.sleep(1000) -- give handler time to react
+	end
+end
+
+function Client:startWebsocketHandler(gateway)
 
 	return coroutine.wrap(function(gateway)
 		while true do
@@ -199,12 +214,17 @@ function Client:startWebsocketReceiver(gateway)
 					Warning('Unhandled WebSocket payload: ' .. payload.op, debug.traceback())
 				end
 			else
-				Warning('WebSocket disconnected. Reconnecting after 5 seconds.', debug.traceback())
-				self:emit('disconnect')
+				local expected = self.token == nil
+				self:emit('disconnect', expected)
 				self:stopKeepAliveHandlers()
-				timer.sleep(5000)
-				self.websocket:connect(gateway)
-				self.websocket:resume(self.token, self.sessionId, self.sequence)
+				if not expected then
+					Warning('WebSocket disconnected while logged in. Reconnecting in 5 seconds.', debug.traceback())
+					timer.sleep(5000)
+					self.websocket:connect(gateway)
+					self.websocket:resume(self.token, self.sessionId, self.sequence)
+				else
+					return
+				end
 			end
 		end
 	end)(gateway)

@@ -14,6 +14,10 @@ function WebSocket:connect(gateway)
 	self.res, self.read, self.write = websocket.connect(options)
 end
 
+function WebSocket:disconnect()
+	self.write()
+end
+
 function WebSocket:send(payload)
 	local message = {opcode = 1, payload = json.encode(payload)}
 	return self.write(message)

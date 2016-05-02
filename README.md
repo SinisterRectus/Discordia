@@ -36,6 +36,16 @@ Does Discordia support voice chat?
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+- 0.3.3
+	- Reworked logout and termination handling:
+		- Client:logout() now also clears the stored token
+		- Added Client:stop() method
+		- Added Client:disconnectWebsocket() and WebSocket:disconnect() helpers
+		- Renamed startWebsocketReceiver to startWebsocketHandler
+		- Added condition for an expected WS disconnection, which should be only after logout() is called.
+		- Added 'expected' argument to disconnect event.
+
+
 - 0.3.2
 	- Added HTTP 502 handling
 	- Caught exceptions no longer terminate the program

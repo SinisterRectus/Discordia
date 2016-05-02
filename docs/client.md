@@ -1,7 +1,7 @@
 ## Client
-Extends Luvit's built-in **Emitter** object. This is the main class used for interacting with Discord.
+Extends Luvit's built-in **Emitter** object. This is the initial object used to interact with Discord.
 
-*Note:* Asynchronous operations (HTTP requests, WebSocket read/writes) must be called from inside of a coroutine, or from a function called from inside of a coroutine, recursively. If you start your client with the `run` method, then you do not have to worry about this.
+*Note:* Asynchronous operations (HTTP requests, WebSocket read/writes) must be called from within a coroutine. If you start your client with the `run` method, then you generally do not have to worry about this.
 
 ---
 
@@ -12,13 +12,16 @@ Extends Luvit's built-in **Emitter** object. This is the main class used for int
 - password - *string*
 - token - *string*
 
-Calls the `loginWithEmail` or `loginWithToken` and `connectWebsocket` methods from within a coroutine. If you do not want to manually manage coroutines and the connection process, use this method to run your client. If an email address and password are provided, the client will be considered a regular user. If a token is provided, the client will be considered a bot.
+Calls the `loginWithEmail` or `loginWithToken` and `connectWebsocket` methods from within a coroutine. If you do not want to manually manage coroutines and the connection process, use this method to run your client. A token may be used for any account, while an email address and password may be used only for regular user accounts.
+
+#### `stop()`
+The opposite of `run`. Calls the `logout` and `disconnectWebsocket` methods before terminating the program.
 
 #### `loginWithEmail(email, password)`
 - email - *string*
 - password - *string*
 
-Authenticates the user by either getting a token a local cache file or from Discord via `getToken`. Called by `run` from within a coroutine. This cannot be used for bot accounts.
+Authenticates the user by either getting a token from a local cache file or from Discord via `getToken`. Called by `run` from within a coroutine. This cannot be used for bot accounts.
 
 #### `loginWithToken(token)`
 - token - *string*
@@ -26,7 +29,10 @@ Authenticates the user by either getting a token a local cache file or from Disc
 Authenticates the user by storing the provided token. Called by `run` from within a coroutine. This can be used for any account.
 
 #### `logout()`
-Sends a logout request to Discord. (WebSocket disconnection not yet implemented.)
+Sends a logout request to Discord and clears any stored tokens.
+
+#### `stop()`
+Called the `logout` method, disconnects the WebSocket, and terminates the program.
 
 #### `getToken(email, password)` -> `string`
 - email - *string*
@@ -47,7 +53,10 @@ Requests a gateway URL to use for a websocket connection. Called by `connectWebs
 #### `connectWebsocket()`
 Initializes a gateway for the client, either by getting it from a local cache file or from Discord via `getGateway`, initializes a WebSocket connection, sends the initial identify message, and initializes the event handler. This method is called by `run` after a successful login.
 
-#### `startWebsocketReceiver()`
+#### `disconnectWebsocket()`
+If the client has a known WebSocket, this will attempt to disconnect it.
+
+#### `startWebsocketHandler()`
 Initializes the main program loop, which listens for and handles incoming WebSocket messages.
 
 #### `startKeepAliveHandler()`
@@ -176,7 +185,6 @@ The client's `WebSocket` handle used to send data to and from the client.
 
 #### `token`
 *String* that represents the login token provided by Discord. Unique to each account. Pre-pended with 'Bot' for bot accounts.
-
 
 #### `sessionId`
 *String* that represents the WebSocket session ID. Used only for resuming a reconnected session.

@@ -1,20 +1,15 @@
 ## Events
-WebSocket events are received by the client, and their associated data is processed accordingly. The *Client* object then broadcasts the following events, which may be subscribed to by client or bot scripts. Arguments are listed next to each event name where appliciable.
+WebSocket events are received by the client, and their associated data is processed accordingly. The Client object then broadcasts the following events, which may be subscribed to by client or bot scripts. Arguments are listed next to each event name where appliciable.
 
 ---
 
 ### General
+
 #### `ready`
-Fired after the client logs in and establishes a working websocket connection. Internally, the data from this event is used to populate most of the stored objects, but the data is not emitted.
+Fired after the client logs in and establishes a working WebSocket connection. Internally, the data from this event is used to populate most of the stored objects, but the data is not emitted.
 
 #### `resume`
 Fired when a client successfully resumes a WebSocket connection after being unexpectedly disconnected.
-
-#### `disconnect`
-Fired when the client's WebSocket unexpectedly disconnects.
-
-#### `raw` - payload
-Fired for every received WebSocket message, except when it disconnects. The full payload is provided in its original format.
 
 ---
 
@@ -119,3 +114,15 @@ Fired when a server member joins a voice channel.
 Fired when a server member changes mute or deafen settings.
 #### `voiceUpdate` - voiceState
 Fired when a server member leaves a voice channel.
+
+---
+
+### Custom
+
+*Note:* These events are not associated with any specific Discord WebSocket event. They are library features implemented for convenience.
+
+#### `raw` - payload
+Fired for every received WebSocket message, except when it disconnects. The full payload is provided as a Lua table in its original format, before being "camelified".
+
+#### `disconnect` - expected
+Fired when the client's WebSocket unexpectedly disconnects. The expected argument is a boolean indicating whether the disconnection was expected or not. An expected disconnection is one that occurs after calling `Client:logout()`. Not guaranteed to fire before program termination.

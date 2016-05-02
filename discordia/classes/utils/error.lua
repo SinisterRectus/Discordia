@@ -3,8 +3,8 @@ local colorize = require('pretty-print').colorize
 local Error = class('Error')
 
 function Error:__init(message, traceback)
-	self.message = message
-	self.traceback = traceback
+	self.message = message or ''
+	self.traceback = traceback or ''
 	print(self)
 end
 
