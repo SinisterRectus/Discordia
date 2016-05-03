@@ -36,7 +36,8 @@ function ServerChannel:setName(name)
 end
 
 function ServerChannel:createInvite()
-	self.client:request('POST', {endpoints.channels, self.id, 'invites'}, {})
+	local data = self.client:request('POST', {endpoints.channels, self.id, 'invites'}, {})
+	return Invite(data, self.server)
 end
 
 function ServerChannel:getInvites()
