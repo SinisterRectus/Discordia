@@ -47,11 +47,6 @@ function User:kick(server) -- Server:kickUser(user)
 	self.client:request('DELETE', {endpoints.servers, server.id, 'members', self.id})
 end
 
-function User:setNick(nickName, server)
-	local body = {nick = nickName}
-	self:request('PATCH', {endpoints.servers, server.id, 'members', self.id}, body)
-end
-
 function User:getAvatarUrl()
 	if not self.avatar then return nil end
 	return string.format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self.id, self.avatar)
