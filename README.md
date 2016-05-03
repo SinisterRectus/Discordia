@@ -36,6 +36,10 @@ Does Discordia support voice chat?
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+- Future
+	- ServerChannel:createInvite() now returns an Invite object
+	- Added ServerChannel documentation
+
 - 0.3.3
 	- Reworked logout and termination handling:
 		- Client:logout() now also clears the stored token
@@ -117,7 +121,7 @@ Does Discordia support voice chat?
 
 
 - 0.0.7
-	- Started writing documents
+	- Started writing documentation
 	- Changed luvit/secure-socket version to 1.1.2
 	- Request data is now camelified
 	- Moved websocket handlers to their own Client methods

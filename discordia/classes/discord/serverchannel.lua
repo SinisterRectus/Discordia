@@ -10,11 +10,11 @@ function ServerChannel:__init(data, server)
 	self.server = server
 
 	self.type = data.type
-	self:update(data)
+	self:_update(data)
 
 end
 
-function ServerChannel:update(data)
+function ServerChannel:_update(data)
 	self.name = data.name
 	self.topic = data.topic
 	self.position = data.position

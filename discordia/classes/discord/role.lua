@@ -8,11 +8,11 @@ function Role:__init(data, server)
 	Base.__init(self, data.id, server.client)
 
 	self.server = server
-	self:update(data)
+	self:_update(data)
 
 end
 
-function Role:update(data)
+function Role:_update(data)
 
 	self.name = data.name -- text
 	self.hoist = data.hoist -- boolean

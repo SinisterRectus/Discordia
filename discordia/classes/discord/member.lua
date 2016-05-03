@@ -18,7 +18,7 @@ function Member:__init(data, server)
 
 end
 
-function Member:update(data)
+function Member:_update(data)
 	if data.user and data.user.username then
 		User.update(self, data.user)
 	end

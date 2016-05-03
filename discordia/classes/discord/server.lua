@@ -25,7 +25,7 @@ function Server:__init(data, client)
 	self.channels = {}
 	self.voiceStates = {}
 
-	self:update(data)
+	self:_update(data)
 
 	if data.members then
 		for _, memberData in ipairs(data.members) do
@@ -38,7 +38,7 @@ function Server:__init(data, client)
 		for _, memberData in ipairs(data.presences) do
 			local member = self.members[memberData.user.id]
 			if member then -- sometimes no user, large servers?
-				member:update(memberData) -- status and game update
+				member:_update(memberData) -- status and game update
 			end -- need to emit warning event
 		end
 	end
@@ -68,7 +68,7 @@ function Server:__init(data, client)
 
 end
 
-function Server:update(data)
+function Server:_update(data)
 
 	self.name = data.name -- string
 	self.icon = data.icon -- string

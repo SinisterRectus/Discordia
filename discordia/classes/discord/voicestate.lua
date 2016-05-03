@@ -12,11 +12,11 @@ function VoiceState:__init(data, server)
 	self.sessionId = data.sessionId -- string
 	self.channelId = data.channelId -- string
 
-	self:update(data)
+	self:_update(data)
 
 end
 
-function VoiceState:update(data)
+function VoiceState:_update(data)
 	self.mute = data.mute
 	self.deaf = data.deaf
 	self.selfDeaf = data.selfDeaf

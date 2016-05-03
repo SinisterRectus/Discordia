@@ -24,7 +24,7 @@ function Message:__init(data, channel)
 
 end
 
-function Message:update(data)
+function Message:_update(data)
 
 	self.embeds = data.embeds
 	self.content = data.content or self.content
