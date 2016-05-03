@@ -29,7 +29,12 @@ function TextChannel:sendMessage(content) -- alias for createMessage
 end
 
 function TextChannel:getMessageHistory()
-	return self.client:request('GET', {endpoints.channels, self.id, 'messages'})
+	local data = self.client:request('GET', {endpoints.channels, self.id, 'messages'})
+	local messages = {}
+	for _, messageData in ipairs(data) do
+		table.insert(messages, Message(messageData, self))
+	end
+	return messages
 end
 
 function TextChannel:getMessageById(id)
