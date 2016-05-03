@@ -8,7 +8,7 @@ function ServerVoiceChannel:__init(data, server)
 end
 
 function ServerVoiceChannel:_update(data)
-	ServerChannel.update(self, data)
+	ServerChannel._update(self, data)
 	self.bitrate = data.bitrate
 end
 
