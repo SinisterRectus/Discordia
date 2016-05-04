@@ -102,6 +102,10 @@ end
 
 function Client:request(method, url, body, tries)
 
+	while self.isRateLimited do
+		timer.sleep(300)
+	end
+
 	local tries = tries or 1
 
 	if type(url) == 'table' then
@@ -128,7 +132,7 @@ function Client:request(method, url, body, tries)
 		elseif res.code == 403 then -- forbidden
 			Error('Forbidden request attempted. Check client permissions.', debug.traceback())
 		elseif res.code == 429 then -- too many requests
-			local delay
+			self.isRateLimited = true
 			for _, header in ipairs(res) do
 				if header[1] == 'Retry-After' then
 					delay = header[2]
@@ -137,6 +141,7 @@ function Client:request(method, url, body, tries)
 			end
 			Warning('Too many requests. Retrying in ' .. delay .. ' ms.', debug.traceback())
 			timer.sleep(delay)
+			self.isRateLimited = false
 			return self:request(method, url, body)
 		elseif res.code == 502 then
 			if tries < 5 then

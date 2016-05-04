@@ -181,34 +181,37 @@ The client's logged in `User` object.
 The client's `WebSocket` handle used to send data to and from the client.
 
 #### `email`
-string that represents the client's email address. This is not necessarily the same as the address used to login.
+String that represents the client's email address. This is not necessarily the same as the address used to login.
 
 #### `token`
-string that represents the login token provided by Discord. Unique to each account. Pre-pended with 'Bot' for bot accounts.
+String that represents the login token provided by Discord. Unique to each account. Pre-pended with 'Bot' for bot accounts.
 
 #### `sessionId`
-string that represents the WebSocket session ID. Used only for resuming a reconnected session.
+String that represents the WebSocket session ID. Used only for resuming a reconnected session.
 
 #### `sequence`
-*Number* that indicates the sequence position of the most recently received WebSocket payload.
+Number that indicates the sequence position of the most recently received WebSocket payload.
 
 #### `maxMessages`
-*Number* that limits the number of messages per channel that are cached. Default 100.
+Number that limits the number of messages per channel that are cached. Default 100.
 
 #### `verified`
-*Boolean* indicating whether the client's email address is verified.
+Boolean indicating whether the client's email address is verified.
 
 #### `servers`
-table of cached `Server` objects that are known to the client.
+Table of cached `Server` objects that are known to the client.
 
 #### `privateChannels`
-table of cached `PrivateChannel` objects that are known to the client.
+Table of cached `PrivateChannel` objects that are known to the client.
 
 #### `headers`
-table of headers to use for HTTP requests. Always contains *Content-Type* and *User-Agent*. Contains *Authorization* after login. *Content-Length* is dynamically generated when it is needed.
+Table of headers to use for HTTP requests. Always contains *Content-Type* and *User-Agent*. Contains *Authorization* after login. *Content-Length* is dynamically generated when it is needed.
 
 #### `keepAliveHandlers`
-table of references used by the client to flag keep alive handlers in the event of a WebSocket disconnect. Usually expected to be occupied by only one handler, or two in the event of a disconnect.
+Table of references used by the client to flag keep alive handlers in the event of a WebSocket disconnect. Usually expected to be occupied by only one handler, or two in the event of a disconnect.
 
 #### `readyTimeout`
 A libuv timer object that delays the local firing of the `ready` event until one second after all server data has been received. Does not exist after `ready` has fired.
+
+#### `isRateLimited`
+Boolean indicating whether the client is currently being rate limited. Used to hold back additional requests.

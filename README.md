@@ -29,8 +29,6 @@ Does Discordia support voice chat?
 ### To-Do
 
 - Finish documentation
-- Fix rate limiting per coroutine / per bucket
-- Add timeout for WebSocket reconnection
 - Nickname support
 - Permissions and Roles
 - Color class
@@ -46,6 +44,7 @@ Does Discordia support voice chat?
 - Future
 	- Removed logout POST until otherwise required
 	- Added timeout for WebSocket reconnections
+	- Improved rate limit handling
 
 
 - 0.3.4
