@@ -26,9 +26,9 @@ function Member:_update(data)
 	self.gameName = data.game and data.game.name or self.gameName-- string or nil
 end
 
-function Member:setNickname(nickName, server)
-	local body = {nick = nickName}
-	self:request('PATCH', {endpoints.servers, server.id, 'members', self.id}, body)
+function Member:setNickname(nickname)
+	local body = {nick = nickname or ''}
+	self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
 end
 
 return Member
