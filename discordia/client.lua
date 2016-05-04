@@ -276,6 +276,11 @@ function Client:setUsername(newUsername, password)
 	self:request('PATCH', {endpoints.me}, body)
 end
 
+function Client:setNickname(nickName, serverID)
+	local body = {nick = nickName}
+	self:request('PATCH', {endpoints.servers, serverID, 'members', self.user.id}, body)
+end
+
 function Client:setAvatar(newAvatar, password)
 	local body = {
 		avatar = newAvatar, -- base64
