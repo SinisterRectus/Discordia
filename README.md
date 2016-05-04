@@ -30,15 +30,24 @@ Does Discordia support voice chat?
 - Finish documentation
 - Permissions and Roles
 - Embeds, mentions, and file sending
-- ???
+- Fix rate limiting per coroutine / per bucket
+- Nickname support
+- Optional Client initialization arguments
+- Table and string extensions
+- Color class
+- Iterators for things like getServers
 
 ### Changelog
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-- Future
+- 0.3.4
 	- ServerChannel:createInvite() now returns an Invite object
-	- Added ServerChannel documentation
+	- Privatized update methods with leading underscore
+	- getMessageHistory now returns a table of objects
+	- Added User.bot parameter (boolean)
+	- Fixed issue where voiceLeave event would not fire
+
 
 - 0.3.3
 	- Reworked logout and termination handling:
@@ -116,12 +125,10 @@ Does Discordia support voice chat?
 
 - 0.0.8
 	- Established project name: Discordia
-	- Added Server documentation
 	- Added reply example script
 
 
 - 0.0.7
-	- Started writing documentation
 	- Changed luvit/secure-socket version to 1.1.2
 	- Request data is now camelified
 	- Moved websocket handlers to their own Client methods
