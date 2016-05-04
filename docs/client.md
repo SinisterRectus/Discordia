@@ -29,7 +29,7 @@ Authenticates the user by either getting a token from a local cache file or from
 Authenticates the user by storing the provided token. Called by `run` from within a coroutine. This can be used for any account.
 
 #### `logout()`
-Sends a logout request to Discord and clears any stored tokens.
+Deletes the client's locally stored token.
 
 #### `stop()`
 Called the `logout` method, disconnects the WebSocket, and terminates the program.

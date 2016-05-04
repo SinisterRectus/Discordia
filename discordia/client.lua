@@ -90,8 +90,6 @@ end
 function Client:logout(exit)
 	self.headers['Authorization'] = nil
 	self.token = nil
-	local body = {token = self.token}
-	self:request('POST', {endpoints.logout}, body)
 end
 
 function Client:getToken(email, password)

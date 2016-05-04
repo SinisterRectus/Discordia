@@ -24,22 +24,28 @@ Can I run this on different Lua distribution?
 - The development and deployment of Discordia relies on the Luvit framework, which is built on top of LuaJIT. Porting Discordia and its dependencies to pure LuaJIT or Lua 5.x may be possible, but it is not currently a priority.
 
 Does Discordia support voice chat?
-- The API can be used to move in and out of  voice channels, but there are no plans to implement voice chat at this time.
+- There are no plans to implement voice chat at this time.
 
 ### To-Do
+
 - Finish documentation
-- Permissions and Roles
-- Embeds, mentions, and file sending
 - Fix rate limiting per coroutine / per bucket
+- Add timeout for WebSocket reconnection
 - Nickname support
+- Permissions and Roles
+- Color class
+- Embeds, mentions, and file sending
 - Optional Client initialization arguments
 - Table and string extensions
-- Color class
 - Iterators for things like getServers
 
 ### Changelog
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
+
+- Future
+	- Removed logout POST until otherwise required
+
 
 - 0.3.4
 	- ServerChannel:createInvite() now returns an Invite object
