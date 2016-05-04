@@ -320,7 +320,7 @@ function events.guildRoleUpdate(data, client)
 
 	local server = client:getServerById(data.guildId)
 	local role = server:getRoleById(data.role.id)
-	role:_update(data)
+	role:_update(data.role)
 	client:emit('roleUpdate', role)
 
 end
