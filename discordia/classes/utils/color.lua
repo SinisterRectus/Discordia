@@ -25,7 +25,7 @@ function Color:toHex()
 end
 
 function Color:toDec()
-	return self.r + self.g * 256 + self.b * 65536
+	return 65536 * self.r + 256 * self.g + self.b
 end
 
 return Color
