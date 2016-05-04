@@ -37,6 +37,10 @@ Does Discordia support voice chat?
 - Table and string extensions
 - Iterators for things like getServers
 
+### Contributing
+
+Pull requests should be directed towards the `indev` branch.
+
 ### Changelog
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
