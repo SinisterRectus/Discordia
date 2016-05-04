@@ -21,7 +21,7 @@ function Color:__tostring()
 end
 
 function Color:toHex()
-	return string.format('#%02X%02X%02X', self.r, self.g, self.b)
+	return string.format('%02X%02X%02X', self.r, self.g, self.b)
 end
 
 function Color:toDec()
