@@ -96,7 +96,7 @@ function events.voiceStateUpdate(data, client)
 		voiceState = VoiceState(data, server)
 		server.voiceStates[voiceState.sessionId] = voiceState
 		client:emit('voiceJoin', voiceState)
-	elseif voiceState.channelId then
+	elseif data.channelId then
 		voiceState:_update(data)
 		client:emit('voiceUpdate', voiceState)
 	else
