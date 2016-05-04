@@ -133,6 +133,7 @@ function Client:request(method, url, body, tries)
 			Error('Forbidden request attempted. Check client permissions.', debug.traceback())
 		elseif res.code == 429 then -- too many requests
 			self.isRateLimited = true
+			local delay
 			for _, header in ipairs(res) do
 				if header[1] == 'Retry-After' then
 					delay = header[2]
