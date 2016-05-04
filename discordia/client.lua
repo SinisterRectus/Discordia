@@ -21,6 +21,7 @@ local Client = require('core').Emitter:extend()
 function Client:initialize()
 
 	self.servers = {}
+	self.reconnects = 0
 	self.maxMessages = 500 -- per channel
 	self.privateChannels = {}
 	self.keepAliveHandlers = {}
@@ -212,16 +213,22 @@ function Client:startWebsocketHandler(gateway)
 					Warning('Unhandled WebSocket payload: ' .. payload.op, debug.traceback())
 				end
 			else
-				local expected = self.token == nil
-				self:emit('disconnect', expected)
-				self:stopKeepAliveHandlers()
-				if not expected then
-					Warning('WebSocket disconnected while logged in. Reconnecting in 5 seconds.', debug.traceback())
-					timer.sleep(5000)
-					self.websocket:connect(gateway)
-					self.websocket:resume(self.token, self.sessionId, self.sequence)
+				self.reconnects = self.reconnects + 1
+				if self.reconnects < 5 then
+					local expected = self.token == nil
+					self:emit('disconnect', expected)
+					self:stopKeepAliveHandlers()
+					if not expected then
+						Warning('WebSocket disconnected while logged in. Reconnecting in 5 seconds.', debug.traceback())
+						timer.sleep(5000)
+						self.websocket:connect(gateway)
+						self.websocket:resume(self.token, self.sessionId, self.sequence)
+					else
+						return
+					end
 				else
-					return
+					Error('WebSocket is experiencing difficulties. Check connection to Discord.', debug.traceback())
+					os.exit()
 				end
 			end
 		end
@@ -237,6 +244,9 @@ function Client:startKeepAliveHandler(interval)
 			timer.sleep(interval)
 			if handler.stopped then return end
 			self.websocket:heartbeat(self.sequence)
+			if self.reconnects > 0 then
+				self.reconnects = self.reconnects - 1
+			end
 		end
 	end)(interval)
 end

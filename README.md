@@ -45,6 +45,7 @@ Does Discordia support voice chat?
 
 - Future
 	- Removed logout POST until otherwise required
+	- Added timeout for WebSocket reconnections
 
 
 - 0.3.4
