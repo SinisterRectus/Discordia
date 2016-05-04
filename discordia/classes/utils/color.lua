@@ -10,6 +10,7 @@ function Color:__init(a, b, c)
 		if type(a) == 'string' then
 			a = tonumber(a:gsub('#', ''), 16)
 		end
+		a = math.clamp(a, 0, 16777215)
 		self.r = bit.band(bit.rshift(a, 16), 0xFF)
 		self.g = bit.band(bit.rshift(a, 8), 0xFF)
 		self.b = bit.band(a, 0xFF)
