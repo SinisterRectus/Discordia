@@ -42,6 +42,7 @@ Does Discordia support voice chat?
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
 - Future
+	- Fixed issue where Member.gameName would be nil
 	- Removed logout POST until otherwise required
 	- Added timeout for WebSocket reconnections
 	- Improved rate limit handling

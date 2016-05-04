@@ -37,9 +37,7 @@ function Server:__init(data, client)
 	if data.presences then
 		for _, memberData in ipairs(data.presences) do
 			local member = self.members[memberData.user.id]
-			if member then -- sometimes no user, large servers?
-				member:_update(memberData) -- status and game update
-			end -- need to emit warning event
+			member:_update(memberData) -- status and game update
 		end
 	end
 

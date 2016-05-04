@@ -282,8 +282,12 @@ function events.guildMembersChunk(data, client)
 	local server = client:getServerById(data.guildId)
 
 	for _, memberData in ipairs(data.members) do
-		local member = Member(memberData, server)
-		server.members[member.id] = member
+		local member = server.members[memberData.user.id]
+		if not member then
+			member = Member(memberData, server)
+			server.members[member.id] = member
+		end
+		member:_update(memberData)
 	end
 
 	client:emit('membersChunk', server)
