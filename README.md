@@ -26,6 +26,10 @@ Can I run this on different Lua distribution?
 Does Discordia support voice chat?
 - There are no plans to implement voice chat at this time.
 
+### documentation
+
+Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordia/wiki) for Discordia documentation. Contributions are encouraged.
+
 ### To-Do
 
 - Finish documentation
