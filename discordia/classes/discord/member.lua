@@ -22,7 +22,7 @@ function Member:_update(data)
 	if data.user and data.user.username then
 		User._update(self, data.user)
 	end
-	self.status = data.status or 'offline'-- string
+	self.status = data.status or self.status or 'offline'-- string
 	self.gameName = data.game and data.game.name or self.gameName-- string or nil
 end
 
