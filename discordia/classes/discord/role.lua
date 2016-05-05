@@ -1,5 +1,5 @@
 local Base = require('./base')
-local Color = require('../utils/color')
+local Color = require('../color')
 local endpoints = require('../../endpoints')
 
 local Role = class('Role', Base)

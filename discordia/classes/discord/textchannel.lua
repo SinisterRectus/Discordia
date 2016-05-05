@@ -1,5 +1,5 @@
-local Deque = require('../utils/deque')
 local Base = require('./base')
+local Deque = require('../deque')
 local Server = require('./server')
 local Message = require('./message')
 local endpoints = require('../../endpoints')

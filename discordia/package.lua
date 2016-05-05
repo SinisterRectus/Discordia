@@ -35,7 +35,7 @@ return {
 	author = 'Sinister Rectus',
 	files = {
 		'*.lua',
-		'classes/utils/*.lua',
+		'classes/*.lua',
 		'classes/discord/*.lua'
 	}
 }

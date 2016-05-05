@@ -1,6 +1,6 @@
 local endpoints = require('../../endpoints')
 
-local Invite = class('Invite', Base)
+local Invite = class('Invite')
 
 function Invite:__init(data, server)
 

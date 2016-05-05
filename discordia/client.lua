@@ -10,9 +10,9 @@ local endpoints = require('./endpoints')
 local Invite = require('./classes/discord/invite')
 local Server = require('./classes/discord/server')
 
-local Error = require('./classes/utils/error')
-local Warning = require('./classes/utils/warning')
-local WebSocket = require('./classes/utils/websocket')
+local Error = require('./classes/error')
+local Warning = require('./classes/warning')
+local WebSocket = require('./classes/websocket')
 
 local camelify = utils.camelify
 

@@ -4,6 +4,6 @@ require('./extensions')
 
 return {
 	Client = require('./client'),
-	Color = require('./classes/utils/color'),
+	Color = require('./classes/color'),
 	utils = require('./utils'),
 }
