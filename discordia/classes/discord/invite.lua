@@ -1,14 +1,12 @@
-local Base = require('./base')
 local endpoints = require('../../endpoints')
 
 local Invite = class('Invite', Base)
 
 function Invite:__init(data, server)
 
-	Base.__init(self, data.code, server.client)
-
 	self.code = data.code
 	self.server = server
+	self.client = server.client
 	self.xkcdpass = data.xkcdpass
 	self.channel = server:getChannelById(data.channel.id)
 
@@ -20,6 +18,10 @@ function Invite:__init(data, server)
 	self.temporary = data.temporary
 	self.createdAt = data.createdAt
 
+end
+
+function Invite:__tostring()
+	return string.format('%s: %s', self.__name, self.code)
 end
 
 function Invite:accept()

@@ -45,7 +45,7 @@ function ServerChannel:getInvites()
 	local invites = {}
 	for _, inviteData in ipairs(inviteTable) do
 		local invite = Invite(inviteData, self.server)
-		invites[invite.id] = invite
+		invites[invite.code] = invite
 	end
 	return invites
 end

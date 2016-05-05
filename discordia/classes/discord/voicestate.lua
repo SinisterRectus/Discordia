@@ -1,11 +1,8 @@
-local Base = require('./base')
-
-local VoiceState = class('VoiceState', Base)
+local VoiceState = class('VoiceState')
 
 function VoiceState:__init(data, server)
 
-	Base.__init(self, data.sessionId, server.client)
-
+	self.client = server.client
 	self.server = server
 
 	self.userId = data.userId -- string
@@ -14,6 +11,10 @@ function VoiceState:__init(data, server)
 
 	self:_update(data)
 
+end
+
+function VoiceState:__tostring()
+	return string.format('%s: %s', self.__name, self.sessionId)
 end
 
 function VoiceState:_update(data)

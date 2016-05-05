@@ -132,7 +132,7 @@ function Server:getInvites()
 	local invites = {}
 	for _, inviteData in ipairs(inviteTable) do
 		local invite = Invite(inviteData, self)
-		invites[invite.id] = invite
+		invites[invite.code] = invite
 	end
 	return invites
 end
