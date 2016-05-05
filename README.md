@@ -29,11 +29,10 @@ Does Discordia support voice chat?
 ### To-Do
 
 - Finish documentation
-- Nickname support
+- User.nickname
 - Permissions and Roles
 - Embeds, mentions, and file sending
 - Optional Client initialization arguments
-- Table and string extensions
 - Iterators for things like getServers
 
 ### Changelog
@@ -42,7 +41,9 @@ Does Discordia support voice chat?
 
 - Future
 	- Added Color class with RGB, hex, and dec support
-	- Added standard library extensions
+	- Role.color and Role:setColor() now utilize Color class
+	- Added standard library extensions (string, table, and math)
+	- Fixed issue where role would not properly update
 
 
 - 0.3.5
