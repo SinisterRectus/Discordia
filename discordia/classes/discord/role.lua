@@ -1,4 +1,5 @@
 local Base = require('./base')
+local Color = require('../utils/color')
 local endpoints = require('../../endpoints')
 
 local Role = class('Role', Base)
@@ -16,7 +17,7 @@ function Role:_update(data)
 
 	self.name = data.name -- text
 	self.hoist = data.hoist -- boolean
-	self.color = data.color -- number
+	self.color = Color(data.color) -- number
 	self.managed = data.managed -- boolean
 	self.position = data.position -- number
 	self.permissions = data.permissions -- number
@@ -24,7 +25,7 @@ function Role:_update(data)
 end
 
 function Role:setColor(color)
-	local body = {color = color, hoist = self.hoist, name = self.name, permissions = self.permissions}
+	local body = {color = color:toDec(), hoist = self.hoist, name = self.name, permissions = self.permissions}
 	self.client:request('PATCH', {endpoints.servers, self.server.id, 'roles', self.id}, body)
 end
 

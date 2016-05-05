@@ -1,6 +1,9 @@
 _G.class = require('./class')
 
+require('./extensions')
+
 return {
 	Client = require('./client'),
-	utils = require('./utils')
+	Color = require('./classes/utils/color'),
+	utils = require('./utils'),
 }
