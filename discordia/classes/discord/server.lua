@@ -25,8 +25,6 @@ function Server:__init(data, client)
 	self.channels = {}
 	self.voiceStates = {}
 
-	self:_update(data)
-
 	if data.members then
 		for _, memberData in ipairs(data.members) do
 			local member = Member(memberData, self)
@@ -63,6 +61,8 @@ function Server:__init(data, client)
 	self.defaultChannel = self.channels[self.id]
 	self.defaultRole = self.roles[self.id]
 	self.me = self.members[client.user.id]
+
+	self:_update(data)
 
 end
 
