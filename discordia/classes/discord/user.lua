@@ -53,4 +53,8 @@ function User:getAvatarUrl()
 	return string.format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self.id, self.avatar)
 end
 
+function User:getMentionString()
+	return string.format('<@%s>', self.id)
+end
+
 return User

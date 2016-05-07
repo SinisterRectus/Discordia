@@ -10,6 +10,7 @@
 - Implemented mentions support
 	- Parsed message mentions into objects within Message.mentions table
 	- Added Message:mentions[Member|Role|Channel] methods
+	- Added getMentionString methods for User, Role, and ServerTextChannel
 	- Added object array to sendMessage/createMessage method
 - Other changes
 	- Moved classes out of /classes/utils folder into /classes

@@ -54,4 +54,8 @@ function Role:delete()
 	self.client:request('DELETE', {endpoints.servers, self.server.id, 'roles', self.id})
 end
 
+function Role:getMentionString()
+	return string.format('<@&%s>', self.id)
+end
+
 return Role

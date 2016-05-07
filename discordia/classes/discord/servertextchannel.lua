@@ -14,4 +14,8 @@ function ServerTextChannel:setTopic(topic)
 	self:edit(nil, nil, topic, nil)
 end
 
+function ServerTextChannel:getMentionString()
+	return string.format('<#%s>', self.id)
+end
+
 return ServerTextChannel

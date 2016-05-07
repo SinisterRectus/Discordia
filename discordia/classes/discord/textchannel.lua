@@ -22,14 +22,8 @@ function TextChannel:createMessage(content, mentions)
 	if mentions and not self.isPrivate then
 		local words = {}
 		for _, obj in ipairs(mentions) do
-			local n = obj.__name
-			local s = self.server
-			if n == 'User' or n == 'Member' and s.members[obj.id] then
-				table.insert(words, string.format('<@%s>', obj.id))
-			elseif n == 'Role' and s.roles[obj.id] then
-				table.insert(words, string.format('<@&%s>', obj.id))
-			elseif n == 'ServerTextChannel' and s.channels[obj.id] then
-				table.insert(words, string.format('<#%s>', obj.id))
+			if obj.getMentionString then
+				table.insert(words, obj:getMentionString())
 			end
 		end
 		table.insert(words, content)
