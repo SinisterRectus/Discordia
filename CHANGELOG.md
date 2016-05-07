@@ -9,6 +9,7 @@
 - Added standard library extensions (string, table, and math)
 - Moved classes out of /classes/utils folder into /classes
 - VoiceState and Invite no longer inherit from Base, since they do not have Snowflake IDs
+- Parsed message mentions into objects within Message.mentions table
 - Fixed issue where role would not properly update
 - Fixed issue where member status was nil
 - Fixed issue where server owner was nil

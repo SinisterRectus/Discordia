@@ -35,6 +35,6 @@ Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordi
 - Finish documentation
 - User.nickname
 - Permissions and Roles
-- Embeds, mentions, and file sending
+- Embeds and file sending
 - Optional Client initialization arguments
 - Iterators for things like getServers

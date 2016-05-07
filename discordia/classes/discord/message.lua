@@ -14,13 +14,33 @@ function Message:__init(data, channel)
 	self.nonce = data.nonce -- string
 	self.embeds = data.embeds -- table
 	self.content = data.content -- string
-	self.mentions = data.mentions -- table
 	self.timestamp = data.timestamp -- string
 	self.channelId = data.channelId -- string
 	self.attachments = data.attachents -- table
-	self.mentionEveryone = data.mentionEveryone -- boolean
 
 	self.author = self.channel.recipient or self.server:getMemberById(data.author.id)
+
+	self.mentions = {members = {}, channels = {}, roles = {}}
+
+	for _, memberData in ipairs(data.mentions) do
+		local member = self.server.members[memberData.id]
+		self.mentions.members[memberData.id] = member
+	end
+
+	for _, roleId in ipairs(data.mentionRoles) do
+		local role = self.server.roles[roleId]
+		self.mentions.roles[roleId] = role
+	end
+
+	for mention in self.content:gmatch('<#.->') do
+		local channelId = mention:sub(3, -2)
+		local channel = self.server.channels[channelId]
+		self.mentions.channels[channelId] = channel
+	end
+
+	if data.mentionEveryone then
+		self.mentions.roles[server.id] = server.defaultRole
+	end
 
 end
 
