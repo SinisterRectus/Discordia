@@ -113,7 +113,7 @@ function events.messageCreate(data, client)
 	channel.lastMessageId = message.id
 	channel.messages[message.id] = message
 	channel.deque:pushRight(message)
-	if channel.deque:size() > client.maxMessages then
+	if channel.deque:getCount() > client.maxMessages then
 		local msg = channel.deque:popLeft()
 		channel.messages[msg.id] = nil
 	end
