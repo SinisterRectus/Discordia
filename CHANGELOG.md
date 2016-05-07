@@ -3,7 +3,7 @@
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
 ### Future
-- Added standard library extensions (string, table, and math)
+- Added standard library extensions (printf, string, table, and math)
 - Implemented role color support
 	- Added Color class with RGB, hex, and dec support
 	- Role.color and Role:setColor() now utilize Color class

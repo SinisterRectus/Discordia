@@ -1,3 +1,7 @@
+function _G.printf(...)
+	return print(string.format(...))
+end
+
 -- table --
 
 function table.count(tbl)
