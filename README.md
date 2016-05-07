@@ -6,9 +6,9 @@
 
 **[Discord](https://discordapp.com/)** is a free, multi-platform, voice and text client designed for gamers.
 
-**[Luvit](https://luvit.io)** provides an asynchronous I/O environment for Lua, similar that of [Node.js](https://nodejs.org/en/).
+**[Luvit](https://luvit.io)** provides an asynchronous I/O environment for Lua, similar to that of [Node.js](https://nodejs.org/en/).
 
-This library provides an object-oriented environment for developing Discord bots or clients using Lua. Coroutines are used internally for asynchronous operations, while emitters and callbacks are used for event handling.
+This library provides an object-oriented environment for developing Discord bots using Lua. Coroutines are used internally for asynchronous operations, while emitters and callbacks are used for event handling.
 
 Join the [Discord API server](https://discord.gg/0SBTUU1wZTWVpm07) to discuss Discordia and other Discord libraries!
 
@@ -26,7 +26,10 @@ Can I run this on different Lua distribution?
 Does Discordia support voice chat?
 - There are no plans to implement voice chat at this time.
 
-### documentation
+How can I contribute?
+- Pull requests are welcomed, but it is a good idea to check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
+
+### Documentation
 
 Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordia/wiki) for Discordia documentation. Contributions are encouraged.
 
@@ -38,3 +41,5 @@ Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordi
 - Embeds and file sending
 - Optional Client initialization arguments
 - Iterators for things like getServers
+- Game streaming URL
+- Sharding
