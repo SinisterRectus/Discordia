@@ -64,6 +64,30 @@ function Message:delete()
 	self.client:request('DELETE', {endpoints.channels, self.channelId, 'messages', self.id})
 end
 
+function Message:mentionsMember(member)
+	if self.mentions.members[member.id] then
+		return true
+	else
+		return false
+	end
+end
+
+function Message:mentionsRole(role)
+	if self.mentions.roles[role.id] then
+		return true
+	else
+		return false
+	end
+end
+
+function Message:mentionsChannel(channel)
+	if self.mentions.channels[channel.id] then
+		return true
+	else
+		return false
+	end
+end
+
 function Message:acknowledge()
 	self.client:request('POST', {endpoints.channels, self.channelId, 'messages', self.id, 'ack'}, {})
 end
