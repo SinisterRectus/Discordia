@@ -40,7 +40,7 @@ function Deque:peekRight()
 	return self.list[self.last]
 end
 
-function Deque:size()
+function Deque:getCount()
 	return self.last - self.first + 1
 end
 
