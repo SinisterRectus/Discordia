@@ -2,8 +2,12 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-### Future
+### 0.4.0
 - Added standard library extensions (printf, string, table, and math)
+- Implemented nickname support
+	- Added Client:setNickname and Member:setNickname methods
+	- Added Member.nickname attribute
+	- getMemberByName now also searches nickname (may change in the future)
 - Implemented role color support
 	- Added Color class with RGB, hex, and dec support
 	- Role.color and Role:setColor() now utilize Color class

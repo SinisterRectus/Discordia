@@ -36,7 +36,6 @@ Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordi
 ### To-Do
 
 - Finish documentation
-- User.nickname
 - Permissions and Roles
 - Embeds and file sending
 - Optional Client initialization arguments
