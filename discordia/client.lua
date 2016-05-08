@@ -400,7 +400,7 @@ function Client:getMemberByName(name) -- Server:getMemberByName(name)
 	for _, server in pairs(self.servers) do
 		local member = server.members[id]
 		for _, member in pairs(server.members) do
-			if member.username == name then
+			if member.nickname == name or member.username == name then
 				return member
 			end
 		end
