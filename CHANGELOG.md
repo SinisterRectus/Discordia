@@ -2,6 +2,9 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### 0.4.1
+- Client:setNickname now uses proper endpoint
+
 ### 0.4.0
 - Added standard library extensions (printf, string, table, and math)
 - Implemented nickname support

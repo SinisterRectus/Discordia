@@ -278,7 +278,7 @@ end
 
 function Client:setNickname(server, nickname)
 	local body = {nick = nickname or ''}
-	self:request('PATCH', {endpoints.servers, server.id, 'members', self.user.id}, body)
+	self:request('PATCH', {endpoints.servers, server.id, 'members', '@me', 'nick'}, body)
 end
 
 function Client:setAvatar(newAvatar, password)
