@@ -4,6 +4,8 @@
 
 ### 0.4.1
 - Client:setNickname now uses proper endpoint
+- Fixed issue where nickname would not update
+
 
 ### 0.4.0
 - Added standard library extensions (printf, string, table, and math)

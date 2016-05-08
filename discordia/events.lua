@@ -269,10 +269,10 @@ end
 
 function events.guildMemberUpdate(data, client)
 
-	-- I think this is only for role updates
 	local server = client:getServerById(data.guildId)
 	local member = server:getMemberById(data.user.id)
 	member.roles = data.roles
+	member.nickname = data.nick
 	client:emit('memberUpdate', member)
 
 end
