@@ -12,6 +12,7 @@ function Member:__init(data, server)
 	self.roles = data.roles -- table of role IDs
 	self.server = server -- object
 	self.status = 'offline' -- string
+	self.nickname = data.nick -- string
 	self.joinedAt = data.joinedAt -- string
 
 	-- don't call update, it gets confused
