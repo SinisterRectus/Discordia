@@ -5,6 +5,7 @@
 ### 0.4.1
 - Client:setNickname now uses proper endpoint
 - Fixed issue where nickname would not update
+- Fixed issue where deleting private channels crashed library
 
 
 ### 0.4.0

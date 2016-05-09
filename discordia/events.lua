@@ -177,7 +177,7 @@ end
 function events.channelDelete(data, client)
 
 	if data.isPrivate then
-		local channel = client:getPrivateChannelById(data.id)
+		local channel = client:getChannelById(data.id)
 		client.privateChannels[channel.id] = nil
 	else
 		local server = client:getServerById(data.guildId)
