@@ -67,8 +67,8 @@ function table.values(tbl)
 end
 
 function table.randomipair(tbl)
-	local k = math.random(#tbl)
-	return k, tbl[k]
+	local i = math.random(#tbl)
+	return i, tbl[i]
 end
 
 function table.randompair(tbl)
