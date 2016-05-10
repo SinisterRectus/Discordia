@@ -66,6 +66,22 @@ function table.values(tbl)
 	return values
 end
 
+function table.randomipair(tbl)
+	local k = math.random(#tbl)
+	return k, tbl[k]
+end
+
+function table.randompair(tbl)
+	local rand = math.random(table.count(tbl))
+	local n = 0
+	for k, v in pairs(tbl) do
+		n = n + 1
+		if n == rand then
+			return k, v
+		end
+	end
+end
+
 -- string --
 
 function string.split(str)
