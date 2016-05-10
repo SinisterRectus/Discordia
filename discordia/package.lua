@@ -22,7 +22,7 @@ SOFTWARE.]]
 
 return {
 	name = 'SinisterRectus/discordia',
-	version = '0.4.0',
+	version = '0.4.1',
 	homepage = 'https://github.com/SinisterRectus/Discordia',
 	dependencies = {
 		'creationix/md5@v1.0.2-1',
