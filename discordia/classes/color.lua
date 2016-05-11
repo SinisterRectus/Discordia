@@ -3,9 +3,9 @@ local Color = class('Color')
 
 function Color:__init(a, b, c)
 	if a and b and c then
-		self.r = math.clamp(a, 0, 255)
-		self.g = math.clamp(b, 0, 255)
-		self.b = math.clamp(c, 0, 255)
+		self.r = math.round(math.clamp(a, 0, 255))
+		self.g = math.round(math.clamp(b, 0, 255))
+		self.b = math.round(math.clamp(c, 0, 255))
 	elseif a then
 		if type(a) == 'string' then
 			a = tonumber(a:gsub('#', ''), 16)

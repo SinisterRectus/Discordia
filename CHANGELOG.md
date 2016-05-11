@@ -11,6 +11,8 @@
 - Fixed issue where nickname would not update
 - Fixed issue where deleting private channels crashed library
 - Added table.randompair and table.randomipair to stdlib ext
+- Color class changes:
+	- RGB values are now rounded
 
 
 ### 0.4.0
