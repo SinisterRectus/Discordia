@@ -65,7 +65,7 @@ local function rightShift(bin, bits)
 	return new
 end
 
-local function snowFlakeToBinary(id)
+local function snowflakeToBinary(id)
 	local a, b = 0, 0
 	local i, n = 1, #id
 	for digit in gmatch(id, '%d') do
@@ -79,9 +79,9 @@ local function snowFlakeToBinary(id)
 	return binaryAdd(numToBin(a), numToBin(b))
 end
 
-local function snowFlakeToTime(id, format)
+local function snowflakeToTime(id, format)
 	format = format or '!%Y-%m-%d %H:%M:%S'
-	local bin = snowFlakeToBinary(id)
+	local bin = snowflakeToBinary(id)
 	local shifted = rightShift(bin, 22)
 	local t = binToNum(shifted) + 1420070400000
 	return date(format, t / 1000)
@@ -89,5 +89,5 @@ end
 
 return {
 	camelify = camelify,
-	snowFlakeToTime = snowFlakeToTime,
+	snowflakeToTime = snowflakeToTime,
 }
