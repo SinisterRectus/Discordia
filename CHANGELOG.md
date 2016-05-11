@@ -10,7 +10,9 @@
 - Client:setNickname now uses proper endpoint
 - Fixed issue where nickname would not update
 - Fixed issue where deleting private channels crashed library
-- Added table.randompair and table.randomipair to stdlib ext
+- Standard library extensions
+	- Added table.randompair and table.randomipair
+	- Added string.totable
 - Color class changes:
 	- RGB values are now rounded
 	- Added add, sub, mul, and div operators

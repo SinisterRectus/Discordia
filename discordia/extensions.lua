@@ -92,6 +92,14 @@ function string.split(str)
 	return words
 end
 
+function string.totable(str)
+	local chars = {}
+	for char in string.gmatch(str, '.') do
+		table.insert(chars, char)
+	end
+	return chars
+end
+
 -- math --
 
 function math.clamp(n, min, max)
