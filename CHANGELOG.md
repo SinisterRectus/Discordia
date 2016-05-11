@@ -5,17 +5,19 @@
 ### Future
 - Reimplemented TextChannel:broadcastTyping() from an old version
 
+### Future
+- Added utility for converting snowflake ID to creation time
+- Added string.totable
+- Color class changes:
+	- RGB values are now rounded
+	- Added add, sub, mul, and div operators
+
 
 ### 0.4.1
 - Client:setNickname now uses proper endpoint
 - Fixed issue where nickname would not update
 - Fixed issue where deleting private channels crashed library
-- Standard library extensions
-	- Added table.randompair and table.randomipair
-	- Added string.totable
-- Color class changes:
-	- RGB values are now rounded
-	- Added add, sub, mul, and div operators
+- Added table.randompair and table.randomipair
 
 
 ### 0.4.0
