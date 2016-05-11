@@ -79,15 +79,18 @@ local function snowflakeToBinary(id)
 	return binaryAdd(numToBin(a), numToBin(b))
 end
 
-local function snowflakeToTime(id, format)
-	format = format or '!%Y-%m-%d %H:%M:%S'
+local function snowflakeToTime(id) -- returns seconds
 	local bin = snowflakeToBinary(id)
 	local shifted = rightShift(bin, 22)
-	local t = binToNum(shifted) + 1420070400000
-	return date(format, t / 1000)
+	return (binToNum(shifted) + 1420070400000) / 1000
+end
+
+local function snowflakeToDate(id, format)
+	return date(format or '!%Y-%m-%d %H:%M:%S', snowflakeToTime(id))
 end
 
 return {
 	camelify = camelify,
 	snowflakeToTime = snowflakeToTime,
+	snowflakeToDate = snowflakeToDate,
 }

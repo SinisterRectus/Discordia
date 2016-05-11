@@ -6,7 +6,7 @@
 - Reimplemented TextChannel:broadcastTyping() from an old version
 
 ### Future
-- Added utility for converting snowflake ID to creation time
+- Added utility for converting snowflake ID to creation time and date
 - Added string.totable
 - Color class changes:
 	- RGB values are now rounded
