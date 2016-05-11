@@ -13,6 +13,7 @@
 - Added table.randompair and table.randomipair to stdlib ext
 - Color class changes:
 	- RGB values are now rounded
+	- Added add, sub, mul, and div operators
 
 
 ### 0.4.0
