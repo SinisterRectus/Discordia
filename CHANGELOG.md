@@ -2,6 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### Future
+- Reimplemented TextChannel:broadcastTyping() from an old version
+
+
 ### 0.4.1
 - Client:setNickname now uses proper endpoint
 - Fixed issue where nickname would not update

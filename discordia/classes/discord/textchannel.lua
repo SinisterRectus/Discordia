@@ -38,6 +38,10 @@ function TextChannel:sendMessage(content, mentions) -- alias for createMessage
 	return self:createMessage(content, mentions)
 end
 
+function TextChannel:broadcastTyping()
+	self.client:request('POST', {endpoints.channels, self.id, 'typing'}, {})
+end
+
 function TextChannel:getMessageHistory()
 	local data = self.client:request('GET', {endpoints.channels, self.id, 'messages'})
 	local messages = {}
