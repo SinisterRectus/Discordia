@@ -51,6 +51,14 @@ function TextChannel:getMessageHistory(limit)
 	return messages
 end
 
+function TextChannel:bulkDelete(messages)
+	local body = {messages = {}}
+	for _, message in pairs(messages) do
+		table.insert(body.messages, message.id)
+	end
+	self.client:request('POST', {endpoints.channels, self.id, 'messages', 'bulk_delete'}, body)
+end
+
 function TextChannel:getMessageById(id)
 	return self.messages[id]
 end
