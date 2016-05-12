@@ -18,9 +18,10 @@ local function camelify(obj)
 	return obj
 end
 
-local function numToBin(num)
+local function numToBin(num, bits)
+	bits = bits or 1
 	local bin = {}
-	for i = 1, 64 do
+	while num > 0 or #bin < bits do
 		local r = fmod(num, 2)
 		insert(bin, r)
 		num = (num - r) / 2
@@ -76,7 +77,7 @@ local function snowflakeToBinary(id)
 		end
 		i = i + 1
 	end
-	return binaryAdd(numToBin(a), numToBin(b))
+	return binaryAdd(numToBin(a, 64), numToBin(b, 64))
 end
 
 local function snowflakeToTime(id) -- returns seconds
