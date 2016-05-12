@@ -4,6 +4,10 @@
 
 ### Future
 
+### 0.4.3
+- Critical: Removed code that accesses Server.memberCount
+
+
 ### 0.4.2
 - TextChannel improvements
 	- Added adjustable limit to getMessageHistory()
@@ -109,7 +113,7 @@
 
 
 ### 0.2.1
-- Fixed package path issue
+- Critical: Fixed package path issue
 
 
 ### 0.2.0
