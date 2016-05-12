@@ -3,15 +3,17 @@
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
 ### Future
-- Reimplemented TextChannel:broadcastTyping() from an old version
 
 ### Future
+- Added adjustable limit to TextChannel:getMessageHistory()
+- Reimplemented TextChannel:broadcastTyping() from an old version
+- Removed memberCount from Server class
 - Added utility for converting snowflake ID to creation time and date
 - Added string.totable
 - Color class changes:
 	- RGB values are now rounded
 	- Added add, sub, mul, and div operators
-- Removed memberCount from Server class
+- Added error codes to HTTP warnings and errors
 
 
 ### 0.4.1

@@ -128,9 +128,9 @@ function Client:request(method, url, body, tries)
 	if res.code > 299 then
 
 		if res.code == 400 then -- bad request
-			Error('Bad request. Check arguments.', debug.traceback())
+			Error('400 / Bad request. Check arguments.', debug.traceback())
 		elseif res.code == 403 then -- forbidden
-			Error('Forbidden request attempted. Check client permissions.', debug.traceback())
+			Error('403 / Forbidden request attempted. Check client permissions.', debug.traceback())
 		elseif res.code == 429 then -- too many requests
 			self.isRateLimited = true
 			local delay
@@ -140,17 +140,17 @@ function Client:request(method, url, body, tries)
 					break
 				end
 			end
-			Warning('Too many requests. Retrying in ' .. delay .. ' ms.', debug.traceback())
+			Warning('429 / Too many requests. Retrying in ' .. delay .. ' ms.', debug.traceback())
 			timer.sleep(delay)
 			self.isRateLimited = false
 			return self:request(method, url, body)
 		elseif res.code == 502 then
 			if tries < 5 then
-				Warning('Bad gateway. Retrying request.', debug.traceback())
+				Warning('502 / Bad gateway. Retrying request.', debug.traceback())
 				timer.sleep(3000)
 				return self:request(method, url, body, tries + 1)
 			else
-				Error('Bad gateway. Request cancelled.', debug.traceback())
+				Error('502 / Bad gateway. Request cancelled.', debug.traceback())
 			end
 		else
 			Error(string.format('Unhandled HTTP error: %i / %s', res.code, res.reason), debug.traceback())
