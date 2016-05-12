@@ -11,6 +11,7 @@
 - Color class changes:
 	- RGB values are now rounded
 	- Added add, sub, mul, and div operators
+- Removed memberCount from Server class
 
 
 ### 0.4.1
