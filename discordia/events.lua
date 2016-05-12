@@ -252,7 +252,6 @@ function events.guildMemberAdd(data, client)
 	local server = client:getServerById(data.guildId)
 	local member = Member(data, server)
 	server.members[member.id] = member
-	server.memberCount = server.memberCount + 1
 	client:emit('memberJoin', member)
 
 end
@@ -262,7 +261,6 @@ function events.guildMemberRemove(data, client)
 	local server = client:getServerById(data.guildId)
 	local member = server:getMemberById(data.user.id)
 	server.members[member.id] = nil
-	server.memberCount = server.memberCount - 1
 	client:emit('memberLeave', member)
 
 end
