@@ -4,10 +4,11 @@
 
 ### Future
 
-### Future
-- Added adjustable limit to TextChannel:getMessageHistory()
-- Reimplemented TextChannel:broadcastTyping() from an old version
-- Implemented TextChannel:bulkDelete()
+### 0.4.2
+- TextChannel improvements
+	- Added adjustable limit to getMessageHistory()
+	- Reimplemented broadcastTyping() from an old version
+	- Implemented bulkDelete()
 - Removed memberCount from Server class
 - Added utility for converting snowflake ID to creation time and date
 - Added string.totable
