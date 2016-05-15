@@ -1,5 +1,6 @@
 local User = require('./user')
 local endpoints = require('../../endpoints')
+local dateToTime = require('../../utils').dateToTime
 
 local Member = class('Member', User)
 
@@ -13,7 +14,7 @@ function Member:__init(data, server)
 	self.server = server -- object
 	self.status = 'offline' -- string
 	self.nickname = data.nick -- string
-	self.joinedAt = data.joinedAt -- string
+	self.joinedAt = dateToTime(data.joinedAt) -- number
 
 	-- don't call update, it gets confused
 
