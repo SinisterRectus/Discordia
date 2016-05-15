@@ -15,6 +15,7 @@
 	- Implemented bulkDelete()
 - Removed memberCount from Server class
 - Added utility for converting snowflake ID to creation time and date
+- Added utility for converting UTC datetime string to Unix timestamp
 - Added string.totable
 - Color class changes:
 	- RGB values are now rounded

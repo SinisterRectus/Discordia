@@ -90,8 +90,22 @@ local function snowflakeToDate(id, format)
 	return date(format or '!%Y-%m-%d %H:%M:%S', snowflakeToTime(id))
 end
 
+local function dateToTime(dateString)
+	local pattern = '(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)'
+	local year, month, day, hour, min, sec = string.match(dateString, pattern)
+	return os.time({
+		year = year,
+		month = month,
+		day = day,
+		hour = hour,
+		min = min,
+		sec = sec,
+	})
+end
+
 return {
 	camelify = camelify,
+	dateToTime = dateToTime,
 	snowflakeToTime = snowflakeToTime,
 	snowflakeToDate = snowflakeToDate,
 }
