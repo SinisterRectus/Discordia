@@ -1,6 +1,7 @@
 local User = require('./user')
 local Base = require('./base')
 local endpoints = require('../../endpoints')
+local dateToTime = require('../../utils').dateToTime
 
 local Message = class('Message', Base)
 
@@ -14,7 +15,7 @@ function Message:__init(data, channel)
 	self.nonce = data.nonce -- string
 	self.embeds = data.embeds -- table
 	self.content = data.content -- string
-	self.timestamp = data.timestamp -- string
+	self.timestamp = dateToTime(data.timestamp) -- string
 	self.channelId = data.channelId -- string
 	self.attachments = data.attachents -- table
 
@@ -50,7 +51,7 @@ function Message:_update(data)
 	self.content = data.content or self.content
 	self.mentions = data.mentions or self.mentions
 	self.attachments = data.attachents or self.attachments
-	self.editedTimestamp = data.editedTimestamp or self.editedTimestamp
+	self.editedTimestamp = dateToTime(data.editedTimestamp or self.editedTimestamp)
 	self.mentionEveryone = data.mentionEveryone or self.mentionEveryone
 
 end
