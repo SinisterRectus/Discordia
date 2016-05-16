@@ -57,11 +57,12 @@ function Server:__init(data, client)
 		end
 	end
 
+	self:_update(data)
+
 	self.defaultChannel = self.channels[self.id]
 	self.defaultRole = self.roles[self.id]
 	self.me = self.members[client.user.id]
 
-	self:_update(data)
 
 end
 

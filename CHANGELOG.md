@@ -2,6 +2,9 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### Future
+- Fixed issue where Server.defaultRole was nil
+
 ### 0.4.4
 - Added utility for converting UTC datetime string to Unix timestamp
 	- Message timestamps and Message joinedAt is now a Unix timestamp
