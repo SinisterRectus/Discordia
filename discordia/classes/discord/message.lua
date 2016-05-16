@@ -51,7 +51,9 @@ function Message:_update(data)
 	self.content = data.content or self.content
 	self.mentions = data.mentions or self.mentions
 	self.attachments = data.attachents or self.attachments
-	self.editedTimestamp = dateToTime(data.editedTimestamp or self.editedTimestamp)
+	if data.editedTimestamp then
+		self.editedTimestamp = dateToTime(data.editedTimestamp)
+	end
 	self.mentionEveryone = data.mentionEveryone or self.mentionEveryone
 
 end
