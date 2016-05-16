@@ -3,6 +3,10 @@
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
 ### Future
+- Added utility for converting UTC datetime string to Unix timestamp
+	- Message timestamps and Message joinedAt is now a Unix timestamp
+- messageUpdate is no longer fired for non-existing messages
+
 
 ### 0.4.3
 - Critical: Removed code that accesses Server.memberCount
@@ -15,8 +19,6 @@
 	- Implemented bulkDelete()
 - Removed memberCount from Server class
 - Added utility for converting snowflake ID to creation time and date
-- Added utility for converting UTC datetime string to Unix timestamp
-	- Message timestamps and Message joinedAt is now a Unix timestamp
 - Added string.totable
 - Color class changes:
 	- RGB values are now rounded

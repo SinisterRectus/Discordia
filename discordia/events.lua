@@ -134,15 +134,8 @@ end
 function events.messageUpdate(data, client)
 
 	local message = client:getMessageById(data.id)
-
-	if not message then
-		local channel = client:getChannelById(data.channelId)
-		message = Message(data, channel)
-		channel.messages[message.id] = message
-	else
-		message:_update(data)
-	end
-
+	if not message then return end
+	message:_update(data)
 	client:emit('messageUpdate', message)
 
 end
