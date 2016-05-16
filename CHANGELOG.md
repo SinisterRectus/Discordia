@@ -2,10 +2,11 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-### Future
+### 0.4.4
 - Added utility for converting UTC datetime string to Unix timestamp
 	- Message timestamps and Message joinedAt is now a Unix timestamp
 - messageUpdate is no longer fired for non-existing messages
+- Fixed @everyone mention crash
 
 
 ### 0.4.3

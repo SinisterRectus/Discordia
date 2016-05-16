@@ -40,7 +40,7 @@ function Message:__init(data, channel)
 	end
 
 	if data.mentionEveryone then
-		self.mentions.roles[server.id] = server.defaultRole
+		self.mentions.roles[self.server.id] = self.server.defaultRole
 	end
 
 end
