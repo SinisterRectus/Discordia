@@ -4,6 +4,8 @@
 
 ### Future
 - Fixed issue where Server.defaultRole was nil
+- Overhauled WebSocket keep alive process
+
 
 ### 0.4.4
 - Added utility for converting UTC datetime string to Unix timestamp

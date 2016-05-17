@@ -223,7 +223,7 @@ function Client:startWebsocketHandler(gateway)
 				if self.reconnects < 5 then
 					local expected = self.token == nil
 					self:emit('disconnect', expected)
-					self:stopKeepAliveHandlers()
+					self:stopKeepAliveHandler()
 					if not expected then
 						Warning('WebSocket disconnected while logged in. Reconnecting in 5 seconds.', debug.traceback())
 						timer.sleep(5000)
@@ -233,7 +233,7 @@ function Client:startWebsocketHandler(gateway)
 						return
 					end
 				else
-					Error('WebSocket is experiencing difficulties. Check connection to Discord.', debug.traceback())
+					Error('WebSocket is experiencing difficulties. Confirm token is valid and check connection to Discord.', debug.traceback())
 					os.exit()
 				end
 			end
@@ -243,25 +243,22 @@ function Client:startWebsocketHandler(gateway)
 end
 
 function Client:startKeepAliveHandler(interval)
-	local handler = {}
-	table.insert(self.keepAliveHandlers, handler)
-	return coroutine.wrap(function(interval)
-		while true do
-			timer.sleep(interval)
-			if handler.stopped then return end
+	if self.keepAliveHandler then self:stopKeepAliveHandler() end
+	self.keepAliveHandler = timer.setInterval(interval, function()
+		coroutine.wrap(function()
 			self.websocket:heartbeat(self.sequence)
-			if self.reconnects > 0 then
-				self.reconnects = self.reconnects - 1
-			end
+		end)()
+		if self.reconnects > 0 then
+			self.reconnects = self.reconnects - 1
 		end
-	end)(interval)
+	end)
 end
 
-function Client:stopKeepAliveHandlers()
-	for _, handler in ipairs(self.keepAliveHandlers) do
-		handler.stopped = true
-	end
-	self.keepAliveHandlers = {}
+function Client:stopKeepAliveHandler()
+	if not self.keepAliveHandler then return end
+	self.keepAliveHandler:stop()
+	self.keepAliveHandler:close()
+	self.keepAliveHandler = nil
 end
 
 -- Profile --
