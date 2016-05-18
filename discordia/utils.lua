@@ -93,6 +93,8 @@ end
 local function dateToTime(dateString)
 	local pattern = '(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)'
 	local year, month, day, hour, min, sec = string.match(dateString, pattern)
+	local lt, ut = os.date('*t'), os.date('!*t')
+	local offset = (ut.hour * 3600 + ut.min * 60 + ut.sec) - (lt.hour * 3600 + lt.min * 60 + lt.sec)
 	return os.time({
 		year = year,
 		month = month,
@@ -100,7 +102,7 @@ local function dateToTime(dateString)
 		hour = hour,
 		min = min,
 		sec = sec,
-	})
+	}) - offset
 end
 
 return {
