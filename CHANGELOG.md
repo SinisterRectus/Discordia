@@ -2,7 +2,7 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-### Future
+### 0.4.5
 - Overhauled WebSocket keep alive process
 - Fixed issue where Server.defaultRole was nil
 - Fixed UTC issue with dateToTime utility
