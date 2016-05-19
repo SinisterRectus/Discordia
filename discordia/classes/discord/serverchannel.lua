@@ -59,15 +59,15 @@ function ServerChannel:editPermissionsFor(target, allow, deny)
 end
 
 function ServerChannel:getPermissionsFor(target)
-	local target_type
+	local targetType
 	if target.__name == 'Role' then
-		target_type = 'role'
+		targetType = 'role'
 	else
-		target_type = 'member'
+		targetType = 'member'
 	end
 	
 	for i,overwrite in ipairs(self.permissionOverwrites) do
-		if overwrite.id == target.id and overwrite.type == target_type then
+		if overwrite.id == target.id and overwrite.type == targetType then
 			return  -- return a copy
 				{
 					type = overwrite.type,
