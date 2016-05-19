@@ -171,24 +171,28 @@ function Client:getGateway()
 	return self:request('GET', {endpoints.gateway}).url
 end
 
-function Client:connectWebsocket()
+function Client:connectWebsocket(resuming)
 
-	local gateway
 	local filename ='gateway.cache'
 	local cache = io.open(filename, 'r')
-	if not cache then
-		gateway = self:getGateway()
-		if gateway then
-			io.open(filename, 'w'):write(gateway):close()
-		end
-	else
-		gateway = cache:read()
+	local gateway = cache and cache:read() or self:getGateway()
+
+	self.websocket = self.websocket or WebSocket(gateway)
+	self.websocket:connect()
+
+	if not self.websocket.res then
+		Error('Cannot connect to gateway ' .. gateway, debug.traceback())
+		os.exit()
 	end
 
-	self.websocket = WebSocket(gateway)
-	self.websocket:identify(self.token)
+	io.open(filename, 'w'):write(gateway):close()
 
-	self:startWebsocketHandler(gateway)
+	if resuming then
+		self.websocket:resume(self.token, self.sessionId, self.sequence)
+	else
+		self.websocket:identify(self.token)
+		self:startWebsocketHandler()
+	end
 
 end
 
@@ -199,9 +203,9 @@ function Client:disconnectWebsocket()
 	end
 end
 
-function Client:startWebsocketHandler(gateway)
+function Client:startWebsocketHandler()
 
-	return coroutine.wrap(function(gateway)
+	return coroutine.wrap(function()
 		while true do
 			local payload = self.websocket:receive()
 			if payload then
@@ -219,26 +223,34 @@ function Client:startWebsocketHandler(gateway)
 					Warning('Unhandled WebSocket payload: ' .. payload.op, debug.traceback())
 				end
 			else
-				self.reconnects = self.reconnects + 1
-				if self.reconnects < 5 then
-					local expected = self.token == nil
-					self:emit('disconnect', expected)
-					self:stopKeepAliveHandler()
-					if not expected then
-						Warning('WebSocket disconnected while logged in. Reconnecting in 5 seconds.', debug.traceback())
-						timer.sleep(5000)
-						self.websocket:connect(gateway)
-						self.websocket:resume(self.token, self.sessionId, self.sequence)
-					else
-						return
-					end
-				else
-					Error('WebSocket is experiencing difficulties. Confirm token is valid and check connection to Discord.', debug.traceback())
-					os.exit()
-				end
+				self:handleWebSocketDisconnect()
 			end
 		end
-	end)(gateway)
+	end)()
+
+end
+
+function Client:handleWebSocketDisconnect()
+
+	self.reconnects = self.reconnects + 1
+	if self.reconnects < 5 then
+		local expected = self.token == nil
+		self:emit('disconnect', expected)
+		self:stopKeepAliveHandler()
+		if not expected then
+			Warning('WebSocket disconnected. Reconnecting in 5 seconds.', debug.traceback())
+			timer.sleep(5000)
+			local success = self:connectWebsocket(true)
+			if not success then
+				return self:handleBadWebsocket()
+			end
+		else
+			return
+		end
+	else
+		Error('WebSocket is experiencing difficulties. Confirm token is valid and check connection to Discord.', debug.traceback())
+		os.exit()
+	end
 
 end
 

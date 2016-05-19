@@ -5,12 +5,11 @@ local websocket = require('coro-websocket')
 local WebSocket = class('WebSocket')
 
 function WebSocket:__init(gateway)
-	if gateway then self:connect(gateway) end
+	self.gateway = gateway .. '/'
 end
 
-function WebSocket:connect(gateway)
-	gateway = gateway .. '/' -- hotfix for codec error
-	local options = websocket.parseUrl(gateway)
+function WebSocket:connect()
+	local options = websocket.parseUrl(self.gateway)
 	self.res, self.read, self.write = websocket.connect(options)
 end
 

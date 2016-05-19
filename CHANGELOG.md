@@ -2,6 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### Future
+- Overhauled WebSocket reconnection process
+
+
 ### 0.4.5
 - Overhauled WebSocket keep alive process
 - Fixed issue where Server.defaultRole was nil
