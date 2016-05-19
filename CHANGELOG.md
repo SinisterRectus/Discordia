@@ -4,6 +4,7 @@
 
 ### Future
 - Overhauled WebSocket reconnection process
+- Minor refactoring of token caching
 
 
 ### 0.4.5

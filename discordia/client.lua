@@ -67,18 +67,11 @@ end
 
 function Client:loginWithEmail(email, password)
 
-	local token
 	local filename = md5.sumhexa(email) .. '.cache'
 	local cache = io.open(filename, 'r')
-	if not cache then
-		token = self:getToken(email, password)
-		if token then
-			io.open(filename, 'w'):write(token):close()
-		end
-	else
-		token = cache:read()
-	end
+	local token = cache and cache:read() or self:getToken(email, password)
 
+	io.open(filename, 'w'):write(token):close()
 	self:loginWithToken(token)
 
 end
