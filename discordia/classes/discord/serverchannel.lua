@@ -22,53 +22,59 @@ function ServerChannel:_update(data)
 	self.permissionOverwrites = data.permissionOverwrites
 	
 	-- Convert permissions to use classes
-	for i,overwrite in ipairs( self.permissionOverwrites ) do
+	for i, overwrite in ipairs(self.permissionOverwrites) do
 		overwrite.allow = Permissions(overwrite.allow)
 		overwrite.deny = Permissions(overwrite.deny)
 	end
 end
 
-local setParams = { 'name', 'topic', 'position', 'bitrate' }
-function ServerChannel:set( options )
+local setParams = {'name', 'topic', 'position', 'bitrate'}
+function ServerChannel:set(options)
 	local body = {}
-	for i,param in ipairs( setParams ) do
+	for i, param in ipairs(setParams) do
 		body[param] = options[param] or self[param]
 	end
 	
 	self.client:request('PATCH', {endpoints.channels, self.id}, body)
 end
+for i, param in ipairs(setParams) do
+	local fname = "set"..(param:gsub("^%l", string.upper))
+	ServerChannel[fname] = function(self, value) return self:set({[param] = value}) end
+end
 
 -- ServerChannel:edit deprecated by ServerChannel:set
 function ServerChannel:edit(name, position, topic, bitrate)
-	return self:set( { name = name, position = position, topic = topic, bitrate = bitrate } )
+	return self:set({name = name, position = position, topic = topic, bitrate = bitrate})
 end
 
-function ServerChannel:editPermissionsFor( target, allow, deny )	
-	local body = { id = target.id, allow = allow:toDec(), deny = deny:toDec() }
+function ServerChannel:editPermissionsFor(target, allow, deny)	
+	local body = {id = target.id, allow = allow:toDec(), deny = deny:toDec()}
 	if target.__name == 'Role' then
 		body.type = 'role'
-	elseif target.__name == 'Member' then
-		body.type = 'member'
 	else
-		error( "Unrecognized target type" )
+		body.type = 'member'
 	end
 	
-	self.client:request('PUT', {endpoints.channels, self.id, 'permissions', target.id }, body)
+	self.client:request('PUT', {endpoints.channels, self.id, 'permissions', target.id}, body)
 end
 
-function ServerChannel:getPermissionsFor( target )
+function ServerChannel:getPermissionsFor(target)
 	local target_type
 	if target.__name == 'Role' then
 		target_type = 'role'
-	elseif target.__name == 'Member' then
-		target_type = 'member'
 	else
-		error( "Unrecognized target type" )
+		target_type = 'member'
 	end
 	
-	for i,overwrite in ipairs( self.permissionOverwrites ) do
+	for i,overwrite in ipairs(self.permissionOverwrites) do
 		if overwrite.id == target.id and overwrite.type == target_type then
-			return overwrite
+			return  -- return a copy
+				{
+					type = overwrite.type,
+					id = overwrite.id,
+					allow = Permissions(overwrite.allow:toDec()),
+					deny = Permissions(overwrite.deny:toDec()),
+				}
 		end
 	end
 end

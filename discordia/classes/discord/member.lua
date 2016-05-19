@@ -25,14 +25,14 @@ function Member:_update(data)
 		User._update(self, data.user)
 	end
 	self.status = data.status or self.status or 'offline'-- string
-	self.gameName = data.game and data.game.name or self.gameName-- string or nil
+	self.gameName = data.game and data.game.name or self.gameName -- string or nil
 end
 
 -- Member:set* Functions
-local setParams = { 'nickname', 'roles', 'mute', 'deaf' }
-function Member:set( options )
+local setParams = {'nickname', 'roles', 'mute', 'deaf'}
+function Member:set(options)
 	local body = {}
-	for i,param in ipairs( setParams ) do
+	for i, param in ipairs(setParams) do
 		body[param] = options[param] or self[param]
 	end
 	
@@ -42,9 +42,13 @@ function Member:set( options )
 	data = self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
 	if data then return Member(data, self.server) end
 end
-for i,param in ipairs( setParams ) do
-	local Param = (param:gsub("^%l", string.upper))
-	Member[ "set"..Param ] = function( self, value ) return self:set( { [param] = value } ) end
+for i, param in ipairs(setParams) do
+	local fname = "set"..(param:gsub("^%l", string.upper))
+	Member[fname] = function(self, value) return self:set({[param] = value}) end
+end
+
+function Member:getRoles()
+	return table.copy(self.roles)
 end
 
 return Member

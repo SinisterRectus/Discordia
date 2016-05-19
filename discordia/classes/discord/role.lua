@@ -26,10 +26,10 @@ function Role:_update(data)
 end
 
 -- Role:set* Functions
-local setParams = { 'color', 'hoist', 'name', 'permissions' }
+local setParams = {'color', 'hoist', 'name', 'permissions'}
 function Role:set(options)
 	local body = {}
-	for i,param in ipairs( setParams ) do
+	for i, param in ipairs(setParams) do
 		body[param] = options[param] or self[param]
 	end
 	body.color = body.color:toDec()
@@ -38,9 +38,9 @@ function Role:set(options)
 	local data = self.client:request('PATCH', {endpoints.servers, self.server.id, 'roles', self.id}, body)
 	if data then return Role(data, self.server) end
 end
-for i,param in ipairs( setParams ) do
-	local Param = (param:gsub("^%l", string.upper))
-	Role[ "set"..Param ] = function( self, value ) return self:set( { [param] = value } ) end
+for i, param in ipairs(setParams) do
+	local fname = "set"..(param:gsub("^%l", string.upper))
+	Role[fname] = function(self, value) return self:set({[param] = value }) end
 end
 
 function Role:moveUp()

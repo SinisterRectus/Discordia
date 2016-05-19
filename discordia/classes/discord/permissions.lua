@@ -1,7 +1,6 @@
 local bit = require('bit')
 local Permissions = class('Permissions')
 
-
 local flags = 
 {
 	createInstantInvite = 0x00000001,
@@ -33,28 +32,16 @@ function Permissions:__init(a)
 	self.value = a or 0
 end
 
-function Permissions:set( flag )
-	if flags[flag] then
-		return Permissions( bit.bor( self.value, flags[flag] ) )		
-	else
-		error( "Permission flag '"..flag.."' not recognized" )
-	end
+function Permissions:set(flag)
+	return Permissions(bit.bor(self.value, flags[flag]))
 end
 
-function Permissions:unset( flag )
-	if flags[flag] then
-		return Permissions( bit.band( self.value, bit.bnot( flags[flag] ) ) )	
-	else
-		error( "Permission flag '"..flag.."' not recognized" )
-	end
+function Permissions:unset(flag)
+	return Permissions(bit.band(self.value, bit.bnot(flags[flag])))	
 end
 
-function Permissions:hasPermission( flag )
-	if flags[flag] then
-		return bit.band( self.value, flags[flag] )
-	else
-		error( "Permission flag '"..flag.."' not recognized" )
-	end
+function Permissions:hasPermission(flag)
+	return bit.band(self.value, flags[flag])
 end
 
 function Permissions:toDec()
