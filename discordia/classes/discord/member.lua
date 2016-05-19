@@ -28,9 +28,23 @@ function Member:_update(data)
 	self.gameName = data.game and data.game.name or self.gameName-- string or nil
 end
 
-function Member:setNickname(nickname)
-	local body = {nick = nickname or ''}
-	self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
+-- Member:set* Functions
+local setParams = { 'nickname', 'roles', 'mute', 'deaf' }
+function Member:set( options )
+	local body = {}
+	for i,param in ipairs( setParams ) do
+		body[param] = options[param] or self[param]
+	end
+	
+	-- adjust to fit protocol
+	body.nick, body.nickname = body.nickname or '', nil
+	
+	data = self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
+	if data then return Member(data, self.server) end
+end
+for i,param in ipairs( setParams ) do
+	local Param = (param:gsub("^%l", string.upper))
+	Member[ "set"..Param ] = function( self, value ) return self:set( { [param] = value } ) end
 end
 
 return Member
