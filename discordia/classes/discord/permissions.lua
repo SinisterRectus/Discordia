@@ -30,7 +30,7 @@ local flags =
 }
 
 function Permissions:__init(a)
-	self.value = a	
+	self.value = a or 0
 end
 
 function Permissions:set( flag )
