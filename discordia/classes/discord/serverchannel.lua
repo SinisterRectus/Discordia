@@ -1,5 +1,6 @@
 local Base = require('./base')
 local Invite = require('./invite')
+local Permissions = require('./permissions')
 local endpoints = require('../../endpoints')
 
 local ServerChannel = class('ServerChannel', Base)
@@ -17,22 +18,65 @@ end
 function ServerChannel:_update(data)
 	self.name = data.name
 	self.topic = data.topic
-	self.position = data.position
+	self.position = data.position	
 	self.permissionOverwrites = data.permissionOverwrites
+	
+	-- Convert permissions to use classes
+	for i, overwrite in ipairs(self.permissionOverwrites) do
+		overwrite.allow = Permissions(overwrite.allow)
+		overwrite.deny = Permissions(overwrite.deny)
+	end
 end
 
-function ServerChannel:edit(name, position, topic, bitrate)
-	local body = {
-		name = name or self.name,
-		position = position or self.position,
-		topic = topic or self.topic,
-		bitrate = bitrate or self.bitrate
-	}
+local setParams = {'name', 'topic', 'position', 'bitrate'}
+function ServerChannel:set(options)
+	local body = {}
+	for i, param in ipairs(setParams) do
+		body[param] = options[param] or self[param]
+	end
+	
 	self.client:request('PATCH', {endpoints.channels, self.id}, body)
 end
+for i, param in ipairs(setParams) do
+	local fname = "set"..(param:gsub("^%l", string.upper))
+	ServerChannel[fname] = function(self, value) return self:set({[param] = value}) end
+end
 
-function ServerChannel:setName(name)
-	self:edit(name, nil, nil, nil)
+-- ServerChannel:edit deprecated by ServerChannel:set
+function ServerChannel:edit(name, position, topic, bitrate)
+	return self:set({name = name, position = position, topic = topic, bitrate = bitrate})
+end
+
+function ServerChannel:editPermissionsFor(target, allow, deny)	
+	local body = {id = target.id, allow = allow:toDec(), deny = deny:toDec()}
+	if target.__name == 'Role' then
+		body.type = 'role'
+	else
+		body.type = 'member'
+	end
+	
+	self.client:request('PUT', {endpoints.channels, self.id, 'permissions', target.id}, body)
+end
+
+function ServerChannel:getPermissionsFor(target)
+	local targetType
+	if target.__name == 'Role' then
+		targetType = 'role'
+	else
+		targetType = 'member'
+	end
+	
+	for i,overwrite in ipairs(self.permissionOverwrites) do
+		if overwrite.id == target.id and overwrite.type == targetType then
+			return  -- return a copy
+				{
+					type = overwrite.type,
+					id = overwrite.id,
+					allow = Permissions(overwrite.allow:toDec()),
+					deny = Permissions(overwrite.deny:toDec()),
+				}
+		end
+	end
 end
 
 function ServerChannel:createInvite()

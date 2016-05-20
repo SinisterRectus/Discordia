@@ -175,10 +175,10 @@ function Server:getRoleByName(name) -- Client:getRoleByName(name)
 	return nil
 end
 
--- function Server:createRole(data)
-	-- self.client:request('POST', {endpoints.servers, self.id, 'roles'}, data)
-	-- need to figure out proper data format
--- end
+function Server:createRole()
+	local data = self.client:request('POST', {endpoints.servers, self.id, 'roles'}, {})
+	if data then return Role(data, self) end
+end
 
 function Server:createTextChannel(name)
 	local body = {name = name, type = 'text'}
