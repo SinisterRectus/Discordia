@@ -129,6 +129,7 @@ end
 
 function Server:getInvites()
 	local inviteTable = self.client:request('GET', {endpoints.servers, self.id, 'invites'})
+	if not inviteTable then return end
 	local invites = {}
 	for _, inviteData in ipairs(inviteTable) do
 		local invite = Invite(inviteData, self)
@@ -139,6 +140,7 @@ end
 
 function Server:getBannedUsers()
 	local banTable = self.client:request('GET', {endpoints.servers, self.id, 'bans'})
+	if not banTable then return end
 	local users = {}
 	for _, banData in ipairs(banTable) do
 		local user = User(banData.user, self.client)

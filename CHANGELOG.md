@@ -3,9 +3,11 @@
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
 ### Future
+- Implemented Permissions handling
+  - (Partially)
 - Overhauled WebSocket reconnection process
 - Minor refactoring of token caching
-
+- Fixed issue when trying to access nil invites or bans tables
 
 ### 0.4.5
 - Overhauled WebSocket keep alive process
