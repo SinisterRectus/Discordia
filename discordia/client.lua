@@ -235,7 +235,7 @@ function Client:handleWebSocketDisconnect()
 			timer.sleep(5000)
 			local success = self:connectWebsocket(true)
 			if not success then
-				return self:handleBadWebsocket()
+				return self:handleWebSocketDisconnect()
 			end
 		else
 			return
