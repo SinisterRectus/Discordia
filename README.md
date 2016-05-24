@@ -18,6 +18,17 @@ Join the [Discord API server](https://discord.gg/0SBTUU1wZTWVpm07) to discuss Di
 - To install the Discord library, run `lit install SinisterRectus/discordia`
 - Run your Lua scripts using, for example, `luvit bot.lua`
 
+### Bug Reports
+
+Before reporting a library issue:
+ - Make sure that you are running the latest version of both Discordia and Luvit.
+ - To the best of your ability, check that the issue is a library one and not a result of your own code.
+ - In the event of an uncaught exception, please provide a full stacktrace.
+ - If possible, provide a stripped-down code sample that reproduces the bug.
+
+Issues can be reported via GitHub or the Discord channel linked above. Higher priority is placed on GitHub issues.
+
+
 ### FAQs
 
 Why Lua?
