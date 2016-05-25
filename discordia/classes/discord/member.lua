@@ -14,6 +14,7 @@ function Member:__init(data, server)
 	self.server = server -- object
 	self.status = 'offline' -- string
 	self.nickname = data.nick -- string
+	self.name = self.nickname or self.username
 	self.joinedAt = dateToTime(data.joinedAt) -- number
 
 	-- don't call update, it gets confused
@@ -35,10 +36,10 @@ function Member:set(options)
 	for i, param in ipairs(setParams) do
 		body[param] = options[param] or self[param]
 	end
-	
+
 	-- adjust to fit protocol
 	body.nick, body.nickname = body.nickname or '', nil
-	
+
 	data = self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
 	if data then return Member(data, self.server) end
 end

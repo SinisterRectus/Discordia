@@ -9,10 +9,10 @@ function User:__init(data, client)
 	Base.__init(self, data.id, client)
 
 	self.bot = data.bot or false
-	self.name = data.username
 	self.avatar = data.avatar or ''
 	self.username = data.username
 	self.discriminator = data.discriminator
+	self.name = self.nickname or self.username
 
 	-- don't call update, it gets confused
 
@@ -21,6 +21,7 @@ end
 function User:_update(data)
 	self.avatar = data.avatar or ''
 	self.username = data.username
+	self.name = self.nickname or self.username
 	self.discriminator = data.discriminator
 end
 
