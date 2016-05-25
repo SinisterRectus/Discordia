@@ -84,9 +84,9 @@ end
 
 -- string --
 
-function string.split(str)
+function string.split(str, delim)
 	local words = {}
-	for word in string.gmatch(str, '%S+') do
+	for word in string.gmatch(str .. delim, '(.-)' .. delim) do
 		table.insert(words, word)
 	end
 	return words
