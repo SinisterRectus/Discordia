@@ -5,6 +5,6 @@ require('./extensions')
 return {
 	Client = require('./client'),
 	Color = require('./classes/color'),
-	Permissions = require('./classes/discord/permissions'),
+	Permissions = require('./classes/permissions'),
 	utils = require('./utils'),
 }

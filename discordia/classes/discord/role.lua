@@ -1,6 +1,6 @@
 local Base = require('./base')
 local Color = require('../color')
-local Permissions = require('./permissions')
+local Permissions = require('../permissions')
 local endpoints = require('../../endpoints')
 
 local Role = class('Role', Base)

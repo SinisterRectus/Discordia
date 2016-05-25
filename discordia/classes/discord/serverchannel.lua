@@ -1,6 +1,6 @@
 local Invite = require('./invite')
 local Channel = require('./channel')
-local Permissions = require('./permissions')
+local Permissions = require('../permissions')
 local endpoints = require('../../endpoints')
 
 local ServerChannel = class('ServerChannel', Channel)
