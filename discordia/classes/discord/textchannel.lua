@@ -1,14 +1,14 @@
-local Base = require('./base')
 local Deque = require('../deque')
 local Server = require('./server')
+local Channel = require('./channel')
 local Message = require('./message')
 local endpoints = require('../../endpoints')
 
-local TextChannel = class('TextChannel', Base)
+local TextChannel = class('TextChannel', Channel)
 
 function TextChannel:__init(data, client)
 
-	Base.__init(self, data.id, client)
+	Channel.__init(self, data, client)
 
 	self.isPrivate = data.isPrivate
 	self.lastMessageId = data.lastMessageId

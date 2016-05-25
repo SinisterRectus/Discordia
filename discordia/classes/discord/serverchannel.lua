@@ -1,13 +1,13 @@
-local Base = require('./base')
 local Invite = require('./invite')
+local Channel = require('./channel')
 local Permissions = require('./permissions')
 local endpoints = require('../../endpoints')
 
-local ServerChannel = class('ServerChannel', Base)
+local ServerChannel = class('ServerChannel', Channel)
 
 function ServerChannel:__init(data, server)
 
-	Base.__init(self, data.id, server.client)
+	Channel.__init(self, data, server.client)
 	self.server = server
 
 	self.type = data.type
@@ -18,9 +18,9 @@ end
 function ServerChannel:_update(data)
 	self.name = data.name
 	self.topic = data.topic
-	self.position = data.position	
+	self.position = data.position
 	self.permissionOverwrites = data.permissionOverwrites
-	
+
 	-- Convert permissions to use classes
 	for i, overwrite in ipairs(self.permissionOverwrites) do
 		overwrite.allow = Permissions(overwrite.allow)
@@ -34,7 +34,7 @@ function ServerChannel:set(options)
 	for i, param in ipairs(setParams) do
 		body[param] = options[param] or self[param]
 	end
-	
+
 	self.client:request('PATCH', {endpoints.channels, self.id}, body)
 end
 for i, param in ipairs(setParams) do
@@ -47,14 +47,14 @@ function ServerChannel:edit(name, position, topic, bitrate)
 	return self:set({name = name, position = position, topic = topic, bitrate = bitrate})
 end
 
-function ServerChannel:editPermissionsFor(target, allow, deny)	
+function ServerChannel:editPermissionsFor(target, allow, deny)
 	local body = {id = target.id, allow = allow:toDec(), deny = deny:toDec()}
 	if target.__name == 'Role' then
 		body.type = 'role'
 	else
 		body.type = 'member'
 	end
-	
+
 	self.client:request('PUT', {endpoints.channels, self.id, 'permissions', target.id}, body)
 end
 
@@ -65,7 +65,7 @@ function ServerChannel:getPermissionsFor(target)
 	else
 		targetType = 'member'
 	end
-	
+
 	for i,overwrite in ipairs(self.permissionOverwrites) do
 		if overwrite.id == target.id and overwrite.type == targetType then
 			return  -- return a copy
@@ -92,10 +92,6 @@ function ServerChannel:getInvites()
 		invites[invite.code] = invite
 	end
 	return invites
-end
-
-function ServerChannel:delete(data)
-	self.client:request('DELETE', {endpoints.channels, self.id})
 end
 
 return ServerChannel
