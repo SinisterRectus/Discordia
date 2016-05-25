@@ -235,7 +235,7 @@ end
 
 function Server:getMemberByName(name) -- Client:getUserByName(name)
 	for _, member in pairs(self.members) do
-		if member.nickname == name or member.username == name then
+		if member.name == name then
 			return member
 		end
 	end
