@@ -1,12 +1,11 @@
 local bit = require('bit')
 local Permissions = class('Permissions')
 
-local flags = 
-{
+local flags = {
 	createInstantInvite = 0x00000001,
 	kickMembers = 0x00000002,
 	banMembers = 0x00000004,
-	administrator = 0x00000008, 
+	administrator = 0x00000008,
 	manageChannels = 0x00000010,
 	manageGuild = 0x00000020,
 	readMessages = 0x00000400,
@@ -28,20 +27,20 @@ local flags =
 	manageRoles = 0x10000000,
 }
 
-function Permissions:__init(a)
-	self.value = a or 0
+function Permissions:__init(value)
+	self.value = value or 0
 end
 
 function Permissions:set(flag)
-	return Permissions(bit.bor(self.value, flags[flag]))
+	self.value = bit.bor(self.value, flags[flag])
 end
 
 function Permissions:unset(flag)
-	return Permissions(bit.band(self.value, bit.bnot(flags[flag])))	
+	self.value = bit.band(self.value, bit.bnot(flags[flag]))
 end
 
 function Permissions:hasPermission(flag)
-	return bit.band(self.value, flags[flag])
+	return bit.band(self.value, flags[flag]) > 0
 end
 
 function Permissions:toDec()

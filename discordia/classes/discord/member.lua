@@ -8,14 +8,14 @@ function Member:__init(data, server)
 
 	User.__init(self, data.user, server.client)
 
-	self.deaf = data.deaf -- boolean
-	self.mute = data.mute -- boolean
-	self.roles = data.roles -- table of role IDs
-	self.server = server -- object
-	self.status = 'offline' -- string
-	self.nickname = data.nick -- string
+	self.deaf = data.deaf
+	self.mute = data.mute
+	self.roles = data.roles
+	self.server = server
+	self.status = 'offline'
+	self.nickname = data.nick
 	self.name = self.nickname or self.username
-	self.joinedAt = dateToTime(data.joinedAt) -- number
+	self.joinedAt = dateToTime(data.joinedAt)
 
 	-- don't call update, it gets confused
 
@@ -25,27 +25,23 @@ function Member:_update(data)
 	if data.user and data.user.username then
 		User._update(self, data.user)
 	end
-	self.status = data.status or self.status or 'offline'-- string
-	self.gameName = data.game and data.game.name or self.gameName -- string or nil
+	self.status = data.status or self.status or 'offline'
+	self.gameName = data.game and data.game.name or self.gameName
 end
 
--- Member:set* Functions
 local setParams = {'nickname', 'roles', 'mute', 'deaf'}
+for _, param in ipairs(setParams) do
+	local fname = "set" .. (param:gsub("^%l", string.upper))
+	Member[fname] = function(self, value) return self:set({[param] = value}) end
+end
+
 function Member:set(options)
 	local body = {}
-	for i, param in ipairs(setParams) do
+	for _, param in ipairs(setParams) do
 		body[param] = options[param] or self[param]
 	end
-
-	-- adjust to fit protocol
-	body.nick, body.nickname = body.nickname or '', nil
-
-	data = self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
-	if data then return Member(data, self.server) end
-end
-for i, param in ipairs(setParams) do
-	local fname = "set"..(param:gsub("^%l", string.upper))
-	Member[fname] = function(self, value) return self:set({[param] = value}) end
+	body.nick, body.nickname = body.nickname or '', nil -- adjust for compatibility
+	self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
 end
 
 function Member:getRoles()
