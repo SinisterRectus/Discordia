@@ -11,6 +11,7 @@
 	- Added custom delimiter to string.split
 	- Overhauled WebSocket reconnection process
 	- Changed mentions iterator from ipairs to pairs
+	- Default argument for TextChannel:getMessageHistory changed from 50 to 1
 - Bug Fixes
 	- Fixed issue when trying to access nil invites or bans tables
 	- Fixed issue where handleWebSocketDisconnect was improperly called

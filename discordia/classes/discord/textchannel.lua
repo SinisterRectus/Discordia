@@ -43,7 +43,7 @@ function TextChannel:broadcastTyping()
 end
 
 function TextChannel:getMessageHistory(limit)
-	local data = self.client:request('GET', {endpoints.channels, self.id, string.format('messages?limit=%i', limit or 50)})
+	local data = self.client:request('GET', {endpoints.channels, self.id, string.format('messages?limit=%i', limit or 1)})
 	local messages = {}
 	for _, messageData in ipairs(data) do
 		table.insert(messages, Message(messageData, self))
