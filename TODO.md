@@ -4,7 +4,9 @@ Upcoming
 
 Probable additions
 - Add a REST client that handles most, if not all, REST methods.
-- Add methods like Client:sendMessage(messageId, channelId, content). If the objects are not found in cache by ID, then they are grabbed with the REST client.
+	- Can use for methods like Client:sendMessage(channelId, content) when only the IDs are known.
+	- Can be called by methods like Channel:sendMessage(content) when the objects exist.
+	- Can be used with getObjectById when the object is not cached.
 - Handle USER_SETTINGS_UPDATE
 - Move Server/Channel/Role positions
 - Embeds and file sharing
