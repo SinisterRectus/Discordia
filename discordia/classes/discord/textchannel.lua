@@ -21,7 +21,7 @@ end
 function TextChannel:createMessage(content, mentions)
 	if mentions and not self.isPrivate then
 		local words = {}
-		for _, obj in ipairs(mentions) do
+		for _, obj in pairs(mentions) do
 			if obj.getMentionString then
 				table.insert(words, obj:getMentionString())
 			end
