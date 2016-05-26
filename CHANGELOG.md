@@ -2,12 +2,20 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-### Future
+### 0.5.0
 - Implemented Permissions handling
-  - (Partially)
-- Overhauled WebSocket reconnection process
-- Minor refactoring of token caching
-- Fixed issue when trying to access nil invites or bans tables
+- Added abstract Channel superclass for TextChannel and ServerChannel
+- Expanded Role features
+- User.name is now the User's display name: Either User.username by default, or User.nickname if one exists
+- Other Chanegs
+	- Added custom delimiter to string.split
+	- Overhauled WebSocket reconnection process
+	- Changed mentions iterator from ipairs to pairs
+- Bug Fixes
+	- Fixed issue when trying to access nil invites or bans tables
+	- Fixed issue where handleWebSocketDisconnect was improperly called
+	- Minor refactoring of token caching
+
 
 ### 0.4.5
 - Overhauled WebSocket keep alive process
