@@ -17,6 +17,7 @@ Probable additions
 - Implement Game object
 - Twitch streaming url
 - Better rate limiting
+- REST error codes
 
 Possible additions
 - Change Client to use custom class

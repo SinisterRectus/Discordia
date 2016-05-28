@@ -1,4 +1,5 @@
 local User = require('./user')
+local Role = require('./role')
 local endpoints = require('../../endpoints')
 local dateToTime = require('../../utils').dateToTime
 
@@ -10,7 +11,6 @@ function Member:__init(data, server)
 
 	self.deaf = data.deaf
 	self.mute = data.mute
-	self.roles = data.roles
 	self.server = server
 	self.status = 'offline'
 	self.nickname = data.nick
@@ -42,10 +42,6 @@ function Member:set(options)
 	end
 	body.nick, body.nickname = body.nickname or '', nil -- adjust for compatibility
 	self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
-end
-
-function Member:getRoles()
-	return table.copy(self.roles)
 end
 
 return Member
