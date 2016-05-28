@@ -3,7 +3,7 @@
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
 ### 0.5.0
-- Implemented Permissions handling
+- Implemented basic Permissions handling
 - Added abstract Channel superclass for TextChannel and ServerChannel
 - Expanded Role features
 	- Member.roles is now parsed into a table of Role objects
@@ -13,6 +13,7 @@
 	- Overhauled WebSocket reconnection process
 	- Changed mentions iterator from ipairs to pairs
 	- Default argument for TextChannel:getMessageHistory changed from 50 to 1
+	- Removed redundant channelId from Message class
 - Bug Fixes
 	- Fixed issue when trying to access nil invites or bans tables
 	- Fixed issue where handleWebSocketDisconnect was improperly called

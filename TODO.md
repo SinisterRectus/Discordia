@@ -1,7 +1,3 @@
-Upcoming
-
-- perms and roles (parse mem.roles)
-
 Probable additions
 - Add a REST client that handles most, if not all, REST methods.
 	- Can use for methods like Client:sendMessage(channelId, content) when only the IDs are known.
@@ -16,7 +12,6 @@ Probable additions
 - Get server icon
 - Implement Game object
 - Twitch streaming url
-- Better rate limiting
 - REST error codes
 
 Possible additions
@@ -26,9 +21,9 @@ Possible additions
 - Cache objects
 
 Fixes Needed
+- Better rate limiting
 - Make delayed ready event more explicit
 - Add milliseconds to message.timestamp
 - Remove channel id from message
-- Change mentions iterator to pairs
 - Fix voice state count
 - Fix game updating
