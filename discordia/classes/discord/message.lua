@@ -16,7 +16,6 @@ function Message:__init(data, channel)
 	self.embeds = data.embeds -- table
 	self.content = data.content -- string
 	self.timestamp = dateToTime(data.timestamp) -- string
-	self.channelId = data.channelId -- string
 	self.attachments = data.attachents -- table
 
 	self.author = self.channel.recipient or self.server:getMemberById(data.author.id)
