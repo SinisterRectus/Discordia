@@ -17,6 +17,11 @@ function Member:__init(data, server)
 	self.name = self.nickname or self.username
 	self.joinedAt = dateToTime(data.joinedAt)
 
+	self.roles = {}
+	for _, roleId in ipairs(data.roles) do
+		self.roles[roleId] = server.roles[roleId]
+	end
+
 	-- don't call update, it gets confused
 
 end

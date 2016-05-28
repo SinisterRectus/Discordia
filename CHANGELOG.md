@@ -6,6 +6,7 @@
 - Implemented Permissions handling
 - Added abstract Channel superclass for TextChannel and ServerChannel
 - Expanded Role features
+	- Member.roles is now parsed into a table of Role objects
 - User.name is now the User's display name: Either User.username by default, or User.nickname if one exists
 - Other Chanegs
 	- Added custom delimiter to string.split
