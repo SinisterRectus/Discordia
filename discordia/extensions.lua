@@ -27,11 +27,9 @@ function table.find(tbl, value)
 end
 
 function table.reverse(tbl)
-	local new = {}
-	for i = #tbl, 1, -1 do
-		table.insert(new, tbl[i])
+	for i = 1, #tbl do
+		table.insert(tbl, i, table.remove(tbl))
 	end
-	return new
 end
 
 function table.copy(tbl)
