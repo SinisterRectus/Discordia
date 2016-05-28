@@ -22,24 +22,24 @@ function ServerChannel:_update(data)
 	self.permissionOverwrites = data.permissionOverwrites
 
 	-- Convert permissions to use classes
-	for i, overwrite in ipairs(self.permissionOverwrites) do
+	for _, overwrite in ipairs(self.permissionOverwrites) do
 		overwrite.allow = Permissions(overwrite.allow)
 		overwrite.deny = Permissions(overwrite.deny)
 	end
 end
 
 local setParams = {'name', 'topic', 'position', 'bitrate'}
-function ServerChannel:set(options)
-	local body = {}
-	for i, param in ipairs(setParams) do
-		body[param] = options[param] or self[param]
-	end
-
-	self.client:request('PATCH', {endpoints.channels, self.id}, body)
-end
-for i, param in ipairs(setParams) do
+for _, param in ipairs(setParams) do
 	local fname = "set"..(param:gsub("^%l", string.upper))
 	ServerChannel[fname] = function(self, value) return self:set({[param] = value}) end
+end
+
+function ServerChannel:set(options)
+	local body = {}
+	for _, param in ipairs(setParams) do
+		body[param] = options[param] or self[param]
+	end
+	self.client:request('PATCH', {endpoints.channels, self.id}, body)
 end
 
 -- ServerChannel:edit deprecated by ServerChannel:set
@@ -49,32 +49,20 @@ end
 
 function ServerChannel:editPermissionsFor(target, allow, deny)
 	local body = {id = target.id, allow = allow:toDec(), deny = deny:toDec()}
-	if target.__name == 'Role' then
-		body.type = 'role'
-	else
-		body.type = 'member'
-	end
-
+	body.type = target.__name == 'Role' and 'role' or 'member'
 	self.client:request('PUT', {endpoints.channels, self.id, 'permissions', target.id}, body)
 end
 
 function ServerChannel:getPermissionsFor(target)
-	local targetType
-	if target.__name == 'Role' then
-		targetType = 'role'
-	else
-		targetType = 'member'
-	end
-
-	for i,overwrite in ipairs(self.permissionOverwrites) do
+	local targetType = target.__name == 'Role' and 'role' or 'member'
+	for _, overwrite in ipairs(self.permissionOverwrites) do
 		if overwrite.id == target.id and overwrite.type == targetType then
-			return  -- return a copy
-				{
-					type = overwrite.type,
-					id = overwrite.id,
-					allow = Permissions(overwrite.allow:toDec()),
-					deny = Permissions(overwrite.deny:toDec()),
-				}
+			return  { -- return a copy
+				type = overwrite.type,
+				id = overwrite.id,
+				allow = Permissions(overwrite.allow:toDec()),
+				deny = Permissions(overwrite.deny:toDec()),
+			}
 		end
 	end
 end
