@@ -13,6 +13,7 @@ Probable additions
 - Implement Game object
 - Twitch streaming url
 - REST error codes
+- Utilities for iterating/searching/finding objects
 
 Possible additions
 - Change Client to use custom class
