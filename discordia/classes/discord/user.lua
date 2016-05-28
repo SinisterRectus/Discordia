@@ -45,7 +45,7 @@ function User:unban(server) -- Server:unbanUser(user)
 	self.client:request('DELETE', {endpoints.servers, server.id, 'bans', self.id})
 end
 
-function User:kick(server) -- Server:kickUser(user)
+function User:kick(server) -- Server:kickUser(user), Member:kick()
 	self.client:request('DELETE', {endpoints.servers, server.id, 'members', self.id})
 end
 

@@ -49,4 +49,8 @@ function Member:set(options)
 	self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
 end
 
+function Member:kick()
+	return self.client:request('DELETE', {endpoints.servers, self.server.id, 'members', self.id})
+end
+
 return Member
