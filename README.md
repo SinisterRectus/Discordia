@@ -55,6 +55,9 @@ Does Discordia support voice chat?
 How can I contribute?
 - Pull requests are welcomed, but it is a good idea to check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
 
+How does this differ from other Lua libraries?
+- Discordia was the first Lua library to be officially recognized by the Discord API community linked above. As an open source library, Discordia relies on contributions and endorsements from its users to grow and expand. There is currently a second recognized Lua library, [litcord](https://github.com/satom99/litcord), in development. At the time of writing this statement, Discordia and litcord both run on Luvit, both use a combination of coroutines and callbacks, both are object-oriented, both support most REST and WebSocket features, both support object caching, and both do not have voice support. There are differences in the internal code structures, but because of the similar interface, any contributions made to improve litcord may also benefit Discordia, and vice versa. Please take this into consideration when choosing to use or contribute to one of the existing, or any future Lua libraries.
+
 ### Documentation
 
 Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordia/wiki) for Discordia documentation. Contributions are encouraged.
