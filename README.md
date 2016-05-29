@@ -28,7 +28,7 @@ Before reporting a library issue:
 
 Issues can be reported via GitHub or the Discord channel linked above. Higher priority is placed on GitHub issues.
 
-## History
+### History
 
 The earliest version of Discordia, before it even had that name, was released as a [Just Cause 2 Multiplayer module](https://www.jc-mp.com/forums/index.php/topic,5936.0.html) on 26 April 2016. It utilized LuaSocket, LuaSec, and Copas to provide basic REST functionality in a sandboxed Lua 5.2 environment. The goal was to bridge the game chat with a Discord client.
 
@@ -50,7 +50,7 @@ Can I run this on a different Lua distribution?
 - The development and deployment of Discordia relies on the Luvit framework. Porting Discordia and its dependencies to pure LuaJIT or Lua 5.x may be possible, but it is not currently a priority.
 
 Does Discordia support voice chat?
-- Proper voice support is not currently available, though I do wish to implement it in the future. 
+- Proper voice support is not currently available, though I do wish to implement it in the future.
 
 How can I contribute?
 - Pull requests are welcomed, but it is a good idea to check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
