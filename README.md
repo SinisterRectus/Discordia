@@ -28,6 +28,15 @@ Before reporting a library issue:
 
 Issues can be reported via GitHub or the Discord channel linked above. Higher priority is placed on GitHub issues.
 
+## History
+
+The earliest version of Discordia, before it even had that name, was released as a [Just Cause 2 Multiplayer module](https://www.jc-mp.com/forums/index.php/topic,5936.0.html) on 26 April 2016. It utilized LuaSocket, LuaSec, and Copas to provide basic REST functionality in a sandboxed Lua 5.2 environment. The goal was to bridge the game chat with a Discord client.
+
+Due to a lack of WebSocket support and difficulties in developing a stable module, the Just Cause 2 Multiplayer project was put on hold in favor of a general-purpose Lua library for Discord. At the time, [discord.lua](https://github.com/VideahGams/discord.lua), was the only other Discord library of which I was aware. It required LuaJIT, was very incomplete, and abandoned by its author indefinitely. I decided to start my Luvit-powered library from scratch.
+
+Amongst the already established Discord libraries, discord.js and discord.py were the two that I used as models for Discordia. As a node.js library, the former relied heavily on callbacks, while the latter relied on Python's asyncio library, which is not meant for beginner programmers. By combining the best of callbacks and coroutines, Discordia was, hopefully, made to be beginner-friendly, but not functionally limited.
+
+During the development of Discordia, I discovered that a Luvit library had come before me: [luv-discord](https://github.com/sclark39/luv-discord). Like discord.lua, it was incomplete and had not been updated for months; however, its author has since contributed to Discordia. So, here's an honorable mention to [sclark39](https://github.com/sclark39) for doing it first, and for contributing to Discordia.
 
 ### FAQs
 
