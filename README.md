@@ -50,7 +50,7 @@ Can I run this on a different Lua distribution?
 - The development and deployment of Discordia relies on the Luvit framework. Porting Discordia and its dependencies to pure LuaJIT or Lua 5.x may be possible, but it is not currently a priority.
 
 Does Discordia support voice chat?
-- There are no plans to implement voice chat at this time.
+- Proper voice support is not currently available, though I do wish to implement it in the future. 
 
 How can I contribute?
 - Pull requests are welcomed, but it is a good idea to check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
