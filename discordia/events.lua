@@ -1,13 +1,13 @@
-local path = './classes/discord'
+local path = './classes/snowflake'
 local User = require(path .. '/user')
 local Role = require(path .. '/role')
 local Member = require(path .. '/member')
 local Server = require(path .. '/server')
 local Message = require(path .. '/message')
-local VoiceState = require(path .. '/voicestate')
 local PrivateChannel = require(path .. '/privatechannel')
 local ServerTextChannel = require(path .. '/servertextchannel')
 local ServerVoiceChannel = require(path .. '/servervoicechannel')
+local VoiceState = require('./classes/voicestate')
 local timer = require('timer')
 
 local events = {}

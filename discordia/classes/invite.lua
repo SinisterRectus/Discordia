@@ -1,4 +1,4 @@
-local endpoints = require('../../endpoints')
+local endpoints = require('../endpoints')
 
 local Invite = class('Invite')
 

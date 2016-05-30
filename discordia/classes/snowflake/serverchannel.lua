@@ -1,4 +1,4 @@
-local Invite = require('./invite')
+local Invite = require('../invite')
 local Channel = require('./channel')
 local Permissions = require('../permissions')
 local endpoints = require('../../endpoints')

@@ -7,11 +7,11 @@ local events = require('./events')
 local package = require('./package')
 local endpoints = require('./endpoints')
 
-local Invite = require('./classes/discord/invite')
-local Server = require('./classes/discord/server')
+local Server = require('./classes/snowflake/server')
 
 local Error = require('./classes/error')
 local Warning = require('./classes/warning')
+local Invite = require('./classes/invite')
 local WebSocket = require('./classes/websocket')
 
 local camelify = utils.camelify
