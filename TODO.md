@@ -3,16 +3,17 @@ Probable additions
 	- Can use for methods like Client:sendMessage(channelId, content) when only the IDs are known.
 	- Can be called by methods like Channel:sendMessage(content) when the objects exist.
 	- Can be used with getObjectById when the object is not cached.
+	- Better rate limiting
+	- Error codes
 - Handle USER_SETTINGS_UPDATE
 - Move Server/Channel/Role positions
 - Embeds and file sharing
 - Sharding
-- Optional Client init args (max messages, grab initial messages, auto reconnect, auto retry, max retries, default date format)
+- Optional Client init args (max messages, grab initial messages, auto reconnect, auto retry, max retries, default date format, toggle caching)
 - Change Server to Guild
 - Get server icon
 - Implement Game object
 - Twitch streaming url
-- REST error codes
 - Utilities for iterating/searching/finding objects
 
 Possible additions
@@ -22,9 +23,7 @@ Possible additions
 - Cache objects
 
 Fixes Needed
-- Better rate limiting
 - Make delayed ready event more explicit
 - Add milliseconds to message.timestamp
-- Remove channel id from message
 - Fix voice state count
 - Fix game updating

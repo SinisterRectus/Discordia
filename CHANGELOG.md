@@ -2,9 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-### Future
+### 0.5.1
 - Added Member:kick() overload method
 - table.reverse now reverses a table in place
+
 
 ### 0.5.0
 - Implemented basic Permissions handling
