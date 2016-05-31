@@ -43,6 +43,10 @@ function Permissions:hasPermission(flag)
 	return bit.band(self.value, flags[flag]) > 0
 end
 
+function Permissions:toHex()
+	return string.format('0x%08X', self.value)
+end
+
 function Permissions:toDec()
 	return self.value
 end

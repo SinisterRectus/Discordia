@@ -4,6 +4,7 @@
 
 ### Future
 - Added "0x" to Color:toHex() output
+- Added Permissions:toHex() method
 
 
 ### 0.5.2
