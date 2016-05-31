@@ -2,9 +2,14 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### 0.5.2
+- Fixed critical issue with lit package metadata
+
+
 ### 0.5.1
 - Added Member:kick() overload method
 - table.reverse now reverses a table in place
+- Reorganized directories
 
 
 ### 0.5.0
