@@ -2,6 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### Future
+- Added "0x" to Color:toHex() output
+
+
 ### 0.5.2
 - Fixed critical issue with lit package metadata
 
