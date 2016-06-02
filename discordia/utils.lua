@@ -91,18 +91,18 @@ local function snowflakeToDate(id, format)
 end
 
 local function dateToTime(dateString)
-	local pattern = '(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)'
-	local year, month, day, hour, min, sec = string.match(dateString, pattern)
+	local pattern = '(%d+)%-(%d+)%-(%d+)T(%d+):(%d+):(%d+)'
+	if dateString:find('%.') then pattern = pattern .. '%.(%d+)' end
+	local year, month, day, hour, min, sec, msec = string.match(dateString, pattern)
 	local lt, ut = os.date('*t'), os.date('!*t')
 	local offset = (ut.hour * 3600 + ut.min * 60 + ut.sec) - (lt.hour * 3600 + lt.min * 60 + lt.sec)
-	return os.time({
-		year = year,
-		month = month,
-		day = day,
-		hour = hour,
-		min = min,
-		sec = sec,
+	local time = os.time({
+		year = year, month = month,
+		day = day, hour = hour,
+		min = min, sec = sec,
 	}) - offset
+	if msec then time = time + msec:gsub("0*$", "") / 1000 end
+	return time
 end
 
 return {

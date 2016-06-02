@@ -7,6 +7,7 @@
 - Added Permissions:toHex() method
 - Fixed issue where server owner was nil
 - Server.joinedAt is now a Unix timestamp
+- utils.dateToTime and resulting timestamps now support milliseconds
 
 
 ### 0.5.2

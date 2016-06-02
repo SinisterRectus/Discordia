@@ -26,6 +26,5 @@ Possible additions
 
 Fixes Needed
 - Make delayed ready event more explicit
-- Add milliseconds to message.timestamp
 - Fix voice state count
 - Fix game updating
