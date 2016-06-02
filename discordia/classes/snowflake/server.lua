@@ -7,6 +7,7 @@ local endpoints = require('../../endpoints')
 local VoiceState = require('../voicestate')
 local ServerTextChannel = require('./servertextchannel')
 local ServerVoiceChannel = require('./servervoicechannel')
+local dateToTime = require('../../utils').dateToTime
 
 local Server  = class("Server", Base)
 
@@ -15,7 +16,7 @@ function Server:__init(data, client)
 	Base.__init(self, data.id, client)
 
 	self.large = data.large -- boolean
-	self.joinedAt = data.joinedAt -- string
+	self.joinedAt = dateToTime(data.joinedAt) -- string
 
 	if self.large then client.websocket:requestGuildMembers(self.id) end
 

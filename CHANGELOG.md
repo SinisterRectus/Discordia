@@ -6,6 +6,7 @@
 - Added "0x" to Color:toHex() output
 - Added Permissions:toHex() method
 - Fixed issue where server owner was nil
+- Server.joinedAt is now a Unix timestamp
 
 
 ### 0.5.2

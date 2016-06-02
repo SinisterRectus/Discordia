@@ -29,4 +29,3 @@ Fixes Needed
 - Add milliseconds to message.timestamp
 - Fix voice state count
 - Fix game updating
-- Parse server.joinedAt to unix time (check against other timestamps)
