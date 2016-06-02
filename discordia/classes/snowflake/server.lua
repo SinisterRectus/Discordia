@@ -24,7 +24,20 @@ function Server:__init(data, client)
 	self.channels = {}
 	self.voiceStates = {}
 
-	self:_update(data)
+	self.name = data.name -- string
+	self.icon = data.icon -- string
+	self.regionId = data.regionId -- string
+	self.afkTimeout = data.afkTimeout -- number
+	self.embedEnabled = data.embedChannelId-- boolean
+	self.embedChannelId = data.embedChannelId -- string
+	self.verificationLevel = data.verificationLevel -- number
+	-- self.emojis = data.emojis -- need to handle
+	-- self.features = data.features -- need to handle
+
+	for _, roleData in ipairs(data.roles) do
+		local role = Role(roleData, self)
+		self.roles[role.id] = role
+	end
 
 	if data.members then
 		for _, memberData in ipairs(data.members) do
@@ -59,9 +72,11 @@ function Server:__init(data, client)
 		end
 	end
 
+	self.me = self.members[client.user.id]
+	self.owner = self.members[data.ownerId] -- string
+	self.afkChannel = self.channels[data.afkChannelId] -- string
 	self.defaultChannel = self.channels[self.id]
 	self.defaultRole = self.roles[self.id]
-	self.me = self.members[client.user.id]
 
 end
 

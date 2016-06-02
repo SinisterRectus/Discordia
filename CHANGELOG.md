@@ -5,6 +5,7 @@
 ### Future
 - Added "0x" to Color:toHex() output
 - Added Permissions:toHex() method
+- Fixed issue where server owner was nil
 
 
 ### 0.5.2
