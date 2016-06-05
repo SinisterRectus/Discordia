@@ -9,7 +9,8 @@ function Warning:__init(message, traceback)
 end
 
 function Warning:__tostring()
-	return colorize('highlight', self.message .. '\n' .. self.traceback)
+	local msg = string.format('%s\n%s\n%s', os.date(), self.message, self.traceback)
+	return colorize('highlight', msg)
 end
 
 return Warning

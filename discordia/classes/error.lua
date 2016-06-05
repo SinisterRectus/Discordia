@@ -9,7 +9,8 @@ function Error:__init(message, traceback)
 end
 
 function Error:__tostring()
-	return colorize('failure', self.message .. '\n' .. self.traceback)
+	local msg = string.format('%s\n%s\n%s', os.date(), self.message, self.traceback)
+	return colorize('failure', msg)
 end
 
 return Error
