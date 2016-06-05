@@ -36,12 +36,10 @@ function User:sendMessage(content)
 end
 
 function User:ban(server) -- Server:banUser(user)
-	-- do they need to be a member?
 	self.client:request('PUT', {endpoints.servers, server.id, 'bans', self.id}, {})
 end
 
 function User:unban(server) -- Server:unbanUser(user)
-	-- what if they are not banned?
 	self.client:request('DELETE', {endpoints.servers, server.id, 'bans', self.id})
 end
 

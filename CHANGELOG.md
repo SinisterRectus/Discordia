@@ -2,6 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### Future
+- Added User object fallback for member[Ban/Unban]
+
+
 ### 0.5.3
 - Added "0x" to Color:toHex() output
 - Added Permissions:toHex() method

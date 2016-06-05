@@ -6,6 +6,7 @@ Probable additions
 	- Better rate limiting
 	- Error codes
 - Handle USER_SETTINGS_UPDATE
+- Handle MESSAGE_BULK_DELETE
 - Move Server/Channel/Role positions
 - Embeds and file sharing
 - Sharding

@@ -193,16 +193,18 @@ end
 
 function events.guildBanAdd(data, client)
 
+	-- might want to change to userBan
 	local server = client:getServerById(data.guildId)
-	local member = server:getMemberById(data.user.id)
+	local member = server:getMemberById(data.user.id) or User(data.user, client)
 	client:emit('memberBan', member)
 
 end
 
 function events.guildBanRemove(data, client)
 
+	-- might want to change to userUnban
 	local server = client:getServerById(data.guildId)
-	local member = server:getMemberById(data.user.id)
+	local member = server:getMemberById(data.user.id) or User(data.user, client)
 	client:emit('memberUnban', member)
 
 end
