@@ -4,6 +4,8 @@
 
 ### Future
 - Added User object fallback for member[Ban/Unban]
+- Added local datetime to Error/Warning output
+- Fixed critical issue where client would not recognize a resumed connection
 
 
 ### 0.5.3

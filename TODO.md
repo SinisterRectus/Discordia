@@ -16,7 +16,6 @@ Probable additions
 - Implement Game object
 - Twitch streaming url
 - Utilities for iterating/searching/finding objects
-- Timestamps for error messages
 - Logging support
 
 Possible additions

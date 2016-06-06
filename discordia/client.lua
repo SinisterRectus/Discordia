@@ -187,6 +187,8 @@ function Client:connectWebsocket(resuming)
 		self:startWebsocketHandler()
 	end
 
+	return true
+
 end
 
 function Client:disconnectWebsocket()
