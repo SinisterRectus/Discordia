@@ -2,7 +2,7 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-### Future
+### 0.5.4
 - Added User object fallback for member[Ban/Unban]
 - Added local datetime to Error/Warning output
 - Fixed critical issue where client would not recognize a resumed connection
