@@ -23,6 +23,9 @@ Possible additions
 - Iterators for things like getServers
 - Implement private/public attributes
 - Cache objects
+- Helper functions, like find, findAll, getMembersWithRole, ...
+- Dynamically generate object properties from data?
+  - Rather than parse the data on object creation, parse it only when the object is accessed
 
 Fixes Needed
 - Make delayed ready event more explicit
