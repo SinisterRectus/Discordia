@@ -2,6 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### 0.5.5
+- Fixed regression due to Message.channelId removal
+
+
 ### 0.5.4
 - Added User object fallback for member[Ban/Unban]
 - Added local datetime to Error/Warning output
