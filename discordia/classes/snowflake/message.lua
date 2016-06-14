@@ -59,11 +59,11 @@ end
 
 function Message:setContent(content)
 	local body = {content = content}
-	self.client:request('PATCH', {endpoints.channels, self.channelId, 'messages', self.id}, body)
+	self.client:request('PATCH', {endpoints.channels, self.channel.id, 'messages', self.id}, body)
 end
 
 function Message:delete()
-	self.client:request('DELETE', {endpoints.channels, self.channelId, 'messages', self.id})
+	self.client:request('DELETE', {endpoints.channels, self.channel.id, 'messages', self.id})
 end
 
 function Message:mentionsMember(member)
