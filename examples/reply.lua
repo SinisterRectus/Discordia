@@ -22,6 +22,5 @@ client:on('messageCreate', function(message)
 end)
 
 -- run your client
--- don't forget to change the email and password
--- or use a bot token with client:run(token)
-client:run('email', 'password')
+-- don't forget to change the token to your own!
+client:run('token')
