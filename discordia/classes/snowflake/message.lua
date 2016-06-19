@@ -91,7 +91,7 @@ function Message:mentionsChannel(channel)
 end
 
 function Message:acknowledge()
-	self.client:request('POST', {endpoints.channels, self.channelId, 'messages', self.id, 'ack'}, {})
+	self.client:request('POST', {endpoints.channels, self.channel.id, 'messages', self.id, 'ack'}, {})
 end
 
 return Message
