@@ -1,4 +1,6 @@
 local Base = class('Base')
+local utils = require('../../utils')
+local isInstanceOf = utils.isInstanceOf
 
 function Base:__init(id, client)
 	self.id = id
@@ -6,7 +8,7 @@ function Base:__init(id, client)
 end
 
 function Base:__eq(other)
-	return self.id == other.id
+	return self.id == other.id and isInstanceOf(self, other.__index)
 end
 
 function Base:__tostring()
