@@ -12,7 +12,7 @@ function Member:__init(data, server)
 	self.deaf = data.deaf -- boolean, whether the user is deaf (can't hear others in voice channel)
 	self.mute = data.mute -- boolean, whether the user is mute (can't broadcast their beautiful voice)
 	self.server = server -- Server, self explanatory
-	self.status = 'offline' -- string, self explanatory
+	self.status = 'offline' -- string, can be 'offline', 'away', or 'online'
 	self.nickname = data.nick -- string, self explanatory
 	self.name = self.nickname or self.username -- string, self explanatory
 	self.joinedAt = dateToTime(data.joinedAt) -- number, self explanatory
