@@ -105,9 +105,21 @@ local function dateToTime(dateString)
 	return time
 end
 
+local function isInstanceOf(obj, class)
+	if obj.__index == class then return true end
+	for _, base in ipairs(obj.__index.__bases) do
+		if base == class then
+			return true
+		else
+			return isInstanceOf(base, class)
+		end
+	end
+end
+
 return {
 	camelify = camelify,
 	dateToTime = dateToTime,
 	snowflakeToTime = snowflakeToTime,
 	snowflakeToDate = snowflakeToDate,
+	isInstanceOf = isInstanceOf,
 }
