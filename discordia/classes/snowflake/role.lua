@@ -6,24 +6,19 @@ local endpoints = require('../../endpoints')
 local Role = class('Role', Base)
 
 function Role:__init(data, server)
-
 	Base.__init(self, data.id, server.client)
 
-	self.server = server
-	self:_update(data)
-
+	self.server = server -- Server, self explanatory
+	self:_update(data) -- sets data, don't call this
 end
 
 function Role:_update(data)
-
 	self.name = data.name
 	self.hoist = data.hoist
 	self.managed = data.managed
 	self.position = data.position
-
 	self.color = Color(data.color)
 	self.permissions = Permissions(data.permissions)
-
 end
 
 local setParams = {'color', 'hoist', 'name', 'permissions'}
@@ -42,15 +37,25 @@ function Role:set(options)
 	self.client:request('PATCH', {endpoints.servers, self.server.id, 'roles', self.id}, body)
 end
 
-function Role:moveUp()
-end
+--- NON-FUNCTIONAL FUNCTIONS ---
+-- function Role:moveUp()
+-- 
+-- end
+--
+-- function Role:moveDown()
+-- 
+-- end
+--------------------------------
 
-function Role:moveDown()
-end
+-- attempts to delete the role
+-- needs the appropriate permissions, of course
 
 function Role:delete()
 	self.client:request('DELETE', {endpoints.servers, self.server.id, 'roles', self.id})
 end
+
+-- gets the string you need to mention the role
+-- usually <@&[role ID here]>
 
 function Role:getMentionString()
 	return string.format('<@&%s>', self.id)
