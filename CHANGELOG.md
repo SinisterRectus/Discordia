@@ -2,6 +2,15 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### 0.5.6
+- Added API client class (not yet exposed)
+- Updated class constructor
+  - Reduced memory footprint by 30 to 40%
+- Added isInstanceOf utility function
+- Equality operator now correctly considers type
+  - Fixes an issue where Server == defaultChannel or defaultRole was true
+
+
 ### 0.5.5
 - Fixed regression due to Message.channelId removal
 
