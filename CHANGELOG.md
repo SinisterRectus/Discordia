@@ -2,6 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### 0.5.7
+- Reverted class overhaul due to complicated bugs
+
+
 ### 0.5.6
 - Added API client class (not yet exposed)
 - Updated class constructor

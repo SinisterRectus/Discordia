@@ -13,6 +13,7 @@ Probable additions
 - Logging support
 - getMessageHistory before/after
 - implement role creation
+- return more values
 
 Possible additions
 - Change Client to use custom class
@@ -30,3 +31,6 @@ Fixes Needed
 - Consider changing ban events to handle User objects, not Members
 - Allow users to set roles via object methods
 - Account for (or remove) channel mentions in private messages
+- check that table.deepcount is accurate
+- enhance permissions abstraction
+- fix member roles not being updated

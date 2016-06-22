@@ -13,7 +13,7 @@ local API = class('API')
 function API:__init(token, client)
 	self.client = client
 	self.headers = {
-		['Content-Type'] = 'application/json; charset=utf-8',
+		['Content-Type'] = 'application/json',
 		['User-Agent'] = string.format('DiscordBot (%s, %s)', package.homepage, package.version),
 		['Authorization'] = token,
 	}
