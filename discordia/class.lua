@@ -22,7 +22,8 @@ return function(name, ...)
 
 	local class = setmetatable({__tostring = obj__tostring}, mt)
 
-	for _, base in ipairs({...})  do
+	local bases = {...}
+	for _, base in ipairs(bases)  do
 		for k, v in next, base do
 			rawset(class, k, v)
 		end
@@ -30,6 +31,7 @@ return function(name, ...)
 
 	rawset(class, '__name', name)
 	rawset(class, '__index', class)
+	rawset(class, '__bases', bases)
 
 	return class
 
