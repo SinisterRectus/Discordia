@@ -36,6 +36,7 @@ function Member:_update(data)
 	for _, roleId in ipairs(data.roles) do
 		member.roles[roleId] = server.roles[roleId]
 	end
+	self.nickname = data.nick
 end
 
 local setParams = {'nickname', 'roles', 'mute', 'deaf'}
