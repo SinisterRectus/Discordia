@@ -2,6 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### 0.5.8
+- Partial restoration of class overhaul for critical fix
+
+
 ### 0.5.7
 - Reverted class overhaul due to complicated bugs
 
