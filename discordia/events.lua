@@ -264,12 +264,7 @@ function events.guildMemberUpdate(data, client)
 
 	local server = client:getServerById(data.guildId)
 	local member = server:getMemberById(data.user.id)
-	-- should probably move this into a function
-	member.roles = {}
-	for _, roleId in ipairs(data.roles) do
-		member.roles[roleId] = server.roles[roleId]
-	end
-	member.nickname = data.nick
+	member:_update(data)
 	client:emit('memberUpdate', member)
 
 end
