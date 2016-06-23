@@ -32,9 +32,11 @@ function Member:_update(data)
 	end
 	self.status = data.status or self.status or 'offline'
 	self.gameName = data.game and data.game.name or self.gameName
-	member.roles = {}
-	for _, roleId in ipairs(data.roles) do
-		member.roles[roleId] = server.roles[roleId]
+	if data.roles then
+		self.roles = {}
+		for _, roleId in ipairs(data.roles) do
+			self.roles[roleId] = self.server.roles[roleId]
+		end
 	end
 	self.nickname = data.nick
 end
