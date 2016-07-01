@@ -23,14 +23,11 @@ Possible additions
 - Helper functions, like find, findAll, getMembersWithRole, ...
 - Dynamically generate object properties from data?
   - Rather than parse the data on object creation, parse it only when the object is accessed
+- enhance permissions abstraction
 
 Fixes Needed
 - Make delayed ready event more explicit
 - Fix voice state count
 - Fix game updating
 - Consider changing ban events to handle User objects, not Members
-- Allow users to set roles via object methods
-- Account for (or remove) channel mentions in private messages
-- check that table.deepcount is accurate
-- enhance permissions abstraction
 - fix member roles not being updated

@@ -2,6 +2,14 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### 0.6.0
+- Member:setRoles now accepts a table of roles instead of IDs
+- Tweaked internal Member updating
+- Mentions are now ignored in private/direct messages
+- Fixed issue where private message author was always the channel recipient
+- Fixed erroneous private message parenting for User:sendMessage
+
+
 ### 0.5.8
 - Partial restoration of class overhaul for critical fix
 
