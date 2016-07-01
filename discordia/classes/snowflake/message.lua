@@ -18,28 +18,32 @@ function Message:__init(data, channel)
 	self.timestamp = dateToTime(data.timestamp) -- string
 	self.attachments = data.attachents -- table
 
-	self.author = self.channel.recipient or self.server:getMemberById(data.author.id)
-
-	self.mentions = {members = {}, channels = {}, roles = {}}
-
-	for _, memberData in ipairs(data.mentions) do
-		local member = self.server.members[memberData.id]
-		self.mentions.members[memberData.id] = member
-	end
-
-	for _, roleId in ipairs(data.mentionRoles) do
-		local role = self.server.roles[roleId]
-		self.mentions.roles[roleId] = role
-	end
-
-	for mention in self.content:gmatch('<#.->') do
-		local channelId = mention:sub(3, -2)
-		local channel = self.server.channels[channelId]
-		self.mentions.channels[channelId] = channel
-	end
-
-	if data.mentionEveryone then
-		self.mentions.roles[self.server.id] = self.server.defaultRole
+	if self.channel.isPrivate then
+		if data.author.id == self.client.user.id then
+			self.author = self.client.user
+		else
+			self.author = self.channel.recipient
+		end
+	else
+		self.author = self.server:getMemberById(data.author.id)
+		local mentions = {members = {}, roles = {}, channels = {}}
+		local server = self.server
+		for _, data in ipairs(data.mentions) do
+			local member = server:getMemberById(data.id)
+			mentions.members[member.id] = member
+		end
+		for _, id in ipairs(data.mentionRoles) do
+			local role = server:getRoleById(id)
+			mentions.roles[role.id] = role
+		end
+		for mention in self.content:gmatch('<#.->') do
+			local channel = server:getChannelById(mention:sub(3, -2))
+			mentions.channels[channel.id] = channel
+		end
+		if data.mentionEveryone then
+			mentions.roles[self.server.id] = self.server.defaultRole
+		end
+		self.mentions = mentions
 	end
 
 end
