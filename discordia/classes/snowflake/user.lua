@@ -1,6 +1,7 @@
 local Base = require('./base')
 local Message = require('./message')
 local endpoints = require('../../endpoints')
+local PrivateChannel -- lazy require
 
 local User = class('User', Base)
 
@@ -29,9 +30,11 @@ function User:sendMessage(content)
 	local channelBody = {recipient_id = self.id}
 	local channelData = self.client:request('POST', {endpoints.me, 'channels'}, channelBody)
 	if channelData then
+		PrivateChannel = PrivateChannel or require('./privatechannel')
+		local channel = PrivateChannel(channelData, self.client)
 		local messageBody = {content = content}
 		local messageData = self.client:request('POST', {endpoints.channels, channelData.id, 'messages'}, messageBody)
-		if messageData then return Message(messageData, self) end
+		if messageData then return Message(messageData, channel) end
 	end
 end
 
