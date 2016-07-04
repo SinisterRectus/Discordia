@@ -2,6 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### Future
+- Fixed issue where mentioned object would be nil
+
+
 ### 0.6.0
 - Member:setRoles now accepts a table of roles instead of IDs
 - Tweaked internal Member updating

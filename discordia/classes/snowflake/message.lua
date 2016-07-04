@@ -30,15 +30,15 @@ function Message:__init(data, channel)
 		local server = self.server
 		for _, data in ipairs(data.mentions) do
 			local member = server:getMemberById(data.id)
-			mentions.members[member.id] = member
+			if member then mentions.members[member.id] = member end
 		end
 		for _, id in ipairs(data.mentionRoles) do
 			local role = server:getRoleById(id)
-			mentions.roles[role.id] = role
+			if role then mentions.roles[role.id] = role end
 		end
 		for mention in self.content:gmatch('<#.->') do
 			local channel = server:getChannelById(mention:sub(3, -2))
-			mentions.channels[channel.id] = channel
+			if channel then mentions.channels[channel.id] = channel end
 		end
 		if data.mentionEveryone then
 			mentions.roles[self.server.id] = self.server.defaultRole
