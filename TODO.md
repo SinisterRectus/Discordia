@@ -5,11 +5,9 @@ Probable additions
 - Embeds and file sharing
 - Sharding
 - Optional Client init args (max messages, grab initial messages, auto reconnect, auto retry, max retries, default date format, toggle caching)
-- Change Server to Guild
 - Get server icon
 - Implement Game object
 - Twitch streaming url
-- Utilities for iterating/searching/finding objects
 - Logging support
 - getMessageHistory before/after
 - implement role creation
@@ -17,10 +15,8 @@ Probable additions
 
 Possible additions
 - Change Client to use custom class
-- Iterators for things like getServers
 - Implement private/public attributes
-- Cache objects
-- Helper functions, like find, findAll, getMembersWithRole, ...
+- Helper functions, like getMembersWithRole, ...
 - Dynamically generate object properties from data?
   - Rather than parse the data on object creation, parse it only when the object is accessed
 - enhance permissions abstraction
