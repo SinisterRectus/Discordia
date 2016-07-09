@@ -95,12 +95,13 @@ local function dateToTime(dateString)
 	if dateString:find('%.') then pattern = pattern .. '%.(%d+)' end
 	local year, month, day, hour, min, sec, msec = string.match(dateString, pattern)
 	local lt, ut = os.date('*t'), os.date('!*t')
-	local offset = (ut.hour * 3600 + ut.min * 60 + ut.sec) - (lt.hour * 3600 + lt.min * 60 + lt.sec)
+	local dt = os.time(lt) - os.time(ut)
+	if lt.isdst then dt = dt + 3600 end
 	local time = os.time({
 		year = year, month = month,
 		day = day, hour = hour,
 		min = min, sec = sec,
-	}) - offset
+	}) + dt
 	if msec then time = time + msec:gsub("0*$", "") / 1000 end
 	return time
 end
