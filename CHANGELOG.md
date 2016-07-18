@@ -1,6 +1,8 @@
 # Changelog
 
-*Backwards compatibility not guaranteed until after version 1.0.0*
+### 1.0.0
+*Coming soon*
+
 
 ### 0.6.1
 - Fixed issue where mentioned object would be nil

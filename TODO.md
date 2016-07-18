@@ -1,29 +1,21 @@
 Probable additions
-- Handle USER_SETTINGS_UPDATE
-- Handle MESSAGE_BULK_DELETE
-- Move Server/Channel/Role positions
-- Embeds and file sharing
+- API calls need to be exposed to invididual classes
+- Message mentions, embeds, and attachments
+- File sharing
 - Sharding
-- Optional Client init args (max messages, grab initial messages, auto reconnect, auto retry, max retries, default date format, toggle caching)
-- Get server icon
-- Implement Game object
 - Twitch streaming url
 - Logging support
-- getMessageHistory before/after
-- implement role creation
-- return more values
+- Guild emojis and features
 
 Possible additions
+- Implement Game object
+- Handle USER_SETTINGS_UPDATE and USER_GUILD_SETTINGS_UPDATE
 - Change Client to use custom class
 - Implement private/public attributes
 - Helper functions, like getMembersWithRole, ...
-- Dynamically generate object properties from data?
-  - Rather than parse the data on object creation, parse it only when the object is accessed
-- enhance permissions abstraction
+- Memory optimizations for class construction
+- Make ready timeout relative to guild loading
+- Split GUILD_DELETE into deletion/unavailability
+- Voice support
 
 Fixes Needed
-- Make delayed ready event more explicit
-- Fix voice state count
-- Fix game updating
-- Consider changing ban events to handle User objects, not Members
-- fix member roles not being updated

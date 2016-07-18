@@ -1,38 +1,54 @@
-local mt = {}
+local meta = {}
 
-function mt:__call(...)
+function meta:__call(...)
 	local obj = setmetatable({}, self)
-	if type(obj.__init) == 'function' then
-		obj:__init(...)
-	end
+	obj:__init(...)
 	return obj
 end
 
-function mt:__tostring()
+function meta:__tostring()
 	return 'class: ' .. self.__name
 end
 
-local function obj__tostring(self)
+local default = {}
+
+function default:__tostring()
 	return 'instance of class: ' .. self.__name
 end
 
 return function(name, ...)
 
-	assert(type(name) == 'string', 'Invalid class name')
+	local class = setmetatable({}, meta)
+	local accessors = {}
 
-	local class = setmetatable({__tostring = obj__tostring}, mt)
+	for k, v in pairs(default) do
+		class[k] = v
+	end
 
 	local bases = {...}
-	for _, base in ipairs(bases)  do
-		for k, v in next, base do
-			rawset(class, k, v)
+	for _, base in ipairs(bases) do
+		for k, v in pairs(base) do
+			class[k] = v
+		end
+		for k, v in pairs(base.__accessors) do
+			accessors[k] = v
 		end
 	end
 
-	rawset(class, '__name', name)
-	rawset(class, '__index', class)
-	rawset(class, '__bases', bases)
+	class.__name = name
+	class.__bases = bases
+	class.__class = class
+	class.__accessors = accessors
 
-	return class
+	function class:__index(k)
+		local accessor = accessors[k]
+		if accessor then
+			return accessor(self)
+		else
+			return class[k]
+		end
+	end
+
+	return class, accessors
 
 end

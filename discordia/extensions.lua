@@ -1,3 +1,5 @@
+-- globals --
+
 function _G.printf(...)
 	return print(string.format(...))
 end
