@@ -4,11 +4,11 @@
 
 ### Introduction
 
-**[Discord](https://discordapp.com/)** is a free, multi-platform, voice and text client designed for gamers.
+**[Discord](https://discordapp.com/)** is a freeware, multi-platform, voice and text client designed for gamers.
 
 **[Luvit](https://luvit.io)** provides an asynchronous I/O environment for Lua, similar to that of [Node.js](https://nodejs.org/en/).
 
-This library is a Lua wrapper for the official Discord API, and provides an object-oriented, event driven interface for rapidly developing Discord bots. By using Lua's native coroutines, asynchronous REST and WebSocket communication is internally abstracted in a way that allows end-users to write blocking-style code without blocking I/O.
+This library is a Lua wrapper for the official Discord API, and provides an object-oriented, event driven interface for developing Discord bots. By using Lua's native coroutines, asynchronous REST and WebSocket communication is internally abstracted in a way that allows end-users to write blocking-style code without blocking I/O.
 
 Join the [Discord API server](https://discord.gg/0SBTUU1wZTWVpm07) to discuss Discordia and other Discord libraries!
 
@@ -34,9 +34,7 @@ The earliest version of Discordia, before it even had that name, was released as
 
 Due to a lack of WebSocket support and difficulties in developing a stable module, the Just Cause 2 Multiplayer project was put on hold in favor of a general-purpose Lua library for Discord. At the time, [discord.lua](https://github.com/VideahGams/discord.lua), was the only other Discord library of which I was aware. It required LuaJIT, was very incomplete, and abandoned by its author indefinitely. I decided to start my Luvit-powered library from scratch.
 
-Amongst the already established Discord libraries, discord.js and discord.py were the two that I used as models for Discordia. As a node.js library, the former relied heavily on callbacks, while the latter relied on Python's asyncio library, which is not meant for beginner programmers. By combining the best of callbacks and coroutines, Discordia was, hopefully, made to be beginner-friendly, but not functionally limited.
-
-During the development of Discordia, I discovered that a Luvit library had come before me: [luv-discord](https://github.com/sclark39/luv-discord). Like discord.lua, it was incomplete and had not been updated for months; however, its author has since contributed to Discordia. So, here's an honorable mention to [sclark39](https://github.com/sclark39) for doing it first, and for contributing to Discordia.
+During the development of Discordia, I discovered that a Luvit library had come before me: [luv-discord](https://github.com/sclark39/luv-discord). Like discord.lua, it was incomplete and had not been updated for months. So, here's an honorable mention to [sclark39](https://github.com/sclark39) for doing it first, and for contributing to Discordia.
 
 ### FAQs
 
@@ -50,13 +48,13 @@ Can I run this on a different Lua distribution?
 - The development and deployment of Discordia relies on the Luvit framework. Porting Discordia and its dependencies to pure LuaJIT or Lua 5.x may be possible, but it is not currently a priority.
 
 Does Discordia support voice chat?
-- Proper voice support is not currently available, though I do wish to implement it in the future.
+- Voice States are cached in Discordia, but full voice support is not currently available.
 
 How can I contribute?
 - Pull requests are welcomed, but it is a good idea to check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
 
 How does this differ from other Lua libraries?
-- Discordia was the first Lua library to be officially recognized by the Discord API community linked above. As an open source library, Discordia relies on contributions and endorsements from its users to grow and expand. There is currently a second recognized Lua library, [litcord](https://github.com/satom99/litcord), in development. At the time of writing this statement, Discordia and litcord both run on Luvit, both use a combination of coroutines and callbacks, both are object-oriented, both support most REST and WebSocket features, both support object caching, and both do not have voice support. There are differences in the internal code structures, but because of the similar interface, any contributions made to improve litcord may also benefit Discordia, and vice versa. Please take this into consideration when choosing to use or contribute to one of the existing, or any future Lua libraries.
+- Discordia was the first Lua library to be officially recognized by the Discord API community linked above. As an open source library, Discordia relies on contributions and endorsements from its users to grow and expand. There is currently a second recognized Lua library, [litcord](https://github.com/satom99/litcord), in development. Both libraries are very similar user interfaces, but they have different internal structures. Please take this into consideration when choosing to use or contribute to one of the existing, or any future Lua libraries.
 
 ### Documentation
 

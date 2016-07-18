@@ -2,8 +2,10 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
-### Future
+### 0.6.1
 - Fixed issue where mentioned object would be nil
+- Fixed issue with UTC time parsing
+- Updated secure-socket dependency to version 0.1.4
 
 
 ### 0.6.0

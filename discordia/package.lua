@@ -22,13 +22,13 @@ SOFTWARE.]]
 
 return {
 	name = 'SinisterRectus/discordia',
-	version = '0.6.0',
+	version = '0.6.1',
 	homepage = 'https://github.com/SinisterRectus/Discordia',
 	dependencies = {
 		'creationix/md5@v1.0.2-1',
 		'creationix/coro-http@2.1.1',
 		'creationix/coro-websocket@1.0.0-1',
-		'luvit/secure-socket@1.1.2',
+		'luvit/secure-socket@1.1.4',
 	},
 	tags = {'discord', 'api'},
 	license = 'MIT',
