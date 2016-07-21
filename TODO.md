@@ -15,7 +15,6 @@ Possible additions
 - Helper functions, like getMembersWithRole, ...
 - Memory optimizations for class construction
 - Make ready timeout relative to guild loading
-- Split GUILD_DELETE into deletion/unavailability
 - Voice support
 
 Fixes Needed

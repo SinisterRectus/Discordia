@@ -165,12 +165,16 @@ function EventHandler.GUILD_UPDATE(data, client)
 end
 
 function EventHandler.GUILD_DELETE(data, client)
-	-- TODO split into deletion and unavailability, maybe
 	local guild = client.guilds:get(data.id)
 	if not guild then return warning.cache('guild', 'GUILD_DELETE') end
-	client.guilds:remove(guild)
-	client.api.limiters.perGuild[guild.id] = nil
-	client:emit('guildDelete', guild)
+	if data.unavailable then
+		guild.unavailable = true
+		client:emit('guildUnavailable', guild)
+	else
+		client.guilds:remove(guild)
+		client.api.limiters.perGuild[guild.id] = nil
+		client:emit('guildDelete', guild)
+	end
 end
 
 function EventHandler.GUILD_BAN_ADD(data, client)

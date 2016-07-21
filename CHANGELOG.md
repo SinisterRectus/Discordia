@@ -53,6 +53,7 @@
 	- MESSAGE_ACK handling and `messageAcknowledge` event were removed indefinitely
 	- `memberBan` and `memberUnban` were changed to `userBan` and `userUnban`, respectively, and now provide a `User` object instead of a `Member` object.
 	- GUILD_CREATE handling now results in either `guildAvailable` (for when a known guild becomes available), `guildCreateUnavailable` (for when an unknown guild becomes known, but is unavailable), or `guildCreate` (for when an unknown guild becomes known and is available) events.
+	- GUILD_DELETE handling now results in either `guildUnavailable` (for when a known guild becomes available) or `guildDelete` (for when a known guild is deleted).
 - Some Discord object classes overhauled
   - `Container` acts as a base class to all Discord objects, and provides access to an object's `parent` object and `client`.
   - All Discord objects that have a snowflake ID inherit from the `Snowflake` class, which inherits from `Container`, and provides access to an object's `id` and `createdAt` time.
