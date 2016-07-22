@@ -26,6 +26,7 @@
   - `failure` prints a message with red highlighting, dumps a traceback, and terminates the program
 - `endpoints` module removed; all endpoints are managed in the API class
 - `class` module now supports accessor properties
+- `class` module now has an optional memory-optimized mode
 - `utils` module is removed indefinitely. Most if its functionality is found throughout the library itself.
 - A new `client` directory now houses all modules and classes that are closely related to client operations.
   - The `Client` class was overhauled, though it maintains most of its original behavior:

@@ -13,7 +13,6 @@ Possible additions
 - Change Client to use custom class
 - Implement private/public attributes
 - Helper functions, like getMembersWithRole, ...
-- Memory optimizations for class construction
 - Make ready timeout relative to guild loading
 - Voice support
 

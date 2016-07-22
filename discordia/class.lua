@@ -1,3 +1,5 @@
+local memoryOptimization = false
+
 local meta = {}
 
 function meta:__call(...)
@@ -40,13 +42,44 @@ return function(name, ...)
 	class.__class = class
 	class.__accessors = accessors
 
-	function class:__index(k)
-		local accessor = accessors[k]
-		if accessor then
-			return accessor(self)
-		else
-			return class[k]
+	if memoryOptimization then
+
+		local properties = {}
+		class.__properties = properties
+
+		function class:__index(k)
+			local accessor = accessors[k]
+			if accessor then
+				return accessor(self)
+			else
+				local i = properties[k]
+				if i then
+					return rawget(self, i)
+				end
+				return class[k]
+			end
 		end
+
+		function class:__newindex(k, v)
+			local i = properties[k]
+			if not i then
+				i = #self + 1
+				properties[k] = i
+			end
+			rawset(self, i, v)
+		end
+
+	else
+
+		function class:__index(k)
+			local accessor = accessors[k]
+			if accessor then
+				return accessor(self)
+			else
+				return class[k]
+			end
+		end
+
 	end
 
 	return class, accessors
