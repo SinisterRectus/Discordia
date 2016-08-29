@@ -6,6 +6,8 @@ Probable additions
 - Twitch streaming url
 - Logging support
 - Guild emojis and features
+- Remove os.exit from client:stop()
+- Provide old user object on presenceUpdate (maybe other events)
 
 Possible additions
 - Implement Game object
