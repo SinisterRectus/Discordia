@@ -8,6 +8,7 @@ Probable additions
 - Guild emojis and features
 - Remove os.exit from client:stop()
 - Provide old user object on presenceUpdate (maybe other events)
+- Pinned message getting
 
 Possible additions
 - Implement Game object
