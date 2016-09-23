@@ -53,13 +53,11 @@ function Member:set(options)
 		body[param] = options[param] or self[param]
 	end
 	body.nick, body.nickname = body.nickname or '', nil -- adjust for compatibility
-	local roles = body.roles;
-	for i=1,#roles do
-		local v = roles[i];
-		if type(v) == 'table' then
-			roles[i] = v.id;
-		end
-	end;
+	local roles = {}
+	for _, role in pairs(self.roles) do
+		table.insert(roles, role.id)
+	end
+	body.roles = roles
 	self.client:request('PATCH', {endpoints.servers, self.server.id, 'members', self.id}, body)
 end
 
