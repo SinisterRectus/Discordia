@@ -9,6 +9,7 @@ Probable additions
 - Remove os.exit from client:stop()
 - Provide old user object on presenceUpdate (maybe other events)
 - Pinned message getting
+- User friendly permissions
 
 Possible additions
 - Implement Game object
@@ -20,3 +21,4 @@ Possible additions
 - Voice support
 
 Fixes Needed
+- Check for json null values on user object in presence update
