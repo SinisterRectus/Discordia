@@ -19,6 +19,11 @@ client:on('messageCreate', function(message)
 		-- respond to the user if they type '!hello'
 		message.channel:sendMessage(string.format('Hello, %s', message.author.username))
 	end
+	
+	-- if you want to send a DM instead of answering in the channel just do:
+	if cmd =='!DM' then
+		message.author:sendMessage(string.format("Hey, %s, how are you?", message.author.username))
+	end
 end)
 
 -- run your client
