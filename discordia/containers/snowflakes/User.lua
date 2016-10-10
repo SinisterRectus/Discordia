@@ -3,6 +3,8 @@ local Snowflake = require('../Snowflake')
 local User, accessors = class('User', Snowflake)
 
 accessors.name = function(self) return self.username end
+accessors.discriminator = function(self) return self.discriminator end
+accessors.id = function(self) return self.id end
 
 function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
