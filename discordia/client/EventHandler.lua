@@ -22,6 +22,7 @@ function EventHandler.READY(data, client)
 	client.sessionId = data.session_id
 	client.users = Cache({}, User, 'id', client)
 	client.user = client.users:new(data.user)
+	client.user.email = data.user.email
 	client.guilds = Cache(data.guilds, Guild, 'id', client)
 	client.privateChannels = Cache(data.private_channels, PrivateTextChannel, 'id', client)
 
