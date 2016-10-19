@@ -132,8 +132,8 @@ function Socket:resume()
 	self:send({
 		op = 6,
 		d = {
-			token = client.token,
-			session_id = client.sessionId,
+			token = self.client.token,
+			session_id = self.client.sessionId,
 			seq = self.sequence
 		}
 	})
