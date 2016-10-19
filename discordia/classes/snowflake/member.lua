@@ -54,7 +54,7 @@ function Member:set(options)
 	end
 	body.nick, body.nickname = body.nickname or '', nil -- adjust for compatibility
 	local roles = {}
-	for _, role in pairs(self.roles) do
+	for _, role in pairs(body.roles) do
 		table.insert(roles, role.id)
 	end
 	body.roles = roles
