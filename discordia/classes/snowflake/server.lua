@@ -50,7 +50,9 @@ function Server:__init(data, client)
 	if data.presences then
 		for _, memberData in ipairs(data.presences) do
 			local member = self.members[memberData.user.id]
-			member:_update(memberData) -- status and game update
+			if member then -- invisible member fix
+				member:_update(memberData) -- status and game update
+			end
 		end
 	end
 
