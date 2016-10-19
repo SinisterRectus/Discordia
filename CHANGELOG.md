@@ -2,6 +2,11 @@
 
 *Backwards compatibility not guaranteed until after version 1.0.0*
 
+### 0.6.2
+- Fixed issue where presences were applied to offline members on guild creation
+- Fixed issue where roles where not properly being applied by Member:setRoles method
+
+
 ### 0.6.1
 - Fixed issue where mentioned object would be nil
 - Fixed issue with UTC time parsing
