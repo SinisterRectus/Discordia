@@ -107,6 +107,38 @@ function Client:connectWebSocket()
 
 end
 
+function Client:setUsername(newUsername, password)
+	self.api:modifyCurrentUser({
+		avatar = self.user.avatar,
+		email = self.user.email,
+		username = newUsername,
+		password = password
+	})
+end
+
+function Client:setNickname(guild, nickname)
+	self.api:modifyCurrentUserNickname(guild.id, {
+		nick = nickname
+	})
+end
+
+function Client:setAvatar(newAvatar)
+	self.api:modifyCurrentUser({
+		avatar = newAvatar,
+		email = self.user.email,
+		username = self.user.username,
+	})
+end
+
+function Client:setEmail(newEmail, password)
+	self.api:modifyCurrentUser({
+		avatar = self.user.avatar,
+		email = newEmail,
+		username = self.user.username,
+		password = password
+	})
+end
+
 -- cache accessors --
 
 function Client:getPrivateChannelById(id)
@@ -263,5 +295,7 @@ Client.getVoiceChannels = Client.getGuildVoiceChannels
 
 Client.getRoleById = Client.getGuildRoleById
 Client.getVoiceChannelById = Client.getGuildVoiceChannelById
+
+Client.setNick = Client.setNickname
 
 return Client

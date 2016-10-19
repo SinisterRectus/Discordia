@@ -37,8 +37,6 @@ function API:request(method, url, payload)
 
 	local res, data = http.request(method, url, headers, payload)
 
-	p('code: ' .. res.code) -- debug
-	if res.code ~= 200 then p(res) end
 	return (json.decode(data))
 
 end
@@ -301,6 +299,10 @@ end
 
 function API:getToken(payload)
 	return self:request('POST', url('/auth/login'), payload)
+end
+
+function API:modifyCurrentUserNickname(guildId, payload)
+	return self:request('PATCH', url('/guilds/%s/members/@me/nick', guildId), payload)
 end
 
 return API
