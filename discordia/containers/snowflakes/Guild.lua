@@ -5,7 +5,6 @@ local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
 local VoiceState = require('../VoiceState')
 local Cache = require('../../utils/Cache')
-local RateLimiter = require('../../utils/RateLimiter')
 
 local Guild, accessors = class('Guild', Snowflake)
 
@@ -22,16 +21,6 @@ function Guild:__init(data, parent)
 	else
 		self:makeAvailable(data)
 	end
-end
-
-function Guild:initRateLimiters()
-	self.client.api.limiters.perGuild[self.id] = {
-		createMessage = RateLimiter(5, 5000),
-		deleteMessage = RateLimiter(5, 1000),
-		bulkDelete = RateLimiter(1, 1000),
-		guildMember = RateLimiter(10, 10000),
-		memberNick = RateLimiter(1, 1000),
-	}
 end
 
 function Guild:makeAvailable(data)

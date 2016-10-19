@@ -8,7 +8,6 @@ accessors.guild = function(self) return self.parent end
 
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
-	self.client.api.guildIds[self.id] = parent.id -- for rate limits
 	self.permissionOverwrites = Cache({}, PermissionOverwrite, 'id', self)
 	GuildChannel.update(self, data)
 end

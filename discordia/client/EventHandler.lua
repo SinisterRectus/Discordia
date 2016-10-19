@@ -34,7 +34,6 @@ function EventHandler.READY(data, client)
 		local guildIds = {}
 		for guild in client.guilds:iter() do
 			local id = guild.id
-			guild:initRateLimiters()
 			client.loading.syncs[id] = true
 			table.insert(guildIds, id)
 		end
@@ -154,7 +153,6 @@ function EventHandler.GUILD_CREATE(data, client)
 			client:emit('guildCreate', guild)
 		end
 	end
-	guild:initRateLimiters()
 end
 
 function EventHandler.GUILD_UPDATE(data, client)
@@ -172,7 +170,6 @@ function EventHandler.GUILD_DELETE(data, client)
 		client:emit('guildUnavailable', guild)
 	else
 		client.guilds:remove(guild)
-		client.api.limiters.perGuild[guild.id] = nil
 		client:emit('guildDelete', guild)
 	end
 end

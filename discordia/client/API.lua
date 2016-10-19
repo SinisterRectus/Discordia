@@ -3,8 +3,6 @@ local http = require('coro-http')
 local timer = require('timer')
 local package = require('../package')
 
-local RateLimiter = require('../utils/RateLimiter')
-
 local url = function(endpoint, ...)
 	return "https://discordapp.com/api" .. string.format(endpoint, ...)
 end
@@ -15,12 +13,6 @@ local API = class('API')
 
 function API:__init(client)
 	self.client = client
-	self.guildIds = {} -- populated by GuildChannel.__init
-	self.limiters = {
-		perGuild = {}, -- populated by EventHandler
-		privateMessage = RateLimiter(5, 5000),
-		globalMessage = RateLimiter(50, 10000),
-	}
 	self.headers = {
 		['Content-Type'] = 'application/json',
 		['User-Agent'] = string.format('DiscordBot (%s, %s)', package.homepage, package.version),
@@ -31,7 +23,7 @@ function API:setToken(token)
 	self.headers['Authorization'] = token
 end
 
-function API:request(method, url, payload, limiter1, limiter2)
+function API:request(method, url, payload)
 
 	local headers = {}
 	for k, v in pairs(self.headers) do
@@ -43,35 +35,13 @@ function API:request(method, url, payload, limiter1, limiter2)
 		table.insert(headers, {'Content-Length', payload:len()})
 	end
 
-	if limiter1 then limiter1:start() end
-	if limiter2 then limiter2:start() end
-
 	local res, data = http.request(method, url, headers, payload)
-
-	if limiter1 then limiter1:stop() end
-	if limiter2 then limiter2:stop() end
 
 	p('code: ' .. res.code) -- debug
 	if res.code ~= 200 then p(res) end
 	return (json.decode(data))
 
 end
-
---[[
-REST:
-       bot:msg:dm |  5/5s    | account-wide -- done
-   bot:msg:server |  5/5s    | guild-wide -- done
-   bot:msg:global | 50/10s   | account-wide except DMs -- done
-             dmsg |  5/1s    | guild-wide -- done
-            bdmsg |  1/1s    | guild-wide -- done
-     guild_member | 10/10s   | guild-wide
-guild_member_nick |  1/1s    | guild-wide
-       |Username| |  2/3600s | account-wide
-
-WS Send:
-|Presence Update| |   5/60s
-         |Global| | 120/60s
-]]
 
 function API:getChannel(channelId) -- not exposed, use cache
 	return self:request("GET", url("/channels/%s", channelId))
@@ -94,16 +64,7 @@ function API:getChannelMessage(channelId, messageId)
 end
 
 function API:createMessage(channelId, payload)
-	local guildId = self.guildIds[channelId]
-	local limiters = self.limiters
-	local limiter1, limiter2
-	if guildId then
-		limiter1 = limiters.perGuild[guildId].createMessage
-		limiter2 = limiters.globalMessage
-	else
-		limiter1 = limiters.privateMessage
-	end
-	return self:request("POST", url("/channels/%s/messages", channelId), payload, limiter1, limiter2)
+	return self:request("POST", url("/channels/%s/messages", channelId), payload)
 end
 
 function API:uploadFile(channelId, payload)
@@ -115,14 +76,10 @@ function API:editMessage(channelId, messageId, payload)
 end
 
 function API:deleteMessage(channelId, messageId)
-	local guildId = self.guildIds[channelId]
-	local limiter1 = self.limiters.perGuild[guildId].deleteMessage -- TODO test
 	return self:request("DELETE", url("/channels/%s/messages/%s", channelId, messageId))
 end
 
 function API:bulkDeleteMessages(channelId, payload)
-	local guildId = self.guildIds[channelId]
-	local limiter1 = self.limiters.perGuild[guildId].bulkDelete -- TODO test
 	return self:request("POST", url("/channels/%s/messages/bulk_delete", channelId), payload)
 end
 
