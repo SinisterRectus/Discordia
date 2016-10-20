@@ -128,6 +128,16 @@ function Socket:identify()
 	})
 end
 
+function Socket:statusUpdate(idleSince, gameName)
+	self:send({
+		op = 3,
+		d = {
+			idle_since = idleSince or json.null,
+			game = {name = gameName or json.null},
+		}
+	})
+end
+
 function Socket:resume()
 	self:send({
 		op = 6,

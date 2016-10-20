@@ -139,6 +139,36 @@ function Client:setEmail(newEmail, password)
 	})
 end
 
+function Client:setStatusIdle()
+	self.idleSince = os.time() * 1000
+	local id = self.user.id
+	for guild in self:getGuilds() do
+		local me = guild.members:get(id)
+		me.status = 'idle'
+	end
+	self.socket:statusUpdate(self.idleSince, self.gameName)
+end
+
+function Client:setStatusOnline()
+	self.idleSince = nil
+	local id = self.user.id
+	for guild in self:getGuilds() do
+		local me = guild.members:get(id)
+		me.status = 'online'
+	end
+	self.socket:statusUpdate(self.idleSince, self.gameName)
+end
+
+function Client:setGameName(gameName)
+	self.gameName = gameName
+	local id = self.user.id
+	for guild in self:getGuilds() do
+		local me = guild.members:get(id)
+		me.gameName = gameName
+	end
+	self.socket:statusUpdate(self.idleSince, self.gameName)
+end
+
 -- cache accessors --
 
 function Client:getPrivateChannelById(id)
