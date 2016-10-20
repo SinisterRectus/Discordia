@@ -59,22 +59,22 @@ function Client:run(a, b)
 		else
 			self:loginWithToken(a)
 		end
-		self:connectWebSocket()
+		return self:connectWebSocket()
 	end)()
 end
 
 function Client:loginWithEmail(email, password)
 	warning('Email login is discouraged, use token login instead')
-	local data = self.api:getToken({email = email, password = password})
+	local res, data = self.api:getToken({email = email, password = password})
 	if not data.token then
 		failure(data.email and data.email[1] or data.password and data.password[1])
 	end
-	self:loginWithToken(data.token)
+	return self:loginWithToken(data.token)
 end
 
 function Client:loginWithToken(token)
 	self.token = token
-	self.api:setToken(token)
+	return self.api:setToken(token)
 end
 
 function Client:connectWebSocket()
@@ -100,7 +100,7 @@ function Client:connectWebSocket()
 			cache = io.open(filename, 'w')
 			if cache then cache:write(gateway):close() end
 		end
-		self.socket:handlePayloads()
+		return self.socket:handlePayloads()
 	else
 		failure('Bad gateway: ' .. gateway)
 	end
@@ -108,35 +108,39 @@ function Client:connectWebSocket()
 end
 
 function Client:setUsername(newUsername, password)
-	self.api:modifyCurrentUser({
+	local res, data = self.api:modifyCurrentUser({
 		avatar = self.user.avatar,
 		email = self.user.email,
 		username = newUsername,
 		password = password
 	})
+	return res.code < 300
 end
 
 function Client:setNickname(guild, nickname)
-	self.api:modifyCurrentUserNickname(guild.id, {
+	local res, data = self.api:modifyCurrentUserNickname(guild.id, {
 		nick = nickname
 	})
+	return res.code < 300
 end
 
 function Client:setAvatar(newAvatar)
-	self.api:modifyCurrentUser({
+	local res, data = self.api:modifyCurrentUser({
 		avatar = newAvatar,
 		email = self.user.email,
 		username = self.user.username,
 	})
+	return res.code < 300
 end
 
 function Client:setEmail(newEmail, password)
-	self.api:modifyCurrentUser({
+	local res, data = self.api:modifyCurrentUser({
 		avatar = self.user.avatar,
 		email = newEmail,
 		username = self.user.username,
 		password = password
 	})
+	return res.code < 300
 end
 
 function Client:setStatusIdle()
@@ -146,7 +150,7 @@ function Client:setStatusIdle()
 		local me = guild.members:get(id)
 		me.status = 'idle'
 	end
-	self.socket:statusUpdate(self.idleSince, self.gameName)
+	return self.socket:statusUpdate(self.idleSince, self.gameName)
 end
 
 function Client:setStatusOnline()
@@ -156,7 +160,7 @@ function Client:setStatusOnline()
 		local me = guild.members:get(id)
 		me.status = 'online'
 	end
-	self.socket:statusUpdate(self.idleSince, self.gameName)
+	return self.socket:statusUpdate(self.idleSince, self.gameName)
 end
 
 function Client:setGameName(gameName)
@@ -166,7 +170,7 @@ function Client:setGameName(gameName)
 		local me = guild.members:get(id)
 		me.gameName = gameName
 	end
-	self.socket:statusUpdate(self.idleSince, self.gameName)
+	return self.socket:statusUpdate(self.idleSince, self.gameName)
 end
 
 -- cache accessors --

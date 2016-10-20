@@ -27,7 +27,7 @@ function Socket:reconnect()
 	self.res, self.read, self.write = nil, nil, nil
 	warning('WebSocket disconnected, attempting to reconnect...')
 	timer.sleep(5000)
-	self.client:connectWebSocket()
+	return self.client:connectWebSocket()
 end
 
 function Socket:disconnect()
@@ -40,7 +40,7 @@ function Socket:handlePayloads()
 	for data in read do
 		self:handlePayload(data, client)
 	end
-	self:reconnect()
+	return self:reconnect()
 end
 
 function Socket:handlePayload(data, client)
@@ -57,29 +57,29 @@ function Socket:handlePayload(data, client)
 		if not ignore[payload.t] then
 			local handler = EventHandler[payload.t]
 			if handler then
-				handler(payload.d, client)
+				return handler(payload.d, client)
 			else
-				warning('Unhandled event: ' .. payload.t)
+				return warning('Unhandled event: ' .. payload.t)
 			end
 		end
 	elseif op == 1 then
-		self:heartbeat()
+		return self:heartbeat()
 	elseif op == 7 then
-		self:reconnect()
+		return self:reconnect()
 	elseif op == 9 then
 		warning('Invalid session, attempting to re-identify...')
-		self:identify()
+		return self:identify()
 	elseif op == 10 then
 		self:startHeartbeat(payload.d.heartbeat_interval)
 		if client.sessionId then
-			self:resume()
+			return self:resume()
 		else
-			self:identify()
+			return self:identify()
 		end
 	elseif op == 11 then
-		-- heartbeat acknowledged
+		return -- heartbeat acknowledged
 	else
-		warning('Unhandled payload: ' .. op)
+		return warning('Unhandled payload: ' .. op)
 	end
 
 end
@@ -104,14 +104,14 @@ function Socket:send(payload)
 end
 
 function Socket:heartbeat()
-	self:send({
+	return self:send({
 		op = 1,
 		d = self.sequence
 	})
 end
 
 function Socket:identify()
-	self:send({
+	return self:send({
 		op = 2,
 		d = {
 			token = self.client.token,
@@ -129,7 +129,7 @@ function Socket:identify()
 end
 
 function Socket:statusUpdate(idleSince, gameName)
-	self:send({
+	return self:send({
 		op = 3,
 		d = {
 			idle_since = idleSince or json.null,
@@ -139,7 +139,7 @@ function Socket:statusUpdate(idleSince, gameName)
 end
 
 function Socket:resume()
-	self:send({
+	return self:send({
 		op = 6,
 		d = {
 			token = self.client.token,
@@ -150,7 +150,7 @@ function Socket:resume()
 end
 
 function Socket:requestGuildMembers(guildId)
-	self:send({
+	return self:send({
 		op = 8,
 		d = {
 			guild_id = guildId,
@@ -161,7 +161,7 @@ function Socket:requestGuildMembers(guildId)
 end
 
 function Socket:syncGuilds(guildIds)
-	self:send({
+	return self:send({
 		op = 12,
 		d = guildIds
 	})

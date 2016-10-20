@@ -37,7 +37,7 @@ function API:request(method, url, payload)
 
 	local res, data = http.request(method, url, headers, payload)
 
-	return (json.decode(data))
+	return res, json.decode(data)
 
 end
 
