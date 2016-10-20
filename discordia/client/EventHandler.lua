@@ -304,7 +304,7 @@ function EventHandler.MESSAGE_DELETE_BULK(data, client)
 end
 
 function EventHandler.PRESENCE_UPDATE(data, client)
-	if not data.guild then return end -- friend update
+	if not data.guild_id then return end -- friend update
 	local guild = client.guilds:get(data.guild_id)
 	if not guild then return warning.cache('guild', 'PRESENCE_UPDATE') end
 	local member = guild:updateMemberPresence(data)
