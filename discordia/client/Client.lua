@@ -16,18 +16,14 @@ function Client:initialize(customOptions)
 	self.api = API(self)
 	self.socket = Socket(self)
 	if customOptions then
-		self:loadOptions(customOptions)
+		local options = {}
+		for k, v in pairs(defaultOptions) do
+			options[k] = customOptions[k] or defaultOptions[k]
+		end
+		self.options = options
 	else
 		self.options = defaultOptions
 	end
-end
-
-function Client:loadOptions(customOptions)
-	local options = {}
-	for k, v in pairs(defaultOptions) do
-		options[k] = customOptions[k] or defaultOptions[k]
-	end
-	self.options = options
 end
 
 Client.meta.__tostring = function(self)
@@ -119,7 +115,7 @@ end
 
 function Client:setNickname(guild, nickname)
 	local res, data = self.api:modifyCurrentUserNickname(guild.id, {
-		nick = nickname
+		nick = nickname or ''
 	})
 	return res.code < 300
 end
