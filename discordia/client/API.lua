@@ -36,8 +36,8 @@ function API:request(method, url, payload)
 	end
 
 	local res, data = http.request(method, url, headers, payload)
-
-	return res, json.decode(data)
+	local success, data = res.code < 300, json.decode(data)
+	return success, data
 
 end
 

@@ -61,7 +61,7 @@ end
 
 function Client:loginWithEmail(email, password)
 	warning('Email login is discouraged, use token login instead')
-	local res, data = self.api:getToken({email = email, password = password})
+	local success, data = self.api:getToken({email = email, password = password})
 	if not data.token then
 		failure(data.email and data.email[1] or data.password and data.password[1])
 	end
@@ -86,9 +86,11 @@ function Client:connectWebSocket()
 	end
 
 	if not connected then
-		local res, data = self.api:getGateway()
-		gateway = data.url
-		connected = self.socket:connect(gateway)
+		local success, data = self.api:getGateway()
+		if success then
+			gateway = data.url
+			connected = self.socket:connect(gateway)
+		end
 		cache = nil
 	end
 
@@ -99,45 +101,45 @@ function Client:connectWebSocket()
 		end
 		return self.socket:handlePayloads()
 	else
-		failure('Bad gateway: ' .. gateway)
+		failure('Bad gateway: ' .. (gateway and gateway or 'nil'))
 	end
 
 end
 
 function Client:setUsername(newUsername, password)
-	local res, data = self.api:modifyCurrentUser({
+	local success, data = self.api:modifyCurrentUser({
 		avatar = self.user.avatar,
 		email = self.user.email,
 		username = newUsername,
 		password = password
 	})
-	return res.code < 300
+	return success
 end
 
 function Client:setNickname(guild, nickname)
-	local res, data = self.api:modifyCurrentUserNickname(guild.id, {
+	local success, data = self.api:modifyCurrentUserNickname(guild.id, {
 		nick = nickname or ''
 	})
-	return res.code < 300
+	return success
 end
 
 function Client:setAvatar(newAvatar)
-	local res, data = self.api:modifyCurrentUser({
+	local success, data = self.api:modifyCurrentUser({
 		avatar = newAvatar,
 		email = self.user.email,
 		username = self.user.username,
 	})
-	return res.code < 300
+	return success
 end
 
 function Client:setEmail(newEmail, password)
-	local res, data = self.api:modifyCurrentUser({
+	local success, data = self.api:modifyCurrentUser({
 		avatar = self.user.avatar,
 		email = newEmail,
 		username = self.user.username,
 		password = password
 	})
-	return res.code < 300
+	return success
 end
 
 function Client:setStatusIdle()
