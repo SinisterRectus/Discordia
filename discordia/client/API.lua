@@ -37,27 +37,36 @@ function API:request(method, url, payload)
 
 	local res, data = http.request(method, url, headers, payload)
 	local success, data = res.code < 300, json.decode(data)
+	if not success then p(res, data) end -- debug
 	return success, data
 
 end
 
-function API:getChannel(channel_id)
+function API:getChannel(channel_id) -- not exposed, use cache
 	return self:request("GET", url("/channels/%s", channel_id))
 end
 
-function API:modifyChannel(channel_id, payload)
-	return self:request("PUT/PATCH", url("/channels/%s", channel_id), payload or emptyPayload)
+function API:modifyChannel(channel_id, payload) -- various channel methods
+	return self:request("PATCH", url("/channels/%s", channel_id), payload or emptyPayload)
 end
 
-function API:deleteChannel(channel_id)
+function API:deleteChannel(channel_id) -- Channel:delete()
 	return self:request("DELETE", url("/channels/%s", channel_id))
 end
 
-function API:getChannelMessages(channel_id)
-	return self:request("GET", url("/channels/%s/messages", channel_id))
+function API:getChannelMessages(channel_id, limit, before, after, around) -- TextChannel:getMessageHistory[Before|After|Around]
+	if before then
+		return self:request("GET", url("/channels/%s/messages?limit=%i&before=%s", channel_id, limit, before))
+	elseif after then
+		return self:request("GET", url("/channels/%s/messages?limit=%i&after=%s", channel_id, limit, after))
+	elseif around then
+		return self:request("GET", url("/channels/%s/messages?limit=%i&around=%s", channel_id, limit, around))
+	else
+		return self:request("GET", url("/channels/%s/messages?limit=%i", channel_id, limit))
+	end
 end
 
-function API:getChannelMessage(channel_id, message_id)
+function API:getChannelMessage(channel_id, message_id) -- not exposed, maybe in the future
 	return self:request("GET", url("/channels/%s/messages/%s", channel_id, message_id))
 end
 

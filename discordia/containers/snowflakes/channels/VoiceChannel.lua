@@ -9,7 +9,7 @@ end
 
 function VoiceChannel:update(data)
 	self.bitrate = data.bitrate
-	self.userLimit = data.userLimit
+	self.userLimit = data.user_limit or 0
 end
 
 return VoiceChannel

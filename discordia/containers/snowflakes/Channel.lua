@@ -9,4 +9,9 @@ function Channel:__init(data, parent)
 	self.type = data.type
 end
 
+function Channel:delete()
+	local success, data = self.client.api:deleteChannel(self.id)
+	return success
+end
+
 return Channel

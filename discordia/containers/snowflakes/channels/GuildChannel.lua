@@ -32,4 +32,14 @@ function GuildChannel:update(data)
 	end
 end
 
+function GuildChannel:setName(name)
+	local success, data = self.client.api:modifyChannel(self.id, {name = name})
+	return success
+end
+
+function GuildChannel:setPosition(position) -- will probably need more abstraction
+	local success, data = self.client.api:modifyChannel(self.id, {position = position})
+	return success
+end
+
 return GuildChannel

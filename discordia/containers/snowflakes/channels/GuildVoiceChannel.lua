@@ -14,4 +14,20 @@ function GuildVoiceChannel:update(data)
 	VoiceChannel.update(self, data)
 end
 
+function GuildVoiceChannel:setBitrate(bitrate)
+	bitrate = math.clamp(bitrate, 8000, self.parent.vip and 128000 or 96000)
+	local success, data = self.client.api:modifyChannel(self.id, {bitrate = bitrate})
+	return success
+end
+
+function GuildVoiceChannel:setUserLimit(limit)
+	limit = math.clamp(limit, 0, 99)
+	local success, data = self.client.api:modifyChannel(self.id, {user_limit = limit})
+	return success
+end
+
+function GuildVoiceChannel:clearUserLimit()
+	return self:setUserLimit(0)
+end
+
 return GuildVoiceChannel

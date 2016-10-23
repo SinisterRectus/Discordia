@@ -15,4 +15,9 @@ function GuildTextChannel:update(data)
 	self.topic = data.topic
 end
 
+function GuildTextChannel:setTopic(topic)
+	local success, data = self.client.api:modifyChannel(self.id, {topic = topic})
+	return success
+end
+
 return GuildTextChannel

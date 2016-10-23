@@ -64,6 +64,10 @@
     - `GuildChannel`, `PrivateChannel`, `TextChannel`, and `VoiceChannel` are abstract classes that inherit from `Channel`.
 	- `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateTextChannel` are tangible classes that inherit from the appropriate classes above.
 	- There is no `PrivateVoiceChannel` class.
+  - `TextChannel`
+    - `getMessageHistory` now returns an `OrderedCache` instead of a pure Lua table
+    - `getMessageHistory` default limit restored to the Discord default of 50
+    - `getMessageHistory[Before|After|Around]` have been implemented
 
 
 *More information will be provided as it is realized*
