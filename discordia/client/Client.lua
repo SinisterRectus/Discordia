@@ -86,7 +86,8 @@ function Client:connectWebSocket()
 	end
 
 	if not connected then
-		gateway = self.api:getGateway().url
+		local res, data = self.api:getGateway()
+		gateway = data.url
 		connected = self.socket:connect(gateway)
 		cache = nil
 	end
