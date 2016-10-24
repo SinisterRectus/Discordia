@@ -113,6 +113,7 @@ function Client:setUsername(newUsername, password)
 		username = newUsername,
 		password = password
 	})
+	if success then self.user.username = data.username end
 	return success
 end
 
@@ -120,6 +121,7 @@ function Client:setNickname(guild, nickname)
 	local success, data = self.api:modifyCurrentUserNickname(guild.id, {
 		nick = nickname or ''
 	})
+	if success then guild.me.nick = data.nick end
 	return success
 end
 
@@ -129,6 +131,7 @@ function Client:setAvatar(newAvatar)
 		email = self.user.email,
 		username = self.user.username,
 	})
+	if success then self.user.avatar = data.avatar end
 	return success
 end
 
@@ -139,6 +142,7 @@ function Client:setEmail(newEmail, password)
 		username = self.user.username,
 		password = password
 	})
+	if success then self.user.email = data.email end
 	return success
 end
 
