@@ -2,6 +2,18 @@ local Channel = require('../Channel')
 local Message = require('../Message')
 local OrderedCache = require('../../../utils/OrderedCache')
 
+local function getMessageHistory(channel, limit, min, field, message)
+	limit = math.clamp(limit or 50, min, 100)
+	local success, data = channel.client.api:getChannelMessages(channel.id, limit, field, message and message.id)
+	if success then
+		local cache = OrderedCache({}, Message, 'id', math.huge, channel)
+		for i = #data, 1, -1 do
+			cache:new(data[i])
+		end
+		return cache
+	end
+end
+
 local TextChannel = class('TextChannel', Channel)
 
 function TextChannel:__init(data, parent)
@@ -23,51 +35,19 @@ function TextChannel:getMessages()
 end
 
 function TextChannel:getMessageHistory(limit)
-	limit = math.clamp(limit or 50, 1, 100)
-	local success, data = self.client.api:getChannelMessages(self.id, limit)
-	if success then
-		local cache = OrderedCache({}, Message, 'id', math.huge, self)
-		for i = #data, 1, -1 do
-			cache:new(data[i])
-		end
-		return cache
-	end
+	return getMessageHistory(self, limit, 1)
 end
 
 function TextChannel:getMessageHistoryBefore(message, limit)
-	limit = math.clamp(limit or 50, 1, 100)
-	local success, data = self.client.api:getChannelMessages(self.id, limit, message.id, nil, nil)
-	if success then
-		local cache = OrderedCache({}, Message, 'id', math.huge, self)
-		for i = #data, 1, -1 do
-			cache:new(data[i])
-		end
-		return cache
-	end
+	return getMessageHistory(self, limit, 1, 'before', message)
 end
 
 function TextChannel:getMessageHistoryAfter(message, limit)
-	limit = math.clamp(limit or 50, 1, 100)
-	local success, data = self.client.api:getChannelMessages(self.id, limit, nil, message.id, nil)
-	if success then
-		local cache = OrderedCache({}, Message, 'id', math.huge, self)
-		for i = #data, 1, -1 do
-			cache:new(data[i])
-		end
-		return cache
-	end
+	return getMessageHistory(self, limit, 1, 'after', message)
 end
 
 function TextChannel:getMessageHistoryAround(message, limit)
-	limit = math.clamp(limit or 50, 2, 100) -- lower limit is 2 for this one
-	local success, data = self.client.api:getChannelMessages(self.id, limit, nil, nil, message.id)
-	if success then
-		local cache = OrderedCache({}, Message, 'id', math.huge, self)
-		for i = #data, 1, -1 do
-			cache:new(data[i])
-		end
-		return cache
-	end
+	return getMessageHistory(self, limit, 2, 'around', message)
 end
 
 return TextChannel

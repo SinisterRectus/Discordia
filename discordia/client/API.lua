@@ -54,13 +54,9 @@ function API:deleteChannel(channel_id) -- Channel:delete()
 	return self:request("DELETE", url("/channels/%s", channel_id))
 end
 
-function API:getChannelMessages(channel_id, limit, before, after, around) -- TextChannel:getMessageHistory[Before|After|Around]
-	if before then
-		return self:request("GET", url("/channels/%s/messages?limit=%i&before=%s", channel_id, limit, before))
-	elseif after then
-		return self:request("GET", url("/channels/%s/messages?limit=%i&after=%s", channel_id, limit, after))
-	elseif around then
-		return self:request("GET", url("/channels/%s/messages?limit=%i&around=%s", channel_id, limit, around))
+function API:getChannelMessages(channel_id, limit, field, message_id) -- TextChannel:getMessageHistory[Before|After|Around]
+	if field and message_id then
+		return self:request("GET", url("/channels/%s/messages?limit=%i&%s=%s", channel_id, limit, field, message_id))
 	else
 		return self:request("GET", url("/channels/%s/messages?limit=%i", channel_id, limit))
 	end
