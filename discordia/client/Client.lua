@@ -59,6 +59,11 @@ function Client:run(a, b)
 	end)()
 end
 
+function Client:stop(exit)
+	if self.socket then self.socket:disconnect() end
+	if exit then os.exit() end
+end
+
 function Client:loginWithEmail(email, password)
 	warning('Email login is discouraged, use token login instead')
 	local success, data = self.api:getToken({email = email, password = password})
@@ -99,9 +104,9 @@ function Client:connectWebSocket()
 			cache = io.open(filename, 'w')
 			if cache then cache:write(gateway):close() end
 		end
-		return self.socket:handlePayloads()
+		return coroutine.wrap(self.socket.handlePayloads)(self.socket)
 	else
-		failure('Bad gateway: ' .. (gateway and gateway or 'nil'))
+		return failure('Bad gateway: ' .. (gateway and gateway or 'nil'))
 	end
 
 end

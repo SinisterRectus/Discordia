@@ -13,25 +13,45 @@ local Socket = class('Socket')
 
 function Socket:__init(client)
 	self.client = client
+	self.backoff = 1024
+end
+
+function Socket:incrementReconnectTime()
+	self.backoff = math.min(self.backoff * 2, 65536)
+end
+
+function Socket:decrementReconnectTime()
+	self.backoff = math.max(self.backoff / 2, 1024)
 end
 
 function Socket:connect(gateway)
 	local options = websocket.parseUrl(gateway .. '/')
 	options.pathname = options.pathname .. '?v=5'
 	self.res, self.read, self.write = websocket.connect(options)
-	return self.res and self.res.code == 101
+	self.connected = self.res and self.res.code == 101
+	return self.connected
 end
 
 function Socket:reconnect()
-	self:stopHeartbeat()
-	self.res, self.read, self.write = nil, nil, nil
-	warning('WebSocket disconnected, attempting to reconnect...')
-	timer.sleep(5000)
+	if self.connected then self:disconnect() end
 	return self.client:connectWebSocket()
 end
 
 function Socket:disconnect()
-	return self.write()
+	if not self.connected then return end
+	self.connected = false
+	self:stopHeartbeat()
+	self.write()
+	self.res, self.read, self.write = nil, nil, nil
+end
+
+function Socket:handleUnexpectedDisconnect()
+	warning(string.format('Attemping to reconnect after %i ms...', self.backoff))
+	timer.sleep(self.backoff)
+	self:incrementReconnectTime()
+	if not pcall(self.reconnect, self) then
+		return self:handleUnexpectedDisconnect()
+	end
 end
 
 function Socket:handlePayloads()
@@ -40,7 +60,12 @@ function Socket:handlePayloads()
 	for data in read do
 		self:handlePayload(data, client)
 	end
-	return self:reconnect()
+	if self.connected then
+		self.connected = false
+		self:stopHeartbeat()
+		warning('WebSocket disconnected unexpectedly')
+		return self:handleUnexpectedDisconnect()
+	end
 end
 
 function Socket:handlePayload(data, client)
@@ -86,11 +111,14 @@ end
 
 function Socket:startHeartbeat(interval)
 	self.heartbeatInterval = timer.setInterval(interval, coroutine.wrap(function()
-		while true do coroutine.yield(self:heartbeat()) end
+		while true do
+			self:decrementReconnectTime()
+			coroutine.yield(self:heartbeat())
+		end
 	end))
 end
 
-function Socket:stopHeartbeat(interval)
+function Socket:stopHeartbeat()
 	if not self.heartbeatInterval then return end
 	timer.clearInterval(self.heartbeatInterval)
 	self.heartbeatInterval = nil
