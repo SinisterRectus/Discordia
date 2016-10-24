@@ -18,8 +18,14 @@ function Cache:__tostring()
 end
 
 function Cache:new(data)
-	local obj = self.constructor(data, self.parent)
-	if self:add(obj) then return obj end
+	local new = self.constructor(data, self.parent)
+	local old = self.objects[new[self.key]]
+	if new == old then
+		return old -- need to make sure HTTP obj is the same as WS object
+	else
+		self:add(new)
+		return new
+	end
 end
 
 function Cache:merge(array)
