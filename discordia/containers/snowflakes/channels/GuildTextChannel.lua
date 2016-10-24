@@ -17,6 +17,7 @@ end
 
 function GuildTextChannel:setTopic(topic)
 	local success, data = self.client.api:modifyChannel(self.id, {topic = topic})
+	if success then self.topic = data.topic end
 	return success
 end
 

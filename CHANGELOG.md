@@ -4,6 +4,7 @@
 *Like the version it describes, this changelog section is unfinished, and may not reflect the final state of the Discordia 1.0.0 release.*
 - All mentions of "server" or "Server" have been changed to "guild" or "Guild".
 - Objects created by the client via the REST API are now cached, and the same object is later returned on the corresponding WebSocket event
+- Objects are now updated as soon as they are edited via REST rather than waiting for a WebSocket update
 - The `Member` class no longer inherits from the `User` class; it wraps it instead, and provides only some of the same functionality.
   - The member object of a user may be obtained by calling `User:getMembership(guild)`. The user object of a member may be obtained by accessing `member.user`.
   - Shortcuts to user properties are provided. For example, `member.user.id` can be accessed as `member.id`.
