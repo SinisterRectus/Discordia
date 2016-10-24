@@ -2,16 +2,12 @@ local Channel = require('../Channel')
 local Message = require('../Message')
 local OrderedCache = require('../../../utils/OrderedCache')
 
-local function getMessageHistory(channel, limit, min, field, message)
-	limit = math.clamp(limit or 50, min, 100)
-	local success, data = channel.client.api:getChannelMessages(channel.id, limit, field, message and message.id)
-	if success then
-		local cache = OrderedCache({}, Message, 'id', math.huge, channel)
-		for i = #data, 1, -1 do
-			cache:new(data[i])
-		end
-		return cache
+local function newCache(channel, data)
+	local cache = OrderedCache({}, Message, 'id', math.huge, channel)
+	for i = #data, 1, -1 do
+		cache:new(data[i])
 	end
+	return cache
 end
 
 local TextChannel = class('TextChannel', Channel)
@@ -31,34 +27,36 @@ function TextChannel:getMessageById(id)
 end
 
 function TextChannel:getMessages()
-	return self.messages:iterNewToOld()
+	return self.messages:iter()
 end
 
 function TextChannel:getMessageHistory(limit)
-	return getMessageHistory(self, limit, 1)
+	limit = math.clamp(limit or 50, 1, 100)
+	local success, data = self.client.api:getChannelMessages(self.id, limit)
+	if success then return newCache(self, data) end
 end
 
 function TextChannel:getMessageHistoryBefore(message, limit)
-	return getMessageHistory(self, limit, 1, 'before', message)
+	limit = math.clamp(limit or 50, 1, 100)
+	local success, data = self.client.api:getChannelMessages(self.id, limit, 'before', message.id)
+	if success then return newCache(self, data) end
 end
 
 function TextChannel:getMessageHistoryAfter(message, limit)
-	return getMessageHistory(self, limit, 1, 'after', message)
+	limit = math.clamp(limit or 50, 1, 100)
+	local success, data = self.client.api:getChannelMessages(self.id, limit, 'after', message.id)
+	if success then return newCache(self, data) end
 end
 
 function TextChannel:getMessageHistoryAround(message, limit)
-	return getMessageHistory(self, limit, 2, 'around', message)
+	limit = math.clamp(limit or 50, 2, 100)
+	local success, data = self.client.api:getChannelMessages(self.id, limit, 'around', message.id)
+	if success then return newCache(self, data) end
 end
 
 function TextChannel:getPinnedMessages()
 	local success, data = self.client.api:getPinnedMessages(self.id)
-	if success then
-		local cache = OrderedCache({}, Message, 'id', math.huge, self)
-		for i = #data, 1, -1 do
-			cache:new(data[i])
-		end
-		return cache
-	end
+	if success then return newCache(self, data) end
 end
 
 function TextChannel:createMessage(content, tts, nonce)
