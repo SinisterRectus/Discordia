@@ -21,4 +21,8 @@ function GuildTextChannel:setTopic(topic)
 	return success
 end
 
+function GuildTextChannel:getMentionString()
+	return string.format('<#%s>', self.id)
+end
+
 return GuildTextChannel

@@ -51,4 +51,17 @@ function Member:updatePresence(data)
 	self.user:update(data.user)
 end
 
+function Member:getMembership(guild)
+	return guild:getMemberById(self.id)
+end
+
+function Member:getAvatarUrl()
+	if not self.avatar then return nil end
+	return string.format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self.id, self.avatar)
+end
+
+function Member:getMentionString()
+	return string.format('<@%s>', self.id)
+end
+
 return Member

@@ -72,6 +72,7 @@
     - `getMessageHistory[Before|After|Around]` have been implemented
 	- `getPinnedMessages` has been implemented
 	- Pinned messages are now fully handled
+	- Outgoing mentions can now be a single object, or a table or a cache of objects
 
 
 *More information will be provided as it is realized*

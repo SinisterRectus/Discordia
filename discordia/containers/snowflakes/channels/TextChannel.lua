@@ -59,9 +59,29 @@ function TextChannel:getPinnedMessages()
 	if success then return newCache(self, data) end
 end
 
-function TextChannel:createMessage(content, tts, nonce)
+function TextChannel:createMessage(content, mentions, tts, nonce)
+	if type(mentions) == 'table' then
+		local words = {}
+		if mentions.iter then
+			for obj in mentions:iter() do
+				if obj.getMentionString then
+					table.insert(words, obj:getMentionString())
+				end
+			end
+		elseif mentions.getMentionString then
+			table.insert(words, mentions:getMentionString())
+		else
+			for _, obj in pairs(mentions) do
+				if obj.getMentionString then
+					table.insert(words, obj:getMentionString())
+				end
+			end
+		end
+		table.insert(words, content)
+		content = table.concat(words, ' ')
+	end
 	local success, data = self.client.api:createMessage(self.id, {
-		content = content, nonce = nonce, tts = tts
+		content = content, tts = tts, nonce = nonce
 	})
 	if success then return self.messages:new(data, self) end
 end

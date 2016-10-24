@@ -20,4 +20,8 @@ function Role:update(data)
 	self.permissions = Permissions(data.permissions)
 end
 
+function Role:getMentionString()
+	return string.format('<@&%s>', self.id)
+end
+
 return Role
