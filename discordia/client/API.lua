@@ -50,7 +50,7 @@ function API:modifyChannel(channel_id, payload) -- various channel methods
 	return self:request("PATCH", url("/channels/%s", channel_id), payload or emptyPayload)
 end
 
-function API:deleteChannel(channel_id) -- Channel:delete()
+function API:deleteChannel(channel_id) -- Channel:delete
 	return self:request("DELETE", url("/channels/%s", channel_id))
 end
 
@@ -66,7 +66,7 @@ function API:getChannelMessage(channel_id, message_id) -- not exposed, maybe in 
 	return self:request("GET", url("/channels/%s/messages/%s", channel_id, message_id))
 end
 
-function API:createMessage(channel_id, payload)
+function API:createMessage(channel_id, payload) -- TextChannel:[create|send]Message
 	return self:request("POST", url("/channels/%s/messages", channel_id), payload or emptyPayload)
 end
 
@@ -74,15 +74,15 @@ function API:uploadFile(channel_id, payload)
 	return self:request("POST", url("/channels/%s/messages", channel_id), payload or emptyPayload)
 end
 
-function API:editMessage(channel_id, message_id, payload)
+function API:editMessage(channel_id, message_id, payload) -- Message:setContent
 	return self:request("PATCH", url("/channels/%s/messages/%s", channel_id, message_id), payload or emptyPayload)
 end
 
-function API:deleteMessage(channel_id, message_id)
+function API:deleteMessage(channel_id, message_id) -- Message:delete
 	return self:request("DELETE", url("/channels/%s/messages/%s", channel_id, message_id))
 end
 
-function API:bulkDeleteMessages(channel_id, payload)
+function API:bulkDeleteMessages(channel_id, payload) -- TextChannel:bulkDelete
 	return self:request("POST", url("/channels/%s/messages/bulk-delete", channel_id), payload or emptyPayload)
 end
 
@@ -102,19 +102,19 @@ function API:deleteChannelPermission(channel_id, overwrite_id)
 	return self:request("DELETE", url("/channels/%s/permissions/%s", channel_id, overwrite_id))
 end
 
-function API:triggerTypingIndicator(channel_id, payload)
+function API:triggerTypingIndicator(channel_id, payload) -- TextChannel:broadcastTyping
 	return self:request("POST", url("/channels/%s/typing", channel_id), payload or emptyPayload)
 end
 
-function API:getPinnedMessages(channel_id)
+function API:getPinnedMessages(channel_id) -- TextChannel:getPinnedMessages
 	return self:request("GET", url("/channels/%s/pins", channel_id))
 end
 
-function API:addPinnedChannelMessage(channel_id, message_id, payload)
+function API:addPinnedChannelMessage(channel_id, message_id, payload) -- Message:pin
 	return self:request("PUT", url("/channels/%s/pins/%s", channel_id, message_id), payload or emptyPayload)
 end
 
-function API:deletePinnedChannelMessage(channel_id, message_id)
+function API:deletePinnedChannelMessage(channel_id, message_id) -- Message:unpin
 	return self:request("DELETE", url("/channels/%s/pins/%s", channel_id, message_id))
 end
 
@@ -350,7 +350,7 @@ function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload)
 	return self:request("POST", url("/webhooks/%s/%s/github", webhook_id, webhook_token), payload or emptyPayload)
 end
 
-function API:getGateway()
+function API:getGateway() -- Client:connectWebsocket (cached)
 	return self:request("GET", url("/gateway"))
 end
 
@@ -358,11 +358,11 @@ function API:getCurrentApplicationInformation()
 	return self:request("GET", url("/oauth2/applications/@me"))
 end
 
-function API:getToken(payload)
+function API:getToken(payload) -- Client:loginwithEmail (not recommended)
 	return self:request('POST', url('/auth/login'), payload)
 end
 
-function API:modifyCurrentUserNickname(guildId, payload)
+function API:modifyCurrentUserNickname(guildId, payload) -- Client:setNickname
 	return self:request('PATCH', url('/guilds/%s/members/@me/nick', guildId), payload)
 end
 

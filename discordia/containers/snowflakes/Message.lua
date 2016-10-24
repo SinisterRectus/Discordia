@@ -51,4 +51,27 @@ function Message:parseMentions(data)
 	self.mentions = mentions
 end
 
+function Message:setContent(content)
+	local success, data = self.client.api:editMessage(self.parent.id, self.id, {content = content})
+	if success then self.content = data.content end
+	return success
+end
+
+function Message:pin()
+	local success, data = self.client.api:addPinnedChannelMessage(self.parent.id, self.id)
+	if success then self.pinned = true end
+	return success
+end
+
+function Message:unpin()
+	local success, data = self.client.api:deletePinnedChannelMessage(self.parent.id, self.id)
+	if success then self.pinned = false end
+	return success
+end
+
+function Message:delete()
+	local success, data = self.client.api:deleteMessage(self.parent.id, self.id)
+	return success
+end
+
 return Message

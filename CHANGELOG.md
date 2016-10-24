@@ -70,6 +70,8 @@
     - `getMessageHistory` now returns an `OrderedCache` instead of a pure Lua table
     - `getMessageHistory` default limit restored to the Discord default of 50
     - `getMessageHistory[Before|After|Around]` have been implemented
+	- `getPinnedMessages` has been implemented
+	- Pinned messages are now fully handled
 
 
 *More information will be provided as it is realized*
