@@ -1,4 +1,5 @@
 local Cache = require('../../../utils/Cache')
+local Invite = require('../../Invite')
 local Channel = require('../Channel')
 local PermissionOverwrite = require('../PermissionOverwrite')
 
@@ -42,6 +43,21 @@ function GuildChannel:setPosition(position) -- will probably need more abstracti
 	local success, data = self.client.api:modifyChannel(self.id, {position = position})
 	if success then self.position = data.position end
 	return success
+end
+
+function GuildChannel:getInvites()
+	local success, data = self.client.api:getChannelInvites(self.id)
+	if success then return Cache(data, Invite, 'code', self.client) end
+end
+
+function GuildChannel:createInvite(maxAge, maxUses, temporary, unique)
+	local success, data = self.client.api:createChannelInvite(self.id, {
+		max_age = maxAge,
+		max_uses = maxUses,
+		temporary = temporary,
+		unique = unique
+	})
+	if success then return Invite(data, self.client) end
 end
 
 return GuildChannel

@@ -3,6 +3,7 @@ local Role = require('./Role')
 local Member = require('./Member')
 local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
+local Invite = require('../Invite')
 local VoiceState = require('../VoiceState')
 local Cache = require('../../utils/Cache')
 
@@ -160,6 +161,11 @@ end
 
 function Guild:getVoiceStates()
 	return self.voiceStates:iter()
+end
+
+function Guild:getInvites()
+	local success, data = self.client.api:getGuildInvites(self.id)
+	if success then return Cache(data, Invite, 'code', self.client) end
 end
 
 return Guild

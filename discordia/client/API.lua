@@ -90,11 +90,11 @@ function API:editChannelPermissions(channel_id, overwrite_id, payload)
 	return self:request("PUT", url("/channels/%s/permissions/%s", channel_id, overwrite_id), payload or emptyPayload)
 end
 
-function API:getChannelInvites(channel_id)
+function API:getChannelInvites(channel_id) -- GuildChannel:getInvites
 	return self:request("GET", url("/channels/%s/invites", channel_id))
 end
 
-function API:createChannelInvite(channel_id, payload)
+function API:createChannelInvite(channel_id, payload) -- GuildChannel:createInvite
 	return self:request("POST", url("/channels/%s/invites", channel_id), payload or emptyPayload)
 end
 
@@ -218,7 +218,7 @@ function API:getGuildVoiceRegions(guild_id)
 	return self:request("GET", url("/guilds/%s/regions", guild_id))
 end
 
-function API:getGuildInvites(guild_id)
+function API:getGuildInvites(guild_id) -- Guild:getInvites
 	return self:request("GET", url("/guilds/%s/invites", guild_id))
 end
 
@@ -250,15 +250,15 @@ function API:modifyGuildEmbed(guild_id, payload)
 	return self:request("PATCH", url("/guilds/%s/embed", guild_id), payload or emptyPayload)
 end
 
-function API:getInvite(invite_code)
+function API:getInvite(invite_code) -- Client:getInviteByCode
 	return self:request("GET", url("/invites/%s", invite_code))
 end
 
-function API:deleteInvite(invite_code)
+function API:deleteInvite(invite_code) -- Invite:delete
 	return self:request("DELETE", url("/invites/%s", invite_code))
 end
 
-function API:acceptInvite(invite_code, payload)
+function API:acceptInvite(invite_code, payload) -- Invite:accept, Client:acceptInviteByCode
 	return self:request("POST", url("/invites/%s", invite_code), payload or emptyPayload)
 end
 

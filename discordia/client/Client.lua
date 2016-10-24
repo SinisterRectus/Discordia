@@ -1,6 +1,8 @@
 local core = require('core')
 local package = require('../package')
 
+local Invite = require('../containers/Invite')
+
 local API = require('./API')
 local Socket = require('./Socket')
 
@@ -179,6 +181,16 @@ function Client:setGameName(gameName)
 		me.gameName = gameName
 	end
 	return self.socket:statusUpdate(self.idleSince, self.gameName)
+end
+
+function Client:acceptInviteByCode(code)
+	local success, data = self.api:acceptInvite(code)
+	return success
+end
+
+function Client:getInviteByCode(code)
+	local success, data = self.api:getInvite(code)
+	if success then return Invite(data, self) end
 end
 
 -- cache accessors --
