@@ -193,6 +193,7 @@ function EventHandler.GUILD_MEMBER_ADD(data, client)
 	local guild = client.guilds:get(data.guild_id)
 	if not guild then return warning.cache('guild', 'GUILD_MEMBER_ADD') end
 	local member = guild.members:new(data)
+	guild.memberCount = guild.memberCount + 1
 	return client:emit('memberJoin', member)
 end
 
@@ -202,6 +203,7 @@ function EventHandler.GUILD_MEMBER_REMOVE(data, client)
 	local member = guild.members:get(data.user.id)
 	if not member then return warning.cache('member', 'GUILD_MEMBER_REMOVE') end
 	guild.members:remove(member)
+	guild.memberCount = guild.memberCount - 1
 	return client:emit('memberLeave', member)
 end
 
