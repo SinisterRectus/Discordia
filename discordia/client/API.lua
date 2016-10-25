@@ -150,7 +150,7 @@ function API:createGuildChannel(guild_id, payload) -- Guild:create[Text|Voice]Ch
 	return self:request("POST", url("/guilds/%s/channels", guild_id), payload or emptyPayload)
 end
 
-function API:modifyGuildChannelPosition(guild_id, payload) -- TODO
+function API:modifyGuildChannelPosition(guild_id, payload) -- not exposed, see modifyChannel
 	return self:request("PATCH", url("/guilds/%s/channels", guild_id), payload or emptyPayload)
 end
 
@@ -166,7 +166,7 @@ function API:addGuildMember(guild_id, user_id, payload) -- Guild:addMember (limi
 	return self:request("PUT", url("/guilds/%s/members/%s", guild_id, user_id), payload or emptyPayload)
 end
 
-function API:modifyGuildMember(guild_id, user_id, payload) -- TODO
+function API:modifyGuildMember(guild_id, user_id, payload) -- various member methods
 	return self:request("PATCH", url("/guilds/%s/members/%s", guild_id, user_id), payload or emptyPayload)
 end
 
@@ -190,7 +190,7 @@ function API:removeGuildBan(guild_id, user_id) -- Guild:unbanUser, User:unban, M
 	return self:request("DELETE", url("/guilds/%s/bans/%s", guild_id, user_id))
 end
 
-function API:getGuildRoles(guild_id)
+function API:getGuildRoles(guild_id) -- not exposed, use cache
 	return self:request("GET", url("/guilds/%s/roles", guild_id))
 end
 

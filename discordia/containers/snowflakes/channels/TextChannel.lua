@@ -61,24 +61,24 @@ end
 
 function TextChannel:createMessage(content, mentions, tts, nonce)
 	if type(mentions) == 'table' then
-		local words = {}
+		local tbl = {}
 		if mentions.iter then
 			for obj in mentions:iter() do
 				if obj.getMentionString then
-					table.insert(words, obj:getMentionString())
+					table.insert(tbl, obj:getMentionString())
 				end
 			end
 		elseif mentions.getMentionString then
-			table.insert(words, mentions:getMentionString())
+			table.insert(tbl, mentions:getMentionString())
 		else
 			for _, obj in pairs(mentions) do
 				if obj.getMentionString then
-					table.insert(words, obj:getMentionString())
+					table.insert(tbl, obj:getMentionString())
 				end
 			end
 		end
-		table.insert(words, content)
-		content = table.concat(words, ' ')
+		table.insert(tbl, content)
+		content = table.concat(tbl, ' ')
 	end
 	local success, data = self.client.api:createMessage(self.id, {
 		content = content, tts = tts, nonce = nonce
