@@ -245,7 +245,7 @@ end
 function EventHandler.GUILD_ROLE_DELETE(data, client)
 	local guild = client.guilds:get(data.guild_id)
 	if not guild then return warning.cache('guild', 'GUILD_ROLE_DELETE') end
-	local role = guild.roles:get(data.role.id)
+	local role = guild.roles:get(data.role_id)
 	if not role then return warning.cache('role', 'GUILD_ROLE_DELETE') end
 	guild.roles:remove(role)
 	return client:emit('roleDelete', role)
