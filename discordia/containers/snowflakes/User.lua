@@ -29,4 +29,16 @@ function User:getMentionString()
 	return string.format('<@%s>', self.id)
 end
 
+function User:ban(guild, messageDeleteDays)
+	return guild:banUser(self, messageDeleteDays)
+end
+
+function User:unban(guild)
+	return guild:unbanUser(self)
+end
+
+function User:kick(guild)
+	return guild:kickUser(self)
+end
+
 return User

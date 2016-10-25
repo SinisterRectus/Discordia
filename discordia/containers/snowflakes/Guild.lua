@@ -1,5 +1,6 @@
 local Snowflake = require('../Snowflake')
 local Role = require('./Role')
+local User = require('./User')
 local Member = require('./Member')
 local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
@@ -100,10 +101,107 @@ function Guild:requestMembers()
 	end
 end
 
+function Guild:addMember(user) -- limit use, requires guild.join scope
+	local success, data = self.client.api:addGuildMember(self.id, user.id)
+	if success then return self.members:new(data) end
+end
+
+function Guild:setName(name)
+	local success, data = self.client.api:modifyGuild(self.id, {name = name})
+	if success then self.name = data.name end
+	return success
+end
+
+function Guild:setRegion(region)
+	local success, data = self.client.api:modifyGuild(self.id, {region = region})
+	if success then self.region = data.region end
+	return success
+end
+
+function Guild:setIcon(icon)
+	local success, data = self.client.api:modifyGuild(self.id, {icon = icon})
+	if success then self.icon = data.icon end
+	return success
+end
+
+function Guild:setOwner(user)
+	local success, data = self.client.api:modifyGuild(self.id, {owner_id = user.id})
+	if success then self.ownerId = data.owner_id end
+	return success
+end
+
+function Guild:setAfkTimeout(timeout)
+	local success, data = self.client.api:modifyGuild(self.id, {afk_timeout = timeout})
+	if success then self.afkTimeout = data.afk_timeout end
+	return success
+end
+
+function Guild:setAfkChannel(channel)
+	local success, data = self.client.api:modifyGuild(self.id, {afk_channel_id = channel and channel.id or self.id})
+	if success then self.afkChannelId = data.afk_channel_id end
+	return success
+end
+
+function Guild:leave()
+	local success, data = self.client.api:leaveGuild(self.id)
+	return success
+end
+
+function Guild:delete()
+	local success, data = self.client.api:deleteGuild(self.id)
+	return success
+end
+
+function Guild:getBans()
+	local success, data = self.client.api:getGuildBans(self.id)
+	if success then
+		local users = Cache({}, User, 'id', self.client)
+		for _, v in ipairs(data) do
+			users:new(v.user)
+		end
+		return users
+	end
+end
+
+function Guild:banUser(user, messageDeleteDays)
+	messageDeleteDays = messageDeleteDays and math.clamp(messageDeleteDays, 0, 7) or nil
+	local success, data = self.client.api:createGuildBan(self.id, user.id, messageDeleteDays)
+	return success
+end
+
+function Guild:unbanUser(user)
+	local success, data = self.client.api:removeGuildBan(self.id, user.id)
+	return success
+end
+
+function Guild:kickUser(user)
+	local success, data = self.client.api:removeGuildMember(self.id, user.id)
+	return success
+end
+
+function Guild:createTextChannel(name)
+	local success, data = self.client.api:createGuildChannel(self.id, {name = name, type = 'text'})
+	if success then return self.textChannels:new(data) end
+end
+
+function Guild:createVoiceChannel(name)
+	local success, data = self.client.api:createGuildChannel(self.id, {name = name, type = 'voice'})
+	if success then return self.voiceChannels:new(data) end
+end
+
+function Guild:getInvites()
+	local success, data = self.client.api:getGuildInvites(self.id)
+	if success then return Cache(data, Invite, 'code', self.client) end
+end
+
 -- convenience accessors --
 
 function Guild:getRoleById(id)
 	return self.roles:get(id)
+end
+
+function Guild:getRoleByName(name)
+	return self.roles:get('name', name)
 end
 
 function Guild:getChannelById(id)
@@ -118,6 +216,18 @@ function Guild:getVoiceChannelById(id)
 	return self.voiceChannels:get(id)
 end
 
+function Guild:getChannelByName(name)
+	return self:getTextChannelByName(name) or self:getVoiceChannelByName(name)
+end
+
+function Guild:getTextChannelByName(name)
+	return self.textChannels:get('name', name)
+end
+
+function Guild:getVoiceChannelByName(name)
+	return self.voiceChannels:get('name', name)
+end
+
 function Guild:getMemberById(id)
 	return self.members:get(id)
 end
@@ -128,6 +238,13 @@ end
 
 function Guild:getVoiceStateById(sessionId)
 	return self.voiceStates:get(sessionId)
+end
+
+function Guild:getMessageById(id)
+	for channel in self:getTextChannels() do
+		local message = channel.messages:get(id)
+		if message then return message end
+	end
 end
 
 -- convenience iterators --
@@ -163,9 +280,6 @@ function Guild:getVoiceStates()
 	return self.voiceStates:iter()
 end
 
-function Guild:getInvites()
-	local success, data = self.client.api:getGuildInvites(self.id)
-	if success then return Cache(data, Invite, 'code', self.client) end
-end
+Guild.getBannedUsers = Guild.getBans
 
 return Guild

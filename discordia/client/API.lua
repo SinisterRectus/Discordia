@@ -70,7 +70,7 @@ function API:createMessage(channel_id, payload) -- TextChannel:[create|send]Mess
 	return self:request("POST", url("/channels/%s/messages", channel_id), payload or emptyPayload)
 end
 
-function API:uploadFile(channel_id, payload)
+function API:uploadFile(channel_id, payload) -- TODO
 	return self:request("POST", url("/channels/%s/messages", channel_id), payload or emptyPayload)
 end
 
@@ -86,7 +86,7 @@ function API:bulkDeleteMessages(channel_id, payload) -- TextChannel:bulkDelete
 	return self:request("POST", url("/channels/%s/messages/bulk-delete", channel_id), payload or emptyPayload)
 end
 
-function API:editChannelPermissions(channel_id, overwrite_id, payload)
+function API:editChannelPermissions(channel_id, overwrite_id, payload) -- TODO
 	return self:request("PUT", url("/channels/%s/permissions/%s", channel_id, overwrite_id), payload or emptyPayload)
 end
 
@@ -98,7 +98,7 @@ function API:createChannelInvite(channel_id, payload) -- GuildChannel:createInvi
 	return self:request("POST", url("/channels/%s/invites", channel_id), payload or emptyPayload)
 end
 
-function API:deleteChannelPermission(channel_id, overwrite_id)
+function API:deleteChannelPermission(channel_id, overwrite_id) -- TODO
 	return self:request("DELETE", url("/channels/%s/permissions/%s", channel_id, overwrite_id))
 end
 
@@ -118,71 +118,75 @@ function API:deletePinnedChannelMessage(channel_id, message_id) -- Message:unpin
 	return self:request("DELETE", url("/channels/%s/pins/%s", channel_id, message_id))
 end
 
-function API:groupDMAddRecipient(channel_id, user_id, payload)
+function API:groupDMAddRecipient(channel_id, user_id, payload) -- TODO
 	return self:request("PUT", url("/channels/%s/recipients/%s", channel_id, user_id), payload or emptyPayload)
 end
 
-function API:groupDMRemoveRecipient(channel_id, user_id)
+function API:groupDMRemoveRecipient(channel_id, user_id) -- TODO
 	return self:request("DELETE", url("/channels/%s/recipients/%s", channel_id, user_id))
 end
 
-function API:createGuild(payload)
+function API:createGuild(payload) -- TODO
 	return self:request("POST", url("/guilds"), payload or emptyPayload)
 end
 
-function API:getGuild(guild_id)
+function API:getGuild(guild_id) -- not exposed, use cache
 	return self:request("GET", url("/guilds/%s", guild_id))
 end
 
-function API:modifyGuild(guild_id, payload)
+function API:modifyGuild(guild_id, payload) -- various guild methods
 	return self:request("PATCH", url("/guilds/%s", guild_id), payload or emptyPayload)
 end
 
-function API:deleteGuild(guild_id)
+function API:deleteGuild(guild_id) -- Guild:delete
 	return self:request("DELETE", url("/guilds/%s", guild_id))
 end
 
-function API:getGuildChannels(guild_id)
+function API:getGuildChannels(guild_id) -- not exposed, use cache
 	return self:request("GET", url("/guilds/%s/channels", guild_id))
 end
 
-function API:createGuildChannel(guild_id, payload)
+function API:createGuildChannel(guild_id, payload) -- Guild:create[Text|Voice]Channel
 	return self:request("POST", url("/guilds/%s/channels", guild_id), payload or emptyPayload)
 end
 
-function API:modifyGuildChannelPosition(guild_id, payload)
+function API:modifyGuildChannelPosition(guild_id, payload) -- TODO
 	return self:request("PATCH", url("/guilds/%s/channels", guild_id), payload or emptyPayload)
 end
 
-function API:getGuildMember(guild_id, user_id)
+function API:getGuildMember(guild_id, user_id) -- not exposed, use cache or Guild:requestMembers
 	return self:request("GET", url("/guilds/%s/members/%s", guild_id, user_id))
 end
 
-function API:listGuildMembers(guild_id)
+function API:listGuildMembers(guild_id) -- not exposed, use cache or Guild:requestMembers
 	return self:request("GET", url("/guilds/%s/members", guild_id))
 end
 
-function API:addGuildMember(guild_id, user_id, payload)
+function API:addGuildMember(guild_id, user_id, payload) -- Guild:addMember (limit use, requires guild.join scope)
 	return self:request("PUT", url("/guilds/%s/members/%s", guild_id, user_id), payload or emptyPayload)
 end
 
-function API:modifyGuildMember(guild_id, user_id, payload)
+function API:modifyGuildMember(guild_id, user_id, payload) -- TODO
 	return self:request("PATCH", url("/guilds/%s/members/%s", guild_id, user_id), payload or emptyPayload)
 end
 
-function API:removeGuildMember(guild_id, user_id)
+function API:removeGuildMember(guild_id, user_id) -- Guild:kickUser, User:kick, Member:kick
 	return self:request("DELETE", url("/guilds/%s/members/%s", guild_id, user_id))
 end
 
-function API:getGuildBans(guild_id)
+function API:getGuildBans(guild_id) -- Guild:getBans
 	return self:request("GET", url("/guilds/%s/bans", guild_id))
 end
 
-function API:createGuildBan(guild_id, user_id, payload)
-	return self:request("PUT", url("/guilds/%s/bans/%s", guild_id, user_id), payload or emptyPayload)
+function API:createGuildBan(guild_id, user_id, days) -- Guild:banUser, User:ban, Member:ban
+	if days then
+		return self:request("PUT", url("/guilds/%s/bans/%s?delete-message-days=%i", guild_id, user_id, days), emptyPayload)
+	else
+		return self:request("PUT", url("/guilds/%s/bans/%s", guild_id, user_id), emptyPayload)
+	end
 end
 
-function API:removeGuildBan(guild_id, user_id)
+function API:removeGuildBan(guild_id, user_id) -- Guild:unbanUser, User:unban, Member:unban
 	return self:request("DELETE", url("/guilds/%s/bans/%s", guild_id, user_id))
 end
 
@@ -278,7 +282,7 @@ function API:getCurrentUserGuilds()
 	return self:request("GET", url("/users/@me/guilds"))
 end
 
-function API:leaveGuild(guild_id)
+function API:leaveGuild(guild_id) -- Guild:leave
 	return self:request("DELETE", url("/users/@me/guilds/%s", guild_id))
 end
 

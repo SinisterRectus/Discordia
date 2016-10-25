@@ -52,16 +52,27 @@ function Member:updatePresence(data)
 end
 
 function Member:getMembership(guild)
-	return guild:getMemberById(self.id)
+	return self.user:getMembership(guild)
 end
 
 function Member:getAvatarUrl()
-	if not self.avatar then return nil end
-	return string.format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self.id, self.avatar)
+	return self.user:getAvatarUrl()
 end
 
 function Member:getMentionString()
-	return string.format('<@%s>', self.id)
+	return self.user:getMentionString()
+end
+
+function Member:ban(guild, messageDeleteDays)
+	return self.user:ban(guild, messageDeleteDays)
+end
+
+function Member:unban(guild)
+	return self.user:unban(guild)
+end
+
+function Member:kick(guild)
+	return self.user:kick(guild)
 end
 
 return Member

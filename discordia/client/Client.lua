@@ -29,7 +29,11 @@ function Client:initialize(customOptions)
 end
 
 Client.meta.__tostring = function(self)
-	return 'instance of Client'
+	if self.user then
+		return 'instance of Client for ' .. self.user.username
+	else
+		return 'instance of Client'
+	end
 end
 
 -- overwrite emit method to make it non-blocking
