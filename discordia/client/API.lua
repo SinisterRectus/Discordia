@@ -194,19 +194,19 @@ function API:getGuildRoles(guild_id) -- not exposed, use cache
 	return self:request("GET", url("/guilds/%s/roles", guild_id))
 end
 
-function API:createGuildRole(guild_id, payload)
+function API:createGuildRole(guild_id, payload) -- Guild:createRole
 	return self:request("POST", url("/guilds/%s/roles", guild_id), payload or emptyPayload)
 end
 
-function API:batchModifyGuildRole(guild_id, payload)
+function API:batchModifyGuildRole(guild_id, payload) -- TODO
 	return self:request("PATCH", url("/guilds/%s/roles", guild_id), payload or emptyPayload)
 end
 
-function API:modifyGuildRole(guild_id, role_id, payload)
+function API:modifyGuildRole(guild_id, role_id, payload) -- various role methods
 	return self:request("PATCH", url("/guilds/%s/roles/%s", guild_id, role_id), payload or emptyPayload)
 end
 
-function API:deleteGuildRole(guild_id, role_id)
+function API:deleteGuildRole(guild_id, role_id) -- Role:delete
 	return self:request("DELETE", url("/guilds/%s/roles/%s", guild_id, role_id))
 end
 

@@ -189,6 +189,11 @@ function Guild:createVoiceChannel(name)
 	if success then return self.voiceChannels:new(data) end
 end
 
+function Guild:createRole()
+	local success, data = self.client.api:createGuildRole(self.id)
+	if success then return self.roles:new(data) end
+end
+
 function Guild:getInvites()
 	local success, data = self.client.api:getGuildInvites(self.id)
 	if success then return Cache(data, Invite, 'code', self.client) end

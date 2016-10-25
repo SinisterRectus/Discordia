@@ -33,35 +33,35 @@ function Color:__tostring()
 end
 
 function Color:__eq(other)
-	return self:isSameTypeAs(other) and self.value == other.value
+	return self.__class == other.__class and self.value == other.value
 end
 
 function Color:__add(other)
-	local r = math.clamp(self.r + other.r, 0, 255)
-	local b = math.clamp(self.b + other.b, 0, 255)
-	local g = math.clamp(self.g + other.g, 0, 255)
+	local r = self.r + other.r
+	local b = self.b + other.b
+	local g = self.g + other.g
 	return Color(r, g, b)
 end
 
 function Color:__sub(other)
-	local r = math.clamp(self.r - other.r, 0, 255)
-	local b = math.clamp(self.b - other.b, 0, 255)
-	local g = math.clamp(self.g - other.g, 0, 255)
+	local r = self.r - other.r
+	local b = self.b - other.b
+	local g = self.g - other.g
 	return Color(r, g, b)
 end
 
 function Color:__mul(n)
 	if type(self) == 'number' then self, n = n, self end
-	local r = math.clamp(self.r * n, 0, 255)
-	local b = math.clamp(self.b * n, 0, 255)
-	local g = math.clamp(self.g * n, 0, 255)
+	local r = self.r * n
+	local b = self.b * n
+	local g = self.g * n
 	return Color(r, g, b)
 end
 
 function Color:__div(n)
-	local r = math.clamp(self.r / n, 0, 255)
-	local b = math.clamp(self.b / n, 0, 255)
-	local g = math.clamp(self.g / n, 0, 255)
+	local r = self.r / n, 0, 255
+	local b = self.b / n, 0, 255
+	local g = self.g / n, 0, 255
 	return Color(r, b, g)
 end
 
@@ -71,6 +71,10 @@ end
 
 function Color:toDec()
 	return 0x10000 * self.r + 0x100 * self.g + self.b
+end
+
+function Color:copy()
+	return Color(self.r, self.g, self.b)
 end
 
 return Color

@@ -24,4 +24,63 @@ function Role:getMentionString()
 	return string.format('<@&%s>', self.id)
 end
 
+function Role:setName(name)
+	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {name = name})
+	if success then self.name = data.name end
+	return success
+end
+
+function Role:setHoist(hoist)
+	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {hoist = hoist})
+	if success then self.hoist = data.hoist end
+	return success
+end
+
+function Role:setMentionable(mentionable)
+	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {mentionable = mentionable})
+	if success then self.mentionable = data.mentionable end
+	return success
+end
+
+function Role:setColor(color)
+	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {color = color:toDec()})
+	if success then self.color = Color(data.color) end
+	return success
+end
+
+function Role:setPermissions(permissions)
+	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {permissions = permissions:toDec()})
+	if success then self.permissions = Permissions(data.permissions) end
+	return success
+end
+
+function Role:enablePermission(flag)
+	local permissions = self.permissions:copy()
+	permissions:enable(flag)
+	return self:setPermissions(permissions)
+end
+
+function Role:disablePermission(flag)
+	local permissions = self.permissions:copy()
+	permissions:disable(flag)
+	return self:setPermissions(permissions)
+end
+
+function Role:enableAllPermissions()
+	local permissions = self.permissions:copy()
+	permissions:enableAll()
+	return self:setPermissions(permissions)
+end
+
+function Role:disableAllPermissions()
+	local permissions = self.permissions:copy()
+	permissions:disableAll()
+	return self:setPermissions(permissions)
+end
+
+function Role:delete()
+	local success, data = self.client.api:deleteGuildRole(self.parent.id, self.id)
+	return success
+end
+
 return Role
