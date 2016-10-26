@@ -14,17 +14,34 @@ function table.count(tbl)
 	return n
 end
 
-function table.deepcount(tbl)
-	local n = 0
-	for k, v in pairs(tbl) do
-		n = type(v) == 'table' and n + table.deepcount(v) or n + 1
+function table.copy(from, deepCopy)
+	if type(from) == "table" then
+		local to = {}
+		for k, v in pairs(from) do
+			if deepCopy and type(v) == "table" then to[k] = table.copy(v)
+			else to[k] = v
+			end
+		end
+		return to
 	end
-	return n
 end
 
 function table.find(tbl, value)
 	for k, v in pairs(tbl) do
 		if v == value then return k end
+	end
+end
+
+function table.clear(t)
+	for i, v in pairs(t) do
+		t[i] = nil
+	end
+end
+
+function table.contains(t, what, member) --member is optional
+	assert(type(t) == "table", "table.contains: wrong argument types (<table> expected for t)")
+	for i, v in pairs(t) do
+		if member and v[member] == what or v == what then return i, v end
 	end
 end
 
@@ -42,12 +59,16 @@ function table.copy(tbl)
 	return new
 end
 
-function table.deepcopy(tbl)
-	local new = {}
-	for k, v in pairs(tbl) do
-		new[k] = type(v) == 'table' and table.deepcopy(v) or v
+function table.copy(from, deepCopy)
+	if type(from) == "table" then
+		local to = {}
+		for k, v in pairs(from) do
+			if deepCopy and type(v) == "table" then to[k] = table.copy(v)
+			else to[k] = v
+			end
+		end
+		return to
 	end
-	return new
 end
 
 function table.keys(tbl)
