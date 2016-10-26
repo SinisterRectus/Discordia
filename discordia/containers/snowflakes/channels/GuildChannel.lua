@@ -47,7 +47,13 @@ end
 
 function GuildChannel:getInvites()
 	local success, data = self.client.api:getChannelInvites(self.id)
-	if success then return Cache(data, Invite, 'code', self.client) end
+	local parent = self.client
+	return coroutine.wrap(function()
+		if not success then return end
+		for _, inviteData in ipairs(data) do
+			coroutine.yield(Invite(inviteData, parent))
+		end
+	end)
 end
 
 function GuildChannel:createInvite(maxAge, maxUses, temporary, unique)

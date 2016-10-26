@@ -196,7 +196,13 @@ end
 
 function Guild:getInvites()
 	local success, data = self.client.api:getGuildInvites(self.id)
-	if success then return Cache(data, Invite, 'code', self.client) end
+	local parent = self.client
+	return coroutine.wrap(function()
+		if not success then return end
+		for _, inviteData in ipairs(data) do
+			coroutine.yield(Invite(inviteData, parent))
+		end
+	end)
 end
 
 -- convenience accessors --

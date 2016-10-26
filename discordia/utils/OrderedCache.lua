@@ -68,22 +68,16 @@ function OrderedCache:iterLeftToRight() -- iterates left/head/old to right/tail/
 	end
 end
 
+function OrderedCache:iter(reverse)
+	return reverse and self:iterRightToLeft() or self:iterLeftToRight()
+end
+
 function OrderedCache:getOldest()
 	return self.head
 end
 
 function OrderedCache:getNewest()
 	return self.tail
-end
-
-function OrderedCache:getAll(key, value, ret)
-	ret = ret or OrderedCache({}, self.constructor, self.max, self.parent)
-	return Cache.getAll(self, key, value, ret)
-end
-
-function OrderedCache:findAll(key, predicate, ret)
-	ret = ret or OrderedCache({}, self.constructor, self.max, self.parent)
-	return Cache.findAll(self, key, predicate, ret)
 end
 
 -- alliases --

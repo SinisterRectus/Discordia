@@ -100,24 +100,24 @@ function Cache:find(key, predicate)
 	end
 end
 
-function Cache:getAll(key, value, ret)
-	ret = ret or Cache({}, self.constructor, self.parent)
-	for obj in self:iter() do
-		if obj[key] == value then
-			ret:add(obj)
+function Cache:getAll(key, value)
+	return coroutine.wrap(function()
+		for obj in self:iter() do
+			if obj[key] == value then
+				coroutine.yield(obj)
+			end
 		end
-	end
-	return ret
+	end)
 end
 
-function Cache:findAll(key, predicate, ret)
-	ret = ret or Cache({}, self.constructor, self.parent)
-	for obj in self:iter() do
-		if predicate(obj[key]) then
-			ret:add(obj)
+function Cache:findAll(predicate)
+	return coroutine.wrap(function()
+		for obj in self:iter() do
+			if predicate(obj) then
+				coroutine.yield(obj)
+			end
 		end
-	end
-	return ret
+	end)
 end
 
 function Cache:keys()
