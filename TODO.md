@@ -1,14 +1,11 @@
 Probable additions
-- API calls need to be exposed to invididual classes
-- Message mentions, embeds, and attachments
+- Message embeds and attachments
 - File sharing
 - Sharding
 - Twitch streaming url
 - Logging support
 - Guild emojis and features
-- Remove os.exit from client:stop()
 - Provide old user object on presenceUpdate (maybe other events)
-- Pinned message getting
 - User friendly permissions
 
 Possible additions
