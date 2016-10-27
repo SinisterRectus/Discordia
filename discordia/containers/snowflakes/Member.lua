@@ -82,43 +82,89 @@ end
 
 -- Member-specific methods --
 
-function Member:setNickname(nickname)
-	local success = self.client.api:modifyGuildMember(self.parent.id, self.user.id, {nick = nickname or ''})
-	if success then self.nick = nickname end
+local function applyRoles(member, roles)
+	local success = member.client.api:modifyGuildMember(member.parent.id, member.user.id, {roles = roles})
+	if success then member.roles = roles end
 	return success
 end
 
-function Member:setRoles(roles)
-	if type(roles) == 'table' then
-		local tbl = {}
-		if roles.iter then
-			for role in roles:iter() do
-				table.insert(tbl, role.id)
-			end
-		elseif roles.__name == 'Role' then
-			table.insert(tbl, roles.id)
-		else
-			for _, role in pairs(roles) do
-				if role.__name == 'Role' then
-					table.insert(tbl, role.id)
-				end
-			end
+local function mapRoles(roles, map, tbl)
+	if roles.iter then
+		for role in roles:iter() do
+			map(role, tbl)
 		end
-		roles = tbl
+	else
+		for _, role in pairs(roles) do
+			map(role, tbl)
+		end
 	end
-	local success = self.client.api:modifyGuildMember(self.parent.id, self.user.id, {roles = roles or {}})
-	if success then self.roles = roles end
+	return tbl
+end
+
+function Member:setRoles(roles)
+	local map = function(role, tbl)
+		table.insert(tbl, role.id)
+	end
+	local roleIds = mapRoles(roles, map, {})
+	return applyRoles(self, roleIds)
+end
+
+function Member:addRoles(roles)
+	local map = function(role, tbl)
+		table.insert(tbl, role.id)
+	end
+	local roleIds = mapRoles(roles, map, self.roles)
+	return applyRoles(self, roleIds)
+end
+
+function Member:removeRoles(roles)
+	local map = function(role, tbl)
+		tbl[role.id] = true
+	end
+	local removals = mapRoles(roles, map, {})
+	local roleIds = {}
+	for _, id in ipairs(self.roles) do
+		if not removals[id] then
+			table.insert(roleIds, id)
+		end
+	end
+	return applyRoles(self, roleIds)
+end
+
+function Member:addRole(role)
+	local roleIds = {role.id}
+	for _, id in ipairs(self.roles) do
+		table.insert(roleIds, id)
+	end
+	return applyRoles(self, roleIds)
+end
+
+function Member:removeRole(role)
+	local roleIds = {}
+	for _, id in ipairs(self.roles) do
+		if id ~= role.id then
+			table.insert(roleIds, id)
+		end
+	end
+	return applyRoles(self, roleIds)
+end
+
+function Member:setNickname(nickname)
+	local success = self.client.api:modifyGuildMember(self.parent.id, self.user.id, {nick = nickname or ''})
+	if success then self.nick = nickname ~= '' and nickname or nil end
 	return success
 end
 
 function Member:setMute(mute)
-	local success = self.client.api:modifyGuildMember(self.parent.id, self.user.id, {mute = mute or false})
+	mute = mute or false
+	local success = self.client.api:modifyGuildMember(self.parent.id, self.user.id, {mute = mute})
 	if success then self.mute = mute end
 	return success
 end
 
 function Member:setDeaf(deaf)
-	local success = self.client.api:modifyGuildMember(self.parent.id, self.user.id, {deaf = deaf or false})
+	deaf = deaf or false
+	local success = self.client.api:modifyGuildMember(self.parent.id, self.user.id, {deaf = deaf})
 	if success then self.deaf = deaf end
 	return success
 end
