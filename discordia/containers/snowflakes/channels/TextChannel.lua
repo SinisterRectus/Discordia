@@ -31,28 +31,27 @@ function TextChannel:getMessages()
 	return self.messages:iter()
 end
 
+local function getMessageHistory(message, field, other, limit, min)
+	local query = {limit = limit and math.clamp(limit, min, 100) or nil}
+	if field then query[field] = other and other.id or nil end
+	local success, data = message.client.api:getChannelMessages(message.id, query)
+	return messageIterator(success, data, message)
+end
+
 function TextChannel:getMessageHistory(limit)
-	limit = math.clamp(limit or 50, 1, 100)
-	local success, data = self.client.api:getChannelMessages(self.id, limit)
-	return messageIterator(success, data, self)
+	return getMessageHistory(self, nil, nil, limit, 1)
 end
 
 function TextChannel:getMessageHistoryBefore(message, limit)
-	limit = math.clamp(limit or 50, 1, 100)
-	local success, data = self.client.api:getChannelMessages(self.id, limit, 'before', message.id)
-	return messageIterator(success, data, self)
+	return getMessageHistory(self, 'before', message, limit, 1)
 end
 
 function TextChannel:getMessageHistoryAfter(message, limit)
-	limit = math.clamp(limit or 50, 1, 100)
-	local success, data = self.client.api:getChannelMessages(self.id, limit, 'after', message.id)
-	return messageIterator(success, data, self)
+	return getMessageHistory(self, 'after', message, limit, 1)
 end
 
 function TextChannel:getMessageHistoryAround(message, limit)
-	limit = math.clamp(limit or 50, 2, 100)
-	local success, data = self.client.api:getChannelMessages(self.id, limit, 'around', message.id)
-	return messageIterator(success, data, self)
+	return getMessageHistory(self, 'around', message, limit, 2)
 end
 
 function TextChannel:getPinnedMessages()

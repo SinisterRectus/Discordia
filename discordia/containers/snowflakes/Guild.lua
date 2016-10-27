@@ -154,18 +154,19 @@ end
 
 function Guild:getBans()
 	local success, data = self.client.api:getGuildBans(self.id)
-	if success then
-		local users = Cache({}, User, 'id', self.client)
+	if not success then return function() end end
+	local client = self.client
+	return coroutine.wrap(function()
 		for _, v in ipairs(data) do
-			users:new(v.user)
+			coroutine.yield(User(v.user, client))
 		end
-		return users
-	end
+	end)
 end
 
 function Guild:banUser(user, messageDeleteDays)
 	messageDeleteDays = messageDeleteDays and math.clamp(messageDeleteDays, 0, 7) or nil
-	local success, data = self.client.api:createGuildBan(self.id, user.id, messageDeleteDays)
+	local query = messageDeleteDays and {['delete-message-days'] = messageDeleteDays} or nil
+	local success, data = self.client.api:createGuildBan(self.id, user.id, payload, query)
 	return success
 end
 
