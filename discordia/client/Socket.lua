@@ -7,6 +7,8 @@ local EventHandler = require('./EventHandler')
 local ignore = {
 	['MESSAGE_ACK'] = true,
 	['CHANNEL_PINS_UPDATE'] = true,
+	['MESSAGE_REACTION_ADD'] = true,
+	['MESSAGE_REACTION_REMOVE'] = true,
 }
 
 local Socket = class('Socket')
