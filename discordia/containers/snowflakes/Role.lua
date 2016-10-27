@@ -16,8 +16,16 @@ function Role:update(data)
 	self.hoist = data.hoist
 	self.managed = data.managed
 	self.mentionable = data.mentionable
-	self.color = Color(data.color)
-	self.permissions = Permissions(data.permissions)
+	self.color = data.color
+	self.permissions = data.permissions
+end
+
+function Role:getColor()
+	return Color(self.color)
+end
+
+function Role:getPermissions()
+	return Permissions(self.permissions)
 end
 
 function Role:getMentionString()
@@ -44,36 +52,36 @@ end
 
 function Role:setColor(color)
 	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {color = color:toDec()})
-	if success then self.color = Color(data.color) end
+	if success then self.color = data.color end
 	return success
 end
 
 function Role:setPermissions(permissions)
 	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {permissions = permissions:toDec()})
-	if success then self.permissions = Permissions(data.permissions) end
+	if success then self.permissions = data.permissions end
 	return success
 end
 
 function Role:enablePermission(flag)
-	local permissions = self.permissions:copy()
+	local permissions = self:getPermissions()
 	permissions:enable(flag)
 	return self:setPermissions(permissions)
 end
 
 function Role:disablePermission(flag)
-	local permissions = self.permissions:copy()
+	local permissions = self:getPermissions()
 	permissions:disable(flag)
 	return self:setPermissions(permissions)
 end
 
 function Role:enableAllPermissions()
-	local permissions = self.permissions:copy()
+	local permissions = self:getPermissions()
 	permissions:enableAll()
 	return self:setPermissions(permissions)
 end
 
 function Role:disableAllPermissions()
-	local permissions = self.permissions:copy()
+	local permissions = self:getPermissions()
 	permissions:disableAll()
 	return self:setPermissions(permissions)
 end
