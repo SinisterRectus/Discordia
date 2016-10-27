@@ -150,6 +150,9 @@ function Member:removeRole(role)
 end
 
 function Member:setNickname(nickname)
+	if self.user.id == self.client.user.id then
+		return self.client:setNickname(self.parent, nickname)
+	end
 	local success = self.client.api:modifyGuildMember(self.parent.id, self.user.id, {nick = nickname or ''})
 	if success then self.nick = nickname ~= '' and nickname or nil end
 	return success
