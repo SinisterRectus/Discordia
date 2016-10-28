@@ -6,6 +6,7 @@ local Guild = require('../containers/snowflakes/Guild')
 local PrivateTextChannel = require('../containers/snowflakes/channels/PrivateTextChannel')
 
 local insert, concat, keys = table.insert, table.concat, table.keys
+local info, warning, failure = console.info, console.warning, console.failure
 
 local ignore = {
 	['MESSAGE_ACK'] = true,

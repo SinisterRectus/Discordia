@@ -6,6 +6,8 @@ local Invite = require('../containers/Invite')
 local API = require('./API')
 local Socket = require('./Socket')
 
+local info, warning, failure = console.info, console.warning, console.failure
+
 local defaultOptions = {
 	maxMessages = 100,
 	largeThreshold = 100,

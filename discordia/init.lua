@@ -1,11 +1,6 @@
 require('./extensions')
 _G.class = require('./class')
-
-local console = require('./console')
-
-_G.success = console.success
-_G.warning = console.warning
-_G.failure = console.failure
+_G.console = require('./console')
 
 _G.pt = function(tbl) -- debug
 	for k, v in pairs(tbl) do

@@ -4,6 +4,8 @@ local timer = require('timer')
 local websocket = require('coro-websocket')
 local EventHandler = require('./EventHandler')
 
+local info, warning, failure = console.info, console.warning, console.failure
+
 local Socket = class('Socket')
 
 function Socket:__init(client)
