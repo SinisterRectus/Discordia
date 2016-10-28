@@ -71,6 +71,7 @@ function Guild:update(data)
 	self.afkTimeout = data.afk_timeout
 	self.afkChannelId = data.afk_channel_id
 	self.verificationLevel = data.verification_level
+	self.defaultMessageNotifications = data.default_message_notifications
 	self.vip = next(data.features) and true or false
 	-- self.emojis = data.emojis -- TODO
 	-- self.features = data.features -- TODO
