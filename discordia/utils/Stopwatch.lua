@@ -2,8 +2,7 @@ local hrtime = require('uv').hrtime
 
 local Stopwatch = class('Stopwatch')
 
-function Stopwatch:__init(offset)
-	self.offset = offset or 0
+function Stopwatch:__init()
 	self.time = hrtime()
 end
 
@@ -28,7 +27,7 @@ function Stopwatch:getMicroseconds()
 end
 
 function Stopwatch:getNanoseconds()
-	return hrtime() - self.time + self.offset
+	return hrtime() - self.time
 end
 
 Stopwatch.restart = Stopwatch.__init
