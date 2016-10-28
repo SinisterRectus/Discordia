@@ -4,13 +4,6 @@ local timer = require('timer')
 local websocket = require('coro-websocket')
 local EventHandler = require('./EventHandler')
 
-local ignore = {
-	['MESSAGE_ACK'] = true,
-	['CHANNEL_PINS_UPDATE'] = true,
-	['MESSAGE_REACTION_ADD'] = true,
-	['MESSAGE_REACTION_REMOVE'] = true,
-}
-
 local Socket = class('Socket')
 
 function Socket:__init(client)
@@ -81,13 +74,11 @@ function Socket:handlePayload(data, client)
 
 	if op == 0 then
 		self.sequence = payload.s
-		if not ignore[payload.t] then
-			local handler = EventHandler[payload.t]
-			if handler then
-				return handler(payload.d, client)
-			else
-				return warning('Unhandled event: ' .. payload.t)
-			end
+		local handler = EventHandler[payload.t]
+		if handler then
+			return handler(payload.d, client)
+		else
+			return warning('Unhandled event: ' .. payload.t)
 		end
 	elseif op == 1 then
 		return self:heartbeat()

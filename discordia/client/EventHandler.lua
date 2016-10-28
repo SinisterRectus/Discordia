@@ -1,15 +1,27 @@
 local timer = require('timer')
-
 local Cache = require('../utils/Cache')
+local Stopwatch = require('../utils/Stopwatch')
 local User = require('../containers/snowflakes/User')
 local Guild = require('../containers/snowflakes/Guild')
 local PrivateTextChannel = require('../containers/snowflakes/channels/PrivateTextChannel')
 
+local insert, concat, keys = table.insert, table.concat, table.keys
+
+local ignore = {
+	['MESSAGE_ACK'] = true,
+	['CHANNEL_PINS_UPDATE'] = true,
+	['MESSAGE_REACTION_ADD'] = true,
+	['MESSAGE_REACTION_REMOVE'] = true,
+}
+
 local function checkReady(client)
 	for k, v in pairs(client.loading) do
-		if next(v) then return end
+		if next(v) then
+			return client.stopwatch:restart()
+		end
 	end
 	client.loading = nil
+	client.stopwatch = nil
 	return client:emit('ready')
 end
 
@@ -36,41 +48,37 @@ function EventHandler.READY(data, client)
 		for guild in client.guilds:iter() do
 			local id = guild.id
 			client.loading.syncs[id] = true
-			table.insert(guildIds, id)
+			insert(guildIds, id)
 		end
 		client.socket:syncGuilds(guildIds)
 	end
 
+	client.stopwatch = Stopwatch()
 	checkReady(client)
 
 	if not client.loading then return end
 
-	-- TODO: make this relative to the last loaded guild
-	timer.setTimeout(10000, function()
+	local interval
+	interval = timer.setInterval(1000, function()
 		local loading = client.loading
-		if not loading then return end
+		if not loading then
+			return timer.clearInterval(interval)
+		end
+		if client.stopwatch:getSeconds() < 10 then return end
 		if next(loading.syncs) then
-			local ids = {}
-			for id in pairs(loading.chunks) do
-				table.insert(ids, id)
-			end
-			failure('Client failed to sync guild(s): ' .. table.concat(ids, ', '))
+			local ids = concat(keys(loading.syncs), ', ')
+			failure('Client failed to sync guild(s): ' .. ids)
 		end
 		if next(loading.guilds) then
-			local ids = {}
-			for id in pairs(loading.guilds) do
-				table.insert(ids, id)
-			end
-			warning('Client initiated with unavailable guild(s): ' .. table.concat(ids, ', '))
+			local ids = concat(keys(loading.guilds), ', ')
+			warning('Client initiated with unavailable guild(s): ' .. ids)
 		end
 		if next(loading.chunks) then
-			local ids = {}
-			for id in pairs(loading.chunks) do
-				table.insert(ids, id)
-			end
-			warning('Client may lack offline member data for guild(s): ' .. table.concat(ids, ', '))
+			local ids = concat(keys(loading.chunks), ', ')
+			warning('Client may lack offline member data for guild(s): ' .. ids)
 		end
 		client.loading = nil
+		client.stopwatch = nil
 		return client:emit('ready')
 	end)
 
@@ -343,6 +351,10 @@ function EventHandler.VOICE_STATE_UPDATE(data, client)
 		voiceState = guild.voiceStates:new(data)
 		return client:emit('voiceJoin', voiceState)
 	end
+end
+
+for event in pairs(ignore) do
+	EventHandler[event] = function() return end
 end
 
 return EventHandler

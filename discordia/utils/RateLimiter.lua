@@ -35,7 +35,6 @@ local RateLimiter, accessors = class('RateLimiter')
 
 function RateLimiter:__init()
 	self.queue = Deque()
-	self.new = true -- debug
 end
 
 function RateLimiter:open()
@@ -60,23 +59,12 @@ function RateLimiter:close(response)
 	local delay = 500
 
 	if reset and limit and remaining then
-
 		local offset = offset(headers['Date'])
-		if math.abs(offset) > 10 then failure.time(offset) end -- debug
-
-		if self.new then -- debug, need to make sure the routes are correct
-			self.new = false
-			assert(remaining == limit - 1, self.route)
-		end
-
+		if math.abs(offset) > 10 then failure('clock out of sync ' .. offset) end -- debug
 		local dt = difftime(reset + offset, time())
-
 		if math.abs(dt) > 60 then failure('rate limit delay ' .. dt) end -- debug
-
 		-- delay = remaining == 0 and 1100 * dt or 0 -- burst
 		delay = remaining == 0 and 1100 * dt or 1000 * dt / remaining -- smooth
-		-- p(remaining, dt, delay)
-
 	end
 
 	setTimeout(delay, continue, self)

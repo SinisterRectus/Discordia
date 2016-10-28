@@ -1,20 +1,22 @@
 Probable additions
-- Message embeds and attachments
-- File sharing
 - Sharding
-- Twitch streaming url
+- File uploading
 - Logging support
+- Message fetching
+- Message embeds and attachments
 - Guild emojis and features
-- Provide old user object on presenceUpdate (maybe other events)
 - User friendly permissions
+- Provide old user object on presenceUpdate (maybe other events)
 
 Possible additions
+- Webhooks
+- Message reactions
+- Twitch streaming url
 - Implement Game object
-- Handle USER_SETTINGS_UPDATE and USER_GUILD_SETTINGS_UPDATE
+- Handle unhandled gateway events
 - Change Client to use custom class
-- Implement private/public attributes
+- Private/public attributes
 - Helper functions, like getMembersWithRole, ...
-- Make ready timeout relative to guild loading
 - Voice support
 
 Fixes Needed
