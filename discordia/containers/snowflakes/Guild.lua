@@ -8,6 +8,8 @@ local Invite = require('../Invite')
 local VoiceState = require('../VoiceState')
 local Cache = require('../../utils/Cache')
 
+local wrap, yield = coroutine.wrap, coroutine.yield
+
 local Guild, accessors = class('Guild', Snowflake)
 
 accessors.me = function(self) return self.members:get(self.client.user.id) end
@@ -21,11 +23,11 @@ function Guild:__init(data, parent)
 	if data.unavailable then
 		self.unavailable = true
 	else
-		self:makeAvailable(data)
+		self:_makeAvailable(data)
 	end
 end
 
-function Guild:makeAvailable(data)
+function Guild:_makeAvailable(data)
 
 	self.unavailable = false
 
@@ -40,7 +42,7 @@ function Guild:makeAvailable(data)
 	self.voiceChannels = Cache({}, GuildVoiceChannel, 'id', self)
 
 	if data.presences then
-		self:loadMemberPresences(data.presences)
+		self:_loadMemberPresences(data.presences)
 	end
 
 	if data.channels then
@@ -57,11 +59,11 @@ function Guild:makeAvailable(data)
 		self:requestMembers()
 	end
 
-	self:update(data)
+	self:_update(data)
 
 end
 
-function Guild:update(data)
+function Guild:_update(data)
 	self.name = data.name
 	self.icon = data.icon
 	self.splash = data.splash
@@ -77,20 +79,20 @@ function Guild:update(data)
 	-- self.features = data.features -- TODO
 end
 
-function Guild:loadMemberPresences(data)
+function Guild:_loadMemberPresences(data)
 	for _, presence in ipairs(data) do
 		local member = self.members:get(presence.user.id)
-		member:createPresence(presence)
+		member:_createPresence(presence)
 	end
 end
 
-function Guild:updateMemberPresence(data)
+function Guild:_updateMemberPresence(data)
 	local member = self.members:get(data.user.id)
 	if member then
-		member:updatePresence(data)
+		member:_updatePresence(data)
 	else
 		member = self.members:new(data)
-		member:createPresence(data)
+		member:_createPresence(data)
 	end
 	return member
 end
@@ -157,9 +159,9 @@ function Guild:getBans()
 	local success, data = self.client.api:getGuildBans(self.id)
 	if not success then return function() end end
 	local client = self.client
-	return coroutine.wrap(function()
+	return wrap(function()
 		for _, v in ipairs(data) do
-			coroutine.yield(User(v.user, client))
+			yield(User(v.user, client))
 		end
 	end)
 end
@@ -199,10 +201,10 @@ end
 function Guild:getInvites()
 	local success, data = self.client.api:getGuildInvites(self.id)
 	local parent = self.client
-	return coroutine.wrap(function()
-		if not success then return end
+	if not success then return function() end end
+	return wrap(function()
 		for _, inviteData in ipairs(data) do
-			coroutine.yield(Invite(inviteData, parent))
+			yield(Invite(inviteData, parent))
 		end
 	end)
 end
@@ -267,12 +269,12 @@ function Guild:getRoles()
 end
 
 function Guild:getChannels()
-	return coroutine.wrap(function()
+	return wrap(function()
 		for channel in self:getTextChannels() do
-			coroutine.yield(channel)
+			yield(channel)
 		end
 		for channel in self:getVoiceChannels() do
-			coroutine.yield(channel)
+			yield(channel)
 		end
 	end)
 end

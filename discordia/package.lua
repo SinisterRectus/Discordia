@@ -33,8 +33,6 @@ return {
 	license = 'MIT',
 	author = 'Sinister Rectus',
 	files = {
-		'*.lua',
-		'classes/*.lua',
-		'classes/snowflake/*.lua'
+		'**.lua'
 	}
 }

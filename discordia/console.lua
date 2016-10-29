@@ -47,10 +47,8 @@ function warning.time(provided, calculated)
 	return warning(format('Calculated %q from %q', calculated, provided))
 end
 
-local console = {
+return {
 	info = info,
 	warning = warning,
 	failure = failure,
 }
-
-return console

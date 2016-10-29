@@ -9,11 +9,11 @@ local insert, concat, keys = table.insert, table.concat, table.keys
 local info, warning, failure = console.info, console.warning, console.failure
 
 local ignore = {
-	['MESSAGE_ACK'] = true,
-	['CHANNEL_PINS_UPDATE'] = true,
-	['GUILD_EMOJIS_UPDATE'] = true,
-	['MESSAGE_REACTION_ADD'] = true,
-	['MESSAGE_REACTION_REMOVE'] = true,
+	'MESSAGE_ACK',
+	'CHANNEL_PINS_UPDATE',
+	'GUILD_EMOJIS_UPDATE',
+	'MESSAGE_REACTION_ADD',
+	'MESSAGE_REACTION_REMOVE',
 }
 
 local function checkReady(client)
@@ -36,6 +36,8 @@ function EventHandler.READY(data, client)
 	client.sessionId = data.session_id
 	client.users = Cache({}, User, 'id', client)
 	client.user = client.users:new(data.user)
+	client.user:_loadClientData(data.user)
+
 	client.guilds = Cache(data.guilds, Guild, 'id', client)
 	client.privateChannels = Cache(data.private_channels, PrivateTextChannel, 'id', client)
 
@@ -45,7 +47,6 @@ function EventHandler.READY(data, client)
 			client.loading.guilds[guild.id] = true
 		end
 	else
-		client.user.email = data.user.email
 		local guildIds = {}
 		for guild in client.guilds:iter() do
 			local id = guild.id
@@ -117,7 +118,7 @@ function EventHandler.CHANNEL_UPDATE(data, client)
 		channel = guild.voiceChannels:get(data.id)
 		if not channel then return warning.cache('voice channel', 'CHANNEL_UPDATE') end
 	end
-	channel:update(data)
+	channel:_update(data)
 	return client:emit('channelUpdate', channel)
 end
 
@@ -147,7 +148,7 @@ function EventHandler.GUILD_CREATE(data, client)
 	local guild = client.guilds:get(data.id)
 	if guild then
 		if guild.unavailable and not data.unavailable then
-			guild:makeAvailable(data)
+			guild:_makeAvailable(data)
 			if client.loading then
 				client.loading.guilds[guild.id] = nil
 				checkReady(client)
@@ -169,7 +170,7 @@ end
 function EventHandler.GUILD_UPDATE(data, client)
 	local guild = client.guilds:get(data.id)
 	if not guild then return warning.cache('guild', 'GUILD_UPDATE') end
-	guild:update(data)
+	guild:_update(data)
 	return client:emit('guildUpdate', guild)
 end
 
@@ -222,7 +223,7 @@ function EventHandler.GUILD_MEMBER_UPDATE(data, client)
 	if not guild then return warning.cache('guild', 'GUILD_MEMBER_UPDATE') end
 	local member = guild.members:get(data.user.id)
 	if not member then return warning.cache('member', 'GUILD_MEMBER_UPDATE') end
-	member:update(data)
+	member:_update(data)
 	return client:emit('memberUpdate', member)
 end
 
@@ -248,7 +249,7 @@ function EventHandler.GUILD_ROLE_UPDATE(data, client)
 	if not guild then return warning.cache('guild', 'GUILD_ROLE_UPDATE') end
 	local role = guild.roles:get(data.role.id)
 	if not role then return warning.cache('role', 'GUILD_ROLE_UPDATE') end
-	role:update(data.role)
+	role:_update(data.role)
 	return client:emit('roleUpdate', role)
 end
 
@@ -265,7 +266,7 @@ function EventHandler.GUILD_SYNC(data, client)
 	local guild = client.guilds:get(data.id)
 	if not guild then return warning.cache('guild', 'GUILD_SYNC') end
 	guild.members:merge(data.members)
-	guild:loadMemberPresences(data.presences)
+	guild:_loadMemberPresences(data.presences)
 	guild.large = data.large
 	if guild.large and client.options.fetchMembers then
 		guild:requestMembers()
@@ -288,7 +289,7 @@ function EventHandler.MESSAGE_UPDATE(data, client)
 	if not channel then return warning.cache('channel', 'MESSAGE_UPDATE') end
 	local message = channel.messages:get(data.id)
 	if not message then return warning.cache('message', 'MESSAGE_UPDATE') end
-	message:update(data)
+	message:_update(data)
 	return client:emit('messageUpdate', message)
 end
 
@@ -319,7 +320,7 @@ function EventHandler.PRESENCE_UPDATE(data, client)
 	if not data.guild_id then return end -- friend update
 	local guild = client.guilds:get(data.guild_id)
 	if not guild then return warning.cache('guild', 'PRESENCE_UPDATE') end
-	local member = guild:updateMemberPresence(data)
+	local member = guild:_updateMemberPresence(data)
 	if not member then return warning.cache('member', 'PRESENCE_UPDATE') end
 	return client:emit('presenceUpdate', member)
 end
@@ -333,7 +334,7 @@ function EventHandler.TYPING_START(data, client)
 end
 
 function EventHandler.USER_UPDATE(data, client)
-	client.user:update(data)
+	client.user:_update(data)
 	return client:emit('userUpdate', client.user)
 end
 
@@ -343,7 +344,7 @@ function EventHandler.VOICE_STATE_UPDATE(data, client)
 	local voiceState = guild.voiceStates:get(data.session_id)
 	if voiceState then
 		if data.channel_id then
-			voiceState:update(data)
+			voiceState:_update(data)
 			return client:emit('voiceUpdate', voiceState)
 		else
 			guild.voiceStates:remove(voiceState)
@@ -355,7 +356,7 @@ function EventHandler.VOICE_STATE_UPDATE(data, client)
 	end
 end
 
-for event in pairs(ignore) do
+for _, event in ipairs(ignore) do
 	EventHandler[event] = function() return end
 end
 

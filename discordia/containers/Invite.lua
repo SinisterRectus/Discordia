@@ -1,5 +1,7 @@
 local Container = require('../utils/Container')
 
+local format = string.format
+
 local Invite, accessors = class('Invite', Container)
 
 accessors.guild = function(self) return self.parent.guilds:get(self.guildId) end
@@ -25,7 +27,7 @@ function Invite:__init(data, parent)
 end
 
 function Invite:__tostring()
-	return string.format('%s: %s', self.__name, self.code)
+	return format('%s: %s', self.__name, self.code)
 end
 
 function Invite:__eq(other)

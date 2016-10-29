@@ -1,5 +1,7 @@
 local Snowflake = require('../Snowflake')
 
+local format = string.format
+
 local User, accessors = class('User', Snowflake)
 
 accessors.name = function(self) return self.username end
@@ -7,13 +9,19 @@ accessors.name = function(self) return self.username end
 function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self.bot = not not data.bot
-	self:update(data)
+	self:_update(data)
 end
 
-function User:update(data)
+function User:_update(data)
 	self.avatar = data.avatar or self.avatar
 	self.username = data.username or self.username
 	self.discriminator = data.discriminator or self.discriminator
+end
+
+function User:_loadClientData(data)
+	self.email = data.email
+	self.verified = data.verified
+	self.mfaEnabled = data.mfa_enabled
 end
 
 function User:getMembership(guild)
@@ -22,11 +30,11 @@ end
 
 function User:getAvatarUrl()
 	if not self.avatar then return nil end
-	return string.format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self.id, self.avatar)
+	return format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self.id, self.avatar)
 end
 
 function User:getMentionString()
-	return string.format('<@%s>', self.id)
+	return format('<@%s>', self.id)
 end
 
 function User:ban(guild, messageDeleteDays)

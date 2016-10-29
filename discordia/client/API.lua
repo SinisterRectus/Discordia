@@ -16,10 +16,10 @@ local months = {
 	Jul = 7, Aug = 8, Sep = 9, Oct = 10, Nov = 11, Dec = 12
 }
 
-local pattern = '(%a-), (%d-) (%a-) (%d-) (%d-):(%d-):(%d-) GMT'
-
 local function parseDate(str)
-	local wday, day, month, year, hour, min, sec = str:match(pattern)
+	local wday, day, month, year, hour, min, sec = str:match(
+		'(%a-), (%d-) (%a-) (%d-) (%d-):(%d-):(%d-) GMT'
+	)
 	local serverDate = {
 		day = day, month = months[month], year = year,
 		hour = hour, min = min, sec = sec,
@@ -116,7 +116,7 @@ function API:commit(method, url, reqHeaders, payload, routeLimiter, attempts)
 				globalDelay = data.retry_after
 			end
 			routeDelay = data.retry_after
-			shouldRetry = attempts < 2
+			shouldRetry = attempts < 5
 		elseif res.code == 502 then
 			routeDelay = routeDelay + random(2000)
 			shouldRetry = attempts < 5
@@ -406,7 +406,7 @@ function API:acceptInvite(invite_code, payload) -- Invite:accept, Client:acceptI
 	return self:request("POST", route, format(route, invite_code), payload)
 end
 
-function API:getCurrentUser() -- TODO: investigate
+function API:getCurrentUser() -- not exposed, use cache (Client.user)
 	local route = "/users/@me"
 	return self:request("GET", route, route)
 end

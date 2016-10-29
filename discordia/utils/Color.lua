@@ -1,5 +1,9 @@
 local bit = require('bit')
 
+local format = string.format
+local rshift, band = bit.rshift, bit.band
+local round, clamp = math.round, math.clamp
+
 local Color = class('Color')
 
 function Color:__init(a, b, c)
@@ -13,23 +17,23 @@ function Color:__init(a, b, c)
 	-- Color('0x7289DA') -- hex string
 
 	if a and b and c then
-		self.r = math.round(math.clamp(a, 0, 255))
-		self.g = math.round(math.clamp(b, 0, 255))
-		self.b = math.round(math.clamp(c, 0, 255))
+		self.r = round(clamp(a, 0, 255))
+		self.g = round(clamp(b, 0, 255))
+		self.b = round(clamp(c, 0, 255))
 	elseif a then
 		if type(a) == 'string' then
 			a = tonumber(a:gsub('#', ''), 16)
 		end
 		a = math.round(math.clamp(a, 0, 0xFFFFFF))
-		self.r = bit.rshift(bit.band(a, 0xFF0000), 16)
-		self.g = bit.rshift(bit.band(a, 0x00FF00), 8)
-		self.b = bit.band(a, 0x0000FF)
+		self.r = rshift(band(a, 0xFF0000), 16)
+		self.g = rshift(band(a, 0x00FF00), 8)
+		self.b = band(a, 0x0000FF)
 	end
 
 end
 
 function Color:__tostring()
-	return string.format('Color: (%i, %i, %i)', self.r, self.g, self.b)
+	return format('Color: (%i, %i, %i)', self.r, self.g, self.b)
 end
 
 function Color:__eq(other)
@@ -66,7 +70,7 @@ function Color:__div(n)
 end
 
 function Color:toHex()
-	return string.format('0x%02X%02X%02X', self.r, self.g, self.b)
+	return format('0x%02X%02X%02X', self.r, self.g, self.b)
 end
 
 function Color:toDec()

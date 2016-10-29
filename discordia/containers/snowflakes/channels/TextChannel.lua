@@ -2,11 +2,13 @@ local Channel = require('../Channel')
 local Message = require('../Message')
 local OrderedCache = require('../../../utils/OrderedCache')
 
+local wrap, yield = coroutine.wrap, coroutine.yield
+
 local function messageIterator(success, data, parent)
-	return coroutine.wrap(function()
-		if not success then return end
+	if not success then return function() end end
+	return wrap(function()
 		for i = #data, 1, -1 do
-			coroutine.yield(Message(data[i], parent))
+			yield(Message(data[i], parent))
 		end
 	end)
 end
@@ -16,10 +18,10 @@ local TextChannel = class('TextChannel', Channel)
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
 	self.messages = OrderedCache({}, Message, 'id', self.client.options.messageLimit, self)
-	TextChannel.update(self, data)
+	TextChannel._update(self, data)
 end
 
-function TextChannel:update(data)
+function TextChannel:_update(data)
 	self.lastMessageId = data.last_message_id
 end
 

@@ -4,10 +4,10 @@ local VoiceChannel = class('VoiceChannel', Channel)
 
 function VoiceChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
-	VoiceChannel.update(self, data)
+	VoiceChannel._update(self, data)
 end
 
-function VoiceChannel:update(data)
+function VoiceChannel:_update(data)
 	self.bitrate = data.bitrate
 	self.userLimit = data.user_limit or 0
 end

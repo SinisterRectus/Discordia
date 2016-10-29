@@ -45,7 +45,6 @@ return function(name, ...)
 	if memoryOptimization then
 
 		local properties = {}
-		class.__properties = properties
 
 		function class:__index(k)
 			local accessor = accessors[k]

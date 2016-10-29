@@ -1,5 +1,5 @@
 local discordia = require('discordia')
-local client = discordia.Client:new()
+local client = discordia.Client()
 
 client:on('ready', function()
 	-- print to the console on a successful login
@@ -19,11 +19,12 @@ client:on('messageCreate', function(message)
 		-- respond to the user if they type '!hello'
 		message.channel:sendMessage(string.format('Hello, %s', message.author.username))
 	end
-	
-	-- if you want to send a DM instead of answering in the channel just do:
+
 	if cmd =='!DM' then
+		-- if you want to send a DM instead, use '!DM'
 		message.author:sendMessage(string.format("Hey, %s, how are you?", message.author.username))
 	end
+
 end)
 
 -- run your client

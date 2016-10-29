@@ -1,17 +1,19 @@
 local GuildChannel = require('./GuildChannel')
 local TextChannel = require('./TextChannel')
 
+local format = string.format
+
 local GuildTextChannel = class('GuildTextChannel', GuildChannel, TextChannel)
 
 function GuildTextChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)
 	TextChannel.__init(self, data, parent)
-	GuildTextChannel.update(self, data)
+	GuildTextChannel._update(self, data)
 end
 
-function GuildTextChannel:update(data)
-	GuildChannel.update(self, data)
-	TextChannel.update(self, data)
+function GuildTextChannel:_update(data)
+	GuildChannel._update(self, data)
+	TextChannel._update(self, data)
 	self.topic = data.topic
 end
 
@@ -22,7 +24,7 @@ function GuildTextChannel:setTopic(topic)
 end
 
 function GuildTextChannel:getMentionString()
-	return string.format('<#%s>', self.id)
+	return format('<#%s>', self.id)
 end
 
 return GuildTextChannel

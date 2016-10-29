@@ -3,6 +3,8 @@ local Invite = require('../../Invite')
 local Channel = require('../Channel')
 local PermissionOverwrite = require('../PermissionOverwrite')
 
+local wrap, yield = coroutine.wrap, coroutine.yield
+
 local GuildChannel, accessors = class('GuildChannel', Channel)
 
 accessors.guild = function(self) return self.parent end
@@ -10,10 +12,10 @@ accessors.guild = function(self) return self.parent end
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
 	self.permissionOverwrites = Cache({}, PermissionOverwrite, 'id', self)
-	GuildChannel.update(self, data)
+	GuildChannel._update(self, data)
 end
 
-function GuildChannel:update(data)
+function GuildChannel:_update(data)
 	self.name = data.name
 	self.position = data.position
 	local updated = {}
@@ -21,7 +23,7 @@ function GuildChannel:update(data)
 		updated[data.id] = true
 		local overwrite = self.permissionOverwrites:get(data.id)
 		if overwrite then
-			overwrite:update(data)
+			overwrite:_update(data)
 		else
 			overwrite = self.permissionOverwrites:new(data)
 		end
@@ -47,11 +49,11 @@ end
 
 function GuildChannel:getInvites()
 	local success, data = self.client.api:getChannelInvites(self.id)
+	if not success then return function() end end
 	local parent = self.client
-	return coroutine.wrap(function()
-		if not success then return end
+	return wrap(function()
 		for _, inviteData in ipairs(data) do
-			coroutine.yield(Invite(inviteData, parent))
+			yield(Invite(inviteData, parent))
 		end
 	end)
 end

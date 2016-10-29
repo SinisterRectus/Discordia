@@ -2,6 +2,10 @@ local Snowflake = require('../Snowflake')
 local Cache = require('../../utils/Cache')
 local Container = require('../../utils/Container')
 
+local insert = table.insert
+local format = string.format
+local wrap, yield = coroutine.wrap, coroutine.yield
+
 local Message, accessors = class('Message', Snowflake)
 
 accessors.channel = function(self) return self.parent end
@@ -11,14 +15,14 @@ accessors.guild = function(self) return self.parent.guild end
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self.author = self.client.users:get(data.author.id) or self.client.users:new(data.author)
-	self:update(data)
+	self:_update(data)
 end
 
 function Message:__tostring()
-	return string.format('%s: %s', self.__name, self.content)
+	return format('%s: %s', self.__name, self.content)
 end
 
-function Message:update(data)
+function Message:_update(data)
 	self.tts = data.tts == nil and self.tts or data.tts
 	self.type = data.type == nil and self.type or data.type
 	self.pinned = data.pinned == nil and self.pinned or data.pinned
@@ -29,7 +33,7 @@ function Message:update(data)
 	if data.mentions then
 		local mentions = {}
 		for _, data in ipairs(data.mentions) do
-			table.insert(mentions, self.client.users:get(data.id) or self.client.users:new(data))
+			insert(mentions, self.client.users:get(data.id) or self.client.users:new(data))
 		end
 		self.mentions = mentions
 	end
@@ -46,26 +50,26 @@ function Message:getMentionedUsers()
 end
 
 function Message:getMentionedRoles()
-	return coroutine.wrap(function()
+	return wrap(function()
 		local guild = self.guild
 		if self.mentionEveryone then
-			coroutine.yield(guild.defaultRole)
+			yield(guild.defaultRole)
 		end
 		if not self.mentionRoles then return end
 		local roles = guild.roles
 		for _, id in ipairs(self.mentionRoles) do
 			local role = roles:get(id)
-			if role then coroutine.yield(role) end
+			if role then yield(role) end
 		end
 	end)
 end
 
 function Message:getMentionedChannels()
-	return coroutine.wrap(function()
+	return wrap(function()
 		local textChannels = self.guild.textChannels
 		for id in self.content:gmatch('<#(.-)>') do
 			local channel = textChannels:get(id)
-			if channel then coroutine.yield(channel) end
+			if channel then yield(channel) end
 		end
 	end)
 end

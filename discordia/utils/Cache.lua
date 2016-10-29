@@ -1,3 +1,7 @@
+local insert = table.insert
+local format = string.format
+local wrap, yield = coroutine.wrap, coroutine.yield
+
 local Cache = class('Cache')
 
 function Cache:__init(array, constructor, key, parent)
@@ -14,7 +18,7 @@ function Cache:__init(array, constructor, key, parent)
 end
 
 function Cache:__tostring()
-	return string.format('%s[%s]', self.__name, self.constructor.__name)
+	return format('%s[%s]', self.__name, self.constructor.__name)
 end
 
 function Cache:new(data)
@@ -101,20 +105,20 @@ function Cache:find(key, predicate)
 end
 
 function Cache:getAll(key, value)
-	return coroutine.wrap(function()
+	return wrap(function()
 		for obj in self:iter() do
 			if obj[key] == value then
-				coroutine.yield(obj)
+				yield(obj)
 			end
 		end
 	end)
 end
 
 function Cache:findAll(predicate)
-	return coroutine.wrap(function()
+	return wrap(function()
 		for obj in self:iter() do
 			if predicate(obj) then
-				coroutine.yield(obj)
+				yield(obj)
 			end
 		end
 	end)
@@ -123,7 +127,7 @@ end
 function Cache:keys()
 	local ret = {}
 	for obj in self:iter() do
-		table.insert(ret, obj[self.key])
+		insert(ret, obj[self.key])
 	end
 	return ret
 end
@@ -131,7 +135,7 @@ end
 function Cache:values()
 	local ret = {}
 	for obj in self:iter() do
-		table.insert(ret, obj)
+		insert(ret, obj)
 	end
 	return ret
 end

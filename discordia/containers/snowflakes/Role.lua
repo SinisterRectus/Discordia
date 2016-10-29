@@ -2,16 +2,18 @@ local Snowflake = require('../Snowflake')
 local Color = require('../../utils/Color')
 local Permissions = require('../../utils/Permissions')
 
+local format = string.format
+
 local Role, accessors = class('Role', Snowflake)
 
 accessors.guild = function(self) return self.parent end
 
 function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self:update(data)
+	self:_update(data)
 end
 
-function Role:update(data)
+function Role:_update(data)
 	self.name = data.name
 	self.hoist = data.hoist
 	self.managed = data.managed
@@ -29,7 +31,7 @@ function Role:getPermissions()
 end
 
 function Role:getMentionString()
-	return string.format('<@&%s>', self.id)
+	return format('<@&%s>', self.id)
 end
 
 function Role:setName(name)

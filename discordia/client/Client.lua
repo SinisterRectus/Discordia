@@ -1,12 +1,15 @@
+local API = require('./API')
 local core = require('core')
 local package = require('../package')
-
 local Invite = require('../containers/Invite')
-
-local API = require('./API')
 local Socket = require('./Socket')
 
 local info, warning, failure = console.info, console.warning, console.failure
+
+local open = io.open
+local time = os.time
+local remove = table.remove
+local wrap, yield = coroutine.wrap, coroutine.yield
 
 local defaultOptions = {
 	routeDelay = 300,
@@ -17,6 +20,10 @@ local defaultOptions = {
 }
 
 local Client = core.Emitter:extend()
+
+getmetatable(Client).__call = function(self, ...)
+	return self:new(...)
+end
 
 function Client:initialize(customOptions)
 	if customOptions then
@@ -49,17 +56,17 @@ function Client:emit(name, ...)
 	if not namedHandlers then return end
 	for i = 1, #namedHandlers do
 		local handler = namedHandlers[i]
-		if handler then coroutine.wrap(handler)(...) end
+		if handler then wrap(handler)(...) end
 	end
 	for i = #namedHandlers, 1, -1 do
 		if not namedHandlers[i] then
-			table.remove(namedHandlers, i)
+			remove(namedHandlers, i)
 		end
 	end
 end
 
 function Client:run(a, b)
-	return coroutine.wrap(function()
+	return wrap(function()
 		if b then
 			self:loginWithEmail(a, b)
 		else
@@ -92,7 +99,7 @@ function Client:connectWebSocket()
 
 	local gateway, connected
 	local filename = 'gateway.cache'
-	local cache = io.open(filename, 'r')
+	local cache = open(filename, 'r')
 
 	if cache then
 		gateway = cache:read()
@@ -111,10 +118,10 @@ function Client:connectWebSocket()
 
 	if connected then
 		if not cache then
-			cache = io.open(filename, 'w')
+			cache = open(filename, 'w')
 			if cache then cache:write(gateway):close() end
 		end
-		return coroutine.wrap(self.socket.handlePayloads)(self.socket)
+		return wrap(self.socket.handlePayloads)(self.socket)
 	else
 		return failure('Bad gateway: ' .. (gateway and gateway or 'nil'))
 	end
@@ -162,7 +169,7 @@ function Client:setEmail(newEmail, password)
 end
 
 function Client:setStatusIdle()
-	self.idleSince = os.time() * 1000
+	self.idleSince = time() * 1000
 	local id = self.user.id
 	for guild in self:getGuilds() do
 		local me = guild.members:get(id)
@@ -200,8 +207,6 @@ function Client:getInviteByCode(code)
 	local success, data = self.api:getInvite(code)
 	if success then return Invite(data, self) end
 end
-
--- cache accessors --
 
 function Client:getPrivateChannelById(id)
 	return self.privateChannels:get(id)
@@ -259,8 +264,6 @@ function Client:getGuildRoleById(id)
 	end
 end
 
--- cache iterators --
-
 function Client:getPrivateChannels()
 	return self.privateChannels:iter()
 end
@@ -274,82 +277,80 @@ function Client:getUsers()
 end
 
 function Client:getChannels()
-	return coroutine.wrap(function()
+	return wrap(function()
 		for channel in self:getPrivateChannels() do
-			coroutine.yield(channel)
+			yield(channel)
 		end
 		for guild in self:getGuilds() do
 			for channel in guild:getChannels() do
-				coroutine.yield(channel)
+				yield(channel)
 			end
 		end
 	end)
 end
 
 function Client:getTextChannels()
-	return coroutine.wrap(function()
+	return wrap(function()
 		for channel in self:getPrivateChannels() do
-			coroutine.yield(channel)
+			yield(channel)
 		end
 		for guild in self:getGuilds() do
 			for channel in guild:getTextChannels() do
-				coroutine.yield(channel)
+				yield(channel)
 			end
 		end
 	end)
 end
 
 function Client:getGuildChannels()
-	return coroutine.wrap(function()
+	return wrap(function()
 		for guild in self:getGuilds() do
 			for channel in guild:getChannels() do
-				coroutine.yield(channel)
+				yield(channel)
 			end
 		end
 	end)
 end
 
 function Client:getGuildTextChannels()
-	return coroutine.wrap(function()
+	return wrap(function()
 		for guild in self:getGuilds() do
 			for channel in guild:getTextChannels() do
-				coroutine.yield(channel)
+				yield(channel)
 			end
 		end
 	end)
 end
 
 function Client:getGuildVoiceChannels()
-	return coroutine.wrap(function()
+	return wrap(function()
 		for guild in self:getGuilds() do
 			for channel in guild:getVoiceChannels() do
-				coroutine.yield(channel)
+				yield(channel)
 			end
 		end
 	end)
 end
 
 function Client:getGuildRoles()
-	return coroutine.wrap(function()
+	return wrap(function()
 		for guild in self:getGuilds() do
 			for role in guild:getRoles() do
-				coroutine.yield(role)
+				yield(role)
 			end
 		end
 	end)
 end
 
 function Client:getGuildMembers()
-	return coroutine.wrap(function()
+	return wrap(function()
 		for guild in self:getGuilds() do
 			for member in guild:getMembers() do
-				coroutine.yield(member)
+				yield(member)
 			end
 		end
 	end)
 end
-
--- aliases --
 
 Client.getRoles = Client.getGuildRoles
 Client.getMembers = Client.getGuildMembers

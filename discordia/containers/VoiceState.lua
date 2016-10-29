@@ -1,5 +1,7 @@
 local Container = require('../utils/Container')
 
+local format = string.format
+
 local VoiceState, accessors = class('VoiceState', Container)
 
 accessors.guild = function(self) return self.parent end
@@ -10,7 +12,7 @@ function VoiceState:__init(data, parent)
 	self.sessionId = data.session_id
 end
 
-function VoiceState:update(data)
+function VoiceState:_update(data)
 	self.channelId = data.channel_id
 	self.mute = data.mute
 	self.deaf = data.deaf
@@ -20,7 +22,7 @@ function VoiceState:update(data)
 end
 
 function VoiceState:__tostring()
-	return string.format('%s: %s', self.__name, self.sessionId)
+	return format('%s: %s', self.__name, self.sessionId)
 end
 
 function VoiceState:__eq(other)

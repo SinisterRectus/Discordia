@@ -24,5 +24,6 @@ return {
 	Deque = require('./utils/Deque'),
 	OrderedCache = require('./utils/OrderedCache'),
 	Permissions = require('./utils/Permissions'),
+	RateLimiter = require('./utils/RateLimiter'),
 	Stopwatch = require('./utils/Stopwatch'),
 }

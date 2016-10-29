@@ -1,5 +1,9 @@
 local Snowflake = require('../Snowflake')
 
+local insert = table.insert
+local format = string.format
+local wrap, yield = coroutine.wrap, coroutine.yield
+
 local Member, accessors = class('Member', Snowflake)
 Member.status = 'offline'
 
@@ -19,23 +23,23 @@ function Member:__init(data, parent)
 	self.mute = data.mute
 	self.joinedAt = data.joined_at
 	self.user = self.client:getUserById(data.user.id) or self.client.users:new(data.user)
-	self:update(data)
+	self:_update(data)
 end
 
 function Member:__tostring()
 	if self.nick then
-		return string.format('%s: %s (%s)', self.__name, self.user.username, self.nick)
+		return format('%s: %s (%s)', self.__name, self.user.username, self.nick)
 	else
-		return string.format('%s: %s', self.__name, self.user.username)
+		return format('%s: %s', self.__name, self.user.username)
 	end
 end
 
-function Member:update(data)
+function Member:_update(data)
 	self.nick = data.nick
 	self.roles = data.roles -- raw table of IDs
 end
 
-function Member:createPresence(data)
+function Member:_createPresence(data)
 	self.status = data.status
 	if self.game and data.game then
 		for k, v in pairs(self.game) do
@@ -46,9 +50,9 @@ function Member:createPresence(data)
 	end
 end
 
-function Member:updatePresence(data)
-	self:createPresence(data)
-	self.user:update(data.user)
+function Member:_updatePresence(data)
+	self:_createPresence(data)
+	self.user:_update(data.user)
 end
 
 -- User-compatability methods --
@@ -103,7 +107,7 @@ end
 
 function Member:setRoles(roles)
 	local map = function(role, tbl)
-		table.insert(tbl, role.id)
+		insert(tbl, role.id)
 	end
 	local roleIds = mapRoles(roles, map, {})
 	return applyRoles(self, roleIds)
@@ -111,7 +115,7 @@ end
 
 function Member:addRoles(roles)
 	local map = function(role, tbl)
-		table.insert(tbl, role.id)
+		insert(tbl, role.id)
 	end
 	local roleIds = mapRoles(roles, map, self.roles)
 	return applyRoles(self, roleIds)
@@ -125,7 +129,7 @@ function Member:removeRoles(roles)
 	local roleIds = {}
 	for _, id in ipairs(self.roles) do
 		if not removals[id] then
-			table.insert(roleIds, id)
+			insert(roleIds, id)
 		end
 	end
 	return applyRoles(self, roleIds)
@@ -134,7 +138,7 @@ end
 function Member:addRole(role)
 	local roleIds = {role.id}
 	for _, id in ipairs(self.roles) do
-		table.insert(roleIds, id)
+		insert(roleIds, id)
 	end
 	return applyRoles(self, roleIds)
 end
@@ -143,7 +147,7 @@ function Member:removeRole(role)
 	local roleIds = {}
 	for _, id in ipairs(self.roles) do
 		if id ~= role.id then
-			table.insert(roleIds, id)
+			insert(roleIds, id)
 		end
 	end
 	return applyRoles(self, roleIds)
@@ -179,9 +183,9 @@ end
 
 function Member:getRoles()
 	local roles = self.guild.roles
-	return coroutine.wrap(function()
+	return wrap(function()
 		for _, id in ipairs(self.roles) do
-			coroutine.yield(roles:get(id))
+			yield(roles:get(id))
 		end
 	end)
 end

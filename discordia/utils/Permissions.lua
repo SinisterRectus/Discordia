@@ -1,5 +1,9 @@
 local bit = require('bit')
 
+local format = string.format
+local band, bor = bit.band, bit.bor
+local sort, insert, concat = table.sort, table.insert, table.concat
+
 local Permissions = class('Permissions')
 
 local flags = {
@@ -39,8 +43,8 @@ function Permissions:__tostring()
 	if #tbl == 0 then
 		return 'Permissions: 0 (none)'
 	else
-		table.sort(tbl)
-		return string.format('Permissions: %i (%s)', self.value, table.concat(tbl, ', '))
+		sort(tbl)
+		return format('Permissions: %i (%s)', self.value, concat(tbl, ', '))
 	end
 end
 
@@ -51,24 +55,24 @@ end
 function Permissions:enable(flag)
 	local value = flags[flag]
 	assert(value, 'Invalid permission flag: ' .. tostring(flag))
-	self.value = bit.bor(self.value, value)
+	self.value = bor(self.value, value)
 end
 
 function Permissions:disable(flag)
 	local value = flags[flag]
 	assert(value, 'Invalid permission flag: ' .. tostring(flag))
-	self.value = bit.band(self.value, bit.bnot(value))
+	self.value = band(self.value, bit.bnot(value))
 end
 
 function Permissions:has(flag)
 	local value = flags[flag]
 	assert(value, 'Invalid permission flag: ' .. tostring(flag))
-	return bit.band(self.value, value) > 0
+	return band(self.value, value) > 0
 end
 
 function Permissions:enableAll()
 	for flag, value in pairs(flags) do
-		self.value = bit.bor(self.value, value)
+		self.value = bor(self.value, value)
 	end
 end
 
@@ -81,14 +85,14 @@ function Permissions:toDec()
 end
 
 function Permissions:toHex()
-	return string.format('0x%08X', self.value)
+	return format('0x%08X', self.value)
 end
 
 function Permissions:toTable()
 	local ret = {}
 	for flag, value in pairs(flags) do
-		if bit.band(self.value, value) > 0 then
-			table.insert(ret, flag)
+		if band(self.value, value) > 0 then
+			insert(ret, flag)
 		end
 	end
 	return ret

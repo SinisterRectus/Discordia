@@ -1,5 +1,7 @@
 local Container = require('../utils/Container')
 
+local format = string.format
+
 local Snowflake, accessors = class('Snowflake', Container)
 
 accessors.createdAt = function(self)
@@ -13,7 +15,7 @@ function Snowflake:__init(data, parent)
 end
 
 function Snowflake:__tostring()
-	return string.format('%s: %s', self.__name, self.name or self.id)
+	return format('%s: %s', self.__name, self.name or self.id)
 end
 
 function Snowflake:__eq(other)

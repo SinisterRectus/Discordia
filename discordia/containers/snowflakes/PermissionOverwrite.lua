@@ -10,7 +10,7 @@ function PermissionOverwrite:__init(data, parent)
 	self.type = data.type
 end
 
-function PermissionOverwrite:update(data)
+function PermissionOverwrite:_update(data)
 	self.allow = Permissions(data.allow)
 	self.deny = Permissions(data.deny)
 end

@@ -1,5 +1,5 @@
 local timer = require('timer')
-local Deque = require('../utils/Deque')
+local Deque = require('./Deque')
 
 local setTimeout = timer.setTimeout
 local running, yield, resume = coroutine.running, coroutine.yield, coroutine.resume
