@@ -11,6 +11,7 @@ local info, warning, failure = console.info, console.warning, console.failure
 local ignore = {
 	['MESSAGE_ACK'] = true,
 	['CHANNEL_PINS_UPDATE'] = true,
+	['GUILD_EMOJIS_UPDATE'] = true,
 	['MESSAGE_REACTION_ADD'] = true,
 	['MESSAGE_REACTION_REMOVE'] = true,
 }

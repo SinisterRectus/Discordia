@@ -38,8 +38,13 @@ function warning.deprecated(got, expected)
 	return warning(format('%q is deprecated; use %q instead', got, expected))
 end
 
-function warning.http(url, res, data)
-	return warning(format('%i / %s\n%s\n%s', res.code, res.reason, url, data))
+function warning.http(method, url, res, data)
+	local message = data.message or 'No additional information'
+	return warning(format('%i / %s / %s\n%s %s', res.code, res.reason, message, method, url))
+end
+
+function warning.time(provided, calculated)
+	return warning(format('Calculated %q from %q', calculated, provided))
 end
 
 local console = {

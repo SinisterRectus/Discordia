@@ -9,7 +9,9 @@ local Socket = require('./Socket')
 local info, warning, failure = console.info, console.warning, console.failure
 
 local defaultOptions = {
-	maxMessages = 100,
+	routeDelay = 300,
+	globalDelay = 10,
+	messageLimit = 100,
 	largeThreshold = 100,
 	fetchMembers = false,
 }
@@ -17,8 +19,6 @@ local defaultOptions = {
 local Client = core.Emitter:extend()
 
 function Client:initialize(customOptions)
-	self.api = API(self)
-	self.socket = Socket(self)
 	if customOptions then
 		local options = {}
 		for k, v in pairs(defaultOptions) do
@@ -28,6 +28,8 @@ function Client:initialize(customOptions)
 	else
 		self.options = defaultOptions
 	end
+	self.api = API(self)
+	self.socket = Socket(self)
 end
 
 Client.meta.__tostring = function(self)
