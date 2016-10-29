@@ -18,7 +18,6 @@ local TextChannel = class('TextChannel', Channel)
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
 	self.messages = OrderedCache({}, Message, 'id', self.client.options.messageLimit, self)
-	TextChannel._update(self, data)
 end
 
 function TextChannel:_update(data)

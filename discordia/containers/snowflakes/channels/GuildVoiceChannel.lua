@@ -13,7 +13,8 @@ end
 
 function GuildVoiceChannel:_update(data)
 	GuildChannel._update(self, data)
-	VoiceChannel._update(self, data)
+	self.bitrate = data.bitrate
+	self.userLimit = data.user_limit or 0
 end
 
 function GuildVoiceChannel:setBitrate(bitrate)

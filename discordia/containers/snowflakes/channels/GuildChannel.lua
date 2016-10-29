@@ -12,26 +12,32 @@ accessors.guild = function(self) return self.parent end
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
 	self.permissionOverwrites = Cache({}, PermissionOverwrite, 'id', self)
-	GuildChannel._update(self, data)
 end
 
 function GuildChannel:_update(data)
 	self.name = data.name
 	self.position = data.position
-	local updated = {}
-	for _, data in ipairs(data.permission_overwrites) do
-		updated[data.id] = true
-		local overwrite = self.permissionOverwrites:get(data.id)
-		if overwrite then
-			overwrite:_update(data)
-		else
-			overwrite = self.permissionOverwrites:new(data)
+	local overwrites = self.permissionOverwrites
+	if #data.permission_overwrites > 0 then
+		local updated = {}
+		for _, data in ipairs(data.permission_overwrites) do
+			updated[data.id] = true
+			local overwrite = overwrites:get(data.id)
+			if overwrite then
+				overwrite:_update(data)
+			else
+				overwrite = overwrites:new(data)
+			end
 		end
-	end
-	for overwrite in self.permissionOverwrites:iter() do
-		if not updated[overwrite.id] then
-			self.permissionOverwrites:remove(overwrite)
+		for overwrite in overwrites:iter() do
+			if not updated[overwrite.id] then
+				overwrites:remove(overwrite)
+			end
 		end
+	else
+		overwrites:new({
+			id = self.parent.id, type = 'role', allow = 0, deny = 0
+		})
 	end
 end
 
@@ -56,6 +62,10 @@ function GuildChannel:getInvites()
 			yield(Invite(inviteData, parent))
 		end
 	end)
+end
+
+function GuildChannel:getPermissionOverwrites()
+	return self.permissionOverwrites:iter()
 end
 
 function GuildChannel:createInvite(maxAge, maxUses, temporary, unique)
