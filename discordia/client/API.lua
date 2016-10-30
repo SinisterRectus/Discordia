@@ -346,7 +346,7 @@ function API:beginGuildPrune(guild_id, payload) -- TODO
 	return self:request("POST", route, route, payload)
 end
 
-function API:getGuildVoiceRegions(guild_id) -- TODO
+function API:getGuildVoiceRegions(guild_id) -- Guild:listVoiceRegions
 	local route = format("/guilds/%s/regions", guild_id)
 	return self:request("GET", route, route)
 end
@@ -451,7 +451,7 @@ function API:getUsersConnections() -- not exposed, maybe in the future
 	return self:request("GET", route, route)
 end
 
-function API:listVoiceRegions() -- TODO
+function API:listVoiceRegions() -- Client:listVoiceRegions
 	local route = "/voice/regions"
 	return self:request("GET", route, route)
 end

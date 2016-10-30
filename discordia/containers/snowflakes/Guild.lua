@@ -104,6 +104,11 @@ function Guild:requestMembers()
 	end
 end
 
+function Guild:listVoiceRegions()
+	local success, data = self.client.api:getGuildVoiceRegions(self.id)
+	if success then return data end
+end
+
 function Guild:addMember(user) -- limit use, requires guild.join scope
 	local success, data = self.client.api:addGuildMember(self.id, user.id)
 	if success then return self.members:new(data) end

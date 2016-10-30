@@ -134,6 +134,11 @@ function Client:connectWebSocket()
 
 end
 
+function Client:listVoiceRegions()
+	local success, data = self.api:listVoiceRegions()
+	if success then return data end
+end
+
 function Client:setUsername(newUsername, password)
 	local success, data = self.api:modifyCurrentUser({
 		avatar = self.user.avatar,
