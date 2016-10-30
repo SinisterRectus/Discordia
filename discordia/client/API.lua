@@ -186,7 +186,7 @@ function API:bulkDeleteMessages(channel_id, payload) -- TextChannel:bulkDelete
 	return self:request("POST", route, route, payload)
 end
 
-function API:editChannelPermissions(channel_id, overwrite_id, payload) -- TODO
+function API:editChannelPermissions(channel_id, overwrite_id, payload) -- various overwrite methods
 	local route = format("/channels/%s/permissions/%%s", channel_id)
 	return self:request("PUT", route, format(route, overwrite_id), payload)
 end
@@ -201,7 +201,7 @@ function API:createChannelInvite(channel_id, payload) -- GuildChannel:createInvi
 	return self:request("POST", route, route, payload)
 end
 
-function API:deleteChannelPermission(channel_id, overwrite_id) -- TODO
+function API:deleteChannelPermission(channel_id, overwrite_id) -- PermissionOverwrite:delete
 	local route = format("/channels/%s/permissions/%%s", channel_id)
 	return self:request("DELETE", route, format(route, overwrite_id))
 end
