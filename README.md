@@ -1,6 +1,6 @@
 # Discordia
 
-**Discord API library written in Lua for the Luvit framework**
+**Discord API library written in Lua for the Luvit runtime environment**
 
 ### Introduction
 
@@ -8,31 +8,31 @@
 
 **[Luvit](https://luvit.io)** is an open-source, asynchronous I/O Lua runtime environment. It is a version of [LuaJIT](http://luajit.com/) combined with [libuv](http://libuv.org/) and layered with various libraries to provide an API similar to that of [Node.js](https://nodejs.org/en/), but with Lua instead of JavaScript. Luvit's companion package manager, lit, makes it easy to set up the Luvit runtime and its published libraries.
 
-This library is a Lua wrapper for the official Discord API, and provides an object-oriented, event driven interface for developing Discord bots. By using Lua's native coroutines, asynchronous REST and WebSocket communication is internally abstracted in a way that allows end-users to write blocking-style code without blocking I/O.
+Discordia is a Lua wrapper for the official Discord API, and provides an object-oriented, event driven interface for developing Discord bots. By using Lua's native coroutines, asynchronous REST and WebSocket communication is internally abstracted in a way that allows end-users to write blocking-style code without blocking I/O operations.
 
-Join the [Discord API server](https://discord.gg/0SBTUU1wZTWVpm07) to discuss Discordia and other Discord libraries!
+Join the [Discord API community](https://discord.gg/0SBTUU1wZTWVpm07) to discuss Discordia and other Discord libraries!
 
 ### Installation
 
 - To install Luvit, visit https://luvit.io and follow the instructions provide for your platform.
 - To install the Discord library, run `lit install SinisterRectus/discordia`
-- Run your Lua scripts using, for example, `luvit bot.lua`
+- Run your bot script using, for example, `luvit bot.lua`
 
 ### Bug Reports
 
 Before reporting a library issue:
  - Make sure that you are running the latest version of both Discordia and Luvit.
  - To the best of your ability, check that the issue is a library one and not a result of your own code.
- - In the event of an uncaught exception, please provide a full stacktrace.
- - If possible, provide a stripped-down code sample that reproduces the bug.
+ - Please provide a full stacktrace or console message when applicable.
+ - If possible, provide a reduced code sample that reproduces the bug.
 
 Issues can be reported via GitHub or the Discord channel linked above. Higher priority is placed on GitHub issues.
 
 ### History
 
-The earliest version of Discordia, before it even had that name, was released as a [Just Cause 2 Multiplayer module](https://www.jc-mp.com/forums/index.php/topic,5936.0.html) on 7 March 2016. It utilized LuaSocket, LuaSec, and Copas to provide basic REST functionality in a sandboxed Lua 5.2 environment. The goal was to bridge the game chat with a Discord client.
+The earliest version of Discordia, before it even had that name, was released as a [Just Cause 2 Multiplayer module](https://www.jc-mp.com/forums/index.php/topic,5936.0.html) on 7 March 2016. It utilized LuaSocket, LuaSec, and (eventually) Copas to provide basic REST functionality in a sandboxed Lua 5.2 environment. The goal was to bridge the game chat with a Discord client.
 
-Due to a lack of secure WebSocket support (at the time) and difficulties in developing a stable module, the Just Cause 2 Multiplayer project was put on hold in favor of a general-purpose Lua library for Discord. At the time, [discord.lua](https://github.com/VideahGams/discord.lua), was the only other Discord library of which I was aware. It required LuaJIT, was very incomplete, and abandoned by its author indefinitely. I decided to start my Luvit-powered library from scratch.
+Due to a lack of secure WebSocket support (at the time) and difficulties in developing a stable module, the Just Cause 2 Multiplayer project was put on hold in favor of a general-purpose Lua library for Discord. At the time, [discord.lua](https://github.com/VideahGams/discord.lua), was the only other Discord library of which I was aware. It ran on LuaJIT, was very incomplete, and abandoned by its author indefinitely. I decided to start my Luvit-powered library from scratch.
 
 During the development of Discordia, I discovered that a Luvit library had come before me: [luv-discord](https://github.com/sclark39/luv-discord). Like discord.lua, it was incomplete and had not been updated for months. Here is an honorable mention to [sclark39](https://github.com/sclark39) for doing it first, and for briefly contributing to Discordia.
 
@@ -54,11 +54,11 @@ Does Discordia support voice chat?
 - Voice states are cached in Discordia, but full voice support is not currently available.
 
 How can I contribute?
-- Pull requests are welcomed, but it is a good idea to check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
+- Pull requests are welcomed, but please check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
 
-How does this differ from other Lua libraries?
-- Discordia was the first Lua library to be officially recognized by the Discord API community linked above. There is currently a second recognized Lua library, [litcord](https://github.com/satom99/litcord), which strives to run on multiple Lua platforms. As an open source library, Discordia relies on contributions and endorsements from its users to grow and expand. If you are interested in building a Lua library, please consider contributing to the Lua libraries already recognized by the Discord API community.
+Are there other Lua libraries?
+- Discordia was the first Lua library to be officially recognized by the Discord API community. There is a second recognized Lua library, [litcord](https://github.com/satom99/litcord), and at least two abanonded libraries (mentioned above). If you'd like to contribute Lua code to a Discord project, please consider contributing to the Lua libraries already recognized by the Discord API community.
 
 ### Documentation
 
-Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordia/wiki) for Discordia (incomplete) documentation. Contributions are encouraged.
+Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordia/wiki) for Discordia's documentation and tutorials.
