@@ -236,7 +236,7 @@ function API:groupDMRemoveRecipient(channel_id, user_id) -- not exposed, maybe i
 	return self:request("DELETE", route, format(route, user_id))
 end
 
-function API:createGuild(payload) -- TODO
+function API:createGuild(payload) -- not exposed, generally not used
 	local route = "/guilds"
 	return self:request("POST", route, route, payload)
 end
@@ -281,7 +281,7 @@ function API:listGuildMembers(guild_id) -- not exposed, use cache or Guild:reque
 	return self:request("GET", route, route)
 end
 
-function API:addGuildMember(guild_id, user_id, payload) -- Guild:addMember (limit use, requires guild.join scope)
+function API:addGuildMember(guild_id, user_id, payload) -- Guild:addMember (limited use, requires guild.join scope)
 	local route = format("/guilds/%s/members/%%s", guild_id)
 	return self:request("PUT", route, format(route, user_id), payload)
 end
@@ -421,7 +421,7 @@ function API:modifyCurrentUser(payload) -- various client methods
 	return self:request("PATCH", route, route, payload)
 end
 
-function API:getCurrentUserGuilds() -- TODO: investigate
+function API:getCurrentUserGuilds() -- not exposed, use cache
 	local route = "/users/@me/guilds"
 	return self:request("GET", route, route)
 end
@@ -431,12 +431,12 @@ function API:leaveGuild(guild_id) -- Guild:leave
 	return self:request("DELETE", route, format(route, guild_id))
 end
 
-function API:getUserDMs() -- TODO: investigate
+function API:getUserDMs() -- not exposed, use cache
 	local route = "/users/@me/channels"
 	return self:request("GET", route, route)
 end
 
-function API:createDM(payload) -- TODO
+function API:createDM(payload) -- User:sendMessage
 	local route = "/users/@me/channels"
 	return self:request("POST", route, route, payload)
 end
@@ -446,7 +446,7 @@ function API:createGroupDM(payload) -- not exposed, maybe in the future
 	return self:request("POST", route, route, payload)
 end
 
-function API:getUsersConnections() -- TODO: investigate
+function API:getUsersConnections() -- not exposed, maybe in the future
 	local route = "/users/@me/connections"
 	return self:request("GET", route, route)
 end

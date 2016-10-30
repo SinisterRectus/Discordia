@@ -61,6 +61,10 @@ function Member:getMembership(guild)
 	return self.user:getMembership(guild or self.guild)
 end
 
+function Member:sendMessage(...)
+	return self.user:sendMessage(...)
+end
+
 function Member:getAvatarUrl()
 	return self.user:getAvatarUrl()
 end

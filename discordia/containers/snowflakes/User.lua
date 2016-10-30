@@ -28,6 +28,17 @@ function User:getMembership(guild)
 	return guild.members:get(self.id)
 end
 
+function User:sendMessage(...)
+	local id = self.id
+	local client = self.parent
+	local channel = client.privateChannels:find('recipient', function(v) return v.id == id end)
+	if not channel then
+		local success, data = client.api:createDM({recipient_id = id})
+		if success then channel = client.privateChannels:new(data) end
+	end
+	if channel then return channel:sendMessage(...) end
+end
+
 function User:getAvatarUrl()
 	if not self.avatar then return nil end
 	return format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self.id, self.avatar)
