@@ -1,9 +1,5 @@
 local timer = require('timer')
-local Cache = require('../utils/Cache')
 local Stopwatch = require('../utils/Stopwatch')
-local User = require('../containers/snowflakes/User')
-local Guild = require('../containers/snowflakes/Guild')
-local PrivateTextChannel = require('../containers/snowflakes/channels/PrivateTextChannel')
 
 local insert, concat, keys = table.insert, table.concat, table.keys
 local info, warning, failure = console.info, console.warning, console.failure
@@ -34,12 +30,11 @@ function EventHandler.READY(data, client)
 	client.loading = {guilds = {}, chunks = {}, syncs = {}}
 
 	client.sessionId = data.session_id
-	client.users = Cache({}, User, 'id', client)
 	client.user = client.users:new(data.user)
 	client.user:_loadClientData(data.user)
 
-	client.guilds = Cache(data.guilds, Guild, 'id', client)
-	client.privateChannels = Cache(data.private_channels, PrivateTextChannel, 'id', client)
+	client.guilds:merge(data.guilds)
+	client.privateChannels:merge(data.private_channels)
 
 	if client.user.bot then
 		client.api.headers['Authorization'] = 'Bot ' .. client.api.headers['Authorization']

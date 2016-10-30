@@ -1,5 +1,6 @@
 local insert = table.insert
 local format = string.format
+local warning = console.warning
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Cache = class('Cache')
@@ -38,18 +39,17 @@ function Cache:merge(array)
 	local objects = self.objects
 	local constructor = self.constructor
 	for _, data in ipairs(array) do
-		local obj = constructor(data, parent)
-		if not self:has(obj) then self:add(obj) end
+		self:add(constructor(data, parent), true)
 	end
 end
 
-function Cache:add(obj)
+function Cache:add(obj, suppress)
 	if not obj.__class == self.constructor then
-		warning('Attempted to cache invalid object type: ' .. tostring(obj))
+		if not suppress then warning('Attempted to cache invalid object type: ' .. tostring(obj)) end
 		return false
 	end
 	if self:has(obj) then
-		warning('Object to add already cached: ' .. tostring(obj))
+		if not suppress then warning('Object to add already cached: ' .. tostring(obj)) end
 		return false
 	end
 	self.objects[obj[self.key]] = obj
@@ -57,9 +57,9 @@ function Cache:add(obj)
 	return true
 end
 
-function Cache:remove(obj)
+function Cache:remove(obj, suppress)
 	if not self:has(obj) then
-		warning('Object to remove not found: ' .. tostring(obj))
+		if not suppress then warning('Object to remove not found: ' .. tostring(obj)) end
 		return false
 	end
 	self.objects[obj[self.key]] = nil

@@ -1,8 +1,11 @@
-local API = require('./API')
 local core = require('core')
-local package = require('../package')
-local Invite = require('../containers/Invite')
+local API = require('./API')
 local Socket = require('./Socket')
+local Cache = require('../utils/Cache')
+local Invite = require('../containers/Invite')
+local User = require('../containers/snowflakes/User')
+local Guild = require('../containers/snowflakes/Guild')
+local PrivateTextChannel = require('../containers/snowflakes/channels/PrivateTextChannel')
 
 local info, warning, failure = console.info, console.warning, console.failure
 
@@ -37,6 +40,9 @@ function Client:initialize(customOptions)
 	end
 	self.api = API(self)
 	self.socket = Socket(self)
+	self.users = Cache({}, User, 'id', self)
+	self.guilds = Cache({}, Guild, 'id', self)
+	self.privateChannels = Cache({}, PrivateTextChannel, 'id', self)
 end
 
 Client.meta.__tostring = function(self)
