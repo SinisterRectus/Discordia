@@ -52,39 +52,39 @@ function PermissionOverwrite:setDeniedPermissions(denied)
 	return setPermissions(self, allow, deny)
 end
 
-function PermissionOverwrite:allowPermission(flag)
+function PermissionOverwrite:allowPermission(...)
 	local allowed, denied = self:getPermissions()
-	allowed:enable(flag); denied:disable(flag)
+	allowed:enable(...); denied:disable(...)
 	return setPermissions(self, allowed.value, denied.value)
 end
 
-function PermissionOverwrite:denyPermission(flag)
+function PermissionOverwrite:denyPermission(...)
 	local allowed, denied = self:getPermissions()
-	allowed:disable(flag); denied:enable(flag)
+	allowed:disable(...); denied:enable(...)
 	return setPermissions(self, allowed.value, denied.value)
 end
 
-function PermissionOverwrite:clearPermission(flag)
+function PermissionOverwrite:clearPermission(...)
 	local allowed, denied = self:getPermissions()
-	allowed:disable(flag); denied:disable(flag)
+	allowed:disable(...); denied:disable(...)
 	return setPermissions(self, allowed.value, denied.value)
 end
 
-function PermissionOverwrite:allowAllPermissions(flag)
+function PermissionOverwrite:allowAllPermissions()
 	local allowed, denied = self:getPermissions()
 	allowed:enableAll(); denied:disableAll()
 	return setPermissions(self, allowed.value, denied.value)
 end
 
-function PermissionOverwrite:denyAllPermissions(flag)
+function PermissionOverwrite:denyAllPermissions()
 	local allowed, denied = self:getPermissions()
 	allowed:disableAll(); denied:enableAll()
 	return setPermissions(self, allowed.value, denied.value)
 end
 
-function PermissionOverwrite:clearAllPermissions(flag)
+function PermissionOverwrite:clearAllPermissions()
 	local allowed, denied = self:getPermissions()
-	allowed:disableAll(flag); denied:disableAll(flag)
+	allowed:disableAll(); denied:disableAll()
 	return setPermissions(self, allowed.value, denied.value)
 end
 

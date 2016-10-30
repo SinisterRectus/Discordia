@@ -64,15 +64,15 @@ function Role:setPermissions(permissions)
 	return success
 end
 
-function Role:enablePermission(flag)
+function Role:enablePermission(...)
 	local permissions = self:getPermissions()
-	permissions:enable(flag)
+	permissions:enable(...)
 	return self:setPermissions(permissions)
 end
 
-function Role:disablePermission(flag)
+function Role:disablePermission(...)
 	local permissions = self:getPermissions()
-	permissions:disable(flag)
+	permissions:disable(...)
 	return self:setPermissions(permissions)
 end
 
