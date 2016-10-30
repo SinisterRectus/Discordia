@@ -25,7 +25,7 @@ function User:_loadClientData(data)
 end
 
 function User:getMembership(guild)
-	return guild:getMemberById(self.id)
+	return guild.members:get(self.id)
 end
 
 function User:getAvatarUrl()

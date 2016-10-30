@@ -22,7 +22,7 @@ function Member:__init(data, parent)
 	self.deaf = data.deaf
 	self.mute = data.mute
 	self.joinedAt = data.joined_at
-	self.user = self.client:getUserById(data.user.id) or self.client.users:new(data.user)
+	self.user = self.client.users:get(data.user.id) or self.client.users:new(data.user)
 	self:_update(data)
 end
 

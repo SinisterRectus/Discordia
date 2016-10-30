@@ -4,8 +4,13 @@ local format = string.format
 
 local Invite, accessors = class('Invite', Container)
 
-accessors.guild = function(self) return self.parent.guilds:get(self.guildId) end
-accessors.channel = function(self) return self.parent:getGuildChannelById(self.channelId) end
+accessors.guild = function(self) return self.parent.guilds:get(self.guildId) end -- may not exist
+accessors.channel = function(self) -- may not exist
+	local guild = self.parent.guilds:get(self.guildId)
+	if guild then
+		return guild.textChannels:get(self.channelId) or guild.voiceChannels:get(self.channelId) or nil
+	end
+end
 
 function Invite:__init(data, parent)
 	Container.__init(self, parent)

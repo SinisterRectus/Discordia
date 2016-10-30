@@ -220,7 +220,7 @@ function Guild:getRoleByName(name)
 end
 
 function Guild:getChannelById(id)
-	return self:getTextChannelById(id) or self:getVoiceChannelById(id) or nil
+	return self.textChannels:get(id) or self.voiceChannels:get(id) or nil
 end
 
 function Guild:getTextChannelById(id)
@@ -232,7 +232,7 @@ function Guild:getVoiceChannelById(id)
 end
 
 function Guild:getChannelByName(name)
-	return self:getTextChannelByName(name) or self:getVoiceChannelByName(name)
+	return self.textChannels:get('name', name) or self.voiceChannels:get('name', name) or nil
 end
 
 function Guild:getTextChannelByName(name)
