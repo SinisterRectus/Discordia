@@ -52,6 +52,12 @@ function Role:setMentionable(mentionable)
 	return success
 end
 
+function Role:setPosition(position)
+	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {position = position})
+	if success then self.position = data.position end
+	return success
+end
+
 function Role:setColor(color)
 	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {color = color.value})
 	if success then self.color = data.color end

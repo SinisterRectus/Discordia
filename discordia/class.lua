@@ -1,4 +1,4 @@
-local memoryOptimization = false
+local memoryOptimization = _OPTIONS.memoryOptimization
 
 local meta = {}
 

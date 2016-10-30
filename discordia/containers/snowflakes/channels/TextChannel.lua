@@ -3,6 +3,7 @@ local Message = require('../Message')
 local OrderedCache = require('../../../utils/OrderedCache')
 
 local clamp = math.clamp
+local insert, concat = table.insert, table.concat
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local function messageIterator(success, data, parent)
@@ -74,20 +75,20 @@ function TextChannel:createMessage(content, mentions, tts, nonce)
 		if mentions.iter then
 			for obj in mentions:iter() do
 				if obj.getMentionString then
-					table.insert(tbl, obj:getMentionString())
+					insert(tbl, obj:getMentionString())
 				end
 			end
 		elseif mentions.getMentionString then
-			table.insert(tbl, mentions:getMentionString())
+			insert(tbl, mentions:getMentionString())
 		else
 			for _, obj in pairs(mentions) do
 				if obj.getMentionString then
-					table.insert(tbl, obj:getMentionString())
+					insert(tbl, obj:getMentionString())
 				end
 			end
 		end
-		table.insert(tbl, content)
-		content = table.concat(tbl, ' ')
+		insert(tbl, content)
+		content = concat(tbl, ' ')
 	end
 	local success, data = self.client.api:createMessage(self.id, {
 		content = content, tts = tts, nonce = nonce
@@ -99,11 +100,11 @@ function TextChannel:bulkDelete(messages)
 	local array = {}
 	if messages.iter then
 		for message in messages:iter() do
-			table.insert(array, message.id)
+			insert(array, message.id)
 		end
 	else
 		for _, message in pairs(messages) do
-			table.insert(array, message.id)
+			insert(array, message.id)
 		end
 	end
 	local success, data = self.client.api:bulkDeleteMessages(self.id, {messages = array})

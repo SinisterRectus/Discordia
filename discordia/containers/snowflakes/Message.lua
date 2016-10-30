@@ -74,6 +74,27 @@ function Message:getMentionedChannels()
 	end)
 end
 
+function Message:mentionsUser(user)
+	for obj in self:getMentionedUsers() do
+		if obj == user then return true end
+	end
+	return false
+end
+
+function Message:mentionsRole(role)
+	for obj in self:getMentionedRoles() do
+		if obj == role then return true end
+	end
+	return false
+end
+
+function Message:mentionsChannel(channel)
+	for obj in self:getMentionedChannels() do
+		if obj == channel then return true end
+	end
+	return false
+end
+
 function Message:setContent(content)
 	local success, data = self.client.api:editMessage(self.parent.id, self.id, {content = content})
 	if success then self.content = data.content end

@@ -139,12 +139,16 @@ function Client:listVoiceRegions()
 	if success then return data end
 end
 
-function Client:setUsername(newUsername, password)
+function Client:createGuild(name, region) -- limited use
+	local success, data = self.api:createGuild({name = name, region = region})
+	return success
+end
+
+function Client:setUsername(username)
 	local success, data = self.api:modifyCurrentUser({
 		avatar = self.user.avatar,
 		email = self.user.email,
-		username = newUsername,
-		password = password
+		username = username,
 	})
 	if success then self.user.username = data.username end
 	return success
@@ -158,24 +162,13 @@ function Client:setNickname(guild, nickname)
 	return success
 end
 
-function Client:setAvatar(newAvatar)
+function Client:setAvatar(avatar)
 	local success, data = self.api:modifyCurrentUser({
-		avatar = newAvatar,
+		avatar = avatar,
 		email = self.user.email,
 		username = self.user.username,
 	})
 	if success then self.user.avatar = data.avatar end
-	return success
-end
-
-function Client:setEmail(newEmail, password)
-	local success, data = self.api:modifyCurrentUser({
-		avatar = self.user.avatar,
-		email = newEmail,
-		username = self.user.username,
-		password = password
-	})
-	if success then self.user.email = data.email end
 	return success
 end
 
@@ -371,10 +364,8 @@ end
 Client.getRoles = Client.getGuildRoles
 Client.getMembers = Client.getGuildMembers
 Client.getVoiceChannels = Client.getGuildVoiceChannels
-
 Client.getRoleById = Client.getGuildRoleById
 Client.getVoiceChannelById = Client.getGuildVoiceChannelById
-
 Client.setNick = Client.setNickname
 
 return Client

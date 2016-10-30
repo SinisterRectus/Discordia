@@ -236,7 +236,7 @@ function API:groupDMRemoveRecipient(channel_id, user_id) -- not exposed, maybe i
 	return self:request("DELETE", route, format(route, user_id))
 end
 
-function API:createGuild(payload) -- not exposed, generally not used
+function API:createGuild(payload) -- Client:createGuild
 	local route = "/guilds"
 	return self:request("POST", route, route, payload)
 end
@@ -521,12 +521,12 @@ function API:getGateway() -- Client:connectWebsocket (cached)
 	return self:request("GET", route, route)
 end
 
-function API:getGatewayBot() -- TODO
+function API:getGatewayBot() -- not exposed, maybe in the future
 	local route = "/gateway/bot"
 	return self:request("GET", route, route)
 end
 
-function API:getCurrentApplicationInformation() -- TODO
+function API:getCurrentApplicationInformation() -- not exposed, maybe in the future
 	local route = "/oauth2/applications/@me"
 	return self:request("GET", route, route)
 end
