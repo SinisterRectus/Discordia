@@ -2,6 +2,7 @@ local Channel = require('../Channel')
 local Message = require('../Message')
 local OrderedCache = require('../../../utils/OrderedCache')
 
+local clamp = math.clamp
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local function messageIterator(success, data, parent)
@@ -37,27 +38,29 @@ function TextChannel:getMessages()
 	return self.messages:iter()
 end
 
-local function getMessageHistory(message, field, other, limit, min)
-	local query = {limit = limit and math.clamp(limit, min, 100) or nil}
-	if field then query[field] = other and other.id or nil end
+local function getMessageHistory(message, query)
 	local success, data = message.client.api:getChannelMessages(message.id, query)
 	return messageIterator(success, data, message)
 end
 
 function TextChannel:getMessageHistory(limit)
-	return getMessageHistory(self, nil, nil, limit, 1)
+	local query = limit and {limit = clamp(limit, 1, 100)}
+	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryBefore(message, limit)
-	return getMessageHistory(self, 'before', message, limit, 1)
+	local query = {before = message.id, limit = limit and clamp(limit, 1, 100) or nil}
+	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryAfter(message, limit)
-	return getMessageHistory(self, 'after', message, limit, 1)
+	local query = {after = message.id, limit = limit and clamp(limit, 1, 100) or nil}
+	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryAround(message, limit)
-	return getMessageHistory(self, 'around', message, limit, 2)
+	local query = {around = message.id, limit = limit and clamp(limit, 2, 100) or nil}
+	return getMessageHistory(self, query)
 end
 
 function TextChannel:getPinnedMessages()
