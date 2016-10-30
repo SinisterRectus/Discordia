@@ -25,7 +25,12 @@ function TextChannel:_update(data)
 end
 
 function TextChannel:getMessageById(id)
-	return self.messages:get(id)
+	local message = self.messages:get(id)
+	if not message and self.client.user.bot then
+		local success, data = self.client.api:getChannelMessage(self.id, id)
+		if success then message = Message(data, self) end
+	end
+	return message
 end
 
 function TextChannel:getMessages()

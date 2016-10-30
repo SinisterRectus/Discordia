@@ -156,7 +156,7 @@ function API:getChannelMessages(channel_id, query) -- TextChannel:getMessageHist
 	return self:request("GET", route, attachQuery(route, query))
 end
 
-function API:getChannelMessage(channel_id, message_id) -- not exposed, maybe in the future
+function API:getChannelMessage(channel_id, message_id) -- TextChannel:getMessageById fallback
 	local route = format("/channels/%s/messages/%%s", channel_id)
 	return self:request("GET", route, format(route, message_id))
 end
@@ -411,7 +411,7 @@ function API:getCurrentUser() -- not exposed, use cache (Client.user)
 	return self:request("GET", route, route)
 end
 
-function API:getUser(user_id) -- TODO: investigate
+function API:getUser(user_id) -- Client:getUserById fallback
 	local route = "/users/%s"
 	return self:request("GET", route, format(route, user_id))
 end

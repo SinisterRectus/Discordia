@@ -219,7 +219,12 @@ function Client:getPrivateChannelById(id)
 end
 
 function Client:getUserById(id)
-	return self.users:get(id)
+	local user = self.users:get(id)
+	if not user then
+		local success, data = self.api:getUser(id)
+		if success then user = self.users:new(data) end
+	end
+	return user
 end
 
 function Client:getUserByName(username)
