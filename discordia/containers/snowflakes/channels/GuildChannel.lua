@@ -34,10 +34,6 @@ function GuildChannel:_update(data)
 				overwrites:remove(overwrite)
 			end
 		end
-	else
-		overwrites:new({
-			id = self.parent.id, type = 'role', allow = 0, deny = 0
-		})
 	end
 end
 
@@ -53,6 +49,15 @@ function GuildChannel:setPosition(position) -- will probably need more abstracti
 	return success
 end
 
+function GuildChannel:getPermissionOverwriteFor(object)
+	local type = type(object) == 'table' and object.__name:lower() or nil
+	if type ~= 'role' and type ~= 'member' then return end
+	local id = object.id
+	return self.permissionOverwrites:get(id) or self.permissionOverwrites:new({
+		id = id, allow = 0, deny = 0, type = type
+	})
+end
+
 function GuildChannel:getInvites()
 	local success, data = self.client.api:getChannelInvites(self.id)
 	if not success then return function() end end
@@ -62,10 +67,6 @@ function GuildChannel:getInvites()
 			yield(Invite(inviteData, parent))
 		end
 	end)
-end
-
-function GuildChannel:getPermissionOverwrites()
-	return self.permissionOverwrites:iter()
 end
 
 function GuildChannel:createInvite(maxAge, maxUses, temporary, unique)

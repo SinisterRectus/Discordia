@@ -8,6 +8,7 @@ local PermissionOverwrite, accessors = class('PermissionOverwrite', Snowflake)
 
 accessors.channel = function(self) return self.parent end
 accessors.guild = function(self) return self.parent.guild end
+accessors.name = function(self) return self:getObject().name end
 
 function PermissionOverwrite:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -34,7 +35,7 @@ end
 
 local function setPermissions(overwrite, allow, deny)
 	local success, data = overwrite.client.api:editChannelPermissions(overwrite.parent.id, overwrite.id, {
-		allow = allow, deny = deny,
+		allow = allow, deny = deny, type = overwrite.type
 	})
 	if success then overwrite.allow, overwrite.deny = allow, deny end
 	return success
@@ -88,7 +89,7 @@ function PermissionOverwrite:clearAllPermissions()
 	return setPermissions(self, allowed.value, denied.value)
 end
 
-function PermissionOverwrite:getAssociatedObject()
+function PermissionOverwrite:getObject()
 	if self.type == 'role' then
 		return self.parent.guild.roles:get(self.id)
 	else
