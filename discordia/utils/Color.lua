@@ -1,8 +1,8 @@
 local bit = require('bit')
 
+local round = math.round
 local format = string.format
-local rshift, band = bit.rshift, bit.band
-local round, clamp = math.round, math.clamp
+local lshift, rshift, band = bit.lshift, bit.rshift, bit.band
 
 local Color = class('Color')
 
@@ -16,24 +16,22 @@ function Color:__init(a, b, c)
 	-- Color('#7289DA') -- hex string
 	-- Color('0x7289DA') -- hex string
 
+	local value
 	if a and b and c then
-		self.r = round(clamp(a, 0, 255))
-		self.g = round(clamp(b, 0, 255))
-		self.b = round(clamp(c, 0, 255))
+		value = lshift(a, 16) + lshift(b, 8) + c
 	elseif a then
 		if type(a) == 'string' then
-			a = tonumber(a:gsub('#', ''), 16)
+			value = tonumber(a:gsub('#', ''), 16)
+		else
+			value = tonumber(a)
 		end
-		a = math.round(math.clamp(a, 0, 0xFFFFFF))
-		self.r = rshift(band(a, 0xFF0000), 16)
-		self.g = rshift(band(a, 0x00FF00), 8)
-		self.b = band(a, 0x0000FF)
 	end
+	self.value = value or 0
 
 end
 
 function Color:__tostring()
-	return format('Color: (%i, %i, %i)', self.r, self.g, self.b)
+	return format('Color: (%i, %i, %i)', self:toRGB())
 end
 
 function Color:__eq(other)
@@ -41,44 +39,36 @@ function Color:__eq(other)
 end
 
 function Color:__add(other)
-	local r = self.r + other.r
-	local b = self.b + other.b
-	local g = self.g + other.g
-	return Color(r, g, b)
+	return Color(self.value + other.value)
 end
 
 function Color:__sub(other)
-	local r = self.r - other.r
-	local b = self.b - other.b
-	local g = self.g - other.g
-	return Color(r, g, b)
+	return Color(self.value - other.value)
 end
 
 function Color:__mul(n)
 	if type(self) == 'number' then self, n = n, self end
-	local r = self.r * n
-	local b = self.b * n
-	local g = self.g * n
-	return Color(r, g, b)
+	return Color(self.value * n)
 end
 
 function Color:__div(n)
-	local r = self.r / n, 0, 255
-	local b = self.b / n, 0, 255
-	local g = self.g / n, 0, 255
-	return Color(r, b, g)
+	return Color(self.value / n)
 end
 
 function Color:toHex()
-	return format('0x%02X%02X%02X', self.r, self.g, self.b)
+	return format('0x%06X', self.value)
 end
 
-function Color:toDec()
-	return 0x10000 * self.r + 0x100 * self.g + self.b
+function Color:toRGB()
+	local v = self.value
+	local r = rshift(band(v, 0xFF0000), 16)
+	local g = rshift(band(v, 0x00FF00), 8)
+	local b = band(v, 0x0000FF)
+	return r, g, b
 end
 
 function Color:copy()
-	return Color(self.r, self.g, self.b)
+	return Color(self.value)
 end
 
 return Color

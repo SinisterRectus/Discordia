@@ -53,13 +53,13 @@ function Role:setMentionable(mentionable)
 end
 
 function Role:setColor(color)
-	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {color = color:toDec()})
+	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {color = color.value})
 	if success then self.color = data.color end
 	return success
 end
 
 function Role:setPermissions(permissions)
-	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {permissions = permissions:toDec()})
+	local success, data = self.client.api:modifyGuildRole(self.parent.id, self.id, {permissions = permissions.value})
 	if success then self.permissions = data.permissions end
 	return success
 end
