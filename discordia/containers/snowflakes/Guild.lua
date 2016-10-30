@@ -8,6 +8,7 @@ local Invite = require('../Invite')
 local VoiceState = require('../VoiceState')
 local Cache = require('../../utils/Cache')
 
+local clamp = math.clamp
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Guild, accessors = class('Guild', Snowflake)
@@ -171,9 +172,8 @@ function Guild:getBans()
 	end)
 end
 
-function Guild:banUser(user, messageDeleteDays)
-	messageDeleteDays = messageDeleteDays and math.clamp(messageDeleteDays, 0, 7) or nil
-	local query = messageDeleteDays and {['delete-message-days'] = messageDeleteDays} or nil
+function Guild:banUser(user, days)
+	local query = days and {['delete-message-days'] = clamp(days, 0, 7)} or nil
 	local success, data = self.client.api:createGuildBan(self.id, user.id, payload, query)
 	return success
 end
@@ -186,6 +186,18 @@ end
 function Guild:kickUser(user)
 	local success, data = self.client.api:removeGuildMember(self.id, user.id)
 	return success
+end
+
+function Guild:getPruneCount(days)
+	local query = days and {days = clamp(days, 1, 30)} or nil
+	local success, data = self.client.api:getGuildPruneCount(self.id, query)
+	if success then return data.pruned end
+end
+
+function Guild:pruneMembers(days)
+	local query = days and {days = clamp(days, 1, 30)} or nil
+	local success, data = self.client.api:getGuildPruneCount(self.id, query)
+	if success then return data.pruned end
 end
 
 function Guild:createTextChannel(name)

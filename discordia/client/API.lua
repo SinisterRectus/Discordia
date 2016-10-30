@@ -336,12 +336,12 @@ function API:deleteGuildRole(guild_id, role_id) -- Role:delete
 	return self:request("DELETE", route, format(route, role_id))
 end
 
-function API:getGuildPruneCount(guild_id) -- TODO
+function API:getGuildPruneCount(guild_id, query) -- Guild:getPruneCount
 	local route = format("/guilds/%s/prune", guild_id)
-	return self:request("GET", route, route)
+	return self:request("GET", route, attachQuery(route, query))
 end
 
-function API:beginGuildPrune(guild_id, payload) -- TODO
+function API:beginGuildPrune(guild_id, payload) -- Guild:pruneMembers
 	local route = format("/guilds/%s/prune", guild_id)
 	return self:request("POST", route, route, payload)
 end
