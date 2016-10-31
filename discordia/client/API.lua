@@ -73,7 +73,7 @@ function API:request(method, route, endpoint, payload)
 		insert(reqHeaders, {'Content-Length', #payload})
 	end
 
-	local routeLimiter = self.routeLimiters[route] or RateLimiter(self)
+	local routeLimiter = self.routeLimiters[route] or RateLimiter()
 	self.routeLimiters[route] = routeLimiter
 
 	return self:commit(method, url, reqHeaders, payload, routeLimiter, 1)

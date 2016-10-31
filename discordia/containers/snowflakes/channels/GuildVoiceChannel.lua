@@ -1,13 +1,11 @@
 local GuildChannel = require('./GuildChannel')
-local VoiceChannel = require('./VoiceChannel')
 
 local clamp = math.clamp
 
-local GuildVoiceChannel = class('GuildVoiceChannel', GuildChannel, VoiceChannel)
+local GuildVoiceChannel = class('GuildVoiceChannel', GuildChannel)
 
 function GuildVoiceChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)
-	VoiceChannel.__init(self, data, parent)
 	GuildVoiceChannel._update(self, data)
 end
 

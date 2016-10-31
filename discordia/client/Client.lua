@@ -5,7 +5,7 @@ local Cache = require('../utils/Cache')
 local Invite = require('../containers/Invite')
 local User = require('../containers/snowflakes/User')
 local Guild = require('../containers/snowflakes/Guild')
-local PrivateTextChannel = require('../containers/snowflakes/channels/PrivateTextChannel')
+local PrivateChannel = require('../containers/snowflakes/channels/PrivateChannel')
 
 local info, warning, failure = console.info, console.warning, console.failure
 
@@ -42,7 +42,7 @@ function Client:initialize(customOptions)
 	self.socket = Socket(self)
 	self.users = Cache({}, User, 'id', self)
 	self.guilds = Cache({}, Guild, 'id', self)
-	self.privateChannels = Cache({}, PrivateTextChannel, 'id', self)
+	self.privateChannels = Cache({}, PrivateChannel, 'id', self)
 end
 
 Client.meta.__tostring = function(self)
@@ -361,10 +361,16 @@ function Client:getMembers()
 	end)
 end
 
-Client.getVoiceChannels = Client.getGuildVoiceChannels
-Client.getPrivateTextChannels = Client.getPrivateChannels
+Client.getGuildRoleById = Client.getRoleById
+Client.getGuildMemberById = Client.getMemberById
 Client.getVoiceChannelById = Client.getGuildVoiceChannelById
 Client.getPrivateTextChannelById = Client.getPrivateChannelById
+
+Client.getVoiceChannels = Client.getGuildVoiceChannels
+Client.getPrivateTextChannels = Client.getPrivateChannels
+Client.getGuildRoles = Client.getRoles
+Client.getGuildMembers = Client.getMembers
+
 Client.setNick = Client.setNickname
 
 return Client

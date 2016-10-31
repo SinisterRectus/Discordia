@@ -8,6 +8,7 @@ local ignore = {
 	'MESSAGE_ACK',
 	'CHANNEL_PINS_UPDATE',
 	'GUILD_EMOJIS_UPDATE',
+	'GUILD_INTEGRATIONS_UPDATE',
 	'MESSAGE_REACTION_ADD',
 	'MESSAGE_REACTION_REMOVE',
 }
@@ -155,7 +156,7 @@ function EventHandler.GUILD_CREATE(data, client)
 	else
 		guild = client.guilds:new(data)
 		if guild.unavailable then
-			return client:emit('unavailableGuildCreate', guild)
+			return client:emit('guildCreateUnavailable', guild)
 		else
 			return client:emit('guildCreate', guild)
 		end
