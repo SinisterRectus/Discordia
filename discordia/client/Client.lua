@@ -266,7 +266,7 @@ function Client:getGuildVoiceChannelById(id)
 	end
 end
 
-function Client:getGuildRoleById(id)
+function Client:getRoleById(id)
 	for guild in self:getGuilds() do
 		local role = guild:getRoleById(id)
 		if role then return role end
@@ -341,7 +341,7 @@ function Client:getGuildVoiceChannels()
 	end)
 end
 
-function Client:getGuildRoles()
+function Client:getRoles()
 	return wrap(function()
 		for guild in self:getGuilds() do
 			for role in guild:getRoles() do
@@ -351,7 +351,7 @@ function Client:getGuildRoles()
 	end)
 end
 
-function Client:getGuildMembers()
+function Client:getMembers()
 	return wrap(function()
 		for guild in self:getGuilds() do
 			for member in guild:getMembers() do
@@ -361,11 +361,10 @@ function Client:getGuildMembers()
 	end)
 end
 
-Client.getRoles = Client.getGuildRoles
-Client.getMembers = Client.getGuildMembers
 Client.getVoiceChannels = Client.getGuildVoiceChannels
-Client.getRoleById = Client.getGuildRoleById
+Client.getPrivateTextChannels = Client.getPrivateChannels
 Client.getVoiceChannelById = Client.getGuildVoiceChannelById
+Client.getPrivateTextChannelById = Client.getPrivateChannelById
 Client.setNick = Client.setNickname
 
 return Client

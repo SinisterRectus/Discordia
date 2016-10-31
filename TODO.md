@@ -22,3 +22,4 @@ Possible additions
 
 Fixes Needed
 - Check for json null values on user object in presence update
+- Look into not caching token on client object
