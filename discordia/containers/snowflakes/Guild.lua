@@ -164,10 +164,10 @@ end
 function Guild:getBans()
 	local success, data = self.client.api:getGuildBans(self.id)
 	if not success then return function() end end
-	local client = self.client
+	local users = self.client.users
 	return wrap(function()
 		for _, v in ipairs(data) do
-			yield(User(v.user, client))
+			yield(users:get(v.user.id) or users:new(v.user))
 		end
 	end)
 end
