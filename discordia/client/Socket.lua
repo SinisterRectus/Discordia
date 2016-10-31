@@ -12,6 +12,15 @@ local parseUrl, connect = websocket.parseUrl, websocket.connect
 local info, warning, failure = console.info, console.warning, console.failure
 local sleep, setInterval, clearInterval = timer.sleep, timer.setInterval, timer.clearInterval
 
+local ignore = {
+	['MESSAGE_ACK'] = true,
+	['CHANNEL_PINS_UPDATE'] = true,
+	['GUILD_EMOJIS_UPDATE'] = true,
+	['GUILD_INTEGRATIONS_UPDATE'] = true,
+	['MESSAGE_REACTION_ADD'] = true,
+	['MESSAGE_REACTION_REMOVE'] = true,
+}
+
 local Socket = class('Socket')
 
 function Socket:__init(client)
@@ -82,11 +91,13 @@ function Socket:handlePayload(data, client)
 
 	if op == 0 then
 		self.sequence = payload.s
-		local handler = EventHandler[payload.t]
-		if handler then
-			return handler(payload.d, client)
-		else
-			return warning('Unhandled event: ' .. payload.t)
+		if not ignore[payload.t] then
+			local handler = EventHandler[payload.t]
+			if handler then
+				return handler(payload.d, client)
+			else
+				return warning('Unhandled event: ' .. payload.t)
+			end
 		end
 	elseif op == 1 then
 		return self:heartbeat()

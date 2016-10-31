@@ -4,15 +4,6 @@ local Stopwatch = require('../utils/Stopwatch')
 local insert, concat, keys = table.insert, table.concat, table.keys
 local info, warning, failure = console.info, console.warning, console.failure
 
-local ignore = {
-	'MESSAGE_ACK',
-	'CHANNEL_PINS_UPDATE',
-	'GUILD_EMOJIS_UPDATE',
-	'GUILD_INTEGRATIONS_UPDATE',
-	'MESSAGE_REACTION_ADD',
-	'MESSAGE_REACTION_REMOVE',
-}
-
 local function checkReady(client)
 	for k, v in pairs(client.loading) do
 		if next(v) then
@@ -350,10 +341,6 @@ function EventHandler.VOICE_STATE_UPDATE(data, client)
 		voiceState = guild.voiceStates:new(data)
 		return client:emit('voiceJoin', voiceState)
 	end
-end
-
-for _, event in ipairs(ignore) do
-	EventHandler[event] = function() return end
 end
 
 return EventHandler
