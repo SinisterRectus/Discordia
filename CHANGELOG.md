@@ -3,34 +3,71 @@
 ### 1.0.0 - not yet released
 
 - General
+
 	- All mentions of *server* or *Server* were changed to *guild* or *Guild* to maintain consistency with internal Discord nomenclature
+	- API calls that previously returned nothing now return a boolean to indicate whether the call was successful
+	- Discord objects are now stored in custom `Cache` objects instead of pure Lua tables
+	- Many iterators were added to help with accessing cached objects or methods that used to return a table
+	- User handling has been changed slightly:
+		- `User` objects are now cached once per `Client` instead of per every `PrivateChannel` and `Guild`
+		- The `Member` class now wraps the `User` class instead of extending it
+		- To get a user's `Member` object, use `User:getMembership(guild)`
+		- A member's `User` object is accessed via `Member.user`
+		- Message authors, channel recipients, and invite inviters are always `User` objects
+		- Server owners are always `Member` objects
 	- `utils` was removed from the main `discordia` module and has been replaced by individual utility classes
 	- `class` was refactored to include accessor attributes and has an optional memory optimization
-	- All modules relevant to the `Client` class were refactored and moved with it into a `client` folder:
-	- `endpoints` was changed to `API`
-	- `events` was changed to `EventHandler`
-	- `WebSocket` was changed to `Socket`
 	- `Warning` and `Error` classes were merged into a global `console` module
-	- All API calls that previously returned nothing now return a boolean to indicate whether the call was successful. Calls that are supposed to return an object will still return nil if the call failed to produce an object.
-	- Objects are no longer cached in simple Lua tables. They are cached in custom `Cache` objects that provide more convenient ways to work with the data.
-	- Many iterators were added to help with accessing cached objects or methods that used to return a table.
+	- All modules relevant to the `Client` class were refactored and moved with it into a `client` folder:
+		- `endpoints` was changed to `API`
+		- `events` was changed to `EventHandler`
+		- `WebSocket` was changed to `Socket`
+
+
+- Events
+
+	- Event handling was made more reliable by using the new `Cache` objects
+	- Attempts to access uncached objects are now caught, and warnings are printed to the console
+	- Guild sync was implemented for non-bot accounts
+	- `serverCreate` was renamed/split into `guildCreate`, `guildAvailable`, and `guildCreateUnavailable`
+	- `serverDelete` was renamed/split into `guildDelete` and `guildUnavailable`
+	- `messageAcknowledge` and `membersChunk` were removed
+	- `memberBan` and `memberUnban` were renamed to `userBan` and `userUnban` and now provide a `User` object instead of a `Member` object
+	- `typingStart` now has a timestamp as a third argument
+
+
+- New Classes
+
+	- `API` - Adds a layer of abstraction between Discord's REST API and Discordia's object oriented API
+	- `Container` - Base object used to store Discord objects
+	- `Cache` - Data structure used to store and access `Container` objects
+	- `OrderedCache` - Extension of `Cache` that maintains the order of objects as a doubly-linked list
+	- `RateLimiter` - Extension of `Deque` that is used by the `API` class to throttle HTTP requests
+	- `Stopwatch` - Used to measure elapsed time with nanosecond precision
+	- `PermissionOverwrite` - Extension of `Snowflake` that maintains per-channel permissions
 
 
 - Client
+
 	- General
-		- Added an ability to pass options table to client constructor
 		- Added `__call` metamethod so that clients can be initialized with `Client()` instead of `Client:new()`
 		- Added `__tostring` metamethod
 		- Client event callbacks are now wrapped with a coroutine instead of the `emit` call itself (ie, a coroutine will only be constructed if the event has a handler).
+		- You can now pass a table of options when creating a client instance. Options include:
+			- `routeDelay` - minimum time in milliseconds to wait between HTTP requests per-route (default: 300)
+			- `globalDelay` - minimum time in milliseconds to wait between HTTP requests globally (default: 10)
+			- `messageLimit` - maximum number of messages to cache per channel (default: 100)
+			- `largeThreshold` - maximum initial number of members per guild to fetch (default: 100)
+			- `fetchMembers` - whether to fetch all addition offline members for guilds (default: false)
 	- Attributes
 		- Additions
 			- `users` cache
 			- `api` object
-			- Removals
+		- Removals
 			- `reconnects` (not tracked anymore)
 			- `keepAliveHandlers` (only one handler is now needed)
 			- `isRateLimited` (handled by `API` class)
-			- Changes
+		- Changes
 			- `maxMessages` was moved to `messageLimit` in options table
 			- `servers` table was changed to `guilds` cache
 			- `privateChannels` was changed from table to cache
