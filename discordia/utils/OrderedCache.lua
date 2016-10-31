@@ -11,14 +11,14 @@ end
 function OrderedCache:add(obj) -- push from the right
 	if Cache.add(self, obj) then
 		if self.count == 1 then
-			self.head = obj
-			self.tail = obj
+			self.first = obj
+			self.last = obj
 		else
-			self.next[self.tail] = obj
-			self.prev[obj] = self.tail
-			self.tail = obj
+			self.next[self.last] = obj
+			self.prev[obj] = self.last
+			self.last = obj
 		end
-		if self.count > self.max then self:remove(self.head) end
+		if self.count > self.max then self:remove(self.first) end
 		return true
 	else
 		return false
@@ -28,16 +28,16 @@ end
 function OrderedCache:remove(obj)
 	if Cache.remove(self, obj) then
 		if self.count == 0 then
-			self.head = nil
-			self.tail = nil
+			self.first = nil
+			self.last = nil
 		else
 			local prev = self.prev[obj]
 			local next = self.next[obj]
-			if obj == self.tail then
-				self.tail = prev
+			if obj == self.last then
+				self.last = prev
 				self.next[prev] = nil
-			elseif obj == self.head then
-				self.head = next
+			elseif obj == self.first then
+				self.first = next
 				self.prev[next] = nil
 			else
 				self.next[prev] = next
@@ -50,8 +50,18 @@ function OrderedCache:remove(obj)
 	end
 end
 
-function OrderedCache:iterRightToLeft() -- iterates right/tail/new to left/head/old
-	local obj = self.tail
+function OrderedCache:filter(predicate)
+	local cache = OrderedCache({}, self.constructor, self.key, self.max, self.parent)
+	for obj in self:iter() do
+		if predicate(obj) then
+			cache:add(obj)
+		end
+	end
+	return cache
+end
+
+function OrderedCache:iterLastToFirst()
+	local obj = self.last
 	return function()
 		local ret = obj
 		obj = obj and self.prev[obj] or nil
@@ -59,8 +69,8 @@ function OrderedCache:iterRightToLeft() -- iterates right/tail/new to left/head/
 	end
 end
 
-function OrderedCache:iterLeftToRight() -- iterates left/head/old to right/tail/new
-	local obj = self.head
+function OrderedCache:iterFirstToLast()
+	local obj = self.first
 	return function()
 		local ret = obj
 		obj = obj and self.next[obj] or nil
@@ -69,21 +79,7 @@ function OrderedCache:iterLeftToRight() -- iterates left/head/old to right/tail/
 end
 
 function OrderedCache:iter(reverse)
-	return reverse and self:iterRightToLeft() or self:iterLeftToRight()
+	return reverse and self:iterLastToFirst() or self:iterFirstToLast()
 end
-
-function OrderedCache:getOldest()
-	return self.head
-end
-
-function OrderedCache:getNewest()
-	return self.tail
-end
-
--- alliases --
-OrderedCache.iterOldToNew = OrderedCache.iterLeftToRight
-OrderedCache.iterNewToOld = OrderedCache.iterRightToLeft
-OrderedCache.iterHeadToTail = OrderedCache.iterLeftToRight
-OrderedCache.iterTailToHead = OrderedCache.iterRightToLeft
 
 return OrderedCache

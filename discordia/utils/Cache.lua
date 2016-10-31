@@ -22,13 +22,25 @@ function Cache:__tostring()
 	return format('%s[%s]', self.__name, self.constructor.__name)
 end
 
+local function add(cache, obj)
+	cache.objects[obj[cache.key]] = obj
+	cache.count = cache.count + 1
+	return true
+end
+
+local function remove(cache, obj)
+	cache.objects[obj[cache.key]] = nil
+	cache.count = cache.count - 1
+	return true
+end
+
 function Cache:new(data)
 	local new = self.constructor(data, self.parent)
 	local old = self.objects[new[self.key]]
 	if new == old then
-		return old -- need to make sure HTTP obj is the same as WS object
+		return old -- prevents double-caching HTTP and WS objects
 	else
-		self:add(new)
+		add(self, new)
 		return new
 	end
 end
@@ -39,32 +51,33 @@ function Cache:merge(array)
 	local objects = self.objects
 	local constructor = self.constructor
 	for _, data in ipairs(array) do
-		self:add(constructor(data, parent), true)
+		local obj = constructor(data, parent)
+		if not self:has(obj) then add(self, obj) end
 	end
 end
 
-function Cache:add(obj, suppress)
-	if not obj.__class == self.constructor then
-		if not suppress then warning('Attempted to cache invalid object type: ' .. tostring(obj)) end
+function Cache:add(obj)
+	if obj.__class ~= self.constructor then
+		warning(format('Invalid object type %q for %s', obj.__name, self))
 		return false
 	end
 	if self:has(obj) then
-		if not suppress then warning('Object to add already cached: ' .. tostring(obj)) end
+		warning('Object to add already cached: ' .. tostring(obj))
 		return false
 	end
-	self.objects[obj[self.key]] = obj
-	self.count = self.count + 1
-	return true
+	return add(self, obj)
 end
 
-function Cache:remove(obj, suppress)
-	if not self:has(obj) then
-		if not suppress then warning('Object to remove not found: ' .. tostring(obj)) end
+function Cache:remove(obj)
+	if obj.__class ~= self.constructor then
+		warning(format('Invalid object type %q for %s', obj.__name, self))
 		return false
 	end
-	self.objects[obj[self.key]] = nil
-	self.count = self.count - 1
-	return true
+	if not self:has(obj) then
+		warning('Object to remove not found: ' .. tostring(obj))
+		return false
+	end
+	return remove(self, obj)
 end
 
 function Cache:has(obj)
@@ -80,12 +93,10 @@ function Cache:iter()
 	end
 end
 
-function Cache:get(key, value)
-	if not value then
-		value = key
-		key = self.key
-	end
-	if key == self.key then
+function Cache:get(key, value) -- use find for explicit obj[key] == nil
+	if key and not value then
+		return self.objects[key]
+	elseif key == self.key then
 		return self.objects[value]
 	else
 		for obj in self:iter() do
@@ -96,15 +107,7 @@ function Cache:get(key, value)
 	end
 end
 
-function Cache:find(key, predicate)
-	for obj in self:iter() do
-		if predicate(obj[key]) then
-			return obj
-		end
-	end
-end
-
-function Cache:getAll(key, value)
+function Cache:getAll(key, value) -- use filter to return a new cache
 	return wrap(function()
 		for obj in self:iter() do
 			if obj[key] == value then
@@ -114,30 +117,39 @@ function Cache:getAll(key, value)
 	end)
 end
 
-function Cache:findAll(predicate)
-	return wrap(function()
-		for obj in self:iter() do
-			if predicate(obj) then
-				yield(obj)
-			end
+function Cache:find(predicate)
+	for obj in self:iter() do
+		if predicate(obj) then
+			return obj
 		end
-	end)
+	end
+end
+
+function Cache:filter(predicate)
+	local cache = Cache({}, self.constructor, self.key, self.parent)
+	for obj in self:iter() do
+		if predicate(obj) then
+			add(cache, obj)
+		end
+	end
+	return cache
 end
 
 function Cache:keys()
-	local ret = {}
+	local key = self.key
+	local keys = {}
 	for obj in self:iter() do
-		insert(ret, obj[self.key])
+		insert(keys, obj[key])
 	end
-	return ret
+	return keys
 end
 
 function Cache:values()
-	local ret = {}
+	local values = {}
 	for obj in self:iter() do
-		insert(ret, obj)
+		insert(values, obj)
 	end
-	return ret
+	return values
 end
 
 return Cache
