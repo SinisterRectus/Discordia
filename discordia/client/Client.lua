@@ -1,6 +1,6 @@
-local core = require('core')
 local API = require('./API')
 local Socket = require('./Socket')
+local Emitter = require('./Emitter')
 local Cache = require('../utils/Cache')
 local Invite = require('../containers/Invite')
 local User = require('../containers/snowflakes/User')
@@ -22,63 +22,53 @@ local defaultOptions = {
 	fetchMembers = false,
 }
 
-local Client = core.Emitter:extend()
+local Client, get = class('Client', Emitter)
 
-getmetatable(Client).__call = function(self, ...)
-	return self:new(...)
-end
-
-function Client:initialize(customOptions)
+function Client:__init(customOptions)
+	Emitter.__init(self)
 	if customOptions then
 		local options = {}
 		for k, v in pairs(defaultOptions) do
 			options[k] = customOptions[k] or defaultOptions[k]
 		end
-		self.options = options
+		self._options = options
 	else
-		self.options = defaultOptions
+		self._options = defaultOptions
 	end
 	self.api = API(self)
 	self.socket = Socket(self)
-	self.users = Cache({}, User, 'id', self)
-	self.guilds = Cache({}, Guild, 'id', self)
-	self.privateChannels = Cache({}, PrivateChannel, 'id', self)
+	self._users = Cache({}, User, '_id', self)
+	self._guilds = Cache({}, Guild, '_id', self)
+	self._private_channels = Cache({}, PrivateChannel, '_id', self)
 end
 
-Client.meta.__tostring = function(self)
-	if self.user then
-		return 'instance of Client for ' .. self.user.username
+function Client:__tostring()
+	if self._user then
+		return 'instance of Client for ' .. self._user._username
 	else
 		return 'instance of Client'
 	end
 end
 
--- overwrite emit method to make it non-blocking
--- original code copied from core.lua
-function Client:emit(name, ...)
-	local handlers = rawget(self, 'handlers')
-	if not handlers then return end
-	local namedHandlers = rawget(handlers, name)
-	if not namedHandlers then return end
-	for i = 1, #namedHandlers do
-		local handler = namedHandlers[i]
-		if handler then wrap(handler)(...) end
-	end
-	for i = #namedHandlers, 1, -1 do
-		if not namedHandlers[i] then
-			remove(namedHandlers, i)
+local function getToken(self, email, password)
+	warning('Email login is discouraged, use token login instead')
+	local success, data = self.api:getToken({email = email, password = password})
+	if success then
+		if data.token then
+			return data.token
+		elseif data.mfa then
+			failure('MFA login is not supported')
 		end
+	else
+		failure(data.email and data.email[1] or data.password and data.password[1])
 	end
 end
 
 function Client:run(a, b)
 	return wrap(function()
-		if b then
-			self:loginWithEmail(a, b)
-		else
-			self:loginWithToken(a)
-		end
-		return self:connectWebSocket()
+		local token = not b and a or getToken(self, a, b)
+		self.api:setToken(token)
+		return self:_connectToGateway(token)
 	end)()
 end
 
@@ -87,21 +77,7 @@ function Client:stop(exit)
 	if exit then os.exit() end
 end
 
-function Client:loginWithEmail(email, password)
-	warning('Email login is discouraged, use token login instead')
-	local success, data = self.api:getToken({email = email, password = password})
-	if not data.token then
-		failure(data.email and data.email[1] or data.password and data.password[1])
-	end
-	return self:loginWithToken(data.token)
-end
-
-function Client:loginWithToken(token)
-	self.token = token
-	return self.api:setToken(token)
-end
-
-function Client:connectWebSocket()
+function Client:_connectToGateway(token)
 
 	local gateway, connected
 	local filename = 'gateway.cache'
@@ -114,8 +90,8 @@ function Client:connectWebSocket()
 	end
 
 	if not connected then
-		local success, data = self.api:getGateway()
-		if success then
+		local success1, success2, data = pcall(self.api.getGateway, self.api)
+		if success1 and success2 then
 			gateway = data.url
 			connected = self.socket:connect(gateway)
 		end
@@ -127,9 +103,9 @@ function Client:connectWebSocket()
 			cache = open(filename, 'w')
 			if cache then cache:write(gateway):close() end
 		end
-		return wrap(self.socket.handlePayloads)(self.socket)
+		return wrap(self.socket.handlePayloads)(self.socket, token)
 	else
-		return failure('Bad gateway: ' .. (gateway and gateway or 'nil'))
+		failure('Cannot connect to gateway: ' .. (gateway and gateway or 'nil'))
 	end
 
 end
@@ -146,60 +122,60 @@ end
 
 function Client:setUsername(username)
 	local success, data = self.api:modifyCurrentUser({
-		avatar = self.user.avatar,
-		email = self.user.email,
+		avatar = self._user._avatar,
+		email = self._user._email,
 		username = username,
 	})
-	if success then self.user.username = data.username end
+	if success then self._user._username = data.username end
 	return success
 end
 
-function Client:setNickname(guild, nickname)
-	local success, data = self.api:modifyCurrentUserNickname(guild.id, {
-		nick = nickname or ''
+function Client:setNick(guild, nick)
+	local success, data = self.api:modifyCurrentUserNickname(guild._id, {
+		nick = nick or ''
 	})
-	if success then guild.me.nick = data.nick end
+	if success then guild.me._nick = data.nick end
 	return success
 end
 
 function Client:setAvatar(avatar)
 	local success, data = self.api:modifyCurrentUser({
 		avatar = avatar,
-		email = self.user.email,
-		username = self.user.username,
+		email = self._user._email,
+		username = self._user._username,
 	})
-	if success then self.user.avatar = data.avatar end
+	if success then self._user.avatar = data.avatar end
 	return success
 end
 
 function Client:setStatusIdle()
-	self.idleSince = time() * 1000
-	local id = self.user.id
-	for guild in self:getGuilds() do
+	self._idle_since = time() * 1000
+	local id = self._user.id
+	for guild in self._guilds:iter() do
 		local me = guild.members:get(id)
 		me.status = 'idle'
 	end
-	return self.socket:statusUpdate(self.idleSince, self.gameName)
+	return self.socket:statusUpdate(self._idle_since, self._game_name)
 end
 
 function Client:setStatusOnline()
-	self.idleSince = nil
-	local id = self.user.id
-	for guild in self:getGuilds() do
+	self._idle_since = nil
+	local id = self._user.id
+	for guild in self._guilds:iter() do
 		local me = guild.members:get(id)
 		me.status = 'online'
 	end
-	return self.socket:statusUpdate(self.idleSince, self.gameName)
+	return self.socket:statusUpdate(self._idle_since, self._game_name)
 end
 
 function Client:setGameName(gameName)
-	self.gameName = gameName
-	local id = self.user.id
-	for guild in self:getGuilds() do
+	self._game_name = gameName
+	local id = self._user.id
+	for guild in self._guilds:iter() do
 		local me = guild.members:get(id)
-		me.gameName = gameName
+		me._game_name = gameName
 	end
-	return self.socket:statusUpdate(self.idleSince, self.gameName)
+	return self.socket:statusUpdate(self._idle_since, self._game_name)
 end
 
 function Client:acceptInviteByCode(code)
@@ -212,165 +188,491 @@ function Client:getInviteByCode(code)
 	if success then return Invite(data, self) end
 end
 
-function Client:getPrivateChannelById(id)
-	return self.privateChannels:get(id)
+-- cache accessors --
+
+-- users --
+
+get('userCount', function(self, key, value)
+	return self._users._count
+end)
+
+get('users', function(self, key, value)
+	return self._users:getAll(key, value)
+end)
+
+function Client:getUser(key, value)
+	return self._users:get(key, value)
 end
 
-function Client:getUserById(id)
-	local user = self.users:get(id)
-	if not user then
-		local success, data = self.api:getUser(id)
-		if success then user = self.users:new(data) end
+function Client:findUser(predicate)
+	return self._users:find(predicate)
+end
+
+function Client:findUsers(predicate)
+	return self._users:findAll(predicate)
+end
+
+-- guilds --
+
+get('guildCount', function(self, key, value)
+	return self._guilds._count
+end)
+
+get('guilds', function(self, key, value)
+	return self._guilds:getAll(key, value)
+end)
+
+function Client:getGuild(key, value)
+	return self._guilds:get(key, value)
+end
+
+function Client:findGuild(predicate)
+	return self._guilds:find(predicate)
+end
+
+function Client:findGuilds(predicate)
+	return self._guilds:findAll(predicate)
+end
+
+-- channels --
+
+get('channelCount', function(self, key, value)
+	local n = self._private_channels._count
+	for guild in self._guilds:iter() do
+		n = n + guild._text_channels._count + guild._voice_channels._count
 	end
-	return user
-end
+	return n
+end)
 
-function Client:getUserByName(username)
-	return self.users:get('username', username)
-end
+get('channels', function(self, key, value)
+	return wrap(function()
+		for channel in self._private_channels:getAll(key, value) do
+			yield(channel)
+		end
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:getAll(key, value) do
+				yield(channel)
+			end
+			for channel in guild._voice_channels:getAll(key, value) do
+				yield(channel)
+			end
+		end
+	end)
+end)
 
-function Client:getGuildById(id)
-	return self.guilds:get(id)
-end
-
-function Client:getGuildByName(name)
-	return self.guilds:get('name', name)
-end
-
-function Client:getChannelById(id)
-	return self:getPrivateChannelById(id) or self:getGuildChannelById(id) or nil
-end
-
-function Client:getTextChannelById(id)
-	return self:getPrivateChannelById(id) or self:getGuildTextChannelById(id) or nil
-end
-
-function Client:getGuildChannelById(id)
-	for guild in self:getGuilds() do
-		local channel = guild:getChannelById(id)
+function Client:getChannel(key, value)
+	local channel = self._private_channels:get(key, value)
+	if channel then return channel end
+	for guild in self._guilds:iter() do
+		local channel = guild._text_channels:get(key, value) or guild._voice_channels:get(key, value)
 		if channel then return channel end
 	end
 end
 
-function Client:getGuildTextChannelById(id)
-	for guild in self:getGuilds() do
-		local channel = guild:getTextChannelById(id)
+function Client:findChannel(predicate)
+	local channel = self._private_channels:find(predicate)
+	if channel then return channel end
+	for guild in self._guilds:iter() do
+		local channel = guild._text_channels:find(predicate) or guild._voice_channels:find(predicate)
 		if channel then return channel end
 	end
 end
 
-function Client:getGuildVoiceChannelById(id)
-	for guild in self:getGuilds() do
-		local channel = guild:getVoiceChannelById(id)
+function Client:findChannels(predicate)
+	return wrap(function()
+		for channel in self._private_channels:findAll(predicate) do
+			yield(channel)
+		end
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:findAll(predicate) do
+				yield(channel)
+			end
+			for channel in guild._voice_channels:findAll(predicate) do
+				yield(channel)
+			end
+		end
+	end)
+end
+
+-- private channels --
+
+get('privateChannelCount', function(self, key, value)
+	return self._private_channels._count
+end)
+
+get('privateChannels', function(self, key, value)
+	return self._private_channels:getAll(key, value)
+end)
+
+function Client:getPrivateChannel(key, value)
+	return self._private_channels:get(key, value)
+end
+
+function Client:findPrivateChannel(predicate)
+	return self._private_channels:find(predicate)
+end
+
+function Client:findPrivateChannels(predicate)
+	return self._private_channels:findAll(predicate)
+end
+
+-- text channels --
+
+get('textChannelCount', function(self, key, value)
+	local n = self._private_channels._count
+	for guild in self._guilds:iter() do
+		n = n + guild._text_channels._count
+	end
+	return n
+end)
+
+get('textChannels', function(self, key, value)
+	return wrap(function()
+		for channel in self._private_channels:getAll(key, value) do
+			yield(channel)
+		end
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:getAll(key, value) do
+				yield(channel)
+			end
+		end
+	end)
+end)
+
+function Client:getTextChannel(key, value)
+	local channel = self._private_channels:get(key, value)
+	if channel then return channel end
+	for guild in self._guilds:iter() do
+		local channel = guild._text_channels:get(key, value)
 		if channel then return channel end
 	end
 end
 
-function Client:getRoleById(id)
-	for guild in self:getGuilds() do
-		local role = guild:getRoleById(id)
+function Client:findTextChannel(predicate)
+	local channel = self._private_channels:find(predicate)
+	if channel then return channel end
+	for guild in self._guilds:iter() do
+		local channel = guild._text_channels:find(predicate)
+		if channel then return channel end
+	end
+end
+
+function Client:findTextChannels(predicate)
+	return wrap(function()
+		for channel in self._private_channels:findAll(predicate) do
+			yield(channel)
+		end
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:findAll(predicate) do
+				yield(channel)
+			end
+		end
+	end)
+end
+
+-- guild channels --
+
+get('guildChannelCount', function(self, key, value)
+	local n = self._private_channels._count
+	for guild in self._guilds:iter() do
+		n = n + guild._text_channels._count + guild._voice_channels._count
+	end
+	return n
+end)
+
+get('guildChannels', function(self, key, value)
+	return wrap(function()
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:getAll(key, value) do
+				yield(channel)
+			end
+			for channel in guild._voice_channels:getAll(key, value) do
+				yield(channel)
+			end
+		end
+	end)
+end)
+
+function Client:getGuildChannel(key, value)
+	for guild in self._guilds:iter() do
+		local channel = guild._text_channels:get(key, value) or guild._voice_channels:get(key, value)
+		if channel then return channel end
+	end
+end
+
+function Client:findGuildChannel(predicate)
+	for guild in self._guilds:iter() do
+		local channel = guild._text_channels:find(predicate) or guild._voice_channels:find(predicate)
+		if channel then return channel end
+	end
+end
+
+function Client:findGuildChannels(predicate)
+	return wrap(function()
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:findAll(predicate) do
+				yield(channel)
+			end
+			for channel in guild._voice_channels:findAll(predicate) do
+				yield(channel)
+			end
+		end
+	end)
+end
+
+-- guild text channels --
+
+get('guildTextChannelCount', function(self, key, value)
+	local n = 0
+	for guild in self._guilds:iter() do
+		n = n + guild._text_channels._count
+	end
+	return n
+end)
+
+get('guildTextChannels', function(self, key, value)
+	return wrap(function()
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:getAll(key, value) do
+				yield(channel)
+			end
+		end
+	end)
+end)
+
+function Client:getGuildTextChannel(key, value)
+	for guild in self._guilds:iter() do
+		local channel = guild._text_channels:get(key, value)
+		if channel then return channel end
+	end
+end
+
+function Client:findGuildTextChannel(predicate)
+	for guild in self._guilds:iter() do
+		local channel = guild._text_channels:find(predicate)
+		if channel then return channel end
+	end
+end
+
+function Client:findGuildTextChannels(predicate)
+	return wrap(function()
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:findAll(predicate) do
+				yield(channel)
+			end
+		end
+	end)
+end
+
+-- guild voice channels --
+
+get('guildVoiceChannelCount', function(self, key, value)
+	local n = 0
+	for guild in self._guilds:iter() do
+		n = n + guild._voice_channels._count
+	end
+	return n
+end)
+
+get('guildVoiceChannels', function(self, key, value)
+	return wrap(function()
+		for guild in self._guilds:iter() do
+			for channel in guild._voice_channels:getAll(key, value) do
+				yield(channel)
+			end
+		end
+	end)
+end)
+
+function Client:getGuildVoiceChannel(key, value)
+	for guild in self._guilds:iter() do
+		local channel = guild._voice_channels:get(key, value)
+		if channel then return channel end
+	end
+end
+
+function Client:findGuildVoiceChannel(predicate)
+	for guild in self._guilds:iter() do
+		local channel = guild._voice_channels:find(predicate)
+		if channel then return channel end
+	end
+end
+
+function Client:findGuildVoiceChannels(predicate)
+	return wrap(function()
+		for guild in self._guilds:iter() do
+			for channel in guild._voice_channels:findAll(predicate) do
+				yield(channel)
+			end
+		end
+	end)
+end
+
+-- roles --
+
+get('roleCount', function(self, key, value)
+	local n = 0
+	for guild in self._guilds:iter() do
+		n = n + self._roles._count
+	end
+	return n
+end)
+
+get('roles', function(self, key, value)
+	return wrap(function()
+		for guild in self._guilds:iter() do
+			for role in self._roles:getAll(key, value) do
+				yield(role)
+			end
+		end
+	end)
+end)
+
+function Client:getRole(key, value)
+	for guild in self._guilds:iter() do
+		local role = self._roles:get(key, value)
 		if role then return role end
 	end
 end
 
-function Client:getPrivateChannels()
-	return self.privateChannels:iter()
+function Client:findRole(predicate)
+	for guild in self._guilds:iter() do
+		local role = self._roles:find(predicate)
+		if role then return role end
+	end
 end
 
-function Client:getGuilds()
-	return self.guilds:iter()
-end
-
-function Client:getUsers()
-	return self.users:iter()
-end
-
-function Client:getChannels()
+function Client:findRoles(predicate)
 	return wrap(function()
-		for channel in self:getPrivateChannels() do
-			yield(channel)
-		end
-		for guild in self:getGuilds() do
-			for channel in guild:getChannels() do
-				yield(channel)
-			end
-		end
-	end)
-end
-
-function Client:getTextChannels()
-	return wrap(function()
-		for channel in self:getPrivateChannels() do
-			yield(channel)
-		end
-		for guild in self:getGuilds() do
-			for channel in guild:getTextChannels() do
-				yield(channel)
-			end
-		end
-	end)
-end
-
-function Client:getGuildChannels()
-	return wrap(function()
-		for guild in self:getGuilds() do
-			for channel in guild:getChannels() do
-				yield(channel)
-			end
-		end
-	end)
-end
-
-function Client:getGuildTextChannels()
-	return wrap(function()
-		for guild in self:getGuilds() do
-			for channel in guild:getTextChannels() do
-				yield(channel)
-			end
-		end
-	end)
-end
-
-function Client:getGuildVoiceChannels()
-	return wrap(function()
-		for guild in self:getGuilds() do
-			for channel in guild:getVoiceChannels() do
-				yield(channel)
-			end
-		end
-	end)
-end
-
-function Client:getRoles()
-	return wrap(function()
-		for guild in self:getGuilds() do
-			for role in guild:getRoles() do
+		for guild in self._guilds:iter() do
+			for role in self._roles:findAll(predicate) do
 				yield(role)
 			end
 		end
 	end)
 end
 
-function Client:getMembers()
+-- members --
+
+get('memberCount', function(self, key, value)
+	local n = 0
+	for guild in self._guilds:iter() do
+		n = n + self._members._count
+	end
+	return n
+end)
+
+get('members', function(self, key, value)
 	return wrap(function()
-		for guild in self:getGuilds() do
-			for member in guild:getMembers() do
+		for guild in self._guilds:iter() do
+			for member in self._members:getAll(key, value) do
 				yield(member)
+			end
+		end
+	end)
+end)
+
+function Client:getMember(key, value)
+	for guild in self._guilds:iter() do
+		local member = self._members:get(key, value)
+		if member then return member end
+	end
+end
+
+function Client:findMember(predicate)
+	for guild in self._guilds:iter() do
+		local member = self._members:find(predicate)
+		if member then return member end
+	end
+end
+
+function Client:findMembers(predicate)
+	return wrap(function()
+		for guild in self._guilds:iter() do
+			for member in self._members:findAll(predicate) do
+				yield(role)
 			end
 		end
 	end)
 end
 
-Client.getGuildRoleById = Client.getRoleById
-Client.getGuildMemberById = Client.getMemberById
-Client.getVoiceChannelById = Client.getGuildVoiceChannelById
-Client.getPrivateTextChannelById = Client.getPrivateChannelById
+-- messages --
 
-Client.getVoiceChannels = Client.getGuildVoiceChannels
-Client.getPrivateTextChannels = Client.getPrivateChannels
-Client.getGuildRoles = Client.getRoles
-Client.getGuildMembers = Client.getMembers
+get('messageCount', function(self, key, value)
+	local n = 0
+	for channel in self._private_channels:iter() do
+		n = n + channel._messages._count
+	end
+	for guild in self._guilds:iter() do
+		for channel in guild._text_channels:iter() do
+			n = n + channel._messages._count
+		end
+	end
+	return n
+end)
 
-Client.setNick = Client.setNickname
+get('messages', function(self, key, value)
+	return wrap(function()
+		for channel in self._private_channels:iter() do
+			for message in channel._messages:getAll(key, value) do
+				yield(message)
+			end
+		end
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:iter() do
+				for message in channel._messages:getAll(key, value) do
+					yield(message)
+				end
+			end
+		end
+	end)
+end)
+
+function Client:getMessage(key, value)
+	for channel in self._private_channels:iter() do
+		local message = channel._messages:get(key, value)
+		if message then return message end
+	end
+	for guild in self._guilds:iter() do
+		for channel in guild._text_channels:iter() do
+			local message = channel._messages:get(key, value)
+			if message then return message end
+		end
+	end
+end
+
+function Client:findMessage(predicate)
+	for channel in self._private_channels:iter() do
+		local message = channel._messages:find(predicate)
+		if message then return message end
+	end
+	for guild in self._guilds:iter() do
+		for channel in guild._text_channels:iter() do
+			local message = channel._messages:find(predicate)
+			if message then return message end
+		end
+	end
+end
+
+function Client:findMessages(predicate)
+	return wrap(function()
+		for channel in self._private_channels:iter() do
+			for message in channel._messages:findAll(predicate) do
+				yield(message)
+			end
+		end
+		for guild in self._guilds:iter() do
+			for channel in guild._text_channels:iter() do
+				for message in channel._messages:findAll(predicate) do
+					yield(message)
+				end
+			end
+		end
+	end)
+end
+
+----
+
+Client.setNickname = Client.setNick
 
 return Client

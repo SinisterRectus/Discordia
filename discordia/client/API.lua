@@ -45,8 +45,8 @@ local API = class('API')
 
 function API:__init(client)
 	self.client = client
-	self.routeDelay = client.options.routeDelay
-	self.globalDelay = client.options.globalDelay
+	self.routeDelay = client._options.routeDelay
+	self.globalDelay = client._options.globalDelay
 	self.globalLimiter = RateLimiter()
 	self.routeLimiters = {}
 	self.headers = {
@@ -156,7 +156,7 @@ function API:getChannelMessages(channel_id, query) -- TextChannel:getMessageHist
 	return self:request("GET", route, attachQuery(route, query))
 end
 
-function API:getChannelMessage(channel_id, message_id) -- TextChannel:getMessageById fallback
+function API:getChannelMessage(channel_id, message_id) -- not exposed, use cache
 	local route = format("/channels/%s/messages/%%s", channel_id)
 	return self:request("GET", route, format(route, message_id))
 end
@@ -411,7 +411,7 @@ function API:getCurrentUser() -- not exposed, use cache (Client.user)
 	return self:request("GET", route, route)
 end
 
-function API:getUser(user_id) -- Client:getUserById fallback
+function API:getUser(user_id) -- not exposed, use cache
 	local route = "/users/%s"
 	return self:request("GET", route, format(route, user_id))
 end
@@ -516,7 +516,7 @@ function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload) 
 	return self:request("POST", route, format(route, webhook_id, webhook_token), payload)
 end
 
-function API:getGateway() -- Client:connectWebsocket (cached)
+function API:getGateway() -- Client:_connectToGateway (cached)
 	local route = "/gateway"
 	return self:request("GET", route, route)
 end
@@ -533,13 +533,13 @@ end
 
 -- end of auto-generated methods --
 
-function API:getToken(payload) -- Client:loginwithEmail (not recommended)
+function API:getToken(payload) -- Client:run
 	local route = "/auth/login"
 	return self:request('POST', route, route, payload)
 end
 
-function API:modifyCurrentUserNickname(guildId, payload) -- Client:setNickname
-	local route = format("/guilds/%s/members/@me/nick", guildId)
+function API:modifyCurrentUserNickname(guild_id, payload) -- Client:setNickname
+	local route = format("/guilds/%s/members/@me/nick", guild_id)
 	return self:request('PATCH', route, route, payload)
 end
 

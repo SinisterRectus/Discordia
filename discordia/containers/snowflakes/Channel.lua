@@ -1,16 +1,22 @@
 local User = require('./User')
 local Snowflake = require('../Snowflake')
 
-local Channel = class('Channel', Snowflake)
+local Channel, get = class('Channel', Snowflake)
 
 function Channel:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self.isPrivate = not not data.is_private
-	self.type = data.type
+	-- abstract class, don't call update
+end
+
+get('type', '_type')
+get('isPrivate', '_is_private')
+
+function Channel:_update(data)
+	Snowflake._update(self, data)
 end
 
 function Channel:delete()
-	local success, data = self.client.api:deleteChannel(self.id)
+	local success, data = self.client.api:deleteChannel(self._id)
 	return success
 end
 

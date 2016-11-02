@@ -4,7 +4,7 @@ local round = math.round
 local format = string.format
 local lshift, rshift, band = bit.lshift, bit.rshift, bit.band
 
-local Color = class('Color')
+local Color, get, set = class('Color')
 
 function Color:__init(a, b, c)
 
@@ -26,49 +26,67 @@ function Color:__init(a, b, c)
 			value = tonumber(a)
 		end
 	end
-	self.value = value or 0
+	self._value = value or 0
 
 end
 
+get('value', '_value')
+
+get('r', function(self)
+	return rshift(band(self._value, 0xFF0000), 16)
+end)
+
+get('g', function(self)
+	return rshift(band(self._value, 0x00FF00), 8)
+end)
+
+get('b', function(self)
+	return band(self._value, 0x0000FF)
+end)
+
+set('r', function(self, v)
+	self._value = lshift(v, 16) + lshift(self.g, 8) + self.b
+end)
+
+set('g', function(self, v)
+	self._value = lshift(self.r, 16) + lshift(v, 8) + self.b
+end)
+
+set('b', function(self, v)
+	self._value = lshift(self.r, 16) + lshift(self.g, 8) + b
+end)
+
 function Color:__tostring()
-	return format('Color: (%i, %i, %i)', self:toRGB())
+	return format('Color: (%i, %i, %i)', self.r, self.g, self.b)
 end
 
 function Color:__eq(other)
-	return self.__class == other.__class and self.value == other.value
+	return self.__class == other.__class and self._value == other._value
 end
 
 function Color:__add(other)
-	return Color(self.value + other.value)
+	return Color(self._value + other._value)
 end
 
 function Color:__sub(other)
-	return Color(self.value - other.value)
+	return Color(self._value - other._value)
 end
 
 function Color:__mul(n)
 	if type(self) == 'number' then self, n = n, self end
-	return Color(self.value * n)
+	return Color(self._value * n)
 end
 
 function Color:__div(n)
-	return Color(self.value / n)
+	return Color(self._value / n)
 end
 
 function Color:toHex()
-	return format('0x%06X', self.value)
-end
-
-function Color:toRGB()
-	local v = self.value
-	local r = rshift(band(v, 0xFF0000), 16)
-	local g = rshift(band(v, 0x00FF00), 8)
-	local b = band(v, 0x0000FF)
-	return r, g, b
+	return format('0x%06X', self._value)
 end
 
 function Color:copy()
-	return Color(self.value)
+	return Color(self._value)
 end
 
 return Color

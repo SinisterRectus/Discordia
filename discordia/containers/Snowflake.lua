@@ -2,24 +2,29 @@ local Container = require('../utils/Container')
 
 local format = string.format
 
-local Snowflake, accessors = class('Snowflake', Container)
-
-accessors.createdAt = function(self)
-	local ms = self.id / 2^22 + 1420070400000
-	return ms / 1000 -- return seconds for Lua consistency
-end
+local Snowflake, get = class('Snowflake', Container)
 
 function Snowflake:__init(data, parent)
-	Container.__init(self, parent)
-	self.id = data.id
+	Container.__init(self, data, parent)
+	-- abstract class, don't call update
+end
+
+get('id', '_id')
+get('createdAt', function(self)
+	local ms = self._id / 2^22 + 1420070400000
+	return ms / 1000 -- return seconds for Lua consistency
+end)
+
+function Snowflake:_update(data)
+	Container._update(self, data)
 end
 
 function Snowflake:__tostring()
-	return format('%s: %s', self.__name, self.name or self.id)
+	return format('%s: %s', self.__name, self._name or self._id)
 end
 
 function Snowflake:__eq(other)
-	return self.__class == other.__class and self.id == other.id
+	return self.__class == other.__class and self._id == other._id
 end
 
 return Snowflake

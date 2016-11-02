@@ -1,7 +1,3 @@
-_G._OPTIONS = {
-	memoryOptimization = false,
-}
-
 require('./extensions')
 _G.class = require('./class')
 _G.console = require('./console')

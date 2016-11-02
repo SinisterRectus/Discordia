@@ -15,33 +15,34 @@ local function messageIterator(success, data, parent)
 	end)
 end
 
-local TextChannel = class('TextChannel', Channel)
+local TextChannel, get = class('TextChannel', Channel)
 
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
-	self.messages = OrderedCache({}, Message, 'id', self.client.options.messageLimit, self)
+	self._messages = OrderedCache({}, Message, 'id', self.client._options.messageLimit, self)
+	-- abstract class, don't call update
 end
+
+get('lastMessageId', '_last_message_id')
 
 function TextChannel:_update(data)
-	self.lastMessageId = data.last_message_id
+	Channel._update(self, data)
 end
 
-function TextChannel:getMessageById(id)
-	local message = self.messages:get(id)
-	if not message and self.client.user.bot then
-		local success, data = self.client.api:getChannelMessage(self.id, id)
-		if success then message = Message(data, self) end
+function TextChannel:loadMessages(limit)
+	local query = limit and {limit = clamp(limit, 1, 100)}
+	local success, data = self.client.api:getChannelMessages(self._id, query)
+	if success then
+		for i = #data, 1, -1 do
+			self._messages:new(data[i])
+		end
 	end
-	return message
+	return success
 end
 
-function TextChannel:getMessages()
-	return self.messages:iter()
-end
-
-local function getMessageHistory(message, query)
-	local success, data = message.client.api:getChannelMessages(message.id, query)
-	return messageIterator(success, data, message)
+local function getMessageHistory(self, query)
+	local success, data = self.client.api:getChannelMessages(self._id, query)
+	return messageIterator(success, data, self)
 end
 
 function TextChannel:getMessageHistory(limit)
@@ -50,24 +51,24 @@ function TextChannel:getMessageHistory(limit)
 end
 
 function TextChannel:getMessageHistoryBefore(message, limit)
-	local query = {before = message.id, limit = limit and clamp(limit, 1, 100) or nil}
+	local query = {before = message._id, limit = limit and clamp(limit, 1, 100) or nil}
 	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryAfter(message, limit)
-	local query = {after = message.id, limit = limit and clamp(limit, 1, 100) or nil}
+	local query = {after = message._id, limit = limit and clamp(limit, 1, 100) or nil}
 	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryAround(message, limit)
-	local query = {around = message.id, limit = limit and clamp(limit, 2, 100) or nil}
+	local query = {around = message._id, limit = limit and clamp(limit, 2, 100) or nil}
 	return getMessageHistory(self, query)
 end
 
-function TextChannel:getPinnedMessages()
-	local success, data = self.client.api:getPinnedMessages(self.id)
+get('pinnedMessages', function(self)
+	local success, data = self.client.api:getPinnedMessages(self._id)
 	return messageIterator(success, data, self)
-end
+end)
 
 function TextChannel:createMessage(content, mentions, tts, nonce)
 	if type(mentions) == 'table' then
@@ -90,33 +91,54 @@ function TextChannel:createMessage(content, mentions, tts, nonce)
 		insert(tbl, content)
 		content = concat(tbl, ' ')
 	end
-	local success, data = self.client.api:createMessage(self.id, {
+	local success, data = self.client.api:createMessage(self._id, {
 		content = content, tts = tts, nonce = nonce
 	})
-	if success then return self.messages:new(data, self) end
+	if success then return self._messages:new(data, self) end
 end
 
 function TextChannel:bulkDelete(messages)
 	local array = {}
 	if messages.iter then
 		for message in messages:iter() do
-			insert(array, message.id)
+			insert(array, message._id)
 		end
 	else
 		for _, message in pairs(messages) do
-			insert(array, message.id)
+			insert(array, message._id)
 		end
 	end
-	local success, data = self.client.api:bulkDeleteMessages(self.id, {messages = array})
+	local success, data = self.client.api:bulkDeleteMessages(self._id, {messages = array})
 	return success
 end
 
 function TextChannel:broadcastTyping()
-	local success, data = self.client.api:triggerTypingIndicator(self.id)
+	local success, data = self.client.api:triggerTypingIndicator(self._id)
 	return success
 end
 
--- aliases--
+-- messages --
+
+get('messageCount', function(self, key, value)
+	return self._messages._count
+end)
+
+get('messages', function(self, key, value)
+	return self._messages:getAll(key, value)
+end)
+
+function TextChannel:getMessage(key, value)
+	return self._messages:get(key, value)
+end
+
+function TextChannel:findMessage(predicate)
+	return self._messages:find(predicate)
+end
+
+function TextChannel:findMessages(predicate)
+	return self._messages:findAll(predicate)
+end
+
 TextChannel.sendMessage = TextChannel.createMessage
 
 return TextChannel

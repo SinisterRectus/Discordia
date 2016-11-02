@@ -1,9 +1,30 @@
-local Container, accessors = class('Container')
+local Container, get = class('Container')
 
-accessors.client = function(self) return self.parent.client or self.parent end
+local types = {
+	['string'] = true,
+	['number'] = true,
+	['boolean'] = true,
+}
 
-function Container:__init(parent)
-	self.parent = parent
+local function load(self, data)
+	for k, v in pairs(data) do
+		if types[type(v)] then
+			self['_' .. k] = v
+		end
+	end
 end
+
+function Container:__init(data, parent)
+	self._parent = parent
+	return load(self, data)
+end
+
+get('parent', '_parent')
+
+get('client', function(self)
+	return self._parent.client or self._parent
+end)
+
+Container._update = load
 
 return Container

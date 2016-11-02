@@ -2,50 +2,56 @@ local Container = require('../utils/Container')
 
 local format = string.format
 
-local Invite, accessors = class('Invite', Container)
-
-accessors.guild = function(self) return self.parent.guilds:get(self.guildId) end -- may not exist
-accessors.channel = function(self) -- may not exist
-	local guild = self.parent.guilds:get(self.guildId)
-	if guild then
-		return guild.textChannels:get(self.channelId) or guild.voiceChannels:get(self.channelId) or nil
-	end
-end
+local Invite, get = class('Invite', Container)
 
 function Invite:__init(data, parent)
-	Container.__init(self, parent)
-	self.code = data.code
+	Container.__init(self, data, parent)
 	self.guildId = data.guild.id
 	self.channelId = data.channel.id
 	self.guildName = data.guild.name
 	self.channelName = data.channel.name
 	self.channelType = data.channel.type
-	self.uses = data.uses
-	self.maxAge = data.max_age
-	self.revoked = data.revoked
-	self.maxUses = data.max_uses
-	self.temporary = data.temporary
-	self.createdAt = data.created_at
-	if data.inviter then -- no inviter for widget invites
-		self.inviter = self.client.users:get(data.inviter.id) or self.client.users:new(data.inviter)
+	if data.inviter then
+		self._inviter = self.client._users:get(data.inviter.id) or self.client._users:new(data.inviter)
 	end
+	self:_update(data)
 end
 
+get('code', '_code')
+get('uses', '_uses')
+get('maxAge', '_max_age')
+get('revoked', '_revoked')
+get('maxUses', '_max_uses')
+get('temporary', '_temporary')
+get('createdAt', '_created_at')
+get('inviter', '_inviter') -- no inviter for widget invites
+
+get('guild', function(self)
+	return self.client._guilds:get(self._guild_id)-- may not exist
+end)
+
+get('channel', function(self)
+	local guild = self.client._guilds:get(self._guild_id)
+	if guild then
+		return guild._text_channels:get(self._channel_id) or guild._voice_channels:get(self._channel_id) or nil
+	end
+end)
+
 function Invite:__tostring()
-	return format('%s: %s', self.__name, self.code)
+	return format('%s: %s', self.__name, self._code)
 end
 
 function Invite:__eq(other)
-	return self.__class == other.__class and self.code == other.code
+	return self.__class == other.__class and self._code == other._code
 end
 
 function Invite:accept()
-	local success, data = self.client.api:acceptInvite(self.code)
+	local success, data = self.client.api:acceptInvite(self._code)
 	return success
 end
 
 function Invite:delete()
-	local success, data = self.client.api:deleteInvite(self.code)
+	local success, data = self.client.api:deleteInvite(self._code)
 	return success
 end
 

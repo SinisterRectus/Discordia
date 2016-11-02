@@ -1,34 +1,34 @@
 local hrtime = require('uv').hrtime
 
-local Stopwatch = class('Stopwatch')
+local Stopwatch, get = class('Stopwatch')
 
 function Stopwatch:__init()
-	self.time = hrtime()
+	self._time = hrtime()
 end
 
-function Stopwatch:getHours()
-	return self:getSeconds() / 3600
-end
+get('hours', function(self)
+	return self.seconds / 3600
+end)
 
-function Stopwatch:getMinutes()
-	return self:getSeconds() / 60
-end
+get('minutes', function(self)
+	return self.seconds / 60
+end)
 
-function Stopwatch:getSeconds()
-	return self:getNanoseconds() * 1E-9
-end
+get('seconds', function(self)
+	return self.nanoseconds * 1E-9
+end)
 
-function Stopwatch:getMilliseconds()
-	return self:getNanoseconds() * 1E-6
-end
+get('milliseconds', function(self)
+	return self.nanoseconds * 1E-6
+end)
 
-function Stopwatch:getMicroseconds()
-	return self:getNanoseconds() * 1E-3
-end
+get('microseconds', function(self)
+	return self.nanoseconds * 1E-3
+end)
 
-function Stopwatch:getNanoseconds()
-	return hrtime() - self.time
-end
+get('nanoseconds', function(self)
+	return hrtime() - self._time
+end)
 
 Stopwatch.restart = Stopwatch.__init
 

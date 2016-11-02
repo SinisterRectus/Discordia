@@ -11,22 +11,22 @@ function RateLimiter:__init()
 end
 
 function RateLimiter:start(isRetry)
-	if self.locked then
+	if self._locked then
 		if isRetry then
 			return yield(self:pushLeft(running()))
 		else
 			return yield(self:pushRight(running()))
 		end
 	else
-		self.locked = true
+		self._locked = true
 	end
 end
 
-local function continue(limiter)
-	if limiter:getCount() > 0 then
-		return resume(limiter:popLeft())
+local function continue(self)
+	if self:getCount() > 0 then
+		return resume(self:popLeft())
 	else
-		limiter.locked = false
+		self._locked = false
 	end
 end
 

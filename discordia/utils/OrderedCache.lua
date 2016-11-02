@@ -1,79 +1,74 @@
 local Cache = require('./Cache')
-local OrderedCache = class('OrderedCache', Cache)
 
-function OrderedCache:__init(array, constructor, key, max, parent)
+local warning = console.warning
+
+local OrderedCache, get = class('OrderedCache', Cache)
+
+function OrderedCache:__init(array, constructor, key, limit, parent)
 	Cache.__init(self, array, constructor, key, parent)
-	self.max = max
-	self.next = {}
-	self.prev = {}
+	self._limit = limit
+	self._next = {}
+	self._prev = {}
 end
 
-function OrderedCache:add(obj) -- push from the right
-	if Cache.add(self, obj) then
-		if self.count == 1 then
-			self.first = obj
-			self.last = obj
-		else
-			self.next[self.last] = obj
-			self.prev[obj] = self.last
-			self.last = obj
-		end
-		if self.count > self.max then self:remove(self.first) end
-		return true
+get('limit', '_limit')
+get('first', '_first')
+get('last', '_last')
+
+function OrderedCache:_add(obj)
+	local key = self._key
+	if self._count == 0 then
+		self._first = obj
+		self._last = obj
 	else
-		return false
+		self._next[self._last[key]] = obj
+		self._prev[obj[key]] = self._last
+		self._last = obj
 	end
+	if self._count == self._limit then self:remove(self._first) end
+	self._objects[obj[key]] = obj
+	self._count = self._count + 1
 end
 
-function OrderedCache:remove(obj)
-	if Cache.remove(self, obj) then
-		if self.count == 0 then
-			self.first = nil
-			self.last = nil
-		else
-			local prev = self.prev[obj]
-			local next = self.next[obj]
-			if obj == self.last then
-				self.last = prev
-				self.next[prev] = nil
-			elseif obj == self.first then
-				self.first = next
-				self.prev[next] = nil
-			else
-				self.next[prev] = next
-				self.prev[next] = prev
-			end
-		end
-		return true
+function OrderedCache:_remove(obj)
+	local key = self._key
+	if self._count == 1 then
+		self._first = nil
+		self._last = nil
 	else
-		return false
-	end
-end
-
-function OrderedCache:filter(predicate)
-	local cache = OrderedCache({}, self.constructor, self.key, self.max, self.parent)
-	for obj in self:iter() do
-		if predicate(obj) then
-			cache:add(obj)
+		local prev = self._prev[obj[key]]
+		local next = self._next[obj[key]]
+		if obj == self._last then
+			self._last = prev
+			self._next[prev[key]] = nil
+		elseif obj == self._first then
+			self._first = next
+			self._prev[next[key]] = nil
+		else
+			self._next[prev[key]] = next
+			self._prev[next[key]] = prev
 		end
 	end
-	return cache
+	self._objects[obj[key]] = nil
+	self._count = self._count - 1
 end
 
 function OrderedCache:iterLastToFirst()
-	local obj = self.last
+	local obj = self._last
+	local key = self._key
 	return function()
 		local ret = obj
-		obj = obj and self.prev[obj] or nil
+		obj = obj and self._prev[obj[key]] or nil
 		return ret
 	end
 end
 
 function OrderedCache:iterFirstToLast()
-	local obj = self.first
+	local obj = self._first
+	local key = self._key
 	return function()
 		local ret = obj
-		obj = obj and self.next[obj] or nil
+		obj = obj and self._next[obj[key]] or nil
 		return ret
 	end
 end

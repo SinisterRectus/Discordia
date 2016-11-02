@@ -1,47 +1,51 @@
 local Snowflake = require('../Snowflake')
-local Cache = require('../../utils/Cache')
 local Container = require('../../utils/Container')
 
 local insert = table.insert
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Message, accessors = class('Message', Snowflake)
-
-accessors.channel = function(self) return self.parent end
-accessors.guild = function(self) return self.parent.guild end
--- guild does not exist for messages in private channels
+local Message, get, set = class('Message', Snowflake)
 
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self.author = self.client.users:get(data.author.id) or self.client.users:new(data.author)
-	self:_update(data)
+	self._author = self.client._users:get(data.author.id) or self.client._users:new(data.author)
+	self:_update(self, data)
 end
+
+get('channel', '_parent')
+get('author', '_author')
+
+get('guild', function(self) -- guild does not exist for messages in private channels
+	return self._parent._parent
+end)
+
+get('tts', '_tts')
+get('type', '_type')
+get('pinned', '_pinned')
+get('content', '_content')
+get('editedTimestamp', '_edited_timestamp')
 
 function Message:__tostring()
 	return format('%s: %s', self.__name, self.content)
 end
 
 function Message:_update(data)
-	self.tts = data.tts == nil and self.tts or data.tts
-	self.type = data.type == nil and self.type or data.type
-	self.pinned = data.pinned == nil and self.pinned or data.pinned
-	self.content = data.content == nil and self.content or data.content
-	self.editedTimestamp = data.edited_timestamp == nil and self.editedTimestamp or data.edited_timestamp
-	self.mentionEveryone = data.mention_everyone == nil and self.mentionEveryone or data.mention_everyone
-	self.mentionRoles = data.mention_roles == nil and self.mentionRoles or data.mention_roles
+	Snowflake._update(self, data)
 	if data.mentions then
 		local mentions = {}
 		for _, data in ipairs(data.mentions) do
-			insert(mentions, self.client.users:get(data.id) or self.client.users:new(data))
+			insert(mentions, self.client._users:get(data._id) or self.client._users:new(data))
 		end
-		self.mentions = mentions
+		self._mentions = mentions
 	end
-	-- TODO: embeds, attachments
+	if data.mention_roles ~= nil then self._mention_roles = data.mention_roles end
+	-- self.embeds = data.embeds -- TODO
+	-- self.attachments = data.attachments -- TODO
 end
 
 function Message:getMentionedUsers()
-	local mentions, k, v = self.mentions
+	local mentions, k, v = self._mentions
 	if not mentions then return function() end end
 	return function()
 		k, v = next(mentions, k)
@@ -51,23 +55,24 @@ end
 
 function Message:getMentionedRoles()
 	return wrap(function()
-		local guild = self.guild
-		if self.mentionEveryone then
+		local guild = self._parent._parent
+		if self._mention_everyone then
 			yield(guild.defaultRole)
 		end
-		if not self.mentionRoles then return end
-		local roles = guild.roles
-		for _, id in ipairs(self.mentionRoles) do
-			local role = roles:get(id)
-			if role then yield(role) end
+		if self._mention_roles then
+			local roles = guild._roles
+			for _, id in ipairs(self._mention_roles) do
+				local role = roles:get(id)
+				if role then yield(role) end
+			end
 		end
 	end)
 end
 
 function Message:getMentionedChannels()
 	return wrap(function()
-		local textChannels = self.guild.textChannels
-		for id in self.content:gmatch('<#(.-)>') do
+		local textChannels = self._parent._parent._textChannels
+		for id in self._content:gmatch('<#(.-)>') do
 			local channel = textChannels:get(id)
 			if channel then yield(channel) end
 		end
@@ -95,26 +100,26 @@ function Message:mentionsChannel(channel)
 	return false
 end
 
-function Message:setContent(content)
-	local success, data = self.client.api:editMessage(self.parent.id, self.id, {content = content})
-	if success then self.content = data.content end
+set('content', function(self, content)
+	local success, data = self.client.api:editMessage(self._parent._id, self._id, {content = content})
+	if success then self._content = data.content end
 	return success
-end
+end)
 
 function Message:pin()
-	local success, data = self.client.api:addPinnedChannelMessage(self.parent.id, self.id)
-	if success then self.pinned = true end
+	local success, data = self.client.api:addPinnedChannelMessage(self._parent._id, self._id)
+	if success then self._pinned = true end
 	return success
 end
 
 function Message:unpin()
-	local success, data = self.client.api:deletePinnedChannelMessage(self.parent.id, self.id)
-	if success then self.pinned = false end
+	local success, data = self.client.api:deletePinnedChannelMessage(self._parent._id, self._id)
+	if success then self._pinned = false end
 	return success
 end
 
 function Message:delete()
-	local success, data = self.client.api:deleteMessage(self.parent.id, self.id)
+	local success, data = self.client.api:deleteMessage(self._parent._id, self._id)
 	return success
 end
 

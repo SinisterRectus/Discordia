@@ -4,7 +4,7 @@ local format = string.format
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local sort, insert, concat = table.sort, table.insert, table.concat
 
-local Permissions = class('Permissions')
+local Permissions, get = class('Permissions')
 
 local flags = {
 	createInstantInvite	= 0x00000001, -- general
@@ -42,8 +42,10 @@ for flag, value in pairs(flags) do
 end
 
 function Permissions:__init(value)
-	self.value = tonumber(value) or 0
+	self._value = tonumber(value) or 0
 end
+
+get('value', '_value')
 
 function Permissions:__tostring()
 	local tbl = self:toTable()
@@ -51,38 +53,38 @@ function Permissions:__tostring()
 		return 'Permissions: 0 (none)'
 	else
 		sort(tbl)
-		return format('Permissions: %i (%s)', self.value, concat(tbl, ', '))
+		return format('Permissions: %i (%s)', self._value, concat(tbl, ', '))
 	end
 end
 
 function Permissions.__eq(other)
-	return self.__class == other.__class and self.value == other.value
+	return self.__class == other.__class and self._value == other._value
 end
 
 function Permissions:enable(...)
-	local value = self.value
+	local value = self._value
 	for i = 1, select('#', ...) do
 		local flag = select(i, ...)
 		local v = flags[flag]
 		assert(v, 'Invalid permission flag: ' .. tostring(flag))
 		value = bor(value, v)
 	end
-	self.value = value
+	self._value = value
 end
 
 function Permissions:disable(...)
-	local value = self.value
+	local value = self._value
 	for i = 1, select('#', ...) do
 		local flag = select(i, ...)
 		local v = flags[flag]
 		assert(v, 'Invalid permission flag: ' .. tostring(flag))
 		value = band(value, bnot(v))
 	end
-	self.value = value
+	self._value = value
 end
 
 function Permissions:has(...)
-	local value = self.value
+	local value = self._value
 	for i = 1, select('#', ...) do
 		local flag = select(i, ...)
 		local v = flags[flag]
@@ -93,21 +95,21 @@ function Permissions:has(...)
 end
 
 function Permissions:enableAll()
-	self.value = all
+	self._value = all
 end
 
 function Permissions:disableAll()
-	self.value = 0
+	self._value = 0
 end
 
 function Permissions:toHex()
-	return format('0x%08X', self.value)
+	return format('0x%08X', self._value)
 end
 
 function Permissions:toTable()
 	local ret = {}
 	for flag, value in pairs(flags) do
-		if band(self.value, value) > 0 then
+		if band(self._value, value) > 0 then
 			insert(ret, flag)
 		end
 	end
@@ -115,24 +117,24 @@ function Permissions:toTable()
 end
 
 function Permissions:union(other) -- in either
-	return Permissions(bor(self.value, other.value))
+	return Permissions(bor(self._value, other._value))
 end
 
 function Permissions:intersection(other) -- in both
-	return Permissions(band(self.value, other.value))
+	return Permissions(band(self._value, other._value))
 end
 
 function Permissions:difference(other) -- not in both
-	return Permissions(bxor(self.value, other.value))
+	return Permissions(bxor(self._value, other._value))
 end
 
 function Permissions:complement(other) -- in other not in self
-	local value = other and other.value or all
-	return Permissions(band(bnot(self.value), value))
+	local value = other and other._value or all
+	return Permissions(band(bnot(self._value), value))
 end
 
 function Permissions:copy()
-	return Permissions(self.value)
+	return Permissions(self._value)
 end
 
 return Permissions
