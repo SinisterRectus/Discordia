@@ -16,6 +16,10 @@ end
 get('channel', '_parent')
 get('author', '_author')
 
+get('member', function(self)
+	return self._author:getMembership(self._parent._parent)
+end)
+
 get('guild', function(self) -- guild does not exist for messages in private channels
 	return self._parent._parent
 end)
