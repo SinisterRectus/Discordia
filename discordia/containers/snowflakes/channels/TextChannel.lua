@@ -19,7 +19,8 @@ local TextChannel, get = class('TextChannel', Channel)
 
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
-	self._messages = OrderedCache({}, Message, 'id', self.client._options.messageLimit, self)
+	local client = self._parent._parent or self._parent
+	self._messages = OrderedCache({}, Message, 'id', client._options.messageLimit, self)
 	-- abstract class, don't call update
 end
 
@@ -31,7 +32,8 @@ end
 
 function TextChannel:loadMessages(limit)
 	local query = limit and {limit = clamp(limit, 1, 100)}
-	local success, data = self.client._api:getChannelMessages(self._id, query)
+	local client = self._parent._parent or self._parent
+	local success, data = client._api:getChannelMessages(self._id, query)
 	if success then
 		for i = #data, 1, -1 do
 			self._messages:new(data[i])
@@ -41,7 +43,8 @@ function TextChannel:loadMessages(limit)
 end
 
 local function getMessageHistory(self, query)
-	local success, data = self.client._api:getChannelMessages(self._id, query)
+	local client = self._parent._parent or self._parent
+	local success, data = client._api:getChannelMessages(self._id, query)
 	return messageIterator(success, data, self)
 end
 
@@ -66,7 +69,8 @@ function TextChannel:getMessageHistoryAround(message, limit)
 end
 
 get('pinnedMessages', function(self)
-	local success, data = self.client._api:getPinnedMessages(self._id)
+	local client = self._parent._parent or self._parent
+	local success, data = client._api:getPinnedMessages(self._id)
 	return messageIterator(success, data, self)
 end)
 
@@ -91,7 +95,8 @@ function TextChannel:createMessage(content, mentions, tts, nonce)
 		insert(tbl, content)
 		content = concat(tbl, ' ')
 	end
-	local success, data = self.client._api:createMessage(self._id, {
+	local client = self._parent._parent or self._parent
+	local success, data = client._api:createMessage(self._id, {
 		content = content, tts = tts, nonce = nonce
 	})
 	if success then return self._messages:new(data, self) end
@@ -108,12 +113,14 @@ function TextChannel:bulkDelete(messages)
 			insert(array, message._id)
 		end
 	end
-	local success, data = self.client._api:bulkDeleteMessages(self._id, {messages = array})
+	local client = self._parent._parent or self._parent
+	local success, data = client._api:bulkDeleteMessages(self._id, {messages = array})
 	return success
 end
 
 function TextChannel:broadcastTyping()
-	local success, data = self.client._api:triggerTypingIndicator(self._id)
+	local client = self._parent._parent or self._parent
+	local success, data = client._api:triggerTypingIndicator(self._id)
 	return success
 end
 

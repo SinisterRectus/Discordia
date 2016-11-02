@@ -12,7 +12,7 @@ function Invite:__init(data, parent)
 	self._channel_name = data.channel.name
 	self._channel_type = data.channel.type
 	if data.inviter then
-		self._inviter = self.client._users:get(data.inviter.id) or self.client._users:new(data.inviter)
+		self._inviter = self._parent._users:get(data.inviter.id) or self._parent._users:new(data.inviter)
 	end
 	self:_update(data)
 end
@@ -32,11 +32,11 @@ get('channelName', '_channel_name')
 get('channelType', '_channel_type')
 
 get('guild', function(self)
-	return self.client._guilds:get(self._guild_id)-- may not exist
+	return self._parent._guilds:get(self._guild_id)-- may not exist
 end)
 
 get('channel', function(self)
-	local guild = self.client._guilds:get(self._guild_id)
+	local guild = self._parent._guilds:get(self._guild_id)
 	if guild then
 		return guild._text_channels:get(self._channel_id) or guild._voice_channels:get(self._channel_id) or nil
 	end
@@ -51,12 +51,12 @@ function Invite:__eq(other)
 end
 
 function Invite:accept()
-	local success, data = self.client._api:acceptInvite(self._code)
+	local success, data = self._parent._api:acceptInvite(self._code)
 	return success
 end
 
 function Invite:delete()
-	local success, data = self.client._api:deleteInvite(self._code)
+	local success, data = self._parent._api:deleteInvite(self._code)
 	return success
 end
 

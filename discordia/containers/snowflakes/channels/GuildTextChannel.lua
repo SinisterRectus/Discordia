@@ -21,7 +21,7 @@ function GuildTextChannel:_update(data)
 end
 
 set('topic', function(self, topic)
-	local success, data = self.client._api:modifyChannel(self._id, {topic = topic})
+	local success, data = self._parent._parent._api:modifyChannel(self._id, {topic = topic})
 	if success then self._topic = data.topic end
 	return success
 end)

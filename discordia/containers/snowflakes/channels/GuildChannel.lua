@@ -40,13 +40,13 @@ function GuildChannel:_update(data)
 end
 
 set('name', function(self, name)
-	local success, data = self.client._api:modifyChannel(self._id, {name = name})
+	local success, data = self._parent._parent._api:modifyChannel(self._id, {name = name})
 	if success then self._name = data.name end
 	return success
 end)
 
 set('position', function(self, position) -- will probably need more abstraction
-	local success, data = self.client._api:modifyChannel(self._id, {position = position})
+	local success, data = self._parent._parent._api:modifyChannel(self._id, {position = position})
 	if success then self._position = data.position end
 	return success
 end)
@@ -61,9 +61,9 @@ function GuildChannel:getPermissionOverwriteFor(object)
 end
 
 get('invites', function(self)
-	local success, data = self.client._api:getChannelInvites(self._id)
+	local client = self._parent._parent
+	local success, data = client._api:getChannelInvites(self._id)
 	if not success then return function() end end
-	local client = self.client
 	return wrap(function()
 		for _, inviteData in ipairs(data) do
 			yield(Invite(inviteData, client))
@@ -72,13 +72,14 @@ get('invites', function(self)
 end)
 
 function GuildChannel:createInvite(maxAge, maxUses, temporary, unique)
-	local success, data = self.client._api:createChannelInvite(self._id, {
+	local client = self._parent._parent
+	local success, data = client._api:createChannelInvite(self._id, {
 		max_age = maxAge,
 		max_uses = maxUses,
 		temporary = temporary,
 		unique = unique
 	})
-	if success then return Invite(data, self.client) end
+	if success then return Invite(data, client) end
 end
 
 -- permission overwrite --

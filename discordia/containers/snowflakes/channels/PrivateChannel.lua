@@ -5,7 +5,8 @@ local PrivateChannel, get = class('PrivateChannel', TextChannel)
 
 function PrivateChannel:__init(data, parent)
 	TextChannel.__init(self, data, parent)
-	self._recipient = self.client._users:get(data.recipient.id) or self.client._users:new(data.recipient)
+	local users = self._parent._users
+	self._recipient = users:get(data.recipient.id) or users:new(data.recipient)
 	PrivateChannel._update(self, data)
 end
 

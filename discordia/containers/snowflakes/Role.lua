@@ -30,37 +30,37 @@ get('mentionString', function(self)
 end)
 
 set('name', function(self, name)
-	local success, data = self.client._api:modifyGuildRole(self._parent._id, self._id, {name = name})
+	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {name = name})
 	if success then self._name = data.name end
 	return success
 end)
 
 set('hoist', function(self, hoist)
-	local success, data = self.client._api:modifyGuildRole(self._parent._id, self._id, {hoist = hoist})
+	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {hoist = hoist})
 	if success then self._hoist = data.hoist end
 	return success
 end)
 
 set('mentionable', function(self, mentionable)
-	local success, data = self.client._api:modifyGuildRole(self._parent._id, self._id, {mentionable = mentionable})
+	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {mentionable = mentionable})
 	if success then self._mentionable = data.mentionable end
 	return success
 end)
 
 set('position', function(self, position)
-	local success, data = self.client._api:modifyGuildRole(self._parent._id, self._id, {position = position})
+	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {position = position})
 	if success then self._position = data.position end
 	return success
 end)
 
 set('color', function(self, color)
-	local success, data = self.client._api:modifyGuildRole(self._parent._id, self._id, {color = color._value})
+	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {color = color._value})
 	if success then self._color = data.color end
 	return success
 end)
 
 set('permissions', function(self, permissions)
-	local success, data = self.client._api:modifyGuildRole(self._parent._id, self._id, {permissions = permissions._value})
+	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {permissions = permissions._value})
 	if success then self._permissions = data.permissions end
 	return success
 end)
@@ -90,7 +90,7 @@ function Role:disableAllPermissions()
 end
 
 function Role:delete()
-	local success, data = self.client._api:deleteGuildRole(self._parent._id, self._id)
+	local success, data = self._parent._parent._api:deleteGuildRole(self._parent._id, self._id)
 	return success
 end
 

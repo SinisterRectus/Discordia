@@ -9,7 +9,8 @@ local Member, get, set = class('Member', Snowflake)
 function Member:__init(data, parent)
 	self._id = data.user.id
 	Snowflake.__init(self, data, parent)
-	self._user = self.client._users:get(data.user.id) or self.client._users:new(data.user)
+	local users = self._parent._parent._users
+	self._user = users:get(data.user.id) or users:new(data.user)
 	self:_update(data)
 end
 
@@ -46,11 +47,13 @@ get('username', function(self) return self._user._username end)
 get('discriminator', function(self) return self._user._discriminator end)
 
 local function setNick(self, nick)
-	local nick = nick or ''
-	if self._user._id == self.client._user._id then
-		return self.client:setNick(self._parent, nick)
+	nick = nick or ''
+	local guild = self._parent
+	local client = guild._parent
+	if self._user._id == client._user._id then
+		return client:setNick(guild, nick)
 	end
-	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {nick = nick})
+	local success = client._api:modifyGuildMember(guild._id, self._user._id, {nick = nick})
 	if success then self._nick = nick end
 	return success
 end
@@ -60,20 +63,23 @@ set('nickname', setNick)
 
 set('mute', function(self, mute)
 	mute = mute or false
-	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {mute = mute})
+	local guild = self._parent
+	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {mute = mute})
 	if success then self._mute = mute end
 	return success
 end)
 
 set('deaf', function(self, deaf)
 	deaf = deaf or false
-	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {deaf = deaf})
+	local guild = self._parent
+	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {deaf = deaf})
 	if success then self._deaf = deaf end
 	return success
 end)
 
 set('voiceChannel', function(self, channel)
-	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {channel_id = channel._id})
+	local guild = self._parent
+	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {channel_id = channel._id})
 	return success
 end)
 
@@ -140,7 +146,8 @@ local function mapRoles(roles, map, tbl)
 end
 
 local function applyRoles(self, roles)
-	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {roles = roles})
+	local guild = self._parent
+	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {roles = roles})
 	if success then self._roles = roles end
 	return success
 end

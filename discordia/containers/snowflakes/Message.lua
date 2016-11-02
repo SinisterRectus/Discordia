@@ -9,7 +9,9 @@ local Message, get, set = class('Message', Snowflake)
 
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self._author = self.client._users:get(data.author.id) or self.client._users:new(data.author)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	self._author = client._users:get(data.author.id) or client._users:new(data.author)
 	self:_update(self, data)
 end
 
@@ -37,9 +39,12 @@ end
 function Message:_update(data)
 	Snowflake._update(self, data)
 	if data.mentions then
+		local channel = self._parent
+		local client = channel._parent._parent or channel._parent
+		local users = client._users
 		local mentions = {}
 		for _, data in ipairs(data.mentions) do
-			insert(mentions, self.client._users:get(data._id) or self.client._users:new(data))
+			insert(mentions, users:get(data._id) or users:new(data))
 		end
 		self._mentions = mentions
 	end
@@ -105,7 +110,9 @@ function Message:mentionsChannel(channel)
 end
 
 set('content', function(self, content)
-	local success, data = self.client._api:editMessage(self._parent._id, self._id, {content = content})
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
 	if success then self._content = data.content end
 	return success
 end)
@@ -115,19 +122,25 @@ function Message:reply(...)
 end
 
 function Message:pin()
-	local success, data = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success, data = client._api:addPinnedChannelMessage(channel._id, self._id)
 	if success then self._pinned = true end
 	return success
 end
 
 function Message:unpin()
-	local success, data = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success, data = client._api:deletePinnedChannelMessage(channel._id, self._id)
 	if success then self._pinned = false end
 	return success
 end
 
 function Message:delete()
-	local success, data = self.client._api:deleteMessage(self._parent._id, self._id)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success, data = client._api:deleteMessage(channel._id, self._id)
 	return success
 end
 
