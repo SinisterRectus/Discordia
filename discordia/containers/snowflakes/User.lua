@@ -38,7 +38,12 @@ function User:_loadClientData(data)
 end
 
 function User:getMembership(guild)
-	return guild._members:get(self._id)
+	local member = guild._members:get(self._id)
+	if not member then
+		local success, data = guild._parent._api:getGuildMember(guild._id, self._id)
+		if success then member = guild._members:new(data) end
+	end
+	return member
 end
 
 function User:sendMessage(...)

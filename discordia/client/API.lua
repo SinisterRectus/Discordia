@@ -271,7 +271,7 @@ function API:modifyGuildChannelPosition(guild_id, payload) -- not exposed, see m
 	return self:request("PATCH", route, route, payload)
 end
 
-function API:getGuildMember(guild_id, user_id) -- not exposed, use cache or Guild:requestMembers
+function API:getGuildMember(guild_id, user_id) -- User:getMembership fallback
 	local route = format("/guilds/%s/members/%%s", guild_id)
 	return self:request("GET", route, format(route, user_id))
 end
