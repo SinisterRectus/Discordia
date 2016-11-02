@@ -5,9 +5,8 @@
 - General
 
 	- All mentions of *server* or *Server* were changed to *guild* or *Guild* to maintain consistency with internal Discord nomenclature
-	- API calls that previously returned nothing now return a boolean to indicate whether the call was successful
-	- Discord objects are now stored in custom `Cache` objects instead of pure Lua tables
-	- Many iterators were added to help with accessing cached objects or methods that used to return a table
+	- Methods that use the REST API and that previously returned nothing now return a boolean to indicate whether the call was successful
+	- Discord-compliant ratelimiting has been implemented
 	- User handling has been changed slightly:
 		- `User` objects are now cached once per `Client` instead of per every `PrivateChannel` and `Guild`
 		- The `Member` class now wraps the `User` class instead of extending it
@@ -16,12 +15,60 @@
 		- Message authors, channel recipients, and invite inviters are always `User` objects
 		- Server owners are always `Member` objects
 	- `utils` was removed from the main `discordia` module and has been replaced by individual utility classes
-	- `class` was refactored to include accessor attributes and has an optional memory optimization
 	- `Warning` and `Error` classes were merged into a global `console` module
+		- Gateway disconnects, nil values on events, and HTTP errors are now handled more gracefully
 	- All modules relevant to the `Client` class were refactored and moved with it into a `client` folder:
+		- `Client` now extends a custom version of Luvit's built-in `Emitter`
+			- Client instances are initialized using `discordia.Client()` instead of `discordia.Client:new()`
+			- A table of options can be passed to the client initializer. Currently supported options are:
+				- `routeDelay`: minimum time to wait between requests per-route (default: 300 ms)
+				- `globalDelay`: minimum time to wait between requests globally (default: 10 ms)
+				- `messageLimit`: limit to the number of cached messages per channel (default: 100)
+				- `largeThreshold`: limit to how many members are initially fetched per-guild on start-up (default: 100)
+				- `fetchMembers`: whether to fetch all members for all guilds (default: false)
 		- `endpoints` was changed to `API`
 		- `events` was changed to `EventHandler`
 		- `WebSocket` was changed to `Socket`
+	- Discord objects are now stored in custom `Cache` objects instead of pure Lua tables
+	- Many iterators were added to help with accessing cached objects or methods that used to return a table
+	- The entire class system was overhauled
+		- Internally used properties and methods are now prefixed with an underscore to indicate their protected status
+		- Getter and setter properties and methods have been added.
+			- For every public property that can be accessed/mutated, there is an associated get/set method
+			```lua
+			-- these lines examples are equivalent
+			local name = guild.name
+			local name = guild:getName()
+			```
+			```lua
+			-- these lines examples are equivalent
+			guild.name = "foo"
+			guild:getName("foo")
+			```
+		- Objects that have caches have a variety of get and find methods for accessing those caches. For example:
+			- `guild:getRoles()` or `guild.roles` - returns an iterator for all roles in the corresponding guild
+			- `guild:getRoleCount()` or `guild.roleCount` - returns the number of roles cached for the corresponding guild
+			- `guild:getRole(id)` - returns the role with the given Snowflake ID
+			- `guild:getRole(key, value)` - returns the first found role matching a key, value pair
+			- `guild:getRoles(key, value)` - returns an iterator for all roles matching the key, value pair
+			- `guild:findRole(predicate)` - returns the first found role that makes the predicate true
+			- `guild:findRoles(predicate)` - returns an iterator for all roles that makes the predicate true
+			```lua
+			-- pre-1.0 code
+			for _, role in pairs(guild.roles) do
+			    print(role)
+			end
+			```
+			```lua
+			-- 1.0 code ...
+			for role in guild.roles do
+				print(role)
+			end
+
+			for role in guild:getRoles() do
+				print(role)
+			end
+			```
 
 
 - Events
@@ -41,62 +88,11 @@
 	- `API` - Adds a layer of abstraction between Discord's REST API and Discordia's object oriented API
 	- `Container` - Base object used to store Discord objects
 	- `Cache` - Data structure used to store and access `Container` objects
+	- `Emitter` - A simplified re-write of Luvit's built-in event emitter
 	- `OrderedCache` - Extension of `Cache` that maintains the order of objects as a doubly-linked list
 	- `RateLimiter` - Extension of `Deque` that is used by the `API` class to throttle HTTP requests
 	- `Stopwatch` - Used to measure elapsed time with nanosecond precision
 	- `PermissionOverwrite` - Extension of `Snowflake` that maintains per-channel permissions
-
-
-- Client
-
-	- General
-		- Added `__call` metamethod so that clients can be initialized with `Client()` instead of `Client:new()`
-		- Added `__tostring` metamethod
-		- Client event callbacks are now wrapped with a coroutine instead of the `emit` call itself (ie, a coroutine will only be constructed if the event has a handler).
-		- You can now pass a table of options when creating a client instance. Options include:
-			- `routeDelay` - minimum time in milliseconds to wait between HTTP requests per-route (default: 300)
-			- `globalDelay` - minimum time in milliseconds to wait between HTTP requests globally (default: 10)
-			- `messageLimit` - maximum number of messages to cache per channel (default: 100)
-			- `largeThreshold` - maximum initial number of members per guild to fetch (default: 100)
-			- `fetchMembers` - whether to fetch all addition offline members for guilds (default: false)
-	- Attributes
-		- Additions
-			- `users` cache
-			- `api` object
-		- Removals
-			- `reconnects` (not tracked anymore)
-			- `keepAliveHandlers` (only one handler is now needed)
-			- `isRateLimited` (handled by `API` class)
-		- Changes
-			- `maxMessages` was moved to `messageLimit` in options table
-			- `servers` table was changed to `guilds` cache
-			- `privateChannels` was changed from table to cache
-			- `headers` was moved to `API` class
-			- `sequence` moved to `Socket` class
-			- `websocket` renamed to `socket`
-	- Methods
-		- Additions
-			- `getInviteByCode`
-			- `get[Guild|Private][Text|Voice]ChannelById`
-			- `get[Guild|Private][Text|Voice]Channels` iterators
-			- `get[Users][Roles][Members]` iterators
-			- `getUserBy[Id|Name]`
-			- `setNick` (`setNickname` alias)
-		- Removals
-			- `logout` (was unnecessary)
-			- `getGateway` (only used internally)
-			- `disconnectWebsocket`, `startWebsocketHandler`, `handleWebSocketDisconnect`, `startKeepAliveHandler`, and `stopKeepAliveHandler` (functionality moved to `Socket` class)
-			- `request` (moved to `API` class)
-			- `setEmail` and `setPassword` (use an official Discord client for this)
-			- `getMemberBy[Id|Name]`, `get[Role|Channel]ByName`, and `getMessageById` (too ambiguous at client level)
-		- Changes
-			- `stop` now only optionally terminate the process
-			- `loginWithEmail` now gives a warning on use and a failure message if an invalid email or password is provided
-			- `getRegions` was changed to `listVoiceRegions`
-			- `createServer` was renamed to `createGuild` and now returns a success boolean instead of an object
-			- Password parameter was removed from `setUsername` and `setAvatar`
-			- `setStatus[Idle|Online]` and `setGameName` now properly update the client's member data
-			- `getServerBy[Id|Name]` was renamed to `getGuildBy[Id|Name]`
 
 
 ### 0.6.2
