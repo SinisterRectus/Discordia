@@ -266,14 +266,14 @@ function EventHandler.GUILD_SYNC(data, client)
 end
 
 function EventHandler.MESSAGE_CREATE(data, client)
-	-- local channel = client:getTextChannelById(data.channel_id) -- shortcut required -- TODO
+	local channel = client:getTextChannel(data.channel_id) -- shortcut required
 	if not channel then return warning.cache('channel', 'MESSAGE_CREATE') end
 	local message = channel._messages:new(data)
 	return client:emit('messageCreate', message)
 end
 
 function EventHandler.MESSAGE_UPDATE(data, client)
-	-- local channel = client:getTextChannelById(data.channel_id) -- shortcut required -- TODO
+	local channel = client:getTextChannel(data.channel_id) -- shortcut required
 	if not channel then return warning.cache('channel', 'MESSAGE_UPDATE') end
 	local message = channel._messages:get(data.id)
 	if not message then return warning.cache('message', 'MESSAGE_UPDATE') end
@@ -282,7 +282,7 @@ function EventHandler.MESSAGE_UPDATE(data, client)
 end
 
 function EventHandler.MESSAGE_DELETE(data, client)
-	-- local channel = client:getTextChannelById(data.channel_id) -- shortcut required -- TODO
+	local channel = client:getTextChannel(data.channel_id) -- shortcut required
 	if not channel then return warning.cache('channel', 'MESSAGE_DELETE') end
 	local message = channel._messages:get(data.id)
 	if not message then return warning.cache('message', 'MESSAGE_DELETE') end
@@ -291,7 +291,7 @@ function EventHandler.MESSAGE_DELETE(data, client)
 end
 
 function EventHandler.MESSAGE_DELETE_BULK(data, client)
-	-- local channel = client:getTextChannelById(data.channel_id) -- shortcut required -- TODO
+	local channel = client:getTextChannel(data.channel_id) -- shortcut required
 	if not channel then return warning.cache('channel', 'MESSAGE_DELETE_BULK') end
 	local messages = {}
 	for _, id in ipairs(data.ids) do
@@ -314,7 +314,7 @@ function EventHandler.PRESENCE_UPDATE(data, client)
 end
 
 function EventHandler.TYPING_START(data, client)
-	-- local channel = client:getTextChannelById(data.channel_id) -- shortcut required -- TODO
+	local channel = client:getTextChannel(data.channel_id) -- shortcut required
 	if not channel then return warning.cache('channel', 'TYPING_START') end
 	local user = client._users:get(data.user_id)
 	if not user then return warning.cache('user', 'TYPING_START') end
