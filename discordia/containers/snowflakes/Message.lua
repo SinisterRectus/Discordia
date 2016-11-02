@@ -110,6 +110,10 @@ set('content', function(self, content)
 	return success
 end)
 
+function Message:reply(...)
+	return self._parent:sendMessage(...)
+end
+
 function Message:pin()
 	local success, data = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
 	if success then self._pinned = true end
