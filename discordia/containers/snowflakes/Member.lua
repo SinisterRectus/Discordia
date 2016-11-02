@@ -14,41 +14,39 @@ function Member:__init(data, parent)
 	self:_update(data)
 end
 
-get('user', '_user')
-get('deaf', '_deaf')
-get('mute', '_mute')
-get('mute', '_mute')
-get('nick', '_nick')
-get('game', '_game')
-get('guild', '_parent')
-get('nickname', '_nick')
-get('joinedAt', '_joined_at')
+get('user', '_user', 'User')
+get('deaf', '_deaf', 'boolean')
+get('mute', '_mute', 'boolean')
+get('nick', '_nick', 'string')
+get('guild', '_parent', 'Guild')
+get('nickname', '_nick', 'string')
+get('joinedAt', '_joined_at', 'string')
 
 get('status', function(self)
 	return self._status or 'offline'
-end)
+end, 'string')
 
 get('gameName', function(self)
 	return self._game and self._game.name
-end)
+end, 'string')
 
 get('name', function(self)
 	return self._nick or self._user._username
-end)
+end, 'string')
 
 get('avatarUrl', function(self)
 	return self._user.avatarUrl
-end)
+end, 'string')
 
 get('mentionString', function(self)
 	return self._user.mentionString
-end)
+end, 'string')
 
-get('id', function(self) return self._user._id end)
-get('bot', function(self) return self._user._bot end)
-get('avatar', function(self) return self._user._avatar end)
-get('username', function(self) return self._user._username end)
-get('discriminator', function(self) return self._user._discriminator end)
+get('id', function(self) return self._user._id end, 'string')
+get('bot', function(self) return self._user._bot end, 'boolean')
+get('avatar', function(self) return self._user._avatar end, 'string')
+get('username', function(self) return self._user._username end, 'string')
+get('discriminator', function(self) return self._user._discriminator end, 'string')
 
 local function setNick(self, nick)
 	nick = nick or ''
@@ -211,6 +209,6 @@ get('roles', function(self)
 			yield(roles:get(id))
 		end
 	end)
-end)
+end, 'function')
 
 return Member

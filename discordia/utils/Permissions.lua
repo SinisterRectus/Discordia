@@ -45,7 +45,7 @@ function Permissions:__init(value)
 	self._value = tonumber(value) or 0
 end
 
-get('value', '_value')
+get('value', '_value', 'number')
 
 function Permissions:__tostring()
 	local tbl = self:toTable()

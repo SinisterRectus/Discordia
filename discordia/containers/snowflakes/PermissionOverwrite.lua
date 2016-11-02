@@ -11,11 +11,11 @@ function PermissionOverwrite:__init(data, parent)
 	self:_update(data)
 end
 
-get('channel', '_parent')
+get('channel', '_parent', 'GuildChannel')
 
 get('guild', function(self)
 	return self._parent._parent
-end)
+end, 'Guild')
 
 get('object', function(self)
 	if self._type == 'role' then
@@ -23,11 +23,11 @@ get('object', function(self)
 	else
 		return self._parent._parent._members:get(self._id)
 	end
-end)
+end, 'Role or Member')
 
 get('name', function(self)
 	return self.object._name
-end)
+end, 'string')
 
 function PermissionOverwrite:_update(data)
 	self._allow = data.allow
@@ -36,15 +36,15 @@ end
 
 get('permissions', function(self)
 	return Permissions(self._allow), Permissions(self._deny)
-end)
+end, 'Permissions')
 
 get('allowedPermissions', function(self)
 	return Permissions(self._allow)
-end)
+end, 'Permissions')
 
 get('deniedPermissions', function(self)
 	return Permissions(self._deny)
-end)
+end, 'Permissions')
 
 local function setPermissions(self, allow, deny)
 	local channel = self._parent

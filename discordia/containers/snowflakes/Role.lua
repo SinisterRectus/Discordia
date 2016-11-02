@@ -11,23 +11,23 @@ function Role:__init(data, parent)
 	self:_update(data)
 end
 
-get('name', '_name')
-get('hoist', '_hoist')
-get('guild', '_parent')
-get('managed', '_managed')
-get('mentionable', '_mentionable')
+get('name', '_name', 'string')
+get('hoist', '_hoist', 'boolean')
+get('guild', '_parent', 'Guild')
+get('managed', '_managed', 'boolean')
+get('mentionable', '_mentionable', 'boolean')
 
 get('color', function(self)
 	return Color(self._color)
-end)
+end, 'Color')
 
 get('permissions', function(self)
 	return Permissions(self._permissions)
-end)
+end, 'Permissions')
 
 get('mentionString', function(self)
 	return format('<@&%s>', self._id)
-end)
+end, 'string')
 
 set('name', function(self, name)
 	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {name = name})

@@ -9,11 +9,11 @@ function Snowflake:__init(data, parent)
 	-- abstract class, don't call update
 end
 
-get('id', '_id')
+get('id', '_id', 'string')
 get('createdAt', function(self)
 	local ms = self._id / 2^22 + 1420070400000
 	return ms / 1000 -- return seconds for Lua consistency
-end)
+end, 'number')
 
 function Snowflake:_update(data)
 	Container._update(self, data)

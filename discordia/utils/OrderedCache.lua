@@ -11,9 +11,7 @@ function OrderedCache:__init(array, constructor, key, limit, parent)
 	self._prev = {}
 end
 
-get('limit', '_limit')
-get('first', '_first')
-get('last', '_last')
+get('limit', '_limit', 'number')
 
 function OrderedCache:_add(obj)
 	local key = self._key

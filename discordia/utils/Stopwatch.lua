@@ -8,27 +8,27 @@ end
 
 get('hours', function(self)
 	return self.seconds / 3600
-end)
+end, 'number')
 
 get('minutes', function(self)
 	return self.seconds / 60
-end)
+end, 'number')
 
 get('seconds', function(self)
 	return self.nanoseconds * 1E-9
-end)
+end, 'number')
 
 get('milliseconds', function(self)
 	return self.nanoseconds * 1E-6
-end)
+end, 'number')
 
 get('microseconds', function(self)
 	return self.nanoseconds * 1E-3
-end)
+end, 'number')
 
 get('nanoseconds', function(self)
 	return hrtime() - self._time
-end)
+end, 'number')
 
 Stopwatch.restart = Stopwatch.__init
 

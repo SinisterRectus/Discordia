@@ -13,9 +13,9 @@ function GuildChannel:__init(data, parent)
 	-- abstract class, don't call update
 end
 
-get('name', '_name')
-get('guild', '_parent')
-get('position', '_position')
+get('name', '_name', 'string')
+get('guild', '_parent', 'Guild')
+get('position', '_position', 'number')
 
 function GuildChannel:_update(data)
 	Channel._update(self, data)
@@ -69,7 +69,7 @@ get('invites', function(self)
 			yield(Invite(inviteData, client))
 		end
 	end)
-end)
+end, 'function')
 
 function GuildChannel:createInvite(maxAge, maxUses, temporary, unique)
 	local client = self._parent._parent
@@ -86,11 +86,11 @@ end
 
 get('permissionOverwriteCount', function(self, key, value)
 	return self._permission_overwrites._count
-end)
+end, 'number')
 
 get('permissionOverwrites', function(self, key, value)
 	return self._permission_overwrites:getAll(key, value)
-end)
+end, 'function')
 
 function GuildChannel:getPermissionOverwrite(key, value)
 	return self._permission_overwrites:get(key, value)

@@ -9,23 +9,23 @@ function User:__init(data, parent)
 	self:_update(data)
 end
 
-get('avatar', '_avatar')
-get('name', '_username')
-get('username', '_username')
-get('discriminator', '_discriminator')
-get('bot', '_bot')
-get('email', '_email')
-get('verified', '_verified')
-get('mfaEnabled', '_mfa_enabled')
+get('avatar', '_avatar', 'string')
+get('name', '_username', 'string')
+get('username', '_username', 'string')
+get('discriminator', '_discriminator', 'string')
+get('bot', '_bot', 'boolean')
+get('email', '_email', 'string')
+get('verified', '_verified', 'string')
+get('mfaEnabled', '_mfa_enabled', 'string')
 
 get('avatarUrl', function(self)
 	if not self._avatar then return nil end
 	return format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self._id, self._avatar)
-end)
+end, 'string')
 
 get('mentionString', function(self)
 	return format('<@%s>', self._id)
-end)
+end, 'string')
 
 function User:__tostring()
 	return format('%s: %s', self.__name, self._username)

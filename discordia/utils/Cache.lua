@@ -18,7 +18,7 @@ function Cache:__init(array, constructor, key, parent)
 	self._constructor = constructor
 end
 
-get('count', '_count')
+get('count', '_count', 'number')
 
 function Cache:__tostring()
 	return format('%s[%s]', self.__name, self._constructor.__name)

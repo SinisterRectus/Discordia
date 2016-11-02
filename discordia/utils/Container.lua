@@ -19,11 +19,9 @@ function Container:__init(data, parent)
 	return load(self, data)
 end
 
-get('parent', '_parent')
-
 get('client', function(self)
 	return self._parent.client or self._parent
-end)
+end, 'Client')
 
 Container._update = load
 

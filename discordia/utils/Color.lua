@@ -30,19 +30,19 @@ function Color:__init(a, b, c)
 
 end
 
-get('value', '_value')
+get('value', '_value', 'number')
 
 get('r', function(self)
 	return rshift(band(self._value, 0xFF0000), 16)
-end)
+end, 'number')
 
 get('g', function(self)
 	return rshift(band(self._value, 0x00FF00), 8)
-end)
+end, 'number')
 
 get('b', function(self)
 	return band(self._value, 0x0000FF)
-end)
+end, 'number')
 
 set('r', function(self, v)
 	self._value = lshift(v, 16) + lshift(self.g, 8) + self.b
