@@ -32,6 +32,7 @@ get('tts', '_tts')
 get('type', '_type')
 get('pinned', '_pinned')
 get('content', '_content')
+get('timestamp', '_timestamp')
 get('editedTimestamp', '_edited_timestamp')
 
 function Message:__tostring()
