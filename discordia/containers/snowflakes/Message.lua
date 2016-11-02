@@ -12,7 +12,7 @@ function Message:__init(data, parent)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
 	self._author = client._users:get(data.author.id) or client._users:new(data.author)
-	self:_update(self, data)
+	self:_update(data)
 end
 
 get('channel', '_parent')
