@@ -65,6 +65,11 @@ set('permissions', function(self, permissions)
 	return success
 end)
 
+function Role:permissionIsEnabled(...)
+	local permissions = self:getPermissions()
+	return permissions:has(...)
+end
+
 function Role:enablePermission(...)
 	local permissions = self:getPermissions()
 	permissions:enable(...)

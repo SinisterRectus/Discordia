@@ -68,6 +68,16 @@ set('deniedPermissions', function(self, denied)
 	return setPermissions(self, allow, deny)
 end)
 
+function PermissionOverwrite:permissionIsAllowed(...)
+	local allowed = self:getAllowedPermissions()
+	return allowed:has(...)
+end
+
+function PermissionOverwrite:permissionIsDenied(...)
+	local denied = self:getDeniedPermissions()
+	return denied:has(...)
+end
+
 function PermissionOverwrite:allowPermission(...)
 	local allowed, denied = self:getPermissions()
 	allowed:enable(...); denied:disable(...)
