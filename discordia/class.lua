@@ -1,7 +1,7 @@
 local format, upper = string.format, string.upper
 
 local meta = {}
-_G.classes = {}
+local classes = {}
 
 function meta:__call(...)
 	local obj = setmetatable({}, self)
@@ -34,7 +34,7 @@ end
 -- 	return isSub(self.__class, class), false
 -- end
 
-return function(name, ...)
+local function constructor(self, name, ...)
 
 	if classes[name] then return error(format('Class %q already defined', name)) end
 
@@ -114,3 +114,5 @@ return function(name, ...)
 	return class, get, set
 
 end
+
+return setmetatable({__classes = classes}, {__call = constructor})
