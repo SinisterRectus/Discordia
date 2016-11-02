@@ -135,15 +135,15 @@ end
 function EventHandler.GUILD_CREATE(data, client)
 	local guild = client._guilds:get(data.id)
 	if guild then
-		if client._loading then
-			client._loading.guilds[guild.id] = nil
-			checkReady(client)
-		end
 		if guild._unavailable and not data.unavailable then
 			guild:_makeAvailable(data)
-			return client:emit('guildAvailable', guild)
+			client:emit('guildAvailable', guild)
 		else
-			-- return warning('Erroneous guild availability on GUILD_CREATE')
+			warning('Erroneous guild availability on GUILD_CREATE')
+		end
+		if client._loading then
+			client._loading.guilds[guild._id] = nil
+			checkReady(client)
 		end
 	else
 		guild = client._guilds:new(data)
@@ -219,8 +219,8 @@ function EventHandler.GUILD_MEMBERS_CHUNK(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning.cache('guild', 'GUILD_MEMBER_CHUNK') end
 	guild._members:merge(data.members)
-	if client._loading and guild.memberCount == guild._members.count then
-		client._loading.chunks[guild.id] = nil
+	if client._loading and guild._member_count == guild._members.count then
+		client._loading.chunks[guild._id] = nil
 		checkReady(client)
 	end
 end
@@ -260,7 +260,7 @@ function EventHandler.GUILD_SYNC(data, client)
 		guild:requestMembers()
 	end
 	if client._loading then
-		client._loading.syncs[guild.id] = nil
+		client._loading.syncs[guild._id] = nil
 		checkReady(client)
 	end
 end
