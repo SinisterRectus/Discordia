@@ -32,7 +32,7 @@ function GuildChannel:_update(data)
 			end
 		end
 		for overwrite in overwrites:iter() do
-			if not updated[overwrite.id] then
+			if not updated[overwrite._id] then
 				overwrites:remove(overwrite)
 			end
 		end

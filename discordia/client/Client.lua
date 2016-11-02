@@ -148,36 +148,36 @@ function Client:setAvatar(avatar)
 		email = self._user._email,
 		username = self._user._username,
 	})
-	if success then self._user.avatar = data.avatar end
+	if success then self._user._avatar = data.avatar end
 	return success
 end
 
 function Client:setStatusIdle()
 	self._idle_since = time() * 1000
-	local id = self._user.id
+	local id = self._user._id
 	for guild in self._guilds:iter() do
-		local me = guild.members:get(id)
-		me.status = 'idle'
+		local me = guild._members:get(id)
+		if me then me._status = 'idle' end
 	end
 	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
 function Client:setStatusOnline()
 	self._idle_since = nil
-	local id = self._user.id
+	local id = self._user._id
 	for guild in self._guilds:iter() do
-		local me = guild.members:get(id)
-		me.status = 'online'
+		local me = guild._members:get(id)
+		if me then me._status = 'online' end
 	end
 	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
 function Client:setGameName(gameName)
 	self._game_name = gameName
-	local id = self._user.id
+	local id = self._user._id
 	for guild in self._guilds:iter() do
-		local me = guild.members:get(id)
-		me._game_name = gameName
+		local me = guild._members:get(id)
+		if me then me._game_name = gameName end
 	end
 	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end

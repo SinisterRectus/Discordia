@@ -113,7 +113,7 @@ function Guild:listVoiceRegions()
 end
 
 function Guild:addMember(user) -- limit use, requires guild.join scope
-	local success, data = self._parent._api:addGuildMember(self._id, user.id)
+	local success, data = self._parent._api:addGuildMember(self._id, user._id)
 	if success then return self._members:new(data) end
 end
 
@@ -136,7 +136,7 @@ set('icon', function(self, icon)
 end)
 
 set('owner', function(self, user)
-	local success, data = self._parent._api:modifyGuild(self._id, {owner_id = user.id})
+	local success, data = self._parent._api:modifyGuild(self._id, {owner_id = user._id})
 	if success then self._owner_id = data.owner_id end
 	return success
 end)
@@ -176,17 +176,17 @@ end)
 
 function Guild:banUser(user, days)
 	local query = days and {['delete-message-days'] = clamp(days, 0, 7)} or nil
-	local success, data = self._parent._api:createGuildBan(self._id, user.id, payload, query)
+	local success, data = self._parent._api:createGuildBan(self._id, user._id, payload, query)
 	return success
 end
 
 function Guild:unbanUser(user)
-	local success, data = self._parent._api:removeGuildBan(self._id, user.id)
+	local success, data = self._parent._api:removeGuildBan(self._id, user._id)
 	return success
 end
 
 function Guild:kickUser(user)
-	local success, data = self._parent._api:removeGuildMember(self._id, user.id)
+	local success, data = self._parent._api:removeGuildMember(self._id, user._id)
 	return success
 end
 
