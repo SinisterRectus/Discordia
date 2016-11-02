@@ -177,7 +177,7 @@ function Client:setGameName(gameName)
 	local id = self._user._id
 	for guild in self._guilds:iter() do
 		local me = guild._members:get(id)
-		if me then me._game_name = gameName end
+		if me then me._game = gameName and {name = gameName} end
 	end
 	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end

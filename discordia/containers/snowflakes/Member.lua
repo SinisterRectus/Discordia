@@ -28,6 +28,10 @@ get('status', function(self)
 	return self._status or 'offline'
 end)
 
+get('gameName', function(self)
+	return self._game and self._game.name
+end)
+
 get('name', function(self)
 	return self._nick or self._user._username
 end)
