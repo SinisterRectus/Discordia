@@ -1,5 +1,5 @@
 local random = math.random
-local insert, remove = table.insert, table.remove
+local insert, remove, sort = table.insert, table.remove, table.sort
 local format, gmatch = string.format, string.gmatch
 local min, max, floor = math.min, math.max, math.floor
 
@@ -85,6 +85,11 @@ function table.randompair(tbl)
 			return k, v
 		end
 	end
+end
+
+function table.sorted(tbl, fn)
+	sort(tbl, fn)
+	return tbl
 end
 
 -- string --
