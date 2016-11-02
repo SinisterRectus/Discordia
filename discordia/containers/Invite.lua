@@ -6,11 +6,11 @@ local Invite, get = class('Invite', Container)
 
 function Invite:__init(data, parent)
 	Container.__init(self, data, parent)
-	self.guildId = data.guild.id
-	self.channelId = data.channel.id
-	self.guildName = data.guild.name
-	self.channelName = data.channel.name
-	self.channelType = data.channel.type
+	self._guild_id = data.guild.id
+	self._channel_id = data.channel.id
+	self._guild_name = data.guild.name
+	self._channel_name = data.channel.name
+	self._channel_type = data.channel.type
 	if data.inviter then
 		self._inviter = self.client._users:get(data.inviter.id) or self.client._users:new(data.inviter)
 	end
@@ -25,6 +25,11 @@ get('maxUses', '_max_uses')
 get('temporary', '_temporary')
 get('createdAt', '_created_at')
 get('inviter', '_inviter') -- no inviter for widget invites
+get('guildId', '_guild_id')
+get('channelId', '_channel_id')
+get('guildName', '_guild_name')
+get('channelName', '_channel_name')
+get('channelType', '_channel_type')
 
 get('guild', function(self)
 	return self.client._guilds:get(self._guild_id)-- may not exist

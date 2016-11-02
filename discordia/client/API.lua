@@ -44,19 +44,19 @@ end
 local API = class('API')
 
 function API:__init(client)
-	self.client = client
-	self.routeDelay = client._options.routeDelay
-	self.globalDelay = client._options.globalDelay
-	self.globalLimiter = RateLimiter()
-	self.routeLimiters = {}
-	self.headers = {
+	self._client = client
+	self._route_delay = client._options.routeDelay
+	self._global_delay = client._options.globalDelay
+	self._global_limiter = RateLimiter()
+	self._route_limiter = {}
+	self._headers = {
 		['Content-Type'] = 'application/json',
 		['User-Agent'] = format('DiscordBot (%s, %s)', package.homepage, package.version),
 	}
 end
 
 function API:setToken(token)
-	self.headers['Authorization'] = token
+	self._headers['Authorization'] = token
 end
 
 function API:request(method, route, endpoint, payload)
@@ -64,7 +64,7 @@ function API:request(method, route, endpoint, payload)
 	local url = "https://discordapp.com/api" .. endpoint
 
 	local reqHeaders = {}
-	for k, v in pairs(self.headers) do
+	for k, v in pairs(self._headers) do
 		insert(reqHeaders, {k, v})
 	end
 
@@ -73,8 +73,8 @@ function API:request(method, route, endpoint, payload)
 		insert(reqHeaders, {'Content-Length', #payload})
 	end
 
-	local routeLimiter = self.routeLimiters[route] or RateLimiter()
-	self.routeLimiters[route] = routeLimiter
+	local routeLimiter = self._route_limiter[route] or RateLimiter()
+	self._route_limiter[route] = routeLimiter
 
 	return self:commit(method, url, reqHeaders, payload, routeLimiter, 1)
 
@@ -83,9 +83,9 @@ end
 function API:commit(method, url, reqHeaders, payload, routeLimiter, attempts)
 
 	local isRetry = attempts > 1
-	local routeDelay = self.routeDelay
-	local globalDelay = self.globalDelay
-	local globalLimiter = self.globalLimiter
+	local routeDelay = self._route_delay
+	local globalDelay = self._global_delay
+	local globalLimiter = self._global_limiter
 
 	routeLimiter:start(isRetry)
 	globalLimiter:start(isRetry)
