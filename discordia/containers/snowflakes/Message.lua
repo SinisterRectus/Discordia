@@ -19,7 +19,9 @@ get('channel', '_parent')
 get('author', '_author')
 
 get('member', function(self)
-	return self._author:getMembership(self._parent._parent)
+	local channel = self._parent
+	if channel._is_private then return end
+	return self._author:getMembership(channel._parent)
 end)
 
 get('guild', function(self) -- guild does not exist for messages in private channels
