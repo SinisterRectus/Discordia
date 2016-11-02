@@ -50,7 +50,7 @@ local function setNick(self, nick)
 	if self._user._id == self.client._user._id then
 		return self.client:setNick(self._parent, nick)
 	end
-	local success = self.client.api:modifyGuildMember(self._parent._id, self._user._id, {nick = nick})
+	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {nick = nick})
 	if success then self._nick = nick end
 	return success
 end
@@ -60,20 +60,20 @@ set('nickname', setNick)
 
 set('mute', function(self, mute)
 	mute = mute or false
-	local success = self.client.api:modifyGuildMember(self._parent._id, self._user._id, {mute = mute})
+	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {mute = mute})
 	if success then self._mute = mute end
 	return success
 end)
 
 set('deaf', function(self, deaf)
 	deaf = deaf or false
-	local success = self.client.api:modifyGuildMember(self._parent._id, self._user._id, {deaf = deaf})
+	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {deaf = deaf})
 	if success then self._deaf = deaf end
 	return success
 end)
 
 set('voiceChannel', function(self, channel)
-	local success = self.client.api:modifyGuildMember(self._parent._id, self._user._id, {channel_id = channel._id})
+	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {channel_id = channel._id})
 	return success
 end)
 
@@ -140,7 +140,7 @@ local function mapRoles(roles, map, tbl)
 end
 
 local function applyRoles(self, roles)
-	local success = self.client.api:modifyGuildMember(self._parent._id, self._user._id, {roles = roles})
+	local success = self.client._api:modifyGuildMember(self._parent._id, self._user._id, {roles = roles})
 	if success then self._roles = roles end
 	return success
 end

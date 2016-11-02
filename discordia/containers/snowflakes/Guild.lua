@@ -101,70 +101,70 @@ function Guild:_updateMemberPresence(data)
 end
 
 function Guild:requestMembers()
-	self._parent.socket:requestGuildMembers(self._id)
+	self._parent._socket:requestGuildMembers(self._id)
 	if self._parent._loading then
 		self._parent._loading.chunks[self._id] = true
 	end
 end
 
 function Guild:listVoiceRegions()
-	local success, data = self._parent.api:getGuildVoiceRegions(self._id)
+	local success, data = self._parent._api:getGuildVoiceRegions(self._id)
 	if success then return data end
 end
 
 function Guild:addMember(user) -- limit use, requires guild.join scope
-	local success, data = self._parent.api:addGuildMember(self._id, user.id)
+	local success, data = self._parent._api:addGuildMember(self._id, user.id)
 	if success then return self._members:new(data) end
 end
 
 set('name', function(self, name)
-	local success, data = self._parent.api:modifyGuild(self._id, {name = name})
+	local success, data = self._parent._api:modifyGuild(self._id, {name = name})
 	if success then self._name = data.name end
 	return success
 end)
 
 set('region', function(self, region)
-	local success, data = self._parent.api:modifyGuild(self._id, {region = region})
+	local success, data = self._parent._api:modifyGuild(self._id, {region = region})
 	if success then self._region = data.region end
 	return success
 end)
 
 set('icon', function(self, icon)
-	local success, data = self._parent.api:modifyGuild(self._id, {icon = icon})
+	local success, data = self._parent._api:modifyGuild(self._id, {icon = icon})
 	if success then self._icon = data.icon end
 	return success
 end)
 
 set('owner', function(self, user)
-	local success, data = self._parent.api:modifyGuild(self._id, {owner_id = user.id})
+	local success, data = self._parent._api:modifyGuild(self._id, {owner_id = user.id})
 	if success then self._owner_id = data.owner_id end
 	return success
 end)
 
 set('afkTimeout', function(self, timeout)
-	local success, data = self._parent.api:modifyGuild(self._id, {afk_timeout = timeout})
+	local success, data = self._parent._api:modifyGuild(self._id, {afk_timeout = timeout})
 	if success then self._afk_timeout = data.afk_timeout end
 	return success
 end)
 
 set('afkChannel', function(self, channel)
-	local success, data = self._parent.api:modifyGuild(self._id, {afk_channel_id = channel and channel._id or self._id})
+	local success, data = self._parent._api:modifyGuild(self._id, {afk_channel_id = channel and channel._id or self._id})
 	if success then self._afk_channel_id = data._afk_channel_id end
 	return success
 end)
 
 function Guild:leave()
-	local success, data = self._parent.api:leaveGuild(self._id)
+	local success, data = self._parent._api:leaveGuild(self._id)
 	return success
 end
 
 function Guild:delete()
-	local success, data = self._parent.api:deleteGuild(self._id)
+	local success, data = self._parent._api:deleteGuild(self._id)
 	return success
 end
 
 get('bans', function(self)
-	local success, data = self._parent.api:getGuildBans(self._id)
+	local success, data = self._parent._api:getGuildBans(self._id)
 	if not success then return function() end end
 	local users = self._parent._users
 	return wrap(function()
@@ -176,49 +176,49 @@ end)
 
 function Guild:banUser(user, days)
 	local query = days and {['delete-message-days'] = clamp(days, 0, 7)} or nil
-	local success, data = self._parent.api:createGuildBan(self._id, user.id, payload, query)
+	local success, data = self._parent._api:createGuildBan(self._id, user.id, payload, query)
 	return success
 end
 
 function Guild:unbanUser(user)
-	local success, data = self._parent.api:removeGuildBan(self._id, user.id)
+	local success, data = self._parent._api:removeGuildBan(self._id, user.id)
 	return success
 end
 
 function Guild:kickUser(user)
-	local success, data = self._parent.api:removeGuildMember(self._id, user.id)
+	local success, data = self._parent._api:removeGuildMember(self._id, user.id)
 	return success
 end
 
 get('pruneCount', function(self, days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
-	local success, data = self._parent.api:getGuildPruneCount(self._id, query)
+	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
 	if success then return data.pruned end
 end)
 
 function Guild:pruneMembers(days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
-	local success, data = self._parent.api:getGuildPruneCount(self._id, query)
+	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
 	if success then return data.pruned end
 end
 
 function Guild:createTextChannel(name)
-	local success, data = self._parent.api:createGuildChannel(self._id, {name = name, type = 'text'})
+	local success, data = self._parent._api:createGuildChannel(self._id, {name = name, type = 'text'})
 	if success then return self._text_channels:new(data) end
 end
 
 function Guild:createVoiceChannel(name)
-	local success, data = self._parent.api:createGuildChannel(self._id, {name = name, type = 'voice'})
+	local success, data = self._parent._api:createGuildChannel(self._id, {name = name, type = 'voice'})
 	if success then return self._voice_channels:new(data) end
 end
 
 function Guild:createRole()
-	local success, data = self._parent.api:createGuildRole(self._id)
+	local success, data = self._parent._api:createGuildRole(self._id)
 	if success then return self._roles:new(data) end
 end
 
 get('invites', function(self)
-	local success, data = self._parent.api:getGuildInvites(self._id)
+	local success, data = self._parent._api:getGuildInvites(self._id)
 	local parent = self._parent
 	if not success then return function() end end
 	return wrap(function()

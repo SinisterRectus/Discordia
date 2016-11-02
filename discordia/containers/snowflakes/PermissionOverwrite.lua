@@ -47,7 +47,7 @@ get('deniedPermissions', function(self)
 end)
 
 local function setPermissions(self, allow, deny)
-	local success, data = self.client.api:editChannelPermissions(self._parent._id, self._id, {
+	local success, data = self.client._api:editChannelPermissions(self._parent._id, self._id, {
 		allow = allow, deny = deny, type = self._type
 	})
 	if success then self._allow, self._deny = allow, deny end
@@ -103,7 +103,7 @@ function PermissionOverwrite:clearAllPermissions()
 end
 
 function PermissionOverwrite:delete()
-	local success, data = self.client.api:deleteChannelPermission(self._parent._id, self._id)
+	local success, data = self.client._api:deleteChannelPermission(self._parent._id, self._id)
 	return success
 end
 

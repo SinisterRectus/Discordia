@@ -35,12 +35,16 @@ function Client:__init(customOptions)
 	else
 		self._options = defaultOptions
 	end
-	self.api = API(self)
-	self.socket = Socket(self)
+	self._api = API(self)
+	self._socket = Socket(self)
 	self._users = Cache({}, User, '_id', self)
 	self._guilds = Cache({}, Guild, '_id', self)
 	self._private_channels = Cache({}, PrivateChannel, '_id', self)
 end
+
+get('api', '_api')
+get('user', '_user')
+get('socket', '_socket')
 
 function Client:__tostring()
 	if self._user then
@@ -52,7 +56,7 @@ end
 
 local function getToken(self, email, password)
 	warning('Email login is discouraged, use token login instead')
-	local success, data = self.api:getToken({email = email, password = password})
+	local success, data = self._api:getToken({email = email, password = password})
 	if success then
 		if data.token then
 			return data.token
@@ -67,13 +71,13 @@ end
 function Client:run(a, b)
 	return wrap(function()
 		local token = not b and a or getToken(self, a, b)
-		self.api:setToken(token)
+		self._api:setToken(token)
 		return self:_connectToGateway(token)
 	end)()
 end
 
 function Client:stop(exit)
-	if self.socket then self.socket:disconnect() end
+	if self._socket then self._socket:disconnect() end
 	if exit then os.exit() end
 end
 
@@ -85,15 +89,15 @@ function Client:_connectToGateway(token)
 
 	if cache then
 		gateway = cache:read()
-		connected = self.socket:connect(gateway)
+		connected = self._socket:connect(gateway)
 		cache:close()
 	end
 
 	if not connected then
-		local success1, success2, data = pcall(self.api.getGateway, self.api)
+		local success1, success2, data = pcall(self._api.getGateway, self._api)
 		if success1 and success2 then
 			gateway = data.url
-			connected = self.socket:connect(gateway)
+			connected = self._socket:connect(gateway)
 		end
 		cache = nil
 	end
@@ -103,7 +107,7 @@ function Client:_connectToGateway(token)
 			cache = open(filename, 'w')
 			if cache then cache:write(gateway):close() end
 		end
-		return wrap(self.socket.handlePayloads)(self.socket, token)
+		return wrap(self._socket.handlePayloads)(self._socket, token)
 	else
 		failure('Cannot connect to gateway: ' .. (gateway and gateway or 'nil'))
 	end
@@ -111,17 +115,17 @@ function Client:_connectToGateway(token)
 end
 
 function Client:listVoiceRegions()
-	local success, data = self.api:listVoiceRegions()
+	local success, data = self._api:listVoiceRegions()
 	if success then return data end
 end
 
 function Client:createGuild(name, region) -- limited use
-	local success, data = self.api:createGuild({name = name, region = region})
+	local success, data = self._api:createGuild({name = name, region = region})
 	return success
 end
 
 function Client:setUsername(username)
-	local success, data = self.api:modifyCurrentUser({
+	local success, data = self._api:modifyCurrentUser({
 		avatar = self._user._avatar,
 		email = self._user._email,
 		username = username,
@@ -131,7 +135,7 @@ function Client:setUsername(username)
 end
 
 function Client:setNick(guild, nick)
-	local success, data = self.api:modifyCurrentUserNickname(guild._id, {
+	local success, data = self._api:modifyCurrentUserNickname(guild._id, {
 		nick = nick or ''
 	})
 	if success then guild.me._nick = data.nick end
@@ -139,7 +143,7 @@ function Client:setNick(guild, nick)
 end
 
 function Client:setAvatar(avatar)
-	local success, data = self.api:modifyCurrentUser({
+	local success, data = self._api:modifyCurrentUser({
 		avatar = avatar,
 		email = self._user._email,
 		username = self._user._username,
@@ -155,7 +159,7 @@ function Client:setStatusIdle()
 		local me = guild.members:get(id)
 		me.status = 'idle'
 	end
-	return self.socket:statusUpdate(self._idle_since, self._game_name)
+	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
 function Client:setStatusOnline()
@@ -165,7 +169,7 @@ function Client:setStatusOnline()
 		local me = guild.members:get(id)
 		me.status = 'online'
 	end
-	return self.socket:statusUpdate(self._idle_since, self._game_name)
+	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
 function Client:setGameName(gameName)
@@ -175,16 +179,16 @@ function Client:setGameName(gameName)
 		local me = guild.members:get(id)
 		me._game_name = gameName
 	end
-	return self.socket:statusUpdate(self._idle_since, self._game_name)
+	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
 function Client:acceptInviteByCode(code)
-	local success, data = self.api:acceptInvite(code)
+	local success, data = self._api:acceptInvite(code)
 	return success
 end
 
 function Client:getInviteByCode(code)
-	local success, data = self.api:getInvite(code)
+	local success, data = self._api:getInvite(code)
 	if success then return Invite(data, self) end
 end
 

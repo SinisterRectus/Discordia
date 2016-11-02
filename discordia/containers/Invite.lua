@@ -46,12 +46,12 @@ function Invite:__eq(other)
 end
 
 function Invite:accept()
-	local success, data = self.client.api:acceptInvite(self._code)
+	local success, data = self.client._api:acceptInvite(self._code)
 	return success
 end
 
 function Invite:delete()
-	local success, data = self.client.api:deleteInvite(self._code)
+	local success, data = self.client._api:deleteInvite(self._code)
 	return success
 end
 

@@ -44,16 +44,16 @@ function Message:_update(data)
 	-- self.attachments = data.attachments -- TODO
 end
 
-function Message:getMentionedUsers()
+get('mentionedUsers', function(self)
 	local mentions, k, v = self._mentions
 	if not mentions then return function() end end
 	return function()
 		k, v = next(mentions, k)
 		return v
 	end
-end
+end)
 
-function Message:getMentionedRoles()
+get('mentionedRoles', function(self)
 	return wrap(function()
 		local guild = self._parent._parent
 		if self._mention_everyone then
@@ -67,9 +67,9 @@ function Message:getMentionedRoles()
 			end
 		end
 	end)
-end
+end)
 
-function Message:getMentionedChannels()
+get('mentionedChannels', function(self)
 	return wrap(function()
 		local textChannels = self._parent._parent._textChannels
 		for id in self._content:gmatch('<#(.-)>') do
@@ -77,7 +77,7 @@ function Message:getMentionedChannels()
 			if channel then yield(channel) end
 		end
 	end)
-end
+end)
 
 function Message:mentionsUser(user)
 	for obj in self:getMentionedUsers() do
@@ -101,25 +101,25 @@ function Message:mentionsChannel(channel)
 end
 
 set('content', function(self, content)
-	local success, data = self.client.api:editMessage(self._parent._id, self._id, {content = content})
+	local success, data = self.client._api:editMessage(self._parent._id, self._id, {content = content})
 	if success then self._content = data.content end
 	return success
 end)
 
 function Message:pin()
-	local success, data = self.client.api:addPinnedChannelMessage(self._parent._id, self._id)
+	local success, data = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
 	if success then self._pinned = true end
 	return success
 end
 
 function Message:unpin()
-	local success, data = self.client.api:deletePinnedChannelMessage(self._parent._id, self._id)
+	local success, data = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
 	if success then self._pinned = false end
 	return success
 end
 
 function Message:delete()
-	local success, data = self.client.api:deleteMessage(self._parent._id, self._id)
+	local success, data = self.client._api:deleteMessage(self._parent._id, self._id)
 	return success
 end
 

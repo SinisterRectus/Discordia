@@ -13,7 +13,7 @@
 		- To get a user's `Member` object, use `User:getMembership(guild)`
 		- A member's `User` object is accessed via `Member.user`
 		- Message authors, channel recipients, and invite inviters are always `User` objects
-		- Server owners are always `Member` objects
+		- Guild owners and members are always `Member` objects
 	- `utils` was removed from the main `discordia` module and has been replaced by individual utility classes
 	- `Warning` and `Error` classes were merged into a global `console` module
 		- Gateway disconnects, nil values on events, and HTTP errors are now handled more gracefully
@@ -43,11 +43,11 @@
 			```lua
 			-- these lines examples are equivalent
 			guild.name = "foo"
-			guild:getName("foo")
+			guild:setName("foo")
 			```
 		- Objects that have caches have a variety of get and find methods for accessing those caches. For example:
-			- `guild:getRoles()` or `guild.roles` - returns an iterator for all roles in the corresponding guild
-			- `guild:getRoleCount()` or `guild.roleCount` - returns the number of roles cached for the corresponding guild
+			- `guild:getRoles()` or `guild.roles` - returns an iterator for all roles in the guild
+			- `guild:getRoleCount()` or `guild.roleCount` - returns the number of roles cached
 			- `guild:getRole(id)` - returns the role with the given Snowflake ID
 			- `guild:getRole(key, value)` - returns the first found role matching a key, value pair
 			- `guild:getRoles(key, value)` - returns an iterator for all roles matching the key, value pair

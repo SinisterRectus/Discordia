@@ -21,7 +21,7 @@ function EventHandler.READY(data, client)
 
 	client._loading = {guilds = {}, chunks = {}, syncs = {}}
 
-	client.socket._session_id = data.session_id -- TODO: maybe move out of EventHandler
+	client._socket._session_id = data.session_id -- TODO: maybe move out of EventHandler
 
 	client._user = client._users:new(data.user)
 	client._user:_loadClientData(data.user)
@@ -30,7 +30,7 @@ function EventHandler.READY(data, client)
 	client._private_channels:merge(data.private_channels)
 
 	if client._user._bot then -- TODO: maybe move token parsing out of EventHandler
-		client.api.headers['Authorization'] = 'Bot ' .. client.api.headers['Authorization']
+		client._api.headers['Authorization'] = 'Bot ' .. client._api.headers['Authorization']
 		for guild in client._guilds:iter() do
 			client._loading.guilds[guild._id] = true
 		end
@@ -41,7 +41,7 @@ function EventHandler.READY(data, client)
 			client._loading.syncs[id] = true
 			insert(guild_ids, id)
 		end
-		client.socket:syncGuilds(guild_ids)
+		client._socket:syncGuilds(guild_ids)
 	end
 
 	client._stopwatch = Stopwatch()

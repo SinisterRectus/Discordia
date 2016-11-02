@@ -16,7 +16,7 @@ function Channel:_update(data)
 end
 
 function Channel:delete()
-	local success, data = self.client.api:deleteChannel(self._id)
+	local success, data = self.client._api:deleteChannel(self._id)
 	return success
 end
 
