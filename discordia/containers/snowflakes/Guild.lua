@@ -27,27 +27,27 @@ function Guild:__init(data, parent)
 	end
 end
 
-get('vip', '_vip', 'boolean')
-get('name', '_name', 'name')
-get('icon', '_icon', 'string')
-get('large', '_large', 'boolean')
-get('splash', '_splash', 'string')
-get('region', '_region', 'string')
-get('ownerId', '_owner_id', 'string')
-get('mfaLevel', '_mfa_level', 'number')
-get('joinedAt', '_joined_at', 'string')
-get('afkTimeout', '_afk_timeout', 'number')
-get('unavailable', '_unavailable', 'boolean')
-get('afkChannelId', '_afk_channel_id', 'string')
-get('totalMemberCount', '_member_count', 'number')
-get('verificationLevel', '_verification_level', 'number')
-get('defaultMessageNotifications', '_default_message_notifications', 'number')
+get('vip', '_vip')
+get('name', '_name')
+get('icon', '_icon')
+get('large', '_large')
+get('splash', '_splash')
+get('region', '_region')
+get('ownerId', '_owner_id')
+get('mfaLevel', '_mfa_level')
+get('joinedAt', '_joined_at')
+get('afkTimeout', '_afk_timeout')
+get('unavailable', '_unavailable')
+get('afkChannelId', '_afk_channel_id')
+get('totalMemberCount', '_member_count')
+get('verificationLevel', '_verification_level')
+get('defaultMessageNotifications', '_default_message_notifications')
 
-get('me', function(self) return self._members:get(self._parent._user._id) end, 'Member')
-get('owner', function(self) return self._members:get(self._owner_id) end, 'Member')
-get('afkChannel', function(self) return self._voice_channels:get(self._afk_channel_id) end, 'GuildVoiceChannel')
-get('defaultRole', function(self) return self._roles:get(self._id) end, 'Role')
-get('defaultChannel', function(self) return self._text_channels:get(self._id) end, 'GuildTextChannel')
+get('me', function(self) return self._members:get(self._parent._user._id) end)
+get('owner', function(self) return self._members:get(self._owner_id) end)
+get('afkChannel', function(self) return self._voice_channels:get(self._afk_channel_id) end)
+get('defaultRole', function(self) return self._roles:get(self._id) end)
+get('defaultChannel', function(self) return self._text_channels:get(self._id) end)
 
 function Guild:_makeAvailable(data)
 
@@ -172,7 +172,7 @@ get('bans', function(self)
 			yield(users:get(v.user.id) or users:new(v.user))
 		end
 	end)
-end, 'function')
+end)
 
 function Guild:banUser(user, days)
 	local query = days and {['delete-message-days'] = clamp(days, 0, 7)} or nil
@@ -194,7 +194,7 @@ get('pruneCount', function(self, days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
 	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
 	if success then return data.pruned end
-end, 'number')
+end)
 
 function Guild:pruneMembers(days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
@@ -226,13 +226,13 @@ get('invites', function(self)
 			yield(Invite(inviteData, parent))
 		end
 	end)
-end, 'function')
+end)
 
 -- channels --
 
 get('channelCount', function(self)
 	return self._text_channels._count + self._voice_channels._count
-end, 'number')
+end)
 
 get('channels', function(self, key, value)
 	return wrap(function()
@@ -243,7 +243,7 @@ get('channels', function(self, key, value)
 			yield(channel)
 		end
 	end)
-end, 'function')
+end)
 
 function Guild:getChannel(key, value)
 	return self._text_channels:get(key, value) or self._voice_channels:get(key, value)
@@ -268,11 +268,11 @@ end
 
 get('textChannelCount', function(self)
 	return self._text_channels._count
-end, 'number')
+end)
 
 get('textChannels', function(self, key, value)
 	return self._text_channels:getAll(key, value)
-end, 'function')
+end)
 
 function Guild:getTextChannel(key, value)
 	return self._text_channels:get(key, value)
@@ -290,11 +290,11 @@ end
 
 get('voiceChannelCount', function(self)
 	return self._voice_channels._count
-end, 'number')
+end)
 
 get('voiceChannels', function(self, key, value)
 	return self._voice_channels:getAll(key, value)
-end, 'function')
+end)
 
 function Guild:getVoiceChannel(key, value)
 	return self._voice_channels:get(key, value)
@@ -312,11 +312,11 @@ end
 
 get('roleCount', function(self)
 	return self._roles._count
-end, 'number')
+end)
 
 get('roles', function(self, key, value)
 	return self._roles:getAll(key, value)
-end, 'function')
+end)
 
 function Guild:getRole(key, value)
 	return self._roles:get(key, value)
@@ -334,11 +334,11 @@ end
 
 get('memberCount', function(self)
 	return self._members._count
-end, 'number')
+end)
 
 get('members', function(self, key, value)
 	return self._members:getAll(key, value)
-end, 'function')
+end)
 
 function Guild:getMember(key, value)
 	return self._members:get(key, value)
@@ -356,11 +356,11 @@ end
 
 get('voiceStateCount', function(self)
 	return self._voice_states._count
-end, 'number')
+end)
 
 get('voiceStates', function(self, key, value)
 	return self._voice_states:getAll(key, value)
-end, 'function')
+end)
 
 function Guild:getVoiceState(key, value)
 	return self._voice_states:get(key, value)
@@ -382,7 +382,7 @@ get('messageCount', function(self)
 		n = n + channel._messages._count
 	end
 	return n
-end, 'number')
+end)
 
 get('messages', function(self, key, value)
 	return wrap(function()
@@ -392,7 +392,7 @@ get('messages', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Guild:getMessage(key, value)
 	for channel in self._text_channels:iter() do

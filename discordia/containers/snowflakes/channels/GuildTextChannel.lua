@@ -13,7 +13,7 @@ end
 
 get('mentionString', function(self)
 	return format('<#%s>', self._id)
-end, 'string')
+end)
 
 function GuildTextChannel:_update(data)
 	GuildChannel._update(self, data)

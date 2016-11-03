@@ -24,7 +24,7 @@ function TextChannel:__init(data, parent)
 	-- abstract class, don't call update
 end
 
-get('lastMessageId', '_last_message_id', 'string')
+get('lastMessageId', '_last_message_id')
 
 function TextChannel:_update(data)
 	Channel._update(self, data)
@@ -72,7 +72,7 @@ get('pinnedMessages', function(self)
 	local client = self._parent._parent or self._parent
 	local success, data = client._api:getPinnedMessages(self._id)
 	return messageIterator(success, data, self)
-end, 'function')
+end)
 
 function TextChannel:createMessage(content, mentions, tts, nonce)
 	if type(mentions) == 'table' then
@@ -128,11 +128,11 @@ end
 
 get('messageCount', function(self, key, value)
 	return self._messages._count
-end, 'number')
+end)
 
 get('messages', function(self, key, value)
 	return self._messages:getAll(key, value)
-end, 'function')
+end)
 
 function TextChannel:getMessage(key, value)
 	return self._messages:get(key, value)

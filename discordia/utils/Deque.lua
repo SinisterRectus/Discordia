@@ -8,7 +8,7 @@ end
 
 get('count', function(self)
 	return self._last - self._first + 1
-end, 'number')
+end)
 
 function Deque:pushLeft(obj)
 	self._first = self._first - 1

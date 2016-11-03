@@ -14,10 +14,10 @@ function PrivateChannel:_update(data)
 	TextChannel._update(self, data)
 end
 
-get('recipient', '_recipient', 'User')
+get('recipient', '_recipient')
 
 get('name', function(self)
 	return self._recipient._username
-end, 'string')
+end)
 
 return PrivateChannel

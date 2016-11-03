@@ -42,9 +42,9 @@ function Client:__init(customOptions)
 	self._private_channels = Cache({}, PrivateChannel, '_id', self)
 end
 
-get('api', '_api', 'API')
-get('user', '_user', 'User')
-get('socket', '_socket', 'Socket')
+get('api', '_api')
+get('user', '_user')
+get('socket', '_socket')
 
 function Client:__tostring()
 	if self._user then
@@ -198,11 +198,11 @@ end
 
 get('userCount', function(self, key, value)
 	return self._users._count
-end, 'number')
+end)
 
 get('users', function(self, key, value)
 	return self._users:getAll(key, value)
-end, 'function')
+end)
 
 function Client:getUser(key, value)
 	return self._users:get(key, value)
@@ -220,11 +220,11 @@ end
 
 get('guildCount', function(self, key, value)
 	return self._guilds._count
-end, 'number')
+end)
 
 get('guilds', function(self, key, value)
 	return self._guilds:getAll(key, value)
-end, 'function')
+end)
 
 function Client:getGuild(key, value)
 	return self._guilds:get(key, value)
@@ -246,7 +246,7 @@ get('channelCount', function(self, key, value)
 		n = n + guild._text_channels._count + guild._voice_channels._count
 	end
 	return n
-end, 'number')
+end)
 
 get('channels', function(self, key, value)
 	return wrap(function()
@@ -262,7 +262,7 @@ get('channels', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Client:getChannel(key, value)
 	local channel = self._private_channels:get(key, value)
@@ -302,11 +302,11 @@ end
 
 get('privateChannelCount', function(self, key, value)
 	return self._private_channels._count
-end, 'number')
+end)
 
 get('privateChannels', function(self, key, value)
 	return self._private_channels:getAll(key, value)
-end, 'function')
+end)
 
 function Client:getPrivateChannel(key, value)
 	return self._private_channels:get(key, value)
@@ -328,7 +328,7 @@ get('textChannelCount', function(self, key, value)
 		n = n + guild._text_channels._count
 	end
 	return n
-end, 'number')
+end)
 
 get('textChannels', function(self, key, value)
 	return wrap(function()
@@ -341,7 +341,7 @@ get('textChannels', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Client:getTextChannel(key, value)
 	local channel = self._private_channels:get(key, value)
@@ -382,7 +382,7 @@ get('guildChannelCount', function(self, key, value)
 		n = n + guild._text_channels._count + guild._voice_channels._count
 	end
 	return n
-end, 'number')
+end)
 
 get('guildChannels', function(self, key, value)
 	return wrap(function()
@@ -395,7 +395,7 @@ get('guildChannels', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Client:getGuildChannel(key, value)
 	for guild in self._guilds:iter() do
@@ -432,7 +432,7 @@ get('guildTextChannelCount', function(self, key, value)
 		n = n + guild._text_channels._count
 	end
 	return n
-end, 'number')
+end)
 
 get('guildTextChannels', function(self, key, value)
 	return wrap(function()
@@ -442,7 +442,7 @@ get('guildTextChannels', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Client:getGuildTextChannel(key, value)
 	for guild in self._guilds:iter() do
@@ -476,7 +476,7 @@ get('guildVoiceChannelCount', function(self, key, value)
 		n = n + guild._voice_channels._count
 	end
 	return n
-end, 'number')
+end)
 
 get('guildVoiceChannels', function(self, key, value)
 	return wrap(function()
@@ -486,7 +486,7 @@ get('guildVoiceChannels', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Client:getGuildVoiceChannel(key, value)
 	for guild in self._guilds:iter() do
@@ -520,7 +520,7 @@ get('roleCount', function(self, key, value)
 		n = n + self._roles._count
 	end
 	return n
-end, 'number')
+end)
 
 get('roles', function(self, key, value)
 	return wrap(function()
@@ -530,7 +530,7 @@ get('roles', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Client:getRole(key, value)
 	for guild in self._guilds:iter() do
@@ -564,7 +564,7 @@ get('memberCount', function(self, key, value)
 		n = n + self._members._count
 	end
 	return n
-end, 'number')
+end)
 
 get('members', function(self, key, value)
 	return wrap(function()
@@ -574,7 +574,7 @@ get('members', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Client:getMember(key, value)
 	for guild in self._guilds:iter() do
@@ -613,7 +613,7 @@ get('messageCount', function(self, key, value)
 		end
 	end
 	return n
-end, 'number')
+end)
 
 get('messages', function(self, key, value)
 	return wrap(function()
@@ -630,7 +630,7 @@ get('messages', function(self, key, value)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 function Client:getMessage(key, value)
 	for channel in self._private_channels:iter() do

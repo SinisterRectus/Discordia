@@ -8,8 +8,8 @@ function Channel:__init(data, parent)
 	-- abstract class, don't call update
 end
 
-get('type', '_type', 'string')
-get('isPrivate', '_is_private', 'boolean')
+get('type', '_type')
+get('isPrivate', '_is_private')
 
 function Channel:_update(data)
 	Snowflake._update(self, data)

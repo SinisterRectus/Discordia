@@ -9,8 +9,8 @@ function GuildVoiceChannel:__init(data, parent)
 	GuildVoiceChannel._update(self, data)
 end
 
-get('bitrate', '_bitrate', 'number')
-get('userLimit', '_user_limit', 'number')
+get('bitrate', '_bitrate')
+get('userLimit', '_user_limit')
 
 function GuildVoiceChannel:_update(data)
 	GuildChannel._update(self, data)

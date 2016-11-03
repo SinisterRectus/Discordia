@@ -89,15 +89,14 @@ local function constructor(self, name, ...)
 		end
 	end
 
-	local function get(k, callback, typeStr)
-		assert(typeStr) -- only used for docs
+	local function get(k, callback, t)
 		if type(callback) == 'string' then
 			local property = callback
 			callback = function(class) return class[property] end
 		end
 		getters[k] = callback
 		class['get' .. k:gsub('^%l', upper)] = callback
-		properties[k] = typeStr
+		properties[k] = true
 	end
 
 	local function set(k, callback)
@@ -107,7 +106,7 @@ local function constructor(self, name, ...)
 		end
 		setters[k] = callback
 		class['set' .. k:gsub('^%l', upper)] = callback
-		properties[k] = properties[k] or ''
+		properties[k] = true
 	end
 
 	classes[name] = class

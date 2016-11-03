@@ -14,39 +14,41 @@ function Member:__init(data, parent)
 	self:_update(data)
 end
 
-get('user', '_user', 'User')
-get('deaf', '_deaf', 'boolean')
-get('mute', '_mute', 'boolean')
-get('nick', '_nick', 'string')
-get('guild', '_parent', 'Guild')
-get('nickname', '_nick', 'string')
-get('joinedAt', '_joined_at', 'string')
+get('user', '_user')
+get('deaf', '_deaf')
+get('mute', '_mute')
+get('mute', '_mute')
+get('nick', '_nick')
+get('game', '_game')
+get('guild', '_parent')
+get('nickname', '_nick')
+get('joinedAt', '_joined_at')
 
 get('status', function(self)
 	return self._status or 'offline'
-end, 'string')
+end)
 
 get('gameName', function(self)
 	return self._game and self._game.name
-end, 'string')
+end)
 
 get('name', function(self)
 	return self._nick or self._user._username
-end, 'string')
+end)
 
 get('avatarUrl', function(self)
 	return self._user.avatarUrl
-end, 'string')
+end)
 
 get('mentionString', function(self)
 	return self._user.mentionString
-end, 'string')
+end)
 
-get('id', function(self) return self._user._id end, 'string')
-get('bot', function(self) return self._user._bot end, 'boolean')
-get('avatar', function(self) return self._user._avatar end, 'string')
-get('username', function(self) return self._user._username end, 'string')
-get('discriminator', function(self) return self._user._discriminator end, 'string')
+get('id', function(self) return self._user._id end)
+get('bot', function(self) return self._user._bot end)
+get('avatar', function(self) return self._user._avatar end)
+get('username', function(self) return self._user._username end)
+get('discriminator', function(self) return self._user._discriminator end)
 
 local function setNick(self, nick)
 	nick = nick or ''
@@ -204,7 +206,7 @@ end
 
 get('roleCount', function(self)
 	return #self._roles
-end, 'number')
+end)
 
 get('roles', function(self)
 	local roles = self._parent._roles
@@ -213,7 +215,7 @@ get('roles', function(self)
 			yield(roles:get(id))
 		end
 	end)
-end, 'function')
+end)
 
 function Member:getRole(key, value)
 	local roles = self._parent._roles

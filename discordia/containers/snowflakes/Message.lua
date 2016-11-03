@@ -15,25 +15,25 @@ function Message:__init(data, parent)
 	self:_update(data)
 end
 
-get('channel', '_parent', 'TextChannel')
-get('author', '_author', 'User')
+get('channel', '_parent')
+get('author', '_author')
 
 get('member', function(self)
 	local channel = self._parent
 	if channel._is_private then return end
 	return self._author:getMembership(channel._parent)
-end, 'Member')
+end)
 
 get('guild', function(self) -- guild does not exist for messages in private channels
 	return self._parent._parent
-end, 'Guild')
+end)
 
-get('tts', '_tts', 'boolean')
-get('type', '_type', 'string')
-get('pinned', '_pinned', 'boolean')
-get('content', '_content', 'string')
-get('timestamp', '_timestamp', 'string')
-get('editedTimestamp', '_edited_timestamp', 'string')
+get('tts', '_tts')
+get('type', '_type')
+get('pinned', '_pinned')
+get('content', '_content')
+get('timestamp', '_timestamp')
+get('editedTimestamp', '_edited_timestamp')
 
 function Message:__tostring()
 	return format('%s: %s', self.__name, self.content)
@@ -63,7 +63,7 @@ get('mentionedUsers', function(self)
 		k, v = next(mentions, k)
 		return v
 	end
-end, 'function')
+end)
 
 get('mentionedRoles', function(self)
 	return wrap(function()
@@ -79,7 +79,7 @@ get('mentionedRoles', function(self)
 			end
 		end
 	end)
-end, 'function')
+end)
 
 get('mentionedChannels', function(self)
 	return wrap(function()
@@ -89,7 +89,7 @@ get('mentionedChannels', function(self)
 			if channel then yield(channel) end
 		end
 	end)
-end, 'function')
+end)
 
 function Message:mentionsUser(user)
 	for obj in self:getMentionedUsers() do
