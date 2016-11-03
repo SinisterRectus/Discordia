@@ -15,6 +15,12 @@ function Message:__init(data, parent)
 	self:_update(data)
 end
 
+get('tts', '_tts')
+get('type', '_type')
+get('pinned', '_pinned')
+get('content', '_content')
+get('timestamp', '_timestamp')
+get('editedTimestamp', '_edited_timestamp')
 get('channel', '_parent')
 get('author', '_author')
 
@@ -28,15 +34,8 @@ get('guild', function(self) -- guild does not exist for messages in private chan
 	return self._parent._parent
 end)
 
-get('tts', '_tts')
-get('type', '_type')
-get('pinned', '_pinned')
-get('content', '_content')
-get('timestamp', '_timestamp')
-get('editedTimestamp', '_edited_timestamp')
-
 function Message:__tostring()
-	return format('%s: %s', self.__name, self.content)
+	return format('%s: %s', self.__name, self._content)
 end
 
 function Message:_update(data)
@@ -91,6 +90,14 @@ get('mentionedChannels', function(self)
 	end)
 end)
 
+set('content', function(self, content)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
+	if success then self._content = data.content end
+	return success
+end)
+
 function Message:mentionsUser(user)
 	for obj in self:getMentionedUsers() do
 		if obj == user then return true end
@@ -111,14 +118,6 @@ function Message:mentionsChannel(channel)
 	end
 	return false
 end
-
-set('content', function(self, content)
-	local channel = self._parent
-	local client = channel._parent._parent or channel._parent
-	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
-	if success then self._content = data.content end
-	return success
-end)
 
 function Message:reply(...)
 	return self._parent:sendMessage(...)

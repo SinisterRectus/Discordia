@@ -9,6 +9,7 @@ local VoiceState = require('../VoiceState')
 local Cache = require('../../utils/Cache')
 
 local clamp = math.clamp
+local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Guild, get, set = class('Guild', Snowflake)
@@ -46,6 +47,10 @@ get('owner', function(self) return self._members:get(self._owner_id) end)
 get('afkChannel', function(self) return self._voice_channels:get(self._afk_channel_id) end)
 get('defaultRole', function(self) return self._roles:get(self._id) end)
 get('defaultChannel', function(self) return self._text_channels:get(self._id) end)
+
+function Guild:__tostring()
+	return format('%s: %s', self.__name, self._name)
+end
 
 function Guild:_makeAvailable(data)
 

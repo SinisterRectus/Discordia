@@ -29,11 +29,6 @@ get('name', function(self)
 	return self.object._name
 end)
 
-function PermissionOverwrite:_update(data)
-	self._allow = data.allow
-	self._deny = data.deny
-end
-
 get('permissions', function(self)
 	return Permissions(self._allow), Permissions(self._deny)
 end)
@@ -45,6 +40,11 @@ end)
 get('deniedPermissions', function(self)
 	return Permissions(self._deny)
 end)
+
+function PermissionOverwrite:_update(data)
+	self._allow = data.allow
+	self._deny = data.deny
+end
 
 local function setPermissions(self, allow, deny)
 	local channel = self._parent

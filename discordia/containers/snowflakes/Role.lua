@@ -29,6 +29,10 @@ get('mentionString', function(self)
 	return format('<@&%s>', self._id)
 end)
 
+function Role:__tostring()
+	return format('%s: %s', self.__name, self._name)
+end
+
 set('name', function(self, name)
 	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {name = name})
 	if success then self._name = data.name end

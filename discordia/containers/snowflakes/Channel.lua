@@ -1,6 +1,8 @@
 local User = require('./User')
 local Snowflake = require('../Snowflake')
 
+local format = string.format
+
 local Channel, get = class('Channel', Snowflake)
 
 function Channel:__init(data, parent)

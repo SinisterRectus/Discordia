@@ -1,6 +1,8 @@
 local User = require('../User')
 local TextChannel = require('./TextChannel')
 
+local format = string.format
+
 local PrivateChannel, get = class('PrivateChannel', TextChannel)
 
 function PrivateChannel:__init(data, parent)
@@ -10,14 +12,17 @@ function PrivateChannel:__init(data, parent)
 	PrivateChannel._update(self, data)
 end
 
-function PrivateChannel:_update(data)
-	TextChannel._update(self, data)
-end
-
 get('recipient', '_recipient')
-
 get('name', function(self)
 	return self._recipient._username
 end)
+
+function PrivateChannel:__tostring()
+	return format('%s: %s', self.__name, self._recipient._username)
+end
+
+function PrivateChannel:_update(data)
+	TextChannel._update(self, data)
+end
 
 return PrivateChannel

@@ -15,12 +15,12 @@ get('createdAt', function(self)
 	return ms / 1000 -- return seconds for Lua consistency
 end)
 
-function Snowflake:_update(data)
-	Container._update(self, data)
+function Snowflake:__tostring()
+	return format('%s: %s', self.__name, self._id)
 end
 
-function Snowflake:__tostring()
-	return format('%s: %s', self.__name, self._name or self._id)
+function Snowflake:_update(data)
+	Container._update(self, data)
 end
 
 function Snowflake:__eq(other)

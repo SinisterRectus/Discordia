@@ -3,7 +3,7 @@ local TextChannel = require('./TextChannel')
 
 local format = string.format
 
-local GuildTextChannel, get, set = class('GuildTextChannel', GuildChannel, TextChannel)
+local GuildTextChannel, get, set = class('GuildTextChannel', TextChannel, GuildChannel)
 
 function GuildTextChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)

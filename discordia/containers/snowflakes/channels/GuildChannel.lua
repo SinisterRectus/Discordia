@@ -3,6 +3,7 @@ local Invite = require('../../Invite')
 local Channel = require('../Channel')
 local PermissionOverwrite = require('../PermissionOverwrite')
 
+local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local GuildChannel, get, set = class('GuildChannel', Channel)
@@ -16,6 +17,10 @@ end
 get('name', '_name')
 get('guild', '_parent')
 get('position', '_position')
+
+function GuildChannel:__tostring()
+	return format('%s: %s', self.__name, self._name)
+end
 
 function GuildChannel:_update(data)
 	Channel._update(self, data)
