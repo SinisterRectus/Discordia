@@ -72,7 +72,7 @@ property('pinnedMessages', function(self)
 	return messageIterator(success, data, self)
 end, nil, 'function', "Iterator for all of the pinned messages in the channel")
 
-function TextChannel:createMessage(content, mentions, tts, nonce)
+function TextChannel:sendMessage(content, mentions, tts, nonce)
 	if type(mentions) == 'table' then
 		local tbl = {}
 		if mentions.iter then
@@ -143,7 +143,5 @@ end
 function TextChannel:findMessages(predicate)
 	return self._messages:findAll(predicate)
 end
-
-TextChannel.sendMessage = TextChannel.createMessage
 
 return TextChannel

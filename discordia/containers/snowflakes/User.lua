@@ -40,7 +40,7 @@ end
 function User:sendMessage(...)
 	local id = self._id
 	local client = self._parent
-	local channel = client._private_channels:find('recipient', function(v) return v._id == id end)
+	local channel = client._private_channels:find('_recipient', function(v) return v._id == id end)
 	if not channel then
 		local success, data = client._api:createDM({recipient_id = id})
 		if success then channel = client._private_channels:new(data) end
