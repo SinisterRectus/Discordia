@@ -31,17 +31,6 @@ get('guildName', '_guild_name')
 get('channelName', '_channel_name')
 get('channelType', '_channel_type')
 
-get('guild', function(self)
-	return self._parent._guilds:get(self._guild_id)-- may not exist
-end)
-
-get('channel', function(self)
-	local guild = self._parent._guilds:get(self._guild_id)
-	if guild then
-		return guild._text_channels:get(self._channel_id) or guild._voice_channels:get(self._channel_id) or nil
-	end
-end)
-
 function Invite:__tostring()
 	return format('%s: %s', self.__name, self._code)
 end

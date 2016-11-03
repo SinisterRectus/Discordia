@@ -281,7 +281,7 @@ function API:listGuildMembers(guild_id) -- not exposed, use cache or Guild:reque
 	return self:request("GET", route, route)
 end
 
-function API:addGuildMember(guild_id, user_id, payload) -- Guild:addMember (limited use, requires guild.join scope)
+function API:addGuildMember(guild_id, user_id, payload) -- not exposed, maybe in the future
 	local route = format("/guilds/%s/members/%%s", guild_id)
 	return self:request("PUT", route, format(route, user_id), payload)
 end

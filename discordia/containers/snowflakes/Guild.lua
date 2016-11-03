@@ -33,12 +33,10 @@ get('icon', '_icon')
 get('large', '_large')
 get('splash', '_splash')
 get('region', '_region')
-get('ownerId', '_owner_id')
 get('mfaLevel', '_mfa_level')
 get('joinedAt', '_joined_at')
 get('afkTimeout', '_afk_timeout')
 get('unavailable', '_unavailable')
-get('afkChannelId', '_afk_channel_id')
 get('totalMemberCount', '_member_count')
 get('verificationLevel', '_verification_level')
 get('defaultMessageNotifications', '_default_message_notifications')
@@ -110,11 +108,6 @@ end
 function Guild:listVoiceRegions()
 	local success, data = self._parent._api:getGuildVoiceRegions(self._id)
 	if success then return data end
-end
-
-function Guild:addMember(user) -- limit use, requires guild.join scope
-	local success, data = self._parent._api:addGuildMember(self._id, user._id)
-	if success then return self._members:new(data) end
 end
 
 set('name', function(self, name)

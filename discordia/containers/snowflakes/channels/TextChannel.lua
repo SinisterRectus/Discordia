@@ -24,8 +24,6 @@ function TextChannel:__init(data, parent)
 	-- abstract class, don't call update
 end
 
-get('lastMessageId', '_last_message_id')
-
 function TextChannel:_update(data)
 	Channel._update(self, data)
 end
