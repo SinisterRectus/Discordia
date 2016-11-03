@@ -202,6 +202,10 @@ function Member:removeRole(role)
 	return applyRoles(self, role_ids)
 end
 
+get('roleCount', function(self)
+	return #self._roles
+end, 'number')
+
 get('roles', function(self)
 	local roles = self._parent._roles
 	return wrap(function()
@@ -210,5 +214,36 @@ get('roles', function(self)
 		end
 	end)
 end, 'function')
+
+function Member:getRole(key, value)
+	local roles = self._parent._roles
+	if key == nil and value == nil then return end
+	if value == nil then
+		value = key
+		key = roles._key
+	end
+	for _, id in ipairs(self._roles) do
+		local role = roles:get(id)
+		if role[key] == value then return role end
+	end
+end
+
+function Member:findRole(predicate)
+	local roles = self._parent._roles
+	for _, id in ipairs(self._roles) do
+		local role = roles:get(id)
+		if predicate(role) then return role end
+	end
+end
+
+function Member:findRoles(predicate)
+	return wrap(function()
+		local roles = self._parent._roles
+		for _, id in ipairs(self._roles) do
+			local role = roles:get(id)
+			if predicate(role) then yield(role) end
+		end
+	end)
+end
 
 return Member
