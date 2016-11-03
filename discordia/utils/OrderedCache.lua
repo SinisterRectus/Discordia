@@ -2,7 +2,7 @@ local Cache = require('./Cache')
 
 local warning = console.warning
 
-local OrderedCache, get = class('OrderedCache', Cache)
+local OrderedCache, property = class('OrderedCache', Cache)
 
 function OrderedCache:__init(array, constructor, key, limit, parent)
 	Cache.__init(self, array, constructor, key, parent)
@@ -11,9 +11,9 @@ function OrderedCache:__init(array, constructor, key, limit, parent)
 	self._prev = {}
 end
 
-get('limit', '_limit')
-get('first', '_first')
-get('last', '_last')
+property('limit', '_limit', nil, 'number', "The maximum amount of objects that can be cached before the cache starts to empty")
+property('first', '_first', nil, '*', "The first, or oldest, object in the cache")
+property('last', '_last', nil, '*', "The last, or newest, object in the cache")
 
 function OrderedCache:_add(obj)
 	local key = self._key

@@ -6,7 +6,7 @@ local PermissionOverwrite = require('../PermissionOverwrite')
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local GuildChannel, get, set = class('GuildChannel', Channel)
+local GuildChannel, property = class('GuildChannel', Channel)
 
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
@@ -14,9 +14,21 @@ function GuildChannel:__init(data, parent)
 	-- abstract class, don't call update
 end
 
-get('name', '_name')
-get('guild', '_parent')
-get('position', '_position')
+local function setName(self, name)
+	local success, data = self._parent._parent._api:modifyChannel(self._id, {name = name})
+	if success then self._name = data.name end
+	return success
+end
+
+local function setPosition(self, position) -- will probably need more abstraction
+	local success, data = self._parent._parent._api:modifyChannel(self._id, {position = position})
+	if success then self._position = data.position end
+	return success
+end
+
+property('guild', '_parent', nil, 'Guild', "The guild in which the channel exists")
+property('name', '_name', setName, 'string', "The name of the guild chanel")
+property('position', '_position', setPosition, 'number', "The position of the channel in the guild's list of channels")
 
 function GuildChannel:__tostring()
 	return format('%s: %s', self.__name, self._name)
@@ -44,18 +56,6 @@ function GuildChannel:_update(data)
 	end
 end
 
-set('name', function(self, name)
-	local success, data = self._parent._parent._api:modifyChannel(self._id, {name = name})
-	if success then self._name = data.name end
-	return success
-end)
-
-set('position', function(self, position) -- will probably need more abstraction
-	local success, data = self._parent._parent._api:modifyChannel(self._id, {position = position})
-	if success then self._position = data.position end
-	return success
-end)
-
 function GuildChannel:getPermissionOverwriteFor(object)
 	local type = type(object) == 'table' and object.__name:lower() or nil
 	if type ~= 'role' and type ~= 'member' then return end
@@ -65,7 +65,7 @@ function GuildChannel:getPermissionOverwriteFor(object)
 	})
 end
 
-get('invites', function(self)
+property('invites', function(self)
 	local client = self._parent._parent
 	local success, data = client._api:getChannelInvites(self._id)
 	if not success then return function() end end
@@ -74,7 +74,7 @@ get('invites', function(self)
 			yield(Invite(inviteData, client))
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the channel's invites (not cached)")
 
 function GuildChannel:createInvite(maxAge, maxUses, temporary, unique)
 	local client = self._parent._parent
@@ -89,13 +89,13 @@ end
 
 -- permission overwrite --
 
-get('permissionOverwriteCount', function(self, key, value)
+property('permissionOverwriteCount', function(self, key, value)
 	return self._permission_overwrites._count
-end)
+end, nil, 'number', "How many permission overwrites are cached for this channel")
 
-get('permissionOverwrites', function(self, key, value)
+property('permissionOverwrites', function(self, key, value)
 	return self._permission_overwrites:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for cached permission overwrites")
 
 function GuildChannel:getPermissionOverwrite(key, value)
 	return self._permission_overwrites:get(key, value)

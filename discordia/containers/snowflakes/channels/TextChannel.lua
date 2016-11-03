@@ -15,7 +15,7 @@ local function messageIterator(success, data, parent)
 	end)
 end
 
-local TextChannel, get = class('TextChannel', Channel)
+local TextChannel, property = class('TextChannel', Channel)
 
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
@@ -66,11 +66,11 @@ function TextChannel:getMessageHistoryAround(message, limit)
 	return getMessageHistory(self, query)
 end
 
-get('pinnedMessages', function(self)
+property('pinnedMessages', function(self)
 	local client = self._parent._parent or self._parent
 	local success, data = client._api:getPinnedMessages(self._id)
 	return messageIterator(success, data, self)
-end)
+end, nil, 'function', "Iterator for all of the pinned messages in the channel")
 
 function TextChannel:createMessage(content, mentions, tts, nonce)
 	if type(mentions) == 'table' then
@@ -124,13 +124,13 @@ end
 
 -- messages --
 
-get('messageCount', function(self, key, value)
+property('messageCount', function(self, key, value)
 	return self._messages._count
-end)
+end, nil, 'number', "How many messages are cached for the channel")
 
-get('messages', function(self, key, value)
+property('messages', function(self, key, value)
 	return self._messages:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the cached messages in the channel")
 
 function TextChannel:getMessage(key, value)
 	return self._messages:get(key, value)

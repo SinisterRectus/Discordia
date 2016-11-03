@@ -8,6 +8,7 @@ return {
 	Color = require('./utils/Color'),
 	Container = require('./utils/Container'),
 	Deque = require('./utils/Deque'),
+	Emitter = require('./utils/Emitter'),
 	OrderedCache = require('./utils/OrderedCache'),
 	Permissions = require('./utils/Permissions'),
 	RateLimiter = require('./utils/RateLimiter'),

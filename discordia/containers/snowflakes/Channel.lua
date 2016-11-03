@@ -3,15 +3,15 @@ local Snowflake = require('../Snowflake')
 
 local format = string.format
 
-local Channel, get = class('Channel', Snowflake)
+local Channel, property = class('Channel', Snowflake)
 
 function Channel:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	-- abstract class, don't call update
 end
 
-get('type', '_type')
-get('isPrivate', '_is_private')
+property('type', '_type', nil, 'string', "The channel type (text or voice)")
+property('isPrivate', '_is_private', nil, 'boolean', "Whether the channel is prviate")
 
 function Channel:_update(data)
 	Snowflake._update(self, data)

@@ -4,7 +4,7 @@ local format = string.format
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local sort, insert, concat = table.sort, table.insert, table.concat
 
-local Permissions, get = class('Permissions')
+local Permissions, property = class('Permissions')
 
 local flags = {
 	createInstantInvite	= 0x00000001, -- general
@@ -45,7 +45,7 @@ function Permissions:__init(value)
 	self._value = tonumber(value) or 0
 end
 
-get('value', '_value')
+property('value', '_value', nil, 'number', "Decimal representing the total permissions")
 
 function Permissions:__tostring()
 	local tbl = self:toTable()
@@ -58,7 +58,7 @@ function Permissions:__tostring()
 end
 
 function Permissions.__eq(other)
-	return self.__class == other.__class and self._value == other._value
+	return self.__name == other.__name and self._value == other._value
 end
 
 function Permissions:enable(...)

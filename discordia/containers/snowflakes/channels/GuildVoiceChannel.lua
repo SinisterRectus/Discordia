@@ -2,32 +2,29 @@ local GuildChannel = require('./GuildChannel')
 
 local clamp = math.clamp
 
-local GuildVoiceChannel, get, set = class('GuildVoiceChannel', GuildChannel)
+local GuildVoiceChannel, property = class('GuildVoiceChannel', GuildChannel)
 
 function GuildVoiceChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)
 	GuildVoiceChannel._update(self, data)
 end
 
-get('bitrate', '_bitrate')
-get('userLimit', '_user_limit')
-
-function GuildVoiceChannel:_update(data)
-	GuildChannel._update(self, data)
-end
-
-set('bitrate', function(self, bitrate)
+property('bitrate', '_bitrate', function(self, bitrate)
 	bitrate = bitrate and clamp(bitrate, 8000, self._parent._vip and 128000 or 96000) or 64000
 	local success, data = self._parent._parent._api:modifyChannel(self._id, {bitrate = bitrate})
 	if success then self._bitrate = data.bitrate end
 	return success
-end)
+end, 'number', "Channel bitrate in bits per seconds (8000 to 9600 or 128000 for VIP guilds)")
 
-set('limit', function(self, limit)
+property('userLimit', '_user_limit', function(self, limit)
 	limit = limit and clamp(limit, 0, 99) or 0
 	local success, data = self._parent._parent._api:modifyChannel(self._id, {user_limit = limit})
 	if success then self._user_limit = data.user_limit end
 	return success
-end)
+end, 'number', "Limit to the number of users allowed in the channel (use 0 for infinite)")
+
+function GuildVoiceChannel:_update(data)
+	GuildChannel._update(self, data)
+end
 
 return GuildVoiceChannel

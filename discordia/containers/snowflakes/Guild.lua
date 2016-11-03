@@ -12,7 +12,7 @@ local clamp = math.clamp
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Guild, get, set = class('Guild', Snowflake)
+local Guild, property = class('Guild', Snowflake)
 
 function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -28,25 +28,75 @@ function Guild:__init(data, parent)
 	end
 end
 
-get('vip', '_vip')
-get('name', '_name')
-get('icon', '_icon')
-get('large', '_large')
-get('splash', '_splash')
-get('region', '_region')
-get('mfaLevel', '_mfa_level')
-get('joinedAt', '_joined_at')
-get('afkTimeout', '_afk_timeout')
-get('unavailable', '_unavailable')
-get('totalMemberCount', '_member_count')
-get('verificationLevel', '_verification_level')
-get('defaultMessageNotifications', '_default_message_notifications')
+local function setName(self, name)
+	local success, data = self._parent._api:modifyGuild(self._id, {name = name})
+	if success then self._name = data.name end
+	return success
+end
 
-get('me', function(self) return self._members:get(self._parent._user._id) end)
-get('owner', function(self) return self._members:get(self._owner_id) end)
-get('afkChannel', function(self) return self._voice_channels:get(self._afk_channel_id) end)
-get('defaultRole', function(self) return self._roles:get(self._id) end)
-get('defaultChannel', function(self) return self._text_channels:get(self._id) end)
+local function setRegion(self, region)
+	local success, data = self._parent._api:modifyGuild(self._id, {region = region})
+	if success then self._region = data.region end
+	return success
+end
+
+local function setIcon(self, icon)
+	local success, data = self._parent._api:modifyGuild(self._id, {icon = icon})
+	if success then self._icon = data.icon end
+	return success
+end
+
+local function setOwner(self, member)
+	local success, data = self._parent._api:modifyGuild(self._user._id, {owner_id = user._id})
+	if success then self._owner_id = data.owner_id end
+	return success
+end
+
+local function setAfkTimeout(self, timeout)
+	local success, data = self._parent._api:modifyGuild(self._id, {afk_timeout = timeout})
+	if success then self._afk_timeout = data.afk_timeout end
+	return success
+end
+
+local function setAfkChannel(self, channel)
+	local success, data = self._parent._api:modifyGuild(self._id, {afk_channel_id = channel and channel._id or self._id})
+	if success then self._afk_channel_id = data._afk_channel_id end
+	return success
+end
+
+property('vip', '_vip', nil, 'boolean', "Whether the guild is featured by Discord")
+property('name', '_name', setName, 'string', "Name of the guild")
+property('icon', '_icon', setIcon, 'string', "Hash representing the guild's icon") -- TODO: add iconUrl
+property('large', '_large', nil, 'boolean', "Whether the guild has a lot of members")
+property('splash', '_splash', nil, 'string', "Hash representing the guild's custom splash")
+property('region', '_region', setRegion, 'string', "String representing the guild's voice region")
+property('mfaLevel', '_mfa_level', nil, 'number', "Guild required MFA level")
+property('joinedAt', '_joined_at', nil, 'string', "Date and time at which the client joined the guild")
+property('afkTimeout', '_afk_timeout', setAfkTimeout, 'number', "AFK timeout in seconds")
+property('unavailable', '_unavailable', nil, 'boolean', "Whether the guild data is unavailable")
+property('totalMemberCount', '_member_count', nil, 'number', "How many members exist in the guild (can be different from cached memberCount)")
+property('verificationLevel', '_verification_level', nil, 'number', "Guild verification level")
+property('notificationsSetting', '_default_message_notifications', nil, 'number', "Default message notifications setting for members")
+
+property('me', function(self)
+	return self._members:get(self._parent._user._id)
+end, nil, 'Member', "The client's member object for this guild")
+
+property('owner', function(self)
+	return self._members:get(self._owner_id)
+end, setOwner, 'Member', "The member that owns the server")
+
+property('afkChannel', function(self)
+	return self._voice_channels:get(self._afk_channel_id)
+end, setAfkChannel, 'GuildVoiceChannel', "Voice channel to where members are moved when they are AFK")
+
+property('defaultRole', function(self)
+	return self._roles:get(self._id)
+end, nil, 'Role', "The guild's '@everyone' role")
+
+property('defaultChannel', function(self)
+	return self._text_channels:get(self._id)
+end, nil, 'GuildTextChannel', "The guild's default text channel")
 
 function Guild:__tostring()
 	return format('%s: %s', self.__name, self._name)
@@ -115,42 +165,6 @@ function Guild:listVoiceRegions()
 	if success then return data end
 end
 
-set('name', function(self, name)
-	local success, data = self._parent._api:modifyGuild(self._id, {name = name})
-	if success then self._name = data.name end
-	return success
-end)
-
-set('region', function(self, region)
-	local success, data = self._parent._api:modifyGuild(self._id, {region = region})
-	if success then self._region = data.region end
-	return success
-end)
-
-set('icon', function(self, icon)
-	local success, data = self._parent._api:modifyGuild(self._id, {icon = icon})
-	if success then self._icon = data.icon end
-	return success
-end)
-
-set('owner', function(self, user)
-	local success, data = self._parent._api:modifyGuild(self._id, {owner_id = user._id})
-	if success then self._owner_id = data.owner_id end
-	return success
-end)
-
-set('afkTimeout', function(self, timeout)
-	local success, data = self._parent._api:modifyGuild(self._id, {afk_timeout = timeout})
-	if success then self._afk_timeout = data.afk_timeout end
-	return success
-end)
-
-set('afkChannel', function(self, channel)
-	local success, data = self._parent._api:modifyGuild(self._id, {afk_channel_id = channel and channel._id or self._id})
-	if success then self._afk_channel_id = data._afk_channel_id end
-	return success
-end)
-
 function Guild:leave()
 	local success, data = self._parent._api:leaveGuild(self._id)
 	return success
@@ -161,7 +175,7 @@ function Guild:delete()
 	return success
 end
 
-get('bans', function(self)
+property('bannedUsers', function(self)
 	local success, data = self._parent._api:getGuildBans(self._id)
 	if not success then return function() end end
 	local users = self._parent._users
@@ -170,7 +184,7 @@ get('bans', function(self)
 			yield(users:get(v.user.id) or users:new(v.user))
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the banned users in the guild")
 
 function Guild:banUser(user, days)
 	local query = days and {['delete-message-days'] = clamp(days, 0, 7)} or nil
@@ -188,11 +202,11 @@ function Guild:kickUser(user)
 	return success
 end
 
-get('pruneCount', function(self, days)
+function Guild:getPruneCount(self, days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
 	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
 	if success then return data.pruned end
-end)
+end
 
 function Guild:pruneMembers(days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
@@ -215,7 +229,7 @@ function Guild:createRole()
 	if success then return self._roles:new(data) end
 end
 
-get('invites', function(self)
+property('invites', function(self)
 	local success, data = self._parent._api:getGuildInvites(self._id)
 	local parent = self._parent
 	if not success then return function() end end
@@ -224,15 +238,15 @@ get('invites', function(self)
 			yield(Invite(inviteData, parent))
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the guild's invites (not cached)")
 
 -- channels --
 
-get('channelCount', function(self)
+property('channelCount', function(self)
 	return self._text_channels._count + self._voice_channels._count
-end)
+end, nil, 'number', "How many GuildChannels are cached for the guild")
 
-get('channels', function(self, key, value)
+property('channels', function(self, key, value)
 	return wrap(function()
 		for channel in self._text_channels:getAll(key, value) do
 			yield(channel)
@@ -241,7 +255,7 @@ get('channels', function(self, key, value)
 			yield(channel)
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the GuildChannels cached for the guild")
 
 function Guild:getChannel(key, value)
 	return self._text_channels:get(key, value) or self._voice_channels:get(key, value)
@@ -264,13 +278,13 @@ end
 
 -- text channels --
 
-get('textChannelCount', function(self)
+property('textChannelCount', function(self)
 	return self._text_channels._count
-end)
+end, nil, 'number', "How many TextChannels are cached for the guild")
 
-get('textChannels', function(self, key, value)
+property('textChannels', function(self, key, value)
 	return self._text_channels:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the TextChannels cached for the guild")
 
 function Guild:getTextChannel(key, value)
 	return self._text_channels:get(key, value)
@@ -286,13 +300,13 @@ end
 
 -- voice channels --
 
-get('voiceChannelCount', function(self)
+property('voiceChannelCount', function(self)
 	return self._voice_channels._count
-end)
+end, nil, 'number', "How many VoiceChannels are cached for the guild")
 
-get('voiceChannels', function(self, key, value)
+property('voiceChannels', function(self, key, value)
 	return self._voice_channels:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the VoiceChannels cached for the guild")
 
 function Guild:getVoiceChannel(key, value)
 	return self._voice_channels:get(key, value)
@@ -308,13 +322,13 @@ end
 
 -- roles --
 
-get('roleCount', function(self)
+property('roleCount', function(self)
 	return self._roles._count
-end)
+end, nil, 'number', "How many Roles are cached for the guild")
 
-get('roles', function(self, key, value)
+property('roles', function(self, key, value)
 	return self._roles:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the Roles cached for the guild")
 
 function Guild:getRole(key, value)
 	return self._roles:get(key, value)
@@ -330,13 +344,13 @@ end
 
 -- members --
 
-get('memberCount', function(self)
+property('memberCount', function(self)
 	return self._members._count
-end)
+end, nil, 'number', "How many Members are cached for the guild")
 
-get('members', function(self, key, value)
+property('members', function(self, key, value)
 	return self._members:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the Members cached for the guild")
 
 function Guild:getMember(key, value)
 	return self._members:get(key, value)
@@ -352,13 +366,13 @@ end
 
 -- members --
 
-get('voiceStateCount', function(self)
+property('voiceStateCount', function(self)
 	return self._voice_states._count
-end)
+end, nil, 'number', "How many VoiceStates are cached for the guild")
 
-get('voiceStates', function(self, key, value)
+property('voiceStates', function(self, key, value)
 	return self._voice_states:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the VoiceStates cached for the guild")
 
 function Guild:getVoiceState(key, value)
 	return self._voice_states:get(key, value)
@@ -374,15 +388,15 @@ end
 
 -- messages --
 
-get('messageCount', function(self)
+property('messageCount', function(self)
 	local n = 0
 	for channel in self._text_channels:iter() do
 		n = n + channel._messages._count
 	end
 	return n
-end)
+end, nil, 'number', "How many Messages are cached for the guild")
 
-get('messages', function(self, key, value)
+property('messages', function(self, key, value)
 	return wrap(function()
 		for channel in self._text_channels:iter() do
 			for message in channel._messages:iter() do
@@ -390,7 +404,7 @@ get('messages', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the Messages cached for the guild")
 
 function Guild:getMessage(key, value)
 	for channel in self._text_channels:iter() do

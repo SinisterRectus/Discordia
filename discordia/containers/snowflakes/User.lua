@@ -2,30 +2,30 @@ local Snowflake = require('../Snowflake')
 
 local format = string.format
 
-local User, get = class('User', Snowflake)
+local User, property = class('User', Snowflake)
 
 function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self:_update(data)
 end
 
-get('avatar', '_avatar')
-get('name', '_username')
-get('username', '_username')
-get('discriminator', '_discriminator')
-get('bot', '_bot')
-get('email', '_email')
-get('verified', '_verified')
-get('mfaEnabled', '_mfa_enabled')
+property('avatar', '_avatar', nil, 'string', "Hash representing the user's avatar")
+property('name', '_username', nil, 'string', "The user's name (alias of username)")
+property('username', '_username', nil, 'string', "The user's name (alias of name)")
+property('discriminator', '_discriminator', nil, 'string', "The user's 4-digit discriminator")
+property('bot', '_bot', nil, 'boolean', "Whether the user is a bot account")
+-- property('email', '_email', nil, 'string', "") -- TODO: move to Client
+-- property('verified', '_verified', nil, '', "") -- TODO: move to Client
+-- property('mfaEnabled', '_mfa_enabled', nil, '', "") -- TODO: move to Client
 
-get('avatarUrl', function(self)
+property('avatarUrl', function(self)
 	if not self._avatar then return nil end
 	return format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self._id, self._avatar)
-end)
+end, nil, 'string', "URL that points to the user's avatar")
 
-get('mentionString', function(self)
+property('mentionString', function(self)
 	return format('<@%s>', self._id)
-end)
+end, nil, 'string', "Raw string that is parsed by Discord into a user mention")
 
 function User:__tostring()
 	return format('%s: %s', self.__name, self._username)

@@ -3,7 +3,7 @@ local format = string.format
 local warning = console.warning
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Cache, get = class('Cache')
+local Cache, property = class('Cache')
 
 function Cache:__init(array, constructor, key, parent)
 	self._count = #array
@@ -18,7 +18,7 @@ function Cache:__init(array, constructor, key, parent)
 	self._constructor = constructor
 end
 
-get('count', '_count')
+property('count', '_count', nil, 'number', "How many objects are cached")
 
 function Cache:__tostring()
 	return format('%s[%s]', self.__name, self._constructor.__name)
@@ -57,7 +57,7 @@ function Cache:merge(array)
 end
 
 function Cache:add(obj)
-	if obj.__class ~= self._constructor then
+	if obj.__name ~= self._constructor then
 		warning(format('Invalid object type %q for %s', obj.__name, self))
 		return false
 	end
@@ -69,7 +69,7 @@ function Cache:add(obj)
 end
 
 function Cache:remove(obj)
-	if obj.__class ~= self._constructor then
+	if obj.__name ~= self._constructor then
 		warning(format('Invalid object type %q for %s', obj.__name, self))
 		return false
 	end

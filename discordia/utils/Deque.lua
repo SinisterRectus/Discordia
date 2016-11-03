@@ -1,4 +1,4 @@
-local Deque, get = class('Deque')
+local Deque, property = class('Deque')
 
 function Deque:__init()
 	self._objects = {}
@@ -6,9 +6,9 @@ function Deque:__init()
 	self._last = -1
 end
 
-get('count', function(self)
+property('count', function(self)
 	return self._last - self._first + 1
-end)
+end, nil, 'number', "How many objects are in the deque")
 
 function Deque:pushLeft(obj)
 	self._first = self._first - 1

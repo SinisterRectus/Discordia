@@ -1,4 +1,4 @@
-local Container, get = class('Container')
+local Container, property = class('Container')
 
 local types = {
 	['string'] = true,
@@ -19,11 +19,11 @@ function Container:__init(data, parent)
 	return load(self, data)
 end
 
-get('parent', '_parent')
+property('parent', '_parent', nil, '*', "Parent Discord object (ex: the Guild of a Member)")
 
-get('client', function(self)
+property('client', function(self)
 	return self._parent.client or self._parent
-end)
+end, nil, 'Client', "Client object to which the Discord object is known")
 
 Container._update = load
 

@@ -4,7 +4,7 @@ local insert = table.insert
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Member, get, set = class('Member', Snowflake)
+local Member, property = class('Member', Snowflake)
 
 function Member:__init(data, parent)
 	self._id = data.user.id
@@ -13,42 +13,6 @@ function Member:__init(data, parent)
 	self._user = users:get(data.user.id) or users:new(data.user)
 	self:_update(data)
 end
-
-get('user', '_user')
-get('deaf', '_deaf')
-get('mute', '_mute')
-get('mute', '_mute')
-get('nick', '_nick')
-get('game', '_game')
-get('guild', '_parent')
-get('nickname', '_nick')
-get('joinedAt', '_joined_at')
-
-get('status', function(self)
-	return self._status or 'offline'
-end)
-
-get('gameName', function(self)
-	return self._game and self._game.name
-end)
-
-get('name', function(self)
-	return self._nick or self._user._username
-end)
-
-get('avatarUrl', function(self)
-	return self._user.avatarUrl
-end)
-
-get('mentionString', function(self)
-	return self._user.mentionString
-end)
-
-get('id', function(self) return self._user._id end)
-get('bot', function(self) return self._user._bot end)
-get('avatar', function(self) return self._user._avatar end)
-get('username', function(self) return self._user._username end)
-get('discriminator', function(self) return self._user._discriminator end)
 
 local function setNick(self, nick)
 	nick = nick or ''
@@ -62,30 +26,87 @@ local function setNick(self, nick)
 	return success
 end
 
-set('nick', setNick)
-set('nickname', setNick)
-
-set('mute', function(self, mute)
+local function setMute(self, mute)
 	mute = mute or false
 	local guild = self._parent
 	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {mute = mute})
 	if success then self._mute = mute end
 	return success
-end)
+end
 
-set('deaf', function(self, deaf)
+local function setDeaf(self, deaf)
 	deaf = deaf or false
 	local guild = self._parent
 	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {deaf = deaf})
 	if success then self._deaf = deaf end
 	return success
-end)
+end
 
-set('voiceChannel', function(self, channel)
+local function setVoiceChannel(self, channel)
 	local guild = self._parent
 	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {channel_id = channel._id})
 	return success
-end)
+end
+
+property('roleCount', function(self)
+	return #self._roles
+end, nil, 'number', "How many roles the member has (excluding @everyone)")
+
+property('roles', function(self)
+	local roles = self._parent._roles
+	return wrap(function()
+		for _, id in ipairs(self._roles) do
+			yield(roles:get(id))
+		end
+	end)
+end, nil, 'function', "Returns an iterator for the member's roles (excluding @everyone)")
+
+property('nickname', '_nick', setNick, 'string', "The member's nickname for the guild in which it exists (can be nil if not set)")
+property('user', '_user', nil, 'User', "The base user associated with this member")
+property('deaf', '_deaf', setDeaf, 'boolean', "Whether the member is deafened")
+property('mute', '_mute', setMute, 'boolean', "Whether the member is muted")
+property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
+property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
+
+property('status', function(self)
+	return self._status or 'offline'
+end, nil, 'string', "Whether the member is online, offline, or idle")
+
+property('gameName', function(self)
+	return self._game and self._game.name
+end, nil, 'string', "Name of the game set in the member's status (can be nil if not set)")
+
+property('name', function(self)
+	return self._nick or self._user._username
+end, nil, 'string', "The member's nickname if one is set. Otherwise, its username.")
+
+property('avatarUrl', function(self)
+	return self._user.avatarUrl
+end, nil, 'string', "Shortcut for member.user.avatarUrl")
+
+property('mentionString', function(self)
+	return self._user.mentionString
+end, nil, 'string', "Shortcut for member.user.mentionString")
+
+property('id', function(self)
+	return self._user._id
+end, nil, 'string', "Shortcut for member.user.id")
+
+property('bot', function(self)
+	return self._user._bot
+end, nil, 'string', "Shortcut for member.user.bot")
+
+property('avatar', function(self)
+	return self._user._avatar
+end, nil, 'string', "Shortcut for member.user.avatar")
+
+property('username', function(self)
+	return self._user._username
+end, nil, 'string', "Shortcut for member.user.username")
+
+property('discriminator', function(self)
+	return self._user._discriminator
+end, nil, 'string', "Shortcut for member.user.discriminator")
 
 function Member:__tostring()
 	if self._nick then
@@ -156,14 +177,6 @@ local function applyRoles(self, roles)
 	return success
 end
 
-set('roles', function(self, roles)
-	local map = function(role, tbl)
-		insert(tbl, role._id)
-	end
-	local role_ids = mapRoles(roles, map, {})
-	return applyRoles(self, role_ids)
-end)
-
 function Member:addRoles(roles)
 	local map = function(role, tbl)
 		insert(tbl, role._id)
@@ -203,19 +216,6 @@ function Member:removeRole(role)
 	end
 	return applyRoles(self, role_ids)
 end
-
-get('roleCount', function(self)
-	return #self._roles
-end)
-
-get('roles', function(self)
-	local roles = self._parent._roles
-	return wrap(function()
-		for _, id in ipairs(self._roles) do
-			yield(roles:get(id))
-		end
-	end)
-end)
 
 function Member:getRole(key, value)
 	local roles = self._parent._roles

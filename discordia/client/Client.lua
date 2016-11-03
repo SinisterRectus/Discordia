@@ -22,7 +22,7 @@ local defaultOptions = {
 	fetchMembers = false,
 }
 
-local Client, get = class('Client', Emitter)
+local Client, property = class('Client', Emitter)
 
 function Client:__init(customOptions)
 	Emitter.__init(self)
@@ -42,9 +42,7 @@ function Client:__init(customOptions)
 	self._private_channels = Cache({}, PrivateChannel, '_id', self)
 end
 
-get('api', '_api')
-get('user', '_user')
-get('socket', '_socket')
+property('user', '_user', nil, 'User', "The User object for the client")
 
 function Client:__tostring()
 	if self._user then
@@ -196,13 +194,13 @@ end
 
 -- users --
 
-get('userCount', function(self, key, value)
+property('userCount', function(self, key, value)
 	return self._users._count
-end)
+end, nil, 'number', "How many Users are cached for the client")
 
-get('users', function(self, key, value)
+property('users', function(self, key, value)
 	return self._users:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the Users cached for the client")
 
 function Client:getUser(key, value)
 	return self._users:get(key, value)
@@ -218,13 +216,13 @@ end
 
 -- guilds --
 
-get('guildCount', function(self, key, value)
+property('guildCount', function(self, key, value)
 	return self._guilds._count
-end)
+end, nil, 'number', "How many Guilds are cached for the client")
 
-get('guilds', function(self, key, value)
+property('guilds', function(self, key, value)
 	return self._guilds:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the Guilds cached for the client")
 
 function Client:getGuild(key, value)
 	return self._guilds:get(key, value)
@@ -240,15 +238,15 @@ end
 
 -- channels --
 
-get('channelCount', function(self, key, value)
+property('channelCount', function(self, key, value)
 	local n = self._private_channels._count
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count + guild._voice_channels._count
 	end
 	return n
-end)
+end, nil, 'number', "How many Channels are cached for the client")
 
-get('channels', function(self, key, value)
+property('channels', function(self, key, value)
 	return wrap(function()
 		for channel in self._private_channels:getAll(key, value) do
 			yield(channel)
@@ -262,7 +260,7 @@ get('channels', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the Channels cached for the client")
 
 function Client:getChannel(key, value)
 	local channel = self._private_channels:get(key, value)
@@ -300,13 +298,13 @@ end
 
 -- private channels --
 
-get('privateChannelCount', function(self, key, value)
+property('privateChannelCount', function(self, key, value)
 	return self._private_channels._count
-end)
+end, nil, 'number', "How many PrivateChannels are cached for the client")
 
-get('privateChannels', function(self, key, value)
+property('privateChannels', function(self, key, value)
 	return self._private_channels:getAll(key, value)
-end)
+end, nil, 'function', "Iterator for the PrivateChannels cached for the client")
 
 function Client:getPrivateChannel(key, value)
 	return self._private_channels:get(key, value)
@@ -322,15 +320,15 @@ end
 
 -- text channels --
 
-get('textChannelCount', function(self, key, value)
+property('textChannelCount', function(self, key, value)
 	local n = self._private_channels._count
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count
 	end
 	return n
-end)
+end, nil, 'number', "How many TextChannels are cached for the client")
 
-get('textChannels', function(self, key, value)
+property('textChannels', function(self, key, value)
 	return wrap(function()
 		for channel in self._private_channels:getAll(key, value) do
 			yield(channel)
@@ -341,7 +339,7 @@ get('textChannels', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the TextChannels cached for the client")
 
 function Client:getTextChannel(key, value)
 	local channel = self._private_channels:get(key, value)
@@ -376,15 +374,15 @@ end
 
 -- guild channels --
 
-get('guildChannelCount', function(self, key, value)
+property('guildChannelCount', function(self, key, value)
 	local n = self._private_channels._count
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count + guild._voice_channels._count
 	end
 	return n
-end)
+end, nil, 'number', "How many GuildChannels are cached for the client")
 
-get('guildChannels', function(self, key, value)
+property('guildChannels', function(self, key, value)
 	return wrap(function()
 		for guild in self._guilds:iter() do
 			for channel in guild._text_channels:getAll(key, value) do
@@ -395,7 +393,7 @@ get('guildChannels', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the GuildChannels cached for the client")
 
 function Client:getGuildChannel(key, value)
 	for guild in self._guilds:iter() do
@@ -426,15 +424,15 @@ end
 
 -- guild text channels --
 
-get('guildTextChannelCount', function(self, key, value)
+property('guildTextChannelCount', function(self, key, value)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count
 	end
 	return n
-end)
+end, nil, 'number', "How many GuildTextChannels are cached for the client")
 
-get('guildTextChannels', function(self, key, value)
+property('guildTextChannels', function(self, key, value)
 	return wrap(function()
 		for guild in self._guilds:iter() do
 			for channel in guild._text_channels:getAll(key, value) do
@@ -442,7 +440,7 @@ get('guildTextChannels', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the GuildTextChannels cached for the client")
 
 function Client:getGuildTextChannel(key, value)
 	for guild in self._guilds:iter() do
@@ -470,15 +468,15 @@ end
 
 -- guild voice channels --
 
-get('guildVoiceChannelCount', function(self, key, value)
+property('guildVoiceChannelCount', function(self, key, value)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + guild._voice_channels._count
 	end
 	return n
-end)
+end, nil, 'number', "How many GuildVoiceChannels are cached for the client")
 
-get('guildVoiceChannels', function(self, key, value)
+property('guildVoiceChannels', function(self, key, value)
 	return wrap(function()
 		for guild in self._guilds:iter() do
 			for channel in guild._voice_channels:getAll(key, value) do
@@ -486,7 +484,7 @@ get('guildVoiceChannels', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the GuildVoiceChannels cached for the client")
 
 function Client:getGuildVoiceChannel(key, value)
 	for guild in self._guilds:iter() do
@@ -514,15 +512,15 @@ end
 
 -- roles --
 
-get('roleCount', function(self, key, value)
+property('roleCount', function(self, key, value)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + self._roles._count
 	end
 	return n
-end)
+end, nil, 'number', "How many Roles are cached for the client")
 
-get('roles', function(self, key, value)
+property('roles', function(self, key, value)
 	return wrap(function()
 		for guild in self._guilds:iter() do
 			for role in self._roles:getAll(key, value) do
@@ -530,7 +528,7 @@ get('roles', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the Roles cached for the client")
 
 function Client:getRole(key, value)
 	for guild in self._guilds:iter() do
@@ -558,15 +556,15 @@ end
 
 -- members --
 
-get('memberCount', function(self, key, value)
+property('memberCount', function(self, key, value)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + self._members._count
 	end
 	return n
-end)
+end, nil, 'number', "How many Members are cached for the client")
 
-get('members', function(self, key, value)
+property('members', function(self, key, value)
 	return wrap(function()
 		for guild in self._guilds:iter() do
 			for member in self._members:getAll(key, value) do
@@ -574,7 +572,7 @@ get('members', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the Members cached for the client")
 
 function Client:getMember(key, value)
 	for guild in self._guilds:iter() do
@@ -602,7 +600,7 @@ end
 
 -- messages --
 
-get('messageCount', function(self, key, value)
+property('messageCount', function(self, key, value)
 	local n = 0
 	for channel in self._private_channels:iter() do
 		n = n + channel._messages._count
@@ -613,9 +611,9 @@ get('messageCount', function(self, key, value)
 		end
 	end
 	return n
-end)
+end, nil, 'number', "How many Messages are cached for the client")
 
-get('messages', function(self, key, value)
+property('messages', function(self, key, value)
 	return wrap(function()
 		for channel in self._private_channels:iter() do
 			for message in channel._messages:getAll(key, value) do
@@ -630,7 +628,7 @@ get('messages', function(self, key, value)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "Iterator for the Messages cached for the client")
 
 function Client:getMessage(key, value)
 	for channel in self._private_channels:iter() do

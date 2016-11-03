@@ -4,7 +4,7 @@ local round = math.round
 local format = string.format
 local lshift, rshift, band = bit.lshift, bit.rshift, bit.band
 
-local Color, get, set = class('Color')
+local Color, property = class('Color')
 
 function Color:__init(a, b, c)
 
@@ -30,38 +30,41 @@ function Color:__init(a, b, c)
 
 end
 
-get('value', '_value')
-
-get('r', function(self)
+local function getR(self)
 	return rshift(band(self._value, 0xFF0000), 16)
-end)
+end
 
-get('g', function(self)
+local function getG(self)
 	return rshift(band(self._value, 0x00FF00), 8)
-end)
+end
 
-get('b', function(self)
+local function getB(self)
 	return band(self._value, 0x0000FF)
-end)
+end
 
-set('r', function(self, v)
+local function setR(self, v)
 	self._value = lshift(v, 16) + lshift(self.g, 8) + self.b
-end)
+end
 
-set('g', function(self, v)
+local function setG(self, v)
 	self._value = lshift(self.r, 16) + lshift(v, 8) + self.b
-end)
+end
 
-set('b', function(self, v)
+local function setB(self, v)
 	self._value = lshift(self.r, 16) + lshift(self.g, 8) + b
-end)
+end
+
+property('value', '_value', nil, 'number', "Decimal value representing the total color")
+property('r', getR, setR, 'number', "Red level (0-255)")
+property('g', getG, setG, 'number', "Green level (0-255)")
+property('b', getB, setB, 'number', "Blue level (0-255)")
 
 function Color:__tostring()
 	return format('Color: (%i, %i, %i)', self.r, self.g, self.b)
 end
 
 function Color:__eq(other)
-	return self.__class == other.__class and self._value == other._value
+	return self.__name == other.__name and self._value == other._value
 end
 
 function Color:__add(other)

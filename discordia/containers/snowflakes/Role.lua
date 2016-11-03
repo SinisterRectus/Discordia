@@ -4,70 +4,73 @@ local Permissions = require('../../utils/Permissions')
 
 local format = string.format
 
-local Role, get, set = class('Role', Snowflake)
+local Role, property = class('Role', Snowflake)
 
 function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self:_update(data)
 end
 
-get('name', '_name')
-get('hoist', '_hoist')
-get('guild', '_parent')
-get('managed', '_managed')
-get('mentionable', '_mentionable')
-
-get('color', function(self)
-	return Color(self._color)
-end)
-
-get('permissions', function(self)
-	return Permissions(self._permissions)
-end)
-
-get('mentionString', function(self)
-	return format('<@&%s>', self._id)
-end)
-
 function Role:__tostring()
 	return format('%s: %s', self.__name, self._name)
 end
 
-set('name', function(self, name)
+local function getColor(self)
+	return Color(self._color)
+end
+
+local function getPermissions(self)
+	return Permissions(self._permissions)
+end
+
+local function setName(self, name)
 	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {name = name})
 	if success then self._name = data.name end
 	return success
-end)
+end
 
-set('hoist', function(self, hoist)
+local function setHoist(self, hoist)
 	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {hoist = hoist})
 	if success then self._hoist = data.hoist end
 	return success
-end)
+end
 
-set('mentionable', function(self, mentionable)
+local function setMentionable(self, mentionable)
 	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {mentionable = mentionable})
 	if success then self._mentionable = data.mentionable end
 	return success
-end)
+end
 
-set('position', function(self, position)
+local function setPosition(self, position)
 	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {position = position})
 	if success then self._position = data.position end
 	return success
-end)
+end
 
-set('color', function(self, color)
+local function setColor(self, color)
 	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {color = color._value})
 	if success then self._color = data.color end
 	return success
-end)
+end
 
-set('permissions', function(self, permissions)
+local function setPermissions(self, permissions)
 	local success, data = self._parent._parent._api:modifyGuildRole(self._parent._id, self._id, {permissions = permissions._value})
 	if success then self._permissions = data.permissions end
 	return success
-end)
+end
+
+property('name', '_name', setName, 'string', "Role name")
+property('hoist', '_hoist', setHoist, 'boolean', "Whether members with this role are displayed seperated from others")
+property('guild', '_parent', nil, 'Guild', "Discord guild in which the role exists")
+property('managed', '_managed', nil, 'boolean', "Whether the role is managed by an integration")
+property('position', '_position', setPosition, 'number', "The position setting of the guild's list of roles")
+property('mentionable', '_mentionable', setMentionable, 'boolean', "Whether guild members can mention this role")
+property('color', getColor, setColor, 'Color', "Object representing the role color")
+property('permissions', getPermissions, setPermissions, 'Permissions', "Object representing the role's permissions")
+
+property('mentionString', function(self)
+	return format('<@&%s>', self._id)
+end, nil, 'string', 'string', "Raw string that is parsed by Discord into a role mention")
 
 function Role:permissionIsEnabled(...)
 	local permissions = self:getPermissions()

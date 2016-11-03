@@ -3,7 +3,7 @@ local TextChannel = require('./TextChannel')
 
 local format = string.format
 
-local PrivateChannel, get = class('PrivateChannel', TextChannel)
+local PrivateChannel, property = class('PrivateChannel', TextChannel)
 
 function PrivateChannel:__init(data, parent)
 	TextChannel.__init(self, data, parent)
@@ -12,10 +12,11 @@ function PrivateChannel:__init(data, parent)
 	PrivateChannel._update(self, data)
 end
 
-get('recipient', '_recipient')
-get('name', function(self)
+property('recipient', '_recipient', nil, 'User', "The recipient of the private channel (the other half of your conversation)")
+
+property('name', function(self)
 	return self._recipient._username
-end)
+end, nil, 'string', "The username of the channel recipient")
 
 function PrivateChannel:__tostring()
 	return format('%s: %s', self.__name, self._recipient._username)

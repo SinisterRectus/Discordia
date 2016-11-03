@@ -5,7 +5,7 @@ local insert = table.insert
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Message, get, set = class('Message', Snowflake)
+local Message, property = class('Message', Snowflake)
 
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -15,24 +15,31 @@ function Message:__init(data, parent)
 	self:_update(data)
 end
 
-get('tts', '_tts')
-get('type', '_type')
-get('pinned', '_pinned')
-get('content', '_content')
-get('timestamp', '_timestamp')
-get('editedTimestamp', '_edited_timestamp')
-get('channel', '_parent')
-get('author', '_author')
+property('content', '_content', function(self, content)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
+	if success then self._content = data.content end
+	return success
+end, 'string', "The raw message text")
 
-get('member', function(self)
+property('tts', '_tts', nil, 'boolean', "Whether the message is a TTS one")
+property('pinned', '_pinned', nil, 'boolean', "Whether the message is pinned")
+property('timestamp', '_timestamp', nil, 'string', "Date and time that the message was created")
+property('editedTimestamp', '_edited_timestamp', nil, 'string', "Date and time that the message was edited")
+property('channel', '_parent', nil, 'TextChannel', "The channel in which the message exists (GuildTextChannel or PrivateChannel)")
+property('author', '_author', nil, 'User', "The user object representing the message's author")
+
+property('member', function(self)
 	local channel = self._parent
 	if channel._is_private then return end
 	return self._author:getMembership(channel._parent)
-end)
+end, nil, 'Member', "The member object for the author (does not exist for private channels)")
 
-get('guild', function(self) -- guild does not exist for messages in private channels
-	return self._parent._parent
-end)
+property('guild', function(self)
+	local channel = self._parent
+	if not channel._is_private then return channel._parent end
+end, nil, 'Guild', "The guild in which the message exists (does not exist for private channels)")
 
 function Message:__tostring()
 	return format('%s: %s', self.__name, self._content)
@@ -55,16 +62,16 @@ function Message:_update(data)
 	-- self.attachments = data.attachments -- TODO
 end
 
-get('mentionedUsers', function(self)
+property('mentionedUsers', function(self)
 	local mentions, k, v = self._mentions
 	if not mentions then return function() end end
 	return function()
 		k, v = next(mentions, k)
 		return v
 	end
-end)
+end, nil, 'function', "An iterator for Users that are mentions in the message")
 
-get('mentionedRoles', function(self)
+property('mentionedRoles', function(self)
 	return wrap(function()
 		local guild = self._parent._parent
 		if self._mention_everyone then
@@ -78,9 +85,9 @@ get('mentionedRoles', function(self)
 			end
 		end
 	end)
-end)
+end, nil, 'function', "An iterator for Roles that are mentions in the message")
 
-get('mentionedChannels', function(self)
+property('mentionedChannels', function(self)
 	return wrap(function()
 		local textChannels = self._parent._parent._textChannels
 		for id in self._content:gmatch('<#(.-)>') do
@@ -88,15 +95,7 @@ get('mentionedChannels', function(self)
 			if channel then yield(channel) end
 		end
 	end)
-end)
-
-set('content', function(self, content)
-	local channel = self._parent
-	local client = channel._parent._parent or channel._parent
-	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
-	if success then self._content = data.content end
-	return success
-end)
+end, nil, 'function', "An iterator for GuildChannels that are mentions in the message")
 
 function Message:mentionsUser(user)
 	for obj in self:getMentionedUsers() do
