@@ -49,8 +49,8 @@ local function setDeniedPermissions(self, denied)
 	return setPermissions(self, allow, deny)
 end
 
-property('allowedPermissions', getAllowedPermissions, setAllowedPermissions, 'Permissions', "The permissions that are allowed by the ovewrite.")
-property('deniedPermissions', getDeniedPermissions, setDeniedPermissions, 'Permissions', "The permissions that are denied by the ovewrite.")
+property('allowedPermissions', getAllowedPermissions, setAllowedPermissions, 'Permissions', "The permissions that are allowed by the overwrite.")
+property('deniedPermissions', getDeniedPermissions, setDeniedPermissions, 'Permissions', "The permissions that are denied by the overwrite.")
 
 function PermissionOverwrite:_update(data)
 	self._allow = data.allow

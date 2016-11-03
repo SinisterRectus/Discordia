@@ -27,7 +27,7 @@ local function setPosition(self, position) -- will probably need more abstractio
 end
 
 property('guild', '_parent', nil, 'Guild', "The guild in which the channel exists")
-property('name', '_name', setName, 'string', "The name of the guild chanel")
+property('name', '_name', setName, 'string', "The name of the guild channel")
 property('position', '_position', setPosition, 'number', "The position of the channel in the guild's list of channels")
 
 function GuildChannel:__tostring()

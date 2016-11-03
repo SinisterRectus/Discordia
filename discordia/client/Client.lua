@@ -43,6 +43,9 @@ function Client:__init(customOptions)
 end
 
 property('user', '_user', nil, 'User', "The User object for the client")
+property('email', '_email', nil, 'string', "The client's email address (non-bot only)")
+property('verified', '_verified', nil, 'boolean', "Whether the client account is verified by Discord")
+property('mfaEnabled', '_mfa_enabled', nil, 'boolean', "Whether the client has MFA enabled")
 
 function Client:__tostring()
 	if self._user then
@@ -110,6 +113,12 @@ function Client:_connectToGateway(token)
 		failure('Cannot connect to gateway: ' .. (gateway and gateway or 'nil'))
 	end
 
+end
+
+function Client:_loadUserData(data)
+	self._email = data.email
+	self._verified = data.verified
+	self._mfa_enabled = data.mfa_enabled
 end
 
 function Client:listVoiceRegions()

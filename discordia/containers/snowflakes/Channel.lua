@@ -11,7 +11,7 @@ function Channel:__init(data, parent)
 end
 
 property('type', '_type', nil, 'string', "The channel type (text or voice)")
-property('isPrivate', '_is_private', nil, 'boolean', "Whether the channel is prviate")
+property('isPrivate', '_is_private', nil, 'boolean', "Whether the channel is private")
 
 function Channel:_update(data)
 	Snowflake._update(self, data)

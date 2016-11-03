@@ -24,7 +24,7 @@ function EventHandler.READY(data, client)
 	client._socket._session_id = data.session_id -- TODO: maybe move out of EventHandler
 
 	client._user = client._users:new(data.user)
-	client._user:_loadClientData(data.user)
+	client:_loadUserData(data.user)
 
 	client._guilds:merge(data.guilds)
 	client._private_channels:merge(data.private_channels)

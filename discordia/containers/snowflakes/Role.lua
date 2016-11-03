@@ -60,7 +60,7 @@ local function setPermissions(self, permissions)
 end
 
 property('name', '_name', setName, 'string', "Role name")
-property('hoist', '_hoist', setHoist, 'boolean', "Whether members with this role are displayed seperated from others")
+property('hoist', '_hoist', setHoist, 'boolean', "Whether members with this role are displayed separated from others")
 property('guild', '_parent', nil, 'Guild', "Discord guild in which the role exists")
 property('managed', '_managed', nil, 'boolean', "Whether the role is managed by an integration")
 property('position', '_position', setPosition, 'number', "The position setting of the guild's list of roles")

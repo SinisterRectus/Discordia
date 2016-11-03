@@ -14,9 +14,6 @@ property('name', '_username', nil, 'string', "The user's name (alias of username
 property('username', '_username', nil, 'string', "The user's name (alias of name)")
 property('discriminator', '_discriminator', nil, 'string', "The user's 4-digit discriminator")
 property('bot', '_bot', nil, 'boolean', "Whether the user is a bot account")
--- property('email', '_email', nil, 'string', "") -- TODO: move to Client
--- property('verified', '_verified', nil, '', "") -- TODO: move to Client
--- property('mfaEnabled', '_mfa_enabled', nil, '', "") -- TODO: move to Client
 
 property('avatarUrl', function(self)
 	if not self._avatar then return nil end
@@ -29,12 +26,6 @@ end, nil, 'string', "Raw string that is parsed by Discord into a user mention")
 
 function User:__tostring()
 	return format('%s: %s', self.__name, self._username)
-end
-
-function User:_loadClientData(data)
-	self._email = data.email
-	self._verified = data.verified
-	self._mfa_enabled = data.mfa_enabled
 end
 
 function User:getMembership(guild)
