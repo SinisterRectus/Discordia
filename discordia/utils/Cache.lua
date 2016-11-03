@@ -57,7 +57,7 @@ function Cache:merge(array)
 end
 
 function Cache:add(obj)
-	if obj.__name ~= self._constructor then
+	if obj.__name ~= self._constructor.__name then
 		warning(format('Invalid object type %q for %s', obj.__name, self))
 		return false
 	end
@@ -69,7 +69,7 @@ function Cache:add(obj)
 end
 
 function Cache:remove(obj)
-	if obj.__name ~= self._constructor then
+	if obj.__name ~= self._constructor.__name then
 		warning(format('Invalid object type %q for %s', obj.__name, self))
 		return false
 	end
