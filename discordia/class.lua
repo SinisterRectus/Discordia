@@ -1,5 +1,6 @@
-local insert = table.insert
-local format, upper = string.format, string.upper
+local max = math.max
+local insert, sort = table.insert, table.sort
+local format, upper, rep = string.format, string.upper, string.rep
 
 local meta = {}
 local classes = {}
@@ -14,56 +15,7 @@ function meta:__tostring()
 	return 'class: ' .. self.__name
 end
 
--- local docs = {classes = {}}
---
--- setmetatable(docs, {__call = function(self, name, desc)
---
--- 	local class = {name, desc, properties = {}, methods = {}}
---
--- 	function class.property(name, type, mutable, desc)
--- 		insert(class.properties, {name, type, mutable, desc})
--- 		return class
--- 	end
---
--- 	function class.method(name, desc)
--- 		insert(class.methods, {name, desc, args = {}, rets = {}})
--- 		return class
--- 	end
---
--- 	function class.arg(name, type, desc)
--- 		local methods = class.methods
--- 		insert(methods[#methods].args, {name, type, desc})
--- 		return class
--- 	end
---
--- 	function class.ret(type)
--- 		local methods = class.methods
--- 		insert(methods[#methods].rets, type)
--- 		return class
--- 	end
---
--- 	function class.dump() -- debug
--- 		p(class[1], class[2])
--- 		for _, property in ipairs(class.properties) do
--- 			p('', property)
--- 		end
--- 		for _, method in ipairs(class.methods) do
--- 			p('', method[1], method[2])
--- 			for _, arg in ipairs(method.args) do
--- 				p('', '', arg)
--- 			end
--- 			for _, ret in ipairs(method.rets) do
--- 				p('', '', ret)
--- 			end
--- 		end
--- 	end
---
--- 	insert(docs.classes, class)
--- 	return class
---
--- end})
-
-local Object -- define below
+local Object -- defined below
 
 local class = setmetatable({__classes = classes, docs = docs}, {__call = function(self, name, ...)
 
@@ -85,7 +37,7 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 			setters[k] = v
 		end
 		for k, v in pairs(base.__methods) do
-			properties[k] = v
+			methods[k] = v
 		end
 		for k, v in pairs(base.__properties) do
 			properties[k] = v
@@ -104,7 +56,7 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 		if getter then
 			return getter(self)
 		else
-			return methods[k] or class[k]
+			return class[k]
 		end
 	end
 
@@ -112,7 +64,7 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 		local setter = setters[k]
 		if setter then
 			return setter(self, v)
-		elseif class[k]  or properties[k] then
+		elseif class[k] or properties[k] then
 			return error(format('Cannot overwrite protected property: %s.%s', name, k))
 		else
 			return rawset(self, k, v)
@@ -121,12 +73,15 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 
 	local function property(k, get, set, t, d)
 
-		assert(k and t and d)
+		assert(type(k) == 'string')
+		assert(type(t) == 'string')
+		assert(type(d) == 'string' and #d < 120)
+
 		local m = k:gsub('^%l', upper)
 
 		local getter = get
 		if type(get) == 'string' then
-			getter = function(class) return class[get] end
+			getter = function(self) return self[get] end
 		end
 		assert(type(getter) == 'function')
 		getters[k] = getter
@@ -135,7 +90,7 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 		if set then
 			local setter = set
 			if type(set) == 'string' then
-				setter = function(class, v) class[set] = v end
+				setter = function(self, v) self[set] = v end
 			end
 			assert(type(setter) == 'function')
 			setters[k] = setter
@@ -146,9 +101,17 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 
 	end
 
+	local function method(k, fn, params, desc)
+		assert(type(k) == 'string')
+		assert(type(fn) == 'function')
+		assert(type(desc) == 'string' and #desc < 120)
+		class[k] = fn
+		methods[k] = {params or '', desc}
+	end
+
 	classes[name] = class
 
-	return class, property
+	return class, property, method
 
 end})
 
@@ -173,10 +136,48 @@ function Object:isInstanceOf(name)
 	return isSub(self.__name, class), false
 end
 
+local function padRight(str, len)
+	return str .. rep(' ', len - #str)
+end
+
+local function sorter(a, b)
+	return a[1] < b[1]
+end
+
 function Object:help()
-	for k, v in pairs(self.__properties) do
-		p(k, v)
+
+	printf('\n-- %s --\n%s\n', self.__name, self.__description)
+
+	if next(self.__properties) then
+		local properties = {}
+		local n, m = 0, 0
+		for k, v in pairs(self.__properties) do
+			insert(properties, {k, v[1], v[2]})
+			n = max(n, #k)
+			m = max(m, #v[1])
+		end
+		sort(properties, sorter)
+		for i, v in ipairs(properties) do
+			printf('%s  %s  %s', padRight(v[1], n), padRight(v[2], m), v[3])
+		end
+		print()
 	end
+
+	if next(self.__methods) then
+		local methods = {}
+		local n, m = 0, 0
+		for k, v in pairs(self.__methods) do
+			insert(methods, {k, v[1], v[2]})
+			n = max(n, #k + #v[1] + 2)
+			m = max(m, #v[2])
+		end
+		sort(methods, sorter)
+		for i, v in ipairs(methods) do
+			printf('%s  %s', padRight(format('%s(%s)', v[1], v[2]), n), padRight(v[3], m))
+		end
+		print()
+	end
+
 end
 
 return class

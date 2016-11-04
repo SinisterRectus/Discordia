@@ -5,7 +5,8 @@
 local wrap = coroutine.wrap
 local insert, remove = table.insert, table.remove
 
-local Emitter = class('Emitter')
+local Emitter, property, method = class('Emitter')
+Emitter.__description = "Modified version of Luvit's built-in event emitter. Automatically wraps event callbacks with coroutines."
 
 function Emitter:__init()
 	self._listeners = {}
@@ -20,7 +21,7 @@ local function missingHandlerType(self, name, ...)
 	end
 end
 
-function Emitter:once(name, listener)
+local function once(self, name, listener)
 	local listeners = self._listeners[name] or {}
 	self._listeners[name] = listeners
 	local function wrapper(...)
@@ -30,18 +31,18 @@ function Emitter:once(name, listener)
 	insert(listeners, wrapper)
 end
 
-function Emitter:on(name, listener)
+local function on(self, name, listener)
 	local listeners = self._listeners[name] or {}
 	self._listeners[name] = listeners
 	insert(listeners, listener)
 end
 
-function Emitter:listenerCount(name)
+local function listenerCount(self, name)
 	local listeners = self._listeners[name]
 	return listeners and #listeners or 0
 end
 
-function Emitter:emit(name, ...)
+local function emit(self, name, ...)
 	local listeners = self._listeners[name]
 	if not listeners then
 		return missingHandlerType(self, name, ...)
@@ -57,7 +58,7 @@ function Emitter:emit(name, ...)
 	end
 end
 
-function Emitter:removeListener(name, listener)
+local function removeListener(self, name, listener)
 	local listeners = self._listeners[name]
 	if not listeners then return end
 	for i = 1, #listeners do
@@ -68,20 +69,29 @@ function Emitter:removeListener(name, listener)
 	end
 end
 
-function Emitter:removeAllListeners(name)
+local function removeAllListeners(self, name)
 	 self._listeners[name] = nil
 end
 
-function Emitter:listeners(name)
+local function listeners(self, name)
 	return self._listeners[name] or {}
 end
 
-function Emitter:propagate(name, target)
+local function propagate(self, name, target)
 	if target and target.emit then
 		self:on(name, function(...) target:emit(name, ...) end)
 		return target
 	end
 	return self
 end
+
+method('once', once, 'name, listener', "Registers a listener function that is called once and unregistered when a named event is emitted.")
+method('on', on, 'name, listener', "Registers a listener function that is called every time a named event is emitted.")
+method('listenerCount', listenerCount, 'name', "Returns the number of listeners that are registered to a named event.")
+method('emit', emit, 'name[, ...]', "Emits a named event with an optional variable amount of arguments.")
+method('removeListener', removeListener, 'name, listener', "Unregisters a listener from a named event.")
+method('removeAllListeners', removeAllListeners, 'name', "Unregisters all listeners from a named event.")
+method('listeners', listeners, 'name', "Returns a table of listeners registered to a named event.")
+method('propagate', propagate, 'name, target', "Causes all named event emissions to propagates to another target emitter.")
 
 return Emitter

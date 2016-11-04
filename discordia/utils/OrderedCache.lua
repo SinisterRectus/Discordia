@@ -1,6 +1,7 @@
 local Cache = require('./Cache')
 
-local OrderedCache, property = class('OrderedCache', Cache)
+local OrderedCache, property, method = class('OrderedCache', Cache)
+OrderedCache.__description = "Extention of Cache that maintains object order using a linked list. If the ordered cache is full, adding a new object will discard the oldest object."
 
 function OrderedCache:__init(array, constructor, key, limit, parent)
 	Cache.__init(self, array, constructor, key, parent)
@@ -8,10 +9,6 @@ function OrderedCache:__init(array, constructor, key, limit, parent)
 	self._next = {}
 	self._prev = {}
 end
-
-property('limit', '_limit', nil, 'number', "The maximum amount of objects that can be cached before the cache starts to empty")
-property('first', '_first', nil, '*', "The first, or oldest, object in the cache")
-property('last', '_last', nil, '*', "The last, or newest, object in the cache")
 
 function OrderedCache:_add(obj)
 	local key = self._key
@@ -51,7 +48,7 @@ function OrderedCache:_remove(obj)
 	self._count = self._count - 1
 end
 
-function OrderedCache:iterLastToFirst()
+local function iterLastToFirst(self)
 	local obj = self._last
 	local key = self._key
 	return function()
@@ -61,7 +58,7 @@ function OrderedCache:iterLastToFirst()
 	end
 end
 
-function OrderedCache:iterFirstToLast()
+local function iterFirstToLast(self)
 	local obj = self._first
 	local key = self._key
 	return function()
@@ -71,8 +68,16 @@ function OrderedCache:iterFirstToLast()
 	end
 end
 
-function OrderedCache:iter(reverse)
+local function iter(self, reverse)
 	return reverse and self:iterLastToFirst() or self:iterFirstToLast()
 end
+
+property('limit', '_limit', nil, 'number', "The maximum amount of objects that can be cached before the cache starts to empty")
+property('first', '_first', nil, '*', "The first, or oldest, object in the cache")
+property('last', '_last', nil, '*', "The last, or newest, object in the cache")
+
+method('iterLastToFirst', iterLastToFirst, nil, "Returns an iterator for the objects in order of last (newest) to first (oldest).")
+method('iterFirstToLast', iterFirstToLast, nil, "Returns an iterator for the objects in order of first (oldest) to last (newest).")
+method('iter', iter, '[reverse]', "Equivalent to `iterFirstToLast` (or `iterLastToFirst` if reverse is `true`).")
 
 return OrderedCache

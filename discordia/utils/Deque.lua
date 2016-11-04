@@ -1,4 +1,5 @@
-local Deque, property = class('Deque')
+local Deque, property, method = class('Deque')
+Deque.__description = "Implementation of a double-ended queue"
 
 function Deque:__init()
 	self._objects = {}
@@ -6,21 +7,21 @@ function Deque:__init()
 	self._last = -1
 end
 
-property('count', function(self)
+local function getCount(self)
 	return self._last - self._first + 1
-end, nil, 'number', "How many objects are in the deque")
+end
 
-function Deque:pushLeft(obj)
+local function pushLeft(self, obj)
 	self._first = self._first - 1
 	self._objects[self._first] = obj
 end
 
-function Deque:pushRight(obj)
+local function pushRight(self, obj)
 	self._last = self._last + 1
 	self._objects[self._last] = obj
 end
 
-function Deque:popLeft()
+local function popLeft(self)
 	if self._first > self._last then return nil end
 	local obj = self._objects[self._first]
 	self._objects[self._first] = nil
@@ -28,7 +29,7 @@ function Deque:popLeft()
 	return obj
 end
 
-function Deque:popRight()
+local function popRight(self)
 	if self._first > self._last then return nil end
 	local obj = self._objects[self._last]
 	self._objects[self._last] = nil
@@ -36,22 +37,32 @@ function Deque:popRight()
 	return obj
 end
 
-function Deque:peekLeft()
+local function peekLeft(self)
 	return self._objects[self._first]
 end
 
-function Deque:peekRight()
+local function peekRight(self)
 	return self._objects[self._last]
 end
 
-function Deque:iter()
+local function iter(self)
 	local t = self._objects
-	local i, limit = self._first, self._last
+	local i, n = self._first, self._last
 	return function()
-		if i > limit then return nil end
+		if i > n then return end
 		local v = t[i]; i = i + 1
 		return v
 	end
 end
+
+property('count', getCount, nil, 'number', "How many objects are in the deque")
+
+method('pushLeft', pushLeft, 'obj', "Push an object to the left side of the deque.")
+method('pushRight', pushRight, 'obj', "Push an object to the right side of the deque.")
+method('popLeft', popLeft, nil, "Pop an object from the left side of the deque and return it.")
+method('popRight', popRight, nil, "Pop and object from the right side of the deque and return it.")
+method('peekLeft', peekLeft, nil, "Returns the object at the left side of the deque, but does not pop it.")
+method('peekRight', peekRight, nil, "Returns the object at the right side of the deque, but does not pop it.")
+method('iter', iter, nil, "Returns an iterator for the objects in the deque, from left to right.")
 
 return Deque

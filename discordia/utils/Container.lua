@@ -1,4 +1,5 @@
 local Container, property = class('Container')
+Container.__description = "Base object used to contain the raw data of Discord objects."
 
 local types = {
 	['string'] = true,

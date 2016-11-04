@@ -1,6 +1,7 @@
 local hrtime = require('uv').hrtime
 
-local Stopwatch, property = class('Stopwatch')
+local Stopwatch, property, method = class('Stopwatch')
+Stopwatch.__description = "Utility that measures elapsed time with nanosecond precision."
 
 function Stopwatch:__init()
 	self._time = hrtime()
@@ -30,6 +31,6 @@ property('nanoseconds', function(self)
 	return hrtime() - self._time
 end, nil, 'number', "Elapsed time in nanoseconds")
 
-Stopwatch.restart = Stopwatch.__init
+method('restart', Stopwatch.__init, nil, "Sets the stopwatch's time to zero.")
 
 return Stopwatch

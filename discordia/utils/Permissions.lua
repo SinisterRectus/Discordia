@@ -4,7 +4,8 @@ local format = string.format
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local sort, insert, concat = table.sort, table.insert, table.concat
 
-local Permissions, property = class('Permissions')
+local Permissions, property, method = class('Permissions')
+Permissions.__description = "Wrapper for a Discord permissions bit set."
 
 local flags = {
 	createInstantInvite	= 0x00000001, -- general
@@ -45,8 +46,6 @@ function Permissions:__init(value)
 	self._value = tonumber(value) or 0
 end
 
-property('value', '_value', nil, 'number', "Decimal representing the total permissions")
-
 function Permissions:__tostring()
 	local tbl = self:toTable()
 	if #tbl == 0 then
@@ -61,7 +60,7 @@ function Permissions.__eq(other)
 	return self.__name == other.__name and self._value == other._value
 end
 
-function Permissions:enable(...)
+local function enable(self, ...)
 	local value = self._value
 	for i = 1, select('#', ...) do
 		local flag = select(i, ...)
@@ -72,7 +71,7 @@ function Permissions:enable(...)
 	self._value = value
 end
 
-function Permissions:disable(...)
+local function disable(self, ...)
 	local value = self._value
 	for i = 1, select('#', ...) do
 		local flag = select(i, ...)
@@ -83,7 +82,7 @@ function Permissions:disable(...)
 	self._value = value
 end
 
-function Permissions:has(...)
+local function has(self, ...)
 	local value = self._value
 	for i = 1, select('#', ...) do
 		local flag = select(i, ...)
@@ -94,19 +93,19 @@ function Permissions:has(...)
 	return true
 end
 
-function Permissions:enableAll()
+local function enableAll(self)
 	self._value = all
 end
 
-function Permissions:disableAll()
+local function disableAll(self)
 	self._value = 0
 end
 
-function Permissions:toHex()
+local function toHex(self)
 	return format('0x%08X', self._value)
 end
 
-function Permissions:toTable()
+local function toTable(self)
 	local ret = {}
 	for flag, value in pairs(flags) do
 		if band(self._value, value) > 0 then
@@ -116,19 +115,19 @@ function Permissions:toTable()
 	return ret
 end
 
-function Permissions:union(other) -- in either
+local function union(self, other) -- in either
 	return Permissions(bor(self._value, other._value))
 end
 
-function Permissions:intersection(other) -- in both
+local function intersection(self, other) -- in both
 	return Permissions(band(self._value, other._value))
 end
 
-function Permissions:difference(other) -- not in both
+local function difference(self, other) -- not in both
 	return Permissions(bxor(self._value, other._value))
 end
 
-function Permissions:complement(other) -- in other not in self
+local function complement(self, other) -- in other not in self
 	local value = other and other._value or all
 	return Permissions(band(bnot(self._value), value))
 end
@@ -136,5 +135,19 @@ end
 function Permissions:copy()
 	return Permissions(self._value)
 end
+
+property('value', '_value', nil, 'number', "Decimal representing the total permissions")
+
+method('enable', enable, 'flag[, ...]', "Enables a permission or permissions.")
+method('disable', disable, 'flag[, ...]', "Disables a permission or permissions.")
+method('has', has, 'flag[, ...]', "Returns a boolean indicating whether a permission or permissions is/are enabled.")
+method('enableAll', enableAll, nil, "Enables all permissions.")
+method('disableAll', disableAll, nil, "Disables all permissions.")
+method('toHex', toHex, nil, "Returns a hex string for the permission's value.")
+method('toTable', toTable, nil, "Returns an array-like Lua table of the object's enabled flags.")
+method('union', union, 'other', "Returns a new Permissions object with the permissions that are in self or other (bitwise OR).")
+method('intersection', intersection, 'other', "Returns a new Permissions object with the permissions that are in self and other (bitwise AND).")
+method('difference', difference, 'other', "Returns a new Permissions object with the permissions that in self or other, but not both (bitwise XOR).")
+method('complement', complement, '[other]', "Returns a new Permissions object with the permissions that are in other (or all) but not self.")
 
 return Permissions

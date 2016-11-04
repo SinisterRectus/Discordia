@@ -1,8 +1,9 @@
-local insert = table.insert
 local format = string.format
+local insert, sort = table.insert, table.sort
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Cache, property = class('Cache')
+local Cache, property, method = class('Cache')
+Cache.__description = "Enhanced Lua table that is used to store Discord objects of the same type."
 
 function Cache:__init(array, constructor, key, parent)
 	self._count = #array
@@ -17,13 +18,17 @@ function Cache:__init(array, constructor, key, parent)
 	self._constructor = constructor
 end
 
-property('count', '_count', nil, 'number', "How many objects are cached")
-
 function Cache:__tostring()
 	return format('%s[%s]', self.__name, self._constructor.__name)
 end
 
 function Cache:_add(obj)
+	if not obj[self._key] then -- debug
+		p(self._key)
+		for k, v in pairs(obj) do
+			print(k, v)
+		end
+	end
 	self._objects[obj[self._key]] = obj
 	self._count = self._count + 1
 end
@@ -33,7 +38,7 @@ function Cache:_remove(obj)
 	self._count = self._count - 1
 end
 
-function Cache:new(data)
+local function new(self, data)
 	local new = self._constructor(data, self._parent)
 	local old = self._objects[new[self._key]]
 	if new == old then
@@ -44,7 +49,7 @@ function Cache:new(data)
 	end
 end
 
-function Cache:merge(array)
+local function merge(self, array)
 	local key = self._key
 	local parent = self._parent
 	local objects = self._objects
@@ -55,7 +60,7 @@ function Cache:merge(array)
 	end
 end
 
-function Cache:add(obj)
+local function add(self, obj)
 	if obj.__name ~= self._constructor.__name then
 		error(format('Invalid object type %q for %s', obj.__name, self))
 		return false
@@ -66,7 +71,7 @@ function Cache:add(obj)
 	return self:_add(obj)
 end
 
-function Cache:remove(obj)
+local function remove(self, obj)
 	if obj.__name ~= self._constructor.__name then
 		error(format('Invalid object type %q for %s', obj.__name, self))
 		return false
@@ -77,12 +82,12 @@ function Cache:remove(obj)
 	return self:_remove(obj)
 end
 
-function Cache:has(obj)
+local function has(self, obj)
 	local cached = self._objects[obj[self._key]]
 	return cached == obj
 end
 
-function Cache:iter()
+local function iter(self)
 	local objects, k, v = self._objects
 	return function()
 		k, v = next(objects, k)
@@ -90,21 +95,10 @@ function Cache:iter()
 	end
 end
 
-function Cache:get(key, value) -- use find for explicit obj[key] == nil
-	if value == nil then
-		return self._objects[key]
-	elseif key == self._key then
-		return self._objects[value]
-	elseif key ~= nil then
-		for obj in self:iter() do
-			if obj[key] == value then
-				return obj
-			end
-		end
-	end
+local function get(self, key, value)
 end
 
-function Cache:getAll(key, value)
+local function getAll(self, key, value)
 	if key == nil and value == nil then return self:iter() end
 	return wrap(function()
 		for obj in self:iter() do
@@ -115,7 +109,7 @@ function Cache:getAll(key, value)
 	end)
 end
 
-function Cache:find(predicate)
+local function find(self, predicate)
 	for obj in self:iter() do
 		if predicate(obj) then
 			return obj
@@ -123,7 +117,7 @@ function Cache:find(predicate)
 	end
 end
 
-function Cache:findAll(predicate)
+local function findAll(self, predicate)
 	return wrap(function()
 		for obj in self:iter() do
 			if predicate(obj) then
@@ -133,21 +127,37 @@ function Cache:findAll(predicate)
 	end)
 end
 
-function Cache:keys()
+local function keys(self)
 	local key = self._key
 	local keys = {}
 	for obj in self:iter() do
 		insert(keys, obj[key])
 	end
+	sort(keys)
 	return keys
 end
 
-function Cache:values()
+local function values(self)
 	local values = {}
 	for obj in self:iter() do
 		insert(values, obj)
 	end
 	return values
 end
+
+property('count', '_count', nil, 'number', "How many objects are cached")
+
+method('new', new, 'data', "Adds a new Discord object from a JSON data table and returns the object.")
+method('merge', merge, 'array', "Adds many new Discord object from an array of JSON data tables.")
+method('add', add, 'obj', "Adds an object to the cache. Must match the defined type.")
+method('remove', remove, 'obj', "Remove an object from the cache. Must match the defined type.")
+method('has', has, 'obj', "Returns a boolean indicating whether the cache contains the specified object.")
+method('iter', iter, nil, "Returns an iterator for the objects in the queue. Order is not guaranteed.")
+method('get', get, '[key,] value', "Returns the first object matching the provided (key, value) pair.")
+method('getAll', get, '[key, value]', "Returns an iterator for all objects that match the (key, value) pair.")
+method('find', find, 'predicate', "Returns the first object found that satisfies a predicate.")
+method('findAll', findAll, 'predicate', "Returns an iterator for all objects that satisfy a predicate.")
+method('keys', keys, nil, "Returns an array-like Lua table of all of the cached objects' keys, sorted by key.")
+method('values', values, nil, "Returns an array-like Lua table of all of the cached objects, sorted by key.")
 
 return Cache
