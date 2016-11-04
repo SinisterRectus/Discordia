@@ -81,7 +81,8 @@
 	- `messageAcknowledge` and `membersChunk` were removed
 	- `memberBan` and `memberUnban` were renamed to `userBan` and `userUnban` and now provide a `User` object instead of a `Member` object
 	- `typingStart` now has a timestamp as a third argument
-	- Added `warning` and `error` events
+	- `messageUpdateUncached` and `messageDeleteUncached` events were added for uncached message events
+	- `warning` and `error` events were added
 
 
 - New Classes

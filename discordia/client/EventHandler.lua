@@ -279,7 +279,7 @@ function EventHandler.MESSAGE_UPDATE(data, client)
 	local channel = client:getTextChannel(data.channel_id) -- shortcut required
 	if not channel then return warning(client, 'channel', 'MESSAGE_UPDATE') end
 	local message = channel._messages:get(data.id)
-	if not message then return warning(client, 'message', 'MESSAGE_UPDATE') end
+	if not message then return client:emit('messageUpdateUncached', channel, data.id) end
 	message:_update(data)
 	return client:emit('messageUpdate', message)
 end
@@ -288,7 +288,7 @@ function EventHandler.MESSAGE_DELETE(data, client)
 	local channel = client:getTextChannel(data.channel_id) -- shortcut required
 	if not channel then return warning(client, 'channel', 'MESSAGE_DELETE') end
 	local message = channel._messages:get(data.id)
-	if not message then return warning(client, 'message', 'MESSAGE_DELETE') end
+	if not message then return client:emit('messageDeleteUncached', channel, data.id) end
 	channel._messages:remove(message)
 	return client:emit('messageDelete', message)
 end
@@ -300,7 +300,7 @@ function EventHandler.MESSAGE_DELETE_BULK(data, client)
 	for _, id in ipairs(data.ids) do
 		local message = channel._messages:get(id)
 		if not message then
-			warning(client, 'message', 'MESSAGE_DELETE_BULK')
+			client:emit('messageDeleteUncached', channel, id)
 		else
 			client:emit('messageDelete', message)
 		end
