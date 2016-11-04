@@ -1,7 +1,5 @@
 local Cache = require('./Cache')
 
-local warning = console.warning
-
 local OrderedCache, property = class('OrderedCache', Cache)
 
 function OrderedCache:__init(array, constructor, key, limit, parent)

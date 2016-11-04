@@ -15,7 +15,7 @@
 		- Message authors, channel recipients, and invite inviters are always `User` objects
 		- Guild owners and members are always `Member` objects
 	- `utils` was removed from the main `discordia` module and has been replaced by individual utility classes
-	- `Warning` and `Error` classes were merged into a global `console` module
+	- `Warning` and `Error` classes were removed in favor of events
 		- Gateway disconnects, nil values on events, and HTTP errors are now handled more gracefully
 	- All modules relevant to the `Client` class were refactored and moved with it into a `client` folder:
 		- `Client` now extends a custom version of Luvit's built-in `Emitter`
@@ -81,6 +81,7 @@
 	- `messageAcknowledge` and `membersChunk` were removed
 	- `memberBan` and `memberUnban` were renamed to `userBan` and `userUnban` and now provide a `User` object instead of a `Member` object
 	- `typingStart` now has a timestamp as a third argument
+	- Added `warning` and `error` events
 
 
 - New Classes

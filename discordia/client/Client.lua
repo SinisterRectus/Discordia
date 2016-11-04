@@ -6,13 +6,16 @@ local Invite = require('../containers/Invite')
 local User = require('../containers/snowflakes/User')
 local Guild = require('../containers/snowflakes/Guild')
 local PrivateChannel = require('../containers/snowflakes/channels/PrivateChannel')
-
-local info, warning, failure = console.info, console.warning, console.failure
+local pp = require('pretty-print')
 
 local open = io.open
 local time = os.time
 local remove = table.remove
-local wrap, yield = coroutine.wrap, coroutine.yield
+local format = string.format
+local colorize = pp.colorize
+local traceback = debug.traceback
+local date, exit = os.date, os.exit
+local wrap, yield, running = coroutine.wrap, coroutine.yield, coroutine.running
 
 local defaultOptions = {
 	routeDelay = 300,
@@ -44,6 +47,7 @@ end
 
 property('user', '_user', nil, 'User', "The User object for the client")
 property('email', '_email', nil, 'string', "The client's email address (non-bot only)")
+property('mobile', '_mobile', nil, 'boolean', "Whether the client has used a Discord mobile app (non-bot only)")
 property('verified', '_verified', nil, 'boolean', "Whether the client account is verified by Discord")
 property('mfaEnabled', '_mfa_enabled', nil, 'boolean', "Whether the client has MFA enabled")
 
@@ -55,25 +59,42 @@ function Client:__tostring()
 	end
 end
 
+local function log(message, color)
+	return print(colorize(color, format('%s - %s', date(), message)))
+end
+
+function Client:warning(message)
+	if self._listeners['warning'] then return self:emit('warning', message) end
+	return log(message, 'highlight')
+end
+
+function Client:error(message)
+	if self._listeners['error'] then return self:emit('error', message) end
+	log(traceback(running(), message, 2), 'failure')
+	return exit()
+end
+
 local function getToken(self, email, password)
-	warning('Email login is discouraged, use token login instead')
+	self:warning('Email login is discouraged, use token login instead')
 	local success, data = self._api:getToken({email = email, password = password})
 	if success then
 		if data.token then
 			return data.token
 		elseif data.mfa then
-			failure('MFA login is not supported')
+			self:error('MFA login is not supported')
 		end
 	else
-		failure(data.email and data.email[1] or data.password and data.password[1])
+		self:error(data.email and data.email[1] or data.password and data.password[1])
 	end
 end
 
 function Client:run(a, b)
 	return wrap(function()
 		local token = not b and a or getToken(self, a, b)
-		self._api:setToken(token)
-		return self:_connectToGateway(token)
+		if token then
+			self._api:setToken(token)
+			return self:_connectToGateway(token)
+		end
 	end)()
 end
 
@@ -110,15 +131,20 @@ function Client:_connectToGateway(token)
 		end
 		return wrap(self._socket.handlePayloads)(self._socket, token)
 	else
-		failure('Cannot connect to gateway: ' .. (gateway and gateway or 'nil'))
+		self:error('Cannot connect to gateway: ' .. (gateway and gateway or 'nil'))
 	end
 
 end
 
 function Client:_loadUserData(data)
 	self._email = data.email
+	self._mobile = data.mobile
 	self._verified = data.verified
 	self._mfa_enabled = data.mfa_enabled
+	data.email = nil
+	data.mobile = nil
+	data.verified = nil
+	data.mfa_enabled = nil
 end
 
 function Client:listVoiceRegions()

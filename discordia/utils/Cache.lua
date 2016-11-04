@@ -1,6 +1,5 @@
 local insert = table.insert
 local format = string.format
-local warning = console.warning
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Cache, property = class('Cache')
@@ -58,11 +57,10 @@ end
 
 function Cache:add(obj)
 	if obj.__name ~= self._constructor.__name then
-		warning(format('Invalid object type %q for %s', obj.__name, self))
+		error(format('Invalid object type %q for %s', obj.__name, self))
 		return false
 	end
 	if self:has(obj) then
-		warning('Object to add already cached: ' .. tostring(obj))
 		return false
 	end
 	return self:_add(obj)
@@ -70,11 +68,10 @@ end
 
 function Cache:remove(obj)
 	if obj.__name ~= self._constructor.__name then
-		warning(format('Invalid object type %q for %s', obj.__name, self))
+		error(format('Invalid object type %q for %s', obj.__name, self))
 		return false
 	end
 	if not self:has(obj) then
-		warning('Object to remove not found: ' .. tostring(obj))
 		return false
 	end
 	return self:_remove(obj)

@@ -9,7 +9,6 @@ local min, max = math.min, math.max
 local encode, decode = json.encode, json.decode
 local wrap, yield = coroutine.wrap, coroutine.yield
 local parseUrl, connect = websocket.parseUrl, websocket.connect
-local info, warning, failure = console.info, console.warning, console.failure
 local sleep, setInterval, clearInterval = timer.sleep, timer.setInterval, timer.clearInterval
 
 local ignore = {
@@ -58,7 +57,7 @@ function Socket:disconnect()
 end
 
 local function handleUnexpectedDisconnect(self, token)
-	warning(format('Attemping to reconnect after %i ms...', self._backoff))
+	client:warning(format('Attemping to reconnect after %i ms...', self._backoff))
 	sleep(self._backoff)
 	incrementReconnectTime(self)
 	if not pcall(self.reconnect, self, token) then
@@ -86,7 +85,7 @@ function Socket:handlePayloads(token)
 				if handler then
 					handler(payload.d, client)
 				else
-					warning('Unhandled event: ' .. payload.t)
+					client:warning('Unhandled event: ' .. payload.t)
 				end
 			end
 		elseif op == 1 then
@@ -94,7 +93,7 @@ function Socket:handlePayloads(token)
 		elseif op == 7 then
 			self:reconnect()
 		elseif op == 9 then
-			warning('Invalid session, attempting to re-identify...')
+			client:warning('Invalid session, attempting to re-identify...')
 			self:identify(token)
 		elseif op == 10 then
 			self:startHeartbeat(payload.d.heartbeat_interval)
@@ -106,7 +105,7 @@ function Socket:handlePayloads(token)
 		elseif op == 11 then
 			-- heartbeat acknowledged
 		else
-			warning('Unhandled payload: ' .. op)
+			client:warning('Unhandled payload: ' .. op)
 		end
 
 	end
@@ -114,7 +113,7 @@ function Socket:handlePayloads(token)
 	if self._connected then
 		self._connected = false
 		self:stopHeartbeat()
-		warning('Disconnected from gateway unexpectedly')
+		client:warning('Disconnected from gateway unexpectedly')
 		return handleUnexpectedDisconnect(self, token)
 	end
 

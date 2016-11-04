@@ -66,7 +66,7 @@ function Permissions:enable(...)
 	for i = 1, select('#', ...) do
 		local flag = select(i, ...)
 		local v = flags[flag]
-		assert(v, 'Invalid permission flag: ' .. tostring(flag))
+		if not v then error('Invalid permission flag: ' .. tostring(flag)) end
 		value = bor(value, v)
 	end
 	self._value = value
@@ -77,7 +77,7 @@ function Permissions:disable(...)
 	for i = 1, select('#', ...) do
 		local flag = select(i, ...)
 		local v = flags[flag]
-		assert(v, 'Invalid permission flag: ' .. tostring(flag))
+		if not v then error('Invalid permission flag: ' .. tostring(flag)) end
 		value = band(value, bnot(v))
 	end
 	self._value = value

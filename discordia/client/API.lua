@@ -9,7 +9,6 @@ local max, random = math.max, math.random
 local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
 local date, time, difftime = os.date, os.time, os.difftime
-local info, warning, failure = console.info, console.warning, console.failure
 
 local months = {
 	Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
@@ -28,7 +27,7 @@ local function parseDate(str)
 	clientDate.isdst = date('*t').isdst
 	local serverTime = difftime(time(serverDate), time(clientDate)) + time()
 	local calculated = date('!%a, %d %b %Y %H:%M:%S GMT', serverTime)
-	if str ~= calculated then warning.time(str, calculated) end
+	-- need a warning here
 	return serverTime
 end
 
@@ -110,7 +109,7 @@ function API:commit(method, url, reqHeaders, payload, routeLimiter, attempts)
 	local shouldRetry = false
 
 	if not success then
-		warning.http(method, url, res, data)
+		self._client:warning(format('%i / %s / %s\n%s %s', res.code, res.reason, data.message, method, url))
 		if res.code == 429 then
 			if data.global then
 				globalDelay = data.retry_after
