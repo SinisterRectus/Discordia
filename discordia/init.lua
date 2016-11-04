@@ -1,12 +1,10 @@
 require('./extensions')
 _G.class = require('./class')
-_G.console = require('./console')
 
 return {
 	Client = require('./client/Client'),
 	Cache = require('./utils/Cache'),
 	Color = require('./utils/Color'),
-	Container = require('./utils/Container'),
 	Deque = require('./utils/Deque'),
 	Emitter = require('./utils/Emitter'),
 	OrderedCache = require('./utils/OrderedCache'),
