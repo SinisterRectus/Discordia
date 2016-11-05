@@ -114,7 +114,9 @@ function Socket:handlePayloads(token)
 		self._connected = false
 		self:stopHeartbeat()
 		client:warning('Disconnected from gateway unexpectedly')
-		return handleUnexpectedDisconnect(self, token)
+		if client._options.autoReconnect then
+			return handleUnexpectedDisconnect(self, token)
+		end
 	end
 
 end

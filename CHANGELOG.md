@@ -26,6 +26,7 @@
 				- `messageLimit`: limit to the number of cached messages per channel (default: 100)
 				- `largeThreshold`: limit to how many members are initially fetched per-guild on start-up (default: 100)
 				- `fetchMembers`: whether to fetch all members for all guilds (default: false)
+				- `autoReconnect`: whether to attempt to reconnect after an unexpected gateway disconnection (default: true)
 		- `endpoints` was changed to `API`
 		- `events` was changed to `EventHandler`
 		- `WebSocket` was changed to `Socket`
@@ -95,6 +96,9 @@
 	- `RateLimiter` - Extension of `Deque` that is used by the `API` class to throttle HTTP requests
 	- `Stopwatch` - Used to measure elapsed time with nanosecond precision
 	- `PermissionOverwrite` - Extension of `Snowflake` that maintains per-channel permissions
+
+
+- For other API changes, please consult the Discordia [wiki](https://github.com/SinisterRectus/Discordia/wiki).
 
 
 ### 0.6.2

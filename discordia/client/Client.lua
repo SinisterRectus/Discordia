@@ -23,6 +23,7 @@ local defaultOptions = {
 	messageLimit = 100,
 	largeThreshold = 100,
 	fetchMembers = false,
+	autoReconnect = true,
 }
 
 local Client, property = class('Client', Emitter)
