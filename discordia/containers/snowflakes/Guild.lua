@@ -12,7 +12,8 @@ local clamp = math.clamp
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Guild, property = class('Guild', Snowflake)
+local Guild, property, method, cache = class('Guild', Snowflake)
+Guild.__description = "Represents a Discord guild (also known as a server)."
 
 function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -26,6 +27,68 @@ function Guild:__init(data, parent)
 	else
 		self:_makeAvailable(data)
 	end
+end
+
+function Guild:__tostring()
+	return format('%s: %s', self.__name, self._name)
+end
+
+function Guild:_makeAvailable(data)
+
+	self:_update(data)
+
+	self._roles:merge(data.roles)
+	self._members:merge(data.members)
+	self._voice_states:merge(data.voice_states)
+
+	if data.presences then
+		self:_loadMemberPresences(data.presences)
+	end
+
+	if data.channels then
+		for _, data in ipairs(data.channels) do
+			if data.type == 'text' then
+				self._text_channels:new(data)
+			elseif data.type == 'voice' then
+				self._voice_channels:new(data)
+			end
+		end
+	end
+
+	if self._large and self._parent._options.fetchMembers then
+		self:_requestMembers()
+	end
+
+	self._vip = next(data.features) and true or false
+
+	-- self.emojis = data.emojis -- TODO
+	-- self.features = data.features -- TODO
+
+end
+
+function Guild:_requestMembers()
+	self._parent._socket:requestGuildMembers(self._id)
+	if self._parent._loading then
+		self._parent._loading.chunks[self._id] = true
+	end
+end
+
+function Guild:_loadMemberPresences(data)
+	for _, presence in ipairs(data) do
+		local member = self._members:get(presence.user.id)
+		member:_createPresence(presence)
+	end
+end
+
+function Guild:_updateMemberPresence(data)
+	local member = self._members:get(data.user.id)
+	if member then
+		member:_updatePresence(data)
+	else
+		member = self._members:new(data)
+		member:_createPresence(data)
+	end
+	return member
 end
 
 local function setName(self, name)
@@ -64,6 +127,296 @@ local function setAfkChannel(self, channel)
 	return success
 end
 
+local function getMe(self)
+	return self._members:get(self._parent._user._id)
+end
+
+local function getOwner(self)
+	return self._members:get(self._owner_id)
+end
+
+local function getAfkChannel(self)
+	return self._voice_channels:get(self._afk_channel_id)
+end
+
+local function getDefaultRole(self)
+	return self._roles:get(self._id)
+end
+
+local function getDefaultChannel(self)
+	return self._text_channels:get(self._id)
+end
+
+local function listVoiceRegions(self)
+	local success, data = self._parent._api:getGuildVoiceRegions(self._id)
+	if success then return data end
+end
+
+local function leave(self)
+	local success, data = self._parent._api:leaveGuild(self._id)
+	return success
+end
+
+local function delete(self)
+	local success, data = self._parent._api:deleteGuild(self._id)
+	return success
+end
+
+local function getBannedUsers(self)
+	local success, data = self._parent._api:getGuildBans(self._id)
+	if not success then return function() end end
+	local users = self._parent._users
+	return wrap(function()
+		for _, v in ipairs(data) do
+			yield(users:get(v.user.id) or users:new(v.user))
+		end
+	end)
+end
+
+local function getInvites(self)
+	local success, data = self._parent._api:getGuildInvites(self._id)
+	local parent = self._parent
+	if not success then return function() end end
+	return wrap(function()
+		for _, inviteData in ipairs(data) do
+			yield(Invite(inviteData, parent))
+		end
+	end)
+end
+
+local function banUser(self, user, days)
+	local query = days and {['delete-message-days'] = clamp(days, 0, 7)} or nil
+	local success, data = self._parent._api:createGuildBan(self._id, user._id, payload, query)
+	return success
+end
+
+local function unbanUser(self, user)
+	local success, data = self._parent._api:removeGuildBan(self._id, user._id)
+	return success
+end
+
+local function kickUser(self, user)
+	local success, data = self._parent._api:removeGuildMember(self._id, user._id)
+	return success
+end
+
+local function getPruneCount(self, self, days)
+	local query = days and {days = clamp(days, 1, 30)} or nil
+	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
+	if success then return data.pruned end
+end
+
+local function pruneMembers(self, days)
+	local query = days and {days = clamp(days, 1, 30)} or nil
+	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
+	if success then return data.pruned end
+end
+
+local function createTextChannel(self, name)
+	local success, data = self._parent._api:createGuildChannel(self._id, {name = name, type = 'text'})
+	if success then return self._text_channels:new(data) end
+end
+
+local function createVoiceChannel(self, name)
+	local success, data = self._parent._api:createGuildChannel(self._id, {name = name, type = 'voice'})
+	if success then return self._voice_channels:new(data) end
+end
+
+local function createRole(self, name)
+	local success, data = self._parent._api:createGuildRole(self._id)
+	if success then return self._roles:new(data) end
+end
+
+-- channels --
+
+local function getChannelCount(self)
+	return self._text_channels._count + self._voice_channels._count
+end
+
+local function getChannels(self, key, value)
+	return wrap(function()
+		for channel in self._text_channels:getAll(key, value) do
+			yield(channel)
+		end
+		for channel in self._voice_channels:getAll(key, value) do
+			yield(channel)
+		end
+	end)
+end
+
+local function getChannel(self, key, value)
+	return self._text_channels:get(key, value) or self._voice_channels:get(key, value)
+end
+
+local function findChannel(self, predicate)
+	return self._text_channels:find(predicate) or self._voice_channels:find(predicate)
+end
+
+local function findChannels(self, predicate)
+	return wrap(function()
+		for channel in self._text_channels:findAll(predicate) do
+			yield(channel)
+		end
+		for channel in self._voice_channels:findAll(predicate) do
+			yield(channel)
+		end
+	end)
+end
+
+-- text channels --
+
+local function getTextChannelCount(self)
+	return self._text_channels._count
+end
+
+local function getTextChannels(self, key, value)
+	return self._text_channels:getAll(key, value)
+end
+
+local function getTextChannel(self, key, value)
+	return self._text_channels:get(key, value)
+end
+
+local function findTextChannel(self, predicate)
+	return self._text_channels:find(predicate)
+end
+
+local function findTextChannels(self, predicate)
+	return self._text_channels:findAll(predicate)
+end
+
+-- voice channels --
+
+local function getVoiceChannelCount(self)
+	return self._voice_channels._count
+end
+
+local function getVoiceChannels(self, key, value)
+	return self._voice_channels:getAll(key, value)
+end
+
+local function getVoiceChannel(self, key, value)
+	return self._voice_channels:get(key, value)
+end
+
+local function findVoiceChannel(self, predicate)
+	return self._voice_channels:find(predicate)
+end
+
+local function findVoiceChannels(self, predicate)
+	return self._voice_channels:findAll(predicate)
+end
+
+-- roles --
+
+local function getRoleCount(self)
+	return self._roles._count
+end
+
+local function getRoles(self, key, value)
+	return self._roles:getAll(key, value)
+end
+
+local function getRole(self, key, value)
+	return self._roles:get(key, value)
+end
+
+local function findRole(self, predicate)
+	return self._roles:find(predicate)
+end
+
+local function findRoles(self, predicate)
+	return self._roles:findAll(predicate)
+end
+
+-- members --
+
+local function getMemberCount(self)
+	return self._members._count
+end
+
+local function getMembers(self, key, value)
+	return self._members:getAll(key, value)
+end
+
+local function getMember(self, key, value)
+	return self._members:get(key, value)
+end
+
+local function findMember(self, predicate)
+	return self._members:find(predicate)
+end
+
+local function findMembers(self, predicate)
+	return self._members:findAll(predicate)
+end
+
+-- members --
+
+local function getVoiceStateCount(self)
+	return self._voice_states._count
+end
+
+local function getVoiceStates(self, key, value)
+	return self._voice_states:getAll(key, value)
+end
+
+local function getVoiceState(key, value)
+	return self._voice_states:get(key, value)
+end
+
+local function findVoiceState(predicate)
+	return self._voice_states:find(predicate)
+end
+
+local function findVoiceStates(predicate)
+	return self._voice_states:findAll(predicate)
+end
+
+-- messages --
+
+local function getMessageCount(self)
+	local n = 0
+	for channel in self._text_channels:iter() do
+		n = n + channel._messages._count
+	end
+	return n
+end
+
+local function getMessages(self, key, value)
+	return wrap(function()
+		for channel in self._text_channels:iter() do
+			for message in channel._messages:iter() do
+				yield(message)
+			end
+		end
+	end)
+end
+
+local function getMessage(self, key, value)
+	for channel in self._text_channels:iter() do
+		local message = channel._messages:get(predicate)
+		if message then return message end
+	end
+end
+
+local function findMessage(self, predicate)
+	for channel in self._text_channels:iter() do
+		local message = channel._messages:find(predicate)
+		if message then return message end
+	end
+end
+
+local function findMessages(self, predicate)
+	return wrap(function()
+		for channel in self._text_channels:iter() do
+			for message in channel._messages:findAll(predicate) do
+				yield(message)
+			end
+		end
+	end)
+end
+
 property('vip', '_vip', nil, 'boolean', "Whether the guild is featured by Discord")
 property('name', '_name', setName, 'string', "Name of the guild")
 property('icon', '_icon', setIcon, 'string', "Hash representing the guild's icon") -- TODO: add iconUrl
@@ -77,357 +430,32 @@ property('unavailable', '_unavailable', nil, 'boolean', "Whether the guild data 
 property('totalMemberCount', '_member_count', nil, 'number', "How many members exist in the guild (can be different from cached memberCount)")
 property('verificationLevel', '_verification_level', nil, 'number', "Guild verification level")
 property('notificationsSetting', '_default_message_notifications', nil, 'number', "Default message notifications setting for members")
-
-property('me', function(self)
-	return self._members:get(self._parent._user._id)
-end, nil, 'Member', "The client's member object for this guild")
-
-property('owner', function(self)
-	return self._members:get(self._owner_id)
-end, setOwner, 'Member', "The member that owns the server")
-
-property('afkChannel', function(self)
-	return self._voice_channels:get(self._afk_channel_id)
-end, setAfkChannel, 'GuildVoiceChannel', "Voice channel to where members are moved when they are AFK")
-
-property('defaultRole', function(self)
-	return self._roles:get(self._id)
-end, nil, 'Role', "The guild's '@everyone' role")
-
-property('defaultChannel', function(self)
-	return self._text_channels:get(self._id)
-end, nil, 'GuildTextChannel', "The guild's default text channel")
-
-function Guild:__tostring()
-	return format('%s: %s', self.__name, self._name)
-end
-
-function Guild:_makeAvailable(data)
-
-	self:_update(data)
-
-	self._roles:merge(data.roles)
-	self._members:merge(data.members)
-	self._voice_states:merge(data.voice_states)
-
-	if data.presences then
-		self:_loadMemberPresences(data.presences)
-	end
-
-	if data.channels then
-		for _, data in ipairs(data.channels) do
-			if data.type == 'text' then
-				self._text_channels:new(data)
-			elseif data.type == 'voice' then
-				self._voice_channels:new(data)
-			end
-		end
-	end
-
-	if self._large and self._parent._options.fetchMembers then
-		self:requestMembers()
-	end
-
-	self._vip = next(data.features) and true or false
-
-	-- self.emojis = data.emojis -- TODO
-	-- self.features = data.features -- TODO
-
-end
-
-function Guild:_loadMemberPresences(data)
-	for _, presence in ipairs(data) do
-		local member = self._members:get(presence.user.id)
-		member:_createPresence(presence)
-	end
-end
-
-function Guild:_updateMemberPresence(data)
-	local member = self._members:get(data.user.id)
-	if member then
-		member:_updatePresence(data)
-	else
-		member = self._members:new(data)
-		member:_createPresence(data)
-	end
-	return member
-end
-
-function Guild:requestMembers()
-	self._parent._socket:requestGuildMembers(self._id)
-	if self._parent._loading then
-		self._parent._loading.chunks[self._id] = true
-	end
-end
-
-function Guild:listVoiceRegions()
-	local success, data = self._parent._api:getGuildVoiceRegions(self._id)
-	if success then return data end
-end
-
-function Guild:leave()
-	local success, data = self._parent._api:leaveGuild(self._id)
-	return success
-end
-
-function Guild:delete()
-	local success, data = self._parent._api:deleteGuild(self._id)
-	return success
-end
-
-property('bannedUsers', function(self)
-	local success, data = self._parent._api:getGuildBans(self._id)
-	if not success then return function() end end
-	local users = self._parent._users
-	return wrap(function()
-		for _, v in ipairs(data) do
-			yield(users:get(v.user.id) or users:new(v.user))
-		end
-	end)
-end, nil, 'function', "Iterator for the banned users in the guild")
-
-function Guild:banUser(user, days)
-	local query = days and {['delete-message-days'] = clamp(days, 0, 7)} or nil
-	local success, data = self._parent._api:createGuildBan(self._id, user._id, payload, query)
-	return success
-end
-
-function Guild:unbanUser(user)
-	local success, data = self._parent._api:removeGuildBan(self._id, user._id)
-	return success
-end
-
-function Guild:kickUser(user)
-	local success, data = self._parent._api:removeGuildMember(self._id, user._id)
-	return success
-end
-
-function Guild:getPruneCount(self, days)
-	local query = days and {days = clamp(days, 1, 30)} or nil
-	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
-	if success then return data.pruned end
-end
-
-function Guild:pruneMembers(days)
-	local query = days and {days = clamp(days, 1, 30)} or nil
-	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
-	if success then return data.pruned end
-end
-
-function Guild:createTextChannel(name)
-	local success, data = self._parent._api:createGuildChannel(self._id, {name = name, type = 'text'})
-	if success then return self._text_channels:new(data) end
-end
-
-function Guild:createVoiceChannel(name)
-	local success, data = self._parent._api:createGuildChannel(self._id, {name = name, type = 'voice'})
-	if success then return self._voice_channels:new(data) end
-end
-
-function Guild:createRole()
-	local success, data = self._parent._api:createGuildRole(self._id)
-	if success then return self._roles:new(data) end
-end
-
-property('invites', function(self)
-	local success, data = self._parent._api:getGuildInvites(self._id)
-	local parent = self._parent
-	if not success then return function() end end
-	return wrap(function()
-		for _, inviteData in ipairs(data) do
-			yield(Invite(inviteData, parent))
-		end
-	end)
-end, nil, 'function', "Iterator for the guild's invites (not cached)")
-
--- channels --
-
-property('channelCount', function(self)
-	return self._text_channels._count + self._voice_channels._count
-end, nil, 'number', "How many GuildChannels are cached for the guild")
-
-property('channels', function(self, key, value)
-	return wrap(function()
-		for channel in self._text_channels:getAll(key, value) do
-			yield(channel)
-		end
-		for channel in self._voice_channels:getAll(key, value) do
-			yield(channel)
-		end
-	end)
-end, nil, 'function', "Iterator for the GuildChannels cached for the guild")
-
-function Guild:getChannel(key, value)
-	return self._text_channels:get(key, value) or self._voice_channels:get(key, value)
-end
-
-function Guild:findChannel(predicate)
-	return self._text_channels:find(predicate) or self._voice_channels:find(predicate)
-end
-
-function Guild:findChannels(predicate)
-	return wrap(function()
-		for channel in self._text_channels:findAll(predicate) do
-			yield(channel)
-		end
-		for channel in self._voice_channels:findAll(predicate) do
-			yield(channel)
-		end
-	end)
-end
-
--- text channels --
-
-property('textChannelCount', function(self)
-	return self._text_channels._count
-end, nil, 'number', "How many TextChannels are cached for the guild")
-
-property('textChannels', function(self, key, value)
-	return self._text_channels:getAll(key, value)
-end, nil, 'function', "Iterator for the TextChannels cached for the guild")
-
-function Guild:getTextChannel(key, value)
-	return self._text_channels:get(key, value)
-end
-
-function Guild:findTextChannel(predicate)
-	return self._text_channels:find(predicate)
-end
-
-function Guild:findTextChannels(predicate)
-	return self._text_channels:findAll(predicate)
-end
-
--- voice channels --
-
-property('voiceChannelCount', function(self)
-	return self._voice_channels._count
-end, nil, 'number', "How many VoiceChannels are cached for the guild")
-
-property('voiceChannels', function(self, key, value)
-	return self._voice_channels:getAll(key, value)
-end, nil, 'function', "Iterator for the VoiceChannels cached for the guild")
-
-function Guild:getVoiceChannel(key, value)
-	return self._voice_channels:get(key, value)
-end
-
-function Guild:findVoiceChannel(predicate)
-	return self._voice_channels:find(predicate)
-end
-
-function Guild:findVoiceChannels(predicate)
-	return self._voice_channels:findAll(predicate)
-end
-
--- roles --
-
-property('roleCount', function(self)
-	return self._roles._count
-end, nil, 'number', "How many Roles are cached for the guild")
-
-property('roles', function(self, key, value)
-	return self._roles:getAll(key, value)
-end, nil, 'function', "Iterator for the Roles cached for the guild")
-
-function Guild:getRole(key, value)
-	return self._roles:get(key, value)
-end
-
-function Guild:findRole(predicate)
-	return self._roles:find(predicate)
-end
-
-function Guild:findRoles(predicate)
-	return self._roles:findAll(predicate)
-end
-
--- members --
-
-property('memberCount', function(self)
-	return self._members._count
-end, nil, 'number', "How many Members are cached for the guild")
-
-property('members', function(self, key, value)
-	return self._members:getAll(key, value)
-end, nil, 'function', "Iterator for the Members cached for the guild")
-
-function Guild:getMember(key, value)
-	return self._members:get(key, value)
-end
-
-function Guild:findMember(predicate)
-	return self._members:find(predicate)
-end
-
-function Guild:findMembers(predicate)
-	return self._members:findAll(predicate)
-end
-
--- members --
-
-property('voiceStateCount', function(self)
-	return self._voice_states._count
-end, nil, 'number', "How many VoiceStates are cached for the guild")
-
-property('voiceStates', function(self, key, value)
-	return self._voice_states:getAll(key, value)
-end, nil, 'function', "Iterator for the VoiceStates cached for the guild")
-
-function Guild:getVoiceState(key, value)
-	return self._voice_states:get(key, value)
-end
-
-function Guild:findVoiceState(predicate)
-	return self._voice_states:find(predicate)
-end
-
-function Guild:findVoiceStates(predicate)
-	return self._voice_states:findAll(predicate)
-end
-
--- messages --
-
-property('messageCount', function(self)
-	local n = 0
-	for channel in self._text_channels:iter() do
-		n = n + channel._messages._count
-	end
-	return n
-end, nil, 'number', "How many Messages are cached for the guild")
-
-property('messages', function(self, key, value)
-	return wrap(function()
-		for channel in self._text_channels:iter() do
-			for message in channel._messages:iter() do
-				yield(message)
-			end
-		end
-	end)
-end, nil, 'function', "Iterator for the Messages cached for the guild")
-
-function Guild:getMessage(key, value)
-	for channel in self._text_channels:iter() do
-		local message = channel._messages:get(predicate)
-		if message then return message end
-	end
-end
-
-function Guild:findMessage(predicate)
-	for channel in self._text_channels:iter() do
-		local message = channel._messages:find(predicate)
-		if message then return message end
-	end
-end
-
-function Guild:findMessages(predicate)
-	return wrap(function()
-		for channel in self._text_channels:iter() do
-			for message in channel._messages:findAll(predicate) do
-				yield(message)
-			end
-		end
-	end)
-end
+property('me', getMe, nil, 'Member', "The client's member object for this guild")
+property('owner', getOwner, setOwner, 'Member', "The member that owns the server")
+property('afkChannel', getAfkChannel, setAfkChannel, 'GuildVoiceChannel', "Voice channel to where members are moved when they are AFK")
+property('defaultRole', getDefaultRole, nil, 'Role', "The guild's '@everyone' role")
+property('defaultChannel', getDefaultChannel, nil, 'GuildTextChannel', "The guild's default text channel")
+property('bannedUsers', getBannedUsers, nil, 'function', "Iterator for the banned users in the guild")
+property('invites', getInvites, nil, 'function', "Iterator for the guild's invites (not cached)")
+
+method('leave', leave, nil, "Leaves the guild.")
+method('delete', delete, nil, "Deletes the guild.")
+method('listVoiceRegions', listVoiceRegions, nil, "Returns a table of guild voice regions.")
+method('banUser', banUser, 'user[, days]', "Bans a user from the guild and optionally deletes their messages from 1-7 days.")
+method('unbanUser', unbanUser, 'user', "Unbans a user from the guild.")
+method('kickUser', kickUser, 'user', "Kicks a user from the guild")
+method('getPruneCount', getPruneCount, '[days]', "Returns how many members would be removed if 1-30 day prune were performed (default: 1 day).")
+method('pruneMembers', pruneMembers, '[days]', "Removes members who have not been seen in 1-30 days (default: 1 day).")
+method('createTextChannel', createTextChannel, 'name', "Creates a new text channel in the guild.")
+method('createVoiceChannel', createVoiceChannel, 'name', "Creates a new voice channel in the guild.")
+method('createRole', createRole, nil, "Creates a new role in the guild.")
+
+cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
+cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)
+cache('VoiceChannel', getVoiceChannelCount, getVoiceChannel, getVoiceChannels, findVoiceChannel, findVoiceChannels)
+cache('VoiceState', getVoiceStateCount, getVoiceState, getVoiceStates, findVoiceState, findVoiceStates)
+cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
+cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
+cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
 
 return Guild

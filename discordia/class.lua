@@ -1,6 +1,7 @@
 local max = math.max
 local insert, sort = table.insert, table.sort
-local format, upper, rep = string.format, string.upper, string.rep
+local lower, upper = string.lower, string.upper
+local f, rep = string.format, string.rep
 
 local meta = {}
 local classes = {}
@@ -19,7 +20,7 @@ local Base -- defined below
 
 local class = setmetatable({__classes = classes, docs = docs}, {__call = function(self, name, ...)
 
-	if classes[name] then return error(format('Class %q already defined', name)) end
+	if classes[name] then return error(f('Class %q already defined', name)) end
 
 	local class = setmetatable({}, meta)
 	local properties, methods = {}, {} -- for documentation
@@ -50,6 +51,7 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 	class.__getters = getters
 	class.__methods = methods
 	class.__properties = properties
+	class.__description = nil
 
 	function class:__index(k)
 		local getter = getters[k]
@@ -65,7 +67,7 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 		if setter then
 			return setter(self, v)
 		elseif class[k] or properties[k] then
-			return error(format('Cannot overwrite protected property: %s.%s', name, k))
+			return error(f('Cannot overwrite protected property: %s.%s', name, k))
 		else
 			return rawset(self, k, v)
 		end
@@ -109,14 +111,27 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 		methods[k] = {params or '', desc}
 	end
 
+	local function cache(k, count, get, getAll, find, findAll)
+
+		local k2 = name:gsub('(.*)(%u)', function(a, b) return lower(b) end)
+
+		property(f('%sCount', k), count, nil, 'number', f("How many %ss are cached for the %s.", k, k2))
+		property(f('%ss', k), get, nil, 'function', f("Iterator for the %s's cached %ss.", k2, k))
+
+		method(f('get%s', k), get, '[key,] value', f("Returns the %s's first cached %s that matches the (key, value) pair.", k2, k))
+		method(f('get%ss', k), getAll, '[key, value]', f("Returns an iterator for the %s's cached %ss that match the (key, value) pair", k2, k))
+		method(f('find%s', k), find, 'predicate', f("Returns the %s's first cached %s that satisfies a predicate.", k2, k))
+		method(f('find%ss', k), findAll, 'predicate', f("Returns an iterator for the %s's cached %ss that satisfy a predicate.", k2, k))
+
+	end
+
 	classes[name] = class
 
-	return class, property, method
+	return class, property, method, cache
 
 end})
 
 Base = class('Base') -- forward-declared above
-Base.__description = "The base class for all other classes."
 
 function Base:__tostring()
 	return 'instance of class: ' .. self.__name
@@ -132,7 +147,7 @@ end
 
 function Base:isInstanceOf(name)
 	local class = classes[name]
-	if not class then return error(format('Class %q is undefined', name)) end
+	if not class then return error(f('Class %q is undefined', name)) end
 	if self.__name == class then return true, true end
 	return isSub(self.__name, class), false
 end
@@ -174,7 +189,7 @@ function Base:help()
 		end
 		sort(methods, sorter)
 		for i, v in ipairs(methods) do
-			printf('%s  %s', padRight(format('%s(%s)', v[1], v[2]), n), padRight(v[3], m))
+			printf('%s  %s', padRight(f('%s(%s)', v[1], v[2]), n), padRight(v[3], m))
 		end
 		print()
 	end

@@ -63,7 +63,7 @@ property('username', '_username', nil, 'string', "The user's name (alias of name
 property('discriminator', '_discriminator', nil, 'string', "The user's 4-digit discriminator")
 property('bot', '_bot', nil, 'boolean', "Whether the user is a bot account")
 
-method('ban', ban, 'guild', "Bans the user from the provided guild.")
+method('ban', ban, 'guild[, days]', "Bans the user from a guild and optionally deletes their messages from 1-7 days.")
 method('unban', unban, 'guild', "Unbans the user from the provided guild.")
 method('kick', kick, 'guild', "Kicks the user from the provided guild.")
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Sends a private message to the user.")

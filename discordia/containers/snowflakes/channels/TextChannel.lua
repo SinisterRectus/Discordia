@@ -6,7 +6,7 @@ local clamp = math.clamp
 local insert, concat = table.insert, table.concat
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local TextChannel, property, method = class('TextChannel', Channel)
+local TextChannel, property, method, cache = class('TextChannel', Channel)
 TextChannel.__description = "Abstract base class for guild and private text channels."
 
 function TextChannel:__init(data, parent)
@@ -145,15 +145,9 @@ local function findMessages(self, predicate)
 	return self._messages:findAll(predicate)
 end
 
-property('messages', getMessages, nil, 'function', "Iterator for the cached messages in the channel")
-property('messageCount', getMessageCount, nil, 'number', "How many messages are cached for the channel")
 property('pinnedMessages', getPinnedMessages, nil, 'function', "Iterator for all of the pinned messages in the channel")
 
 method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.")
-method('getMessages', getMessages, 'key, value', "Returns an iterator for all cached messages that match the (key, value) pair")
-method('getMessage', getMessage, '[key,] value]', "Returns the first cached message that matches the (key, value) pair.")
-method('findMessage', findMessage, 'predicate', "Returns the first cached message that satisfies a predicate.")
-method('findMessages', findMessages, 'predicate', "Returns all cached messages that satisfy a predicate.")
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.")
 method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator for the most recent messages in the channel.')
 method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Returns an iterator for the messages before a specific message.')
@@ -161,5 +155,7 @@ method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit]', 'Re
 method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit]', 'Returns an iterator for the messages around a specific message.')
 method('bulkDelete', bulkDelete, 'messages', 'Permanently deletes a table, cache, or deque of messages from the channel.')
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Sends a message to the channel.")
+
+cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
 
 return TextChannel

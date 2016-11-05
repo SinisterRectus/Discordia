@@ -6,7 +6,7 @@ local PermissionOverwrite = require('../PermissionOverwrite')
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local GuildChannel, property, method = class('GuildChannel', Channel)
+local GuildChannel, property, method, cache = class('GuildChannel', Channel)
 GuildChannel.__description = "Abstract base class for guild text and voice channels."
 
 function GuildChannel:__init(data, parent)
@@ -110,14 +110,9 @@ property('guild', '_parent', nil, 'Guild', "The guild in which the channel exist
 property('name', '_name', setName, 'string', "The name of the guild channel")
 property('position', '_position', setPosition, 'number', "The position of the channel in the guild's list of channels")
 property('invites', getInvites, nil, 'function', "Returns an iterator for the channel's invites (not cached)")
-property('permissionOverwriteCount', getPermissionOverwriteCount, nil, 'number', "How many permission overwrites are cached for this channel")
-property('permissionOverwrites', getPermissionOverwrites, nil, 'function', "Iterator for cached permission overwrites")
 
 method('createInvite', createInvite, 'maxAge, maxUses, temporary, unique', "Creates and returns an invite to the channel for users to join.")
-method('getPermissionOverwriteFor', getPermissionOverwriteFor, 'object', 'Returns a PermissionOverwrite for the provided Role or Member object.')
-method('getPermissionOverwrite', getPermissionOverwrite, '[key,] value', 'Returns the first cached PermissionOverwrite that matches the (key, value) pair.')
-method('getPermissionOverwrites', getPermissionOverwrites, 'key, value', 'Returns all cached PermissionOverwrite that match the (key, value) pair.')
-method('findPermissionOverwrite', findPermissionOverwrite, 'predicate', 'Returns the first cached PermissionOverwrite that satisfies a predicate.')
-method('findPermissionOverwrites', findPermissionOverwrites, 'predicate', 'Returns an iterator for all cached PermissionOverwrites that satisfy a predicate.')
+
+cache('PermissionOverwrite', getPermissionOverwriteCount, getPermissionOverwrite, getPermissionOverwrites, findPermissionOverwrite, findPermissionOverwrites)
 
 return GuildChannel

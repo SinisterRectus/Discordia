@@ -275,7 +275,7 @@ function API:getGuildMember(guild_id, user_id) -- User:getMembership fallback
 	return self:request("GET", route, format(route, user_id))
 end
 
-function API:listGuildMembers(guild_id) -- not exposed, use cache or Guild:requestMembers
+function API:listGuildMembers(guild_id) -- not exposed, use cache or Guild:_requestMembers
 	local route = format("/guilds/%s/members", guild_id)
 	return self:request("GET", route, route)
 end

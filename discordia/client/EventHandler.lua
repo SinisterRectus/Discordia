@@ -260,7 +260,7 @@ function EventHandler.GUILD_SYNC(data, client)
 	guild:_loadMemberPresences(data.presences)
 	guild._large = data.large
 	if guild._large and client._options.fetchMembers then
-		guild:requestMembers()
+		guild:_requestMembers()
 	end
 	if client._loading then
 		client._loading.syncs[guild._id] = nil

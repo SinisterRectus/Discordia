@@ -4,7 +4,8 @@ local insert = table.insert
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Member, property, method = class('Member', Snowflake)
+local Member, property, method, cache = class('Member', Snowflake)
+Member.__description = "Represents a Discord guild member."
 
 function Member:__init(data, parent)
 	self._id = data.user.id
@@ -197,8 +198,6 @@ property('discriminator', function(self) return self._user._discriminator end, n
 property('status', getStatus, nil, 'string', "Whether the member is online, offline, or idle")
 property('gameName', getGameName, nil, 'string', "Name of the game set in the member's status (can be nil if not set)")
 property('name', getName, nil, 'string', "The member's nickname if one is set. Otherwise, its username.")
-property('roleCount', getRoleCount, nil, 'number', "How many roles the member has (excluding @everyone)")
-property('roles', getRoles, nil, 'function', "Returns an iterator for the member's roles (excluding @everyone)")
 property('nickname', '_nick', setNick, 'string', "The member's nickname for the guild in which it exists (can be nil if not set)")
 property('user', '_user', nil, 'User', "The base user associated with this member")
 property('deaf', '_deaf', setDeaf, 'boolean', "Whether the member is deafened")
@@ -206,10 +205,6 @@ property('mute', '_mute', setMute, 'boolean', "Whether the member is muted")
 property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
 property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
 
-method('getRoles', getRoles, 'key, value', "Returns an iterator for the member's roles that match the (key, value) pair")
-method('getRole', getRole, '[key,] value', "Returns the member's first role that matches the (key, value) pair.")
-method('findRole', findRole, 'predicate', "Returns the member's first role that satisfies a predicate.")
-method('findRoles', findRoles, 'predicate', "Returns all of the member's roles that satisfy a predicate.")
 method('getMembership', getMembership, '[guild]', "Shortcut for `member.user:getMembership`")
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Shortcut for `member.user:sendMessage`")
 method('ban', ban, '[guild]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
@@ -217,5 +212,7 @@ method('unban', unban, '[guild]', "Shortcut for `member.user:unban`. The member'
 method('kick', kick, '[guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
 method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
 method('removeRoles', removeRoles, 'roles[, ...]', "Removes a role or roles from the member.")
+
+cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 
 return Member
