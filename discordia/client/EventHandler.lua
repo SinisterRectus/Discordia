@@ -41,9 +41,11 @@ function EventHandler.READY(data, client)
 	else
 		local guild_ids = {}
 		for guild in client._guilds:iter() do
-			local id = guild._id
-			client._loading.syncs[id] = true
-			insert(guild_ids, id)
+			if not guild.unavailable then
+				local id = guild._id
+				client._loading.syncs[id] = true
+				insert(guild_ids, id)
+			end
 		end
 		client._socket:syncGuilds(guild_ids)
 	end
@@ -136,7 +138,14 @@ function EventHandler.CHANNEL_DELETE(data, client)
 end
 
 function EventHandler.GUILD_CREATE(data, client)
-	local guild = client._guilds:get(data.id)
+	local id = data.id
+	if not data.unavailable and not client._user._bot then
+		if client._loading then
+			client._loading.syncs[id] = true
+		end
+		client._socket:syncGuilds({id})
+	end
+	local guild = client._guilds:get(id)
 	if guild then
 		if guild._unavailable and not data.unavailable then
 			guild:_makeAvailable(data)
