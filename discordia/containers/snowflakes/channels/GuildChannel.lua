@@ -116,7 +116,7 @@ property('permissionOverwrites', getPermissionOverwrites, nil, 'function', "Iter
 method('createInvite', createInvite, 'maxAge, maxUses, temporary, unique', "Creates and returns an invite to the channel for users to join.")
 method('getPermissionOverwriteFor', getPermissionOverwriteFor, 'object', 'Returns a PermissionOverwrite for the provided Role or Member object.')
 method('getPermissionOverwrite', getPermissionOverwrite, '[key,] value', 'Returns the first cached PermissionOverwrite that matches the (key, value) pair.')
-method('getPermissionOverwrites', getPermissionOverwrite, 'key, value', 'Returns all cached PermissionOverwrite that match the (key, value) pair.')
+method('getPermissionOverwrites', getPermissionOverwrites, 'key, value', 'Returns all cached PermissionOverwrite that match the (key, value) pair.')
 method('findPermissionOverwrite', findPermissionOverwrite, 'predicate', 'Returns the first cached PermissionOverwrite that satisfies a predicate.')
 method('findPermissionOverwrites', findPermissionOverwrites, 'predicate', 'Returns an iterator for all cached PermissionOverwrites that satisfy a predicate.')
 

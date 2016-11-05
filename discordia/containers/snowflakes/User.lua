@@ -66,7 +66,7 @@ property('bot', '_bot', nil, 'boolean', "Whether the user is a bot account")
 method('ban', ban, 'guild', "Bans the user from the provided guild.")
 method('unban', unban, 'guild', "Unbans the user from the provided guild.")
 method('kick', kick, 'guild', "Kicks the user from the provided guild.")
-method('sendMessage', kick, 'content[, mentions, tts, nonce]', "Sends a private message to the user.")
+method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Sends a private message to the user.")
 method('getMembership', getMembership, 'guild', "Returns the user's Member object for the provided guild.")
 
 return User
