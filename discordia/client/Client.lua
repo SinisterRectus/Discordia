@@ -550,7 +550,7 @@ end
 property('roleCount', function(self, key, value)
 	local n = 0
 	for guild in self._guilds:iter() do
-		n = n + self._roles._count
+		n = n + guild._roles._count
 	end
 	return n
 end, nil, 'number', "How many Roles are cached for the client")
@@ -558,7 +558,7 @@ end, nil, 'number', "How many Roles are cached for the client")
 property('roles', function(self, key, value)
 	return wrap(function()
 		for guild in self._guilds:iter() do
-			for role in self._roles:getAll(key, value) do
+			for role in guild._roles:getAll(key, value) do
 				yield(role)
 			end
 		end
@@ -567,14 +567,14 @@ end, nil, 'function', "Iterator for the Roles cached for the client")
 
 function Client:getRole(key, value)
 	for guild in self._guilds:iter() do
-		local role = self._roles:get(key, value)
+		local role = guild._roles:get(key, value)
 		if role then return role end
 	end
 end
 
 function Client:findRole(predicate)
 	for guild in self._guilds:iter() do
-		local role = self._roles:find(predicate)
+		local role = guild._roles:find(predicate)
 		if role then return role end
 	end
 end
@@ -582,7 +582,7 @@ end
 function Client:findRoles(predicate)
 	return wrap(function()
 		for guild in self._guilds:iter() do
-			for role in self._roles:findAll(predicate) do
+			for role in guild._roles:findAll(predicate) do
 				yield(role)
 			end
 		end
@@ -594,7 +594,7 @@ end
 property('memberCount', function(self, key, value)
 	local n = 0
 	for guild in self._guilds:iter() do
-		n = n + self._members._count
+		n = n + guild._members._count
 	end
 	return n
 end, nil, 'number', "How many Members are cached for the client")
@@ -602,7 +602,7 @@ end, nil, 'number', "How many Members are cached for the client")
 property('members', function(self, key, value)
 	return wrap(function()
 		for guild in self._guilds:iter() do
-			for member in self._members:getAll(key, value) do
+			for member in guild._members:getAll(key, value) do
 				yield(member)
 			end
 		end
@@ -611,14 +611,14 @@ end, nil, 'function', "Iterator for the Members cached for the client")
 
 function Client:getMember(key, value)
 	for guild in self._guilds:iter() do
-		local member = self._members:get(key, value)
+		local member = guild._members:get(key, value)
 		if member then return member end
 	end
 end
 
 function Client:findMember(predicate)
 	for guild in self._guilds:iter() do
-		local member = self._members:find(predicate)
+		local member = guild._members:find(predicate)
 		if member then return member end
 	end
 end
@@ -626,7 +626,7 @@ end
 function Client:findMembers(predicate)
 	return wrap(function()
 		for guild in self._guilds:iter() do
-			for member in self._members:findAll(predicate) do
+			for member in guild._members:findAll(predicate) do
 				yield(role)
 			end
 		end
