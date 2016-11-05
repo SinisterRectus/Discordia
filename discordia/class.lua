@@ -113,10 +113,11 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 
 	local function cache(k, count, get, getAll, find, findAll)
 
+		local k1 = k:gsub('^.', lower)
 		local k2 = name:gsub('(.*)(%u)', function(a, b) return lower(b) end)
 
-		property(f('%sCount', k), count, nil, 'number', f("How many %ss are cached for the %s.", k, k2))
-		property(f('%ss', k), get, nil, 'function', f("Iterator for the %s's cached %ss.", k2, k))
+		property(f('%sCount', k1), count, nil, 'number', f("How many %ss are cached for the %s.", k, k2))
+		property(f('%ss', k1), get, nil, 'function', f("Iterator for the %s's cached %ss.", k2, k))
 
 		method(f('get%s', k), get, '[key,] value', f("Returns the %s's first cached %s that matches the (key, value) pair.", k2, k))
 		method(f('get%ss', k), getAll, '[key, value]', f("Returns an iterator for the %s's cached %ss that match the (key, value) pair", k2, k))
