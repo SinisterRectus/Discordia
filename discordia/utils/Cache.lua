@@ -33,20 +33,18 @@ function Cache:_remove(obj)
 end
 
 local function new(self, data)
-	local new = self._constructor(data, self._parent)
-	local old = self._objects[new[self._key]]
-	if new == old then
-		return old -- prevents double-caching HTTP and WS objects
+	local newObj = self._constructor(data, self._parent)
+	local oldObj = self._objects[newObj[self._key]]
+	if newObj == oldObj then
+		return oldObj -- prevents double-caching HTTP and WS objects
 	else
-		self:_add(new)
-		return new
+		self:_add(newObj)
+		return newObj
 	end
 end
 
 local function merge(self, array)
-	local key = self._key
 	local parent = self._parent
-	local objects = self._objects
 	local constructor = self._constructor
 	for _, data in ipairs(array) do
 		local obj = constructor(data, parent)
@@ -134,20 +132,20 @@ end
 
 local function keys(self)
 	local key = self._key
-	local keys = {}
+	local ret = {}
 	for obj in self:iter() do
-		insert(keys, obj[key])
+		insert(ret, obj[key])
 	end
-	sort(keys)
-	return keys
+	sort(ret)
+	return ret
 end
 
 local function values(self)
-	local values = {}
+	local ret = {}
 	for obj in self:iter() do
-		insert(values, obj)
+		insert(ret, obj)
 	end
-	return values
+	return ret
 end
 
 property('count', '_count', nil, 'number', "How many objects are cached")

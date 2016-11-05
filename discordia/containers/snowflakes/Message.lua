@@ -1,5 +1,4 @@
 local Snowflake = require('../Snowflake')
-local Container = require('../../utils/Container')
 
 local insert = table.insert
 local format = string.format
@@ -27,8 +26,8 @@ function Message:_update(data)
 		local client = channel._parent._parent or channel._parent
 		local users = client._users
 		local mentions = {}
-		for _, data in ipairs(data.mentions) do
-			insert(mentions, users:get(data._id) or users:new(data))
+		for _, user_data in ipairs(data.mentions) do
+			insert(mentions, users:get(user_data._id) or users:new(user_data))
 		end
 		self._mentions = mentions
 	end
@@ -94,9 +93,9 @@ end
 local function mentionsObject(self, obj)
 	local type = obj.__name
 	if type == 'Member' then
-		local obj = obj._user
+		obj = obj._user
 		for user in self:getMentionedUsers() do
-			if obj == user then return true end
+			if obj._user == user then return true end
 		end
 	elseif type == 'User' then
 		for user in self:getMentionedUsers() do
@@ -121,7 +120,7 @@ end
 local function pin(self)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
-	local success, data = client._api:addPinnedChannelMessage(channel._id, self._id)
+	local success = client._api:addPinnedChannelMessage(channel._id, self._id)
 	if success then self._pinned = true end
 	return success
 end
@@ -129,7 +128,7 @@ end
 local function unpin(self)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
-	local success, data = client._api:deletePinnedChannelMessage(channel._id, self._id)
+	local success = client._api:deletePinnedChannelMessage(channel._id, self._id)
 	if success then self._pinned = false end
 	return success
 end
@@ -137,8 +136,7 @@ end
 local function delete(self)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
-	local success, data = client._api:deleteMessage(channel._id, self._id)
-	return success
+	return (client._api:deleteMessage(channel._id, self._id))
 end
 
 property('content', '_content', getContent, 'string', "The raw message text")

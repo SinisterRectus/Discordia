@@ -1,6 +1,5 @@
 local Snowflake = require('../Snowflake')
 local Role = require('./Role')
-local User = require('./User')
 local Member = require('./Member')
 local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
@@ -46,11 +45,11 @@ function Guild:_makeAvailable(data)
 	end
 
 	if data.channels then
-		for _, data in ipairs(data.channels) do
-			if data.type == 'text' then
-				self._text_channels:new(data)
-			elseif data.type == 'voice' then
-				self._voice_channels:new(data)
+		for _, channel_data in ipairs(data.channels) do
+			if channel_data.type == 'text' then
+				self._text_channels:new(channel_data)
+			elseif channel_data.type == 'voice' then
+				self._voice_channels:new(channel_data)
 			end
 		end
 	end
@@ -110,7 +109,7 @@ local function setIcon(self, icon)
 end
 
 local function setOwner(self, member)
-	local success, data = self._parent._api:modifyGuild(self._user._id, {owner_id = user._id})
+	local success, data = self._parent._api:modifyGuild(self._user._id, {owner_id = member._id})
 	if success then self._owner_id = data.owner_id end
 	return success
 end
@@ -153,13 +152,11 @@ local function listVoiceRegions(self)
 end
 
 local function leave(self)
-	local success, data = self._parent._api:leaveGuild(self._id)
-	return success
+	return (self._parent._api:leaveGuild(self._id))
 end
 
 local function delete(self)
-	local success, data = self._parent._api:deleteGuild(self._id)
-	return success
+	return (self._parent._api:deleteGuild(self._id))
 end
 
 local function getBannedUsers(self)
@@ -178,29 +175,26 @@ local function getInvites(self)
 	local parent = self._parent
 	if not success then return function() end end
 	return wrap(function()
-		for _, inviteData in ipairs(data) do
-			yield(Invite(inviteData, parent))
+		for _, invite_data in ipairs(data) do
+			yield(Invite(invite_data, parent))
 		end
 	end)
 end
 
 local function banUser(self, user, days)
 	local query = days and {['delete-message-days'] = clamp(days, 0, 7)} or nil
-	local success, data = self._parent._api:createGuildBan(self._id, user._id, payload, query)
-	return success
+	return (self._parent._api:createGuildBan(self._id, user._id, nil, query))
 end
 
 local function unbanUser(self, user)
-	local success, data = self._parent._api:removeGuildBan(self._id, user._id)
-	return success
+	return (self._parent._api:removeGuildBan(self._id, user._id))
 end
 
 local function kickUser(self, user)
-	local success, data = self._parent._api:removeGuildMember(self._id, user._id)
-	return success
+	return (self._parent._api:removeGuildMember(self._id, user._id))
 end
 
-local function getPruneCount(self, self, days)
+local function getPruneCount(self, days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
 	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
 	if success then return data.pruned end
@@ -222,7 +216,7 @@ local function createVoiceChannel(self, name)
 	if success then return self._voice_channels:new(data) end
 end
 
-local function createRole(self, name)
+local function createRole(self)
 	local success, data = self._parent._api:createGuildRole(self._id)
 	if success then return self._roles:new(data) end
 end
@@ -361,15 +355,15 @@ local function getVoiceStates(self, key, value)
 	return self._voice_states:getAll(key, value)
 end
 
-local function getVoiceState(key, value)
+local function getVoiceState(self, key, value)
 	return self._voice_states:get(key, value)
 end
 
-local function findVoiceState(predicate)
+local function findVoiceState(self, predicate)
 	return self._voice_states:find(predicate)
 end
 
-local function findVoiceStates(predicate)
+local function findVoiceStates(self, predicate)
 	return self._voice_states:findAll(predicate)
 end
 
@@ -383,7 +377,7 @@ local function getMessageCount(self)
 	return n
 end
 
-local function getMessages(self, key, value)
+local function getMessages(self)
 	return wrap(function()
 		for channel in self._text_channels:iter() do
 			for message in channel._messages:iter() do
@@ -395,7 +389,7 @@ end
 
 local function getMessage(self, key, value)
 	for channel in self._text_channels:iter() do
-		local message = channel._messages:get(predicate)
+		local message = channel._messages:get(key, value)
 		if message then return message end
 	end
 end

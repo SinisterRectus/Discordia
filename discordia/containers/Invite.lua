@@ -27,13 +27,11 @@ function Invite:__eq(other)
 end
 
 local function accept(self)
-	local success, data = self._parent._api:acceptInvite(self._code)
-	return success
+	return (self._parent._api:acceptInvite(self._code))
 end
 
 local function delete(self)
-	local success, data = self._parent._api:deleteInvite(self._code)
-	return success
+	return (self._parent._api:deleteInvite(self._code))
 end
 
 property('code', '_code', nil, 'string', "Invite identifying code")

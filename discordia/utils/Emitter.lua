@@ -4,8 +4,9 @@
 
 local wrap = coroutine.wrap
 local insert, remove = table.insert, table.remove
+local process = process -- luacheck: ignore process
 
-local Emitter, property, method = class('Emitter')
+local Emitter, _, method = class('Emitter')
 Emitter.__description = "Modified version of Luvit's built-in event emitter. Automatically wraps event callbacks with coroutines."
 
 function Emitter:__init()

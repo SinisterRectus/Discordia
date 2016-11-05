@@ -1,4 +1,3 @@
-local User = require('../User')
 local TextChannel = require('./TextChannel')
 
 local format = string.format

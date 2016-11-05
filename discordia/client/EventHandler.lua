@@ -9,7 +9,7 @@ local function warning(client, object, event)
 end
 
 local function checkReady(client)
-	for k, v in pairs(client._loading) do
+	for _, v in pairs(client._loading) do
 		if next(v) then
 			return client._stopwatch:restart()
 		end
@@ -78,7 +78,7 @@ function EventHandler.READY(data, client)
 
 end
 
-function EventHandler.RESUMED(data, client)
+function EventHandler.RESUMED(_, client)
 	return client:emit('resumed')
 end
 
@@ -296,7 +296,6 @@ end
 function EventHandler.MESSAGE_DELETE_BULK(data, client)
 	local channel = client:getTextChannel(data.channel_id) -- shortcut required
 	if not channel then return warning(client, 'channel', 'MESSAGE_DELETE_BULK') end
-	local messages = {}
 	for _, id in ipairs(data.ids) do
 		local message = channel._messages:get(id)
 		if not message then

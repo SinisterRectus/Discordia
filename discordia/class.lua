@@ -2,6 +2,7 @@ local max = math.max
 local insert, sort = table.insert, table.sort
 local lower, upper = string.lower, string.upper
 local f, rep = string.format, string.rep
+local printf = printf -- luacheck: ignore printf
 
 local meta = {}
 local classes = {}
@@ -18,7 +19,7 @@ end
 
 local Base -- defined below
 
-local class = setmetatable({__classes = classes, docs = docs}, {__call = function(self, name, ...)
+local class = setmetatable({__classes = classes}, {__call = function(_, name, ...)
 
 	if classes[name] then return error(f('Class %q already defined', name)) end
 
@@ -114,7 +115,7 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 	local function cache(k, count, get, getAll, find, findAll)
 
 		local k1 = k:gsub('^.', lower)
-		local k2 = name:gsub('(.*)(%u)', function(a, b) return lower(b) end)
+		local k2 = name:gsub('(.*)(%u)', function(_, str) return lower(str) end)
 
 		property(f('%sCount', k1), count, nil, 'number', f("How many %ss are cached for the %s.", k, k2))
 		property(f('%ss', k1), get, nil, 'function', f("Iterator for the %s's cached %ss.", k2, k))
@@ -138,19 +139,19 @@ function Base:__tostring()
 	return 'instance of class: ' .. self.__name
 end
 
-local function isSub(class, base)
-	for _, other in ipairs(class.__bases) do
-		if other == base then return true end
-		if isSub(other, base) then return true end
+local function isSub(self, other)
+	for _, base in ipairs(self.__bases) do
+		if base == other then return true end
+		if isSub(base, other) then return true end
 	end
 	return false
 end
 
 function Base:isInstanceOf(name)
-	local class = classes[name]
-	if not class then return error(f('Class %q is undefined', name)) end
-	if self.__name == class then return true, true end
-	return isSub(self.__name, class), false
+	local other = classes[name]
+	if not other then return error(f('Class %q is undefined', name)) end
+	if self.__name == other.__name then return true, true end
+	return isSub(self, other), false
 end
 
 local function padRight(str, len)
@@ -174,7 +175,7 @@ function Base:help()
 			m = max(m, #v[1])
 		end
 		sort(properties, sorter)
-		for i, v in ipairs(properties) do
+		for _, v in ipairs(properties) do
 			printf('%s  %s  %s', padRight(v[1], n), padRight(v[2], m), v[3])
 		end
 		print()
@@ -189,7 +190,7 @@ function Base:help()
 			m = max(m, #v[2])
 		end
 		sort(methods, sorter)
-		for i, v in ipairs(methods) do
+		for _, v in ipairs(methods) do
 			printf('%s  %s', padRight(f('%s(%s)', v[1], v[2]), n), padRight(v[3], m))
 		end
 		print()

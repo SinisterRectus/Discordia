@@ -94,8 +94,7 @@ local function disableAllPermissions(self)
 end
 
 local function delete(self)
-	local success, data = self._parent._parent._api:deleteGuildRole(self._parent._id, self._id)
-	return success
+	return (self._parent._parent._api:deleteGuildRole(self._parent._id, self._id))
 end
 
 property('name', '_name', setName, 'string', "Role name")

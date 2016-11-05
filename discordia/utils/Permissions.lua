@@ -38,7 +38,7 @@ local flags = {
 }
 
 local all = 0
-for flag, value in pairs(flags) do
+for _, value in pairs(flags) do
 	all = bor(all, value)
 end
 
@@ -56,7 +56,7 @@ function Permissions:__tostring()
 	end
 end
 
-function Permissions.__eq(other)
+function Permissions:__eq(other)
 	return self.__name == other.__name and self._value == other._value
 end
 

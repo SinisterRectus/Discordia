@@ -2,7 +2,7 @@ local bit = require('bit')
 local Snowflake = require('../Snowflake')
 local Permissions = require('../../utils/Permissions')
 
-local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
+local band, bnot = bit.band, bit.bnot
 
 local PermissionOverwrite, property, method = class('PermissionOverwrite', Snowflake)
 PermissionOverwrite.__description = "Represents a Discord guild channel permission overwrite."
@@ -10,6 +10,20 @@ PermissionOverwrite.__description = "Represents a Discord guild channel permissi
 function PermissionOverwrite:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self:_update(data)
+end
+
+local function _getPermissions(self)
+	return Permissions(self._allow), Permissions(self._deny)
+end
+
+local function _setPermissions(self, allow, deny)
+	local channel = self._parent
+	local client = channel._parent._parent
+	local success = client._api:editChannelPermissions(channel._id, self._id, {
+		allow = allow, deny = deny, type = self._type
+	})
+	if success then self._allow, self._deny = allow, deny end
+	return success
 end
 
 local function getGuild(self)
@@ -39,32 +53,18 @@ end
 local function setAllowedPermissions(self, allowed)
 	local allow = allowed._value
 	local deny = band(bnot(allow), self._deny)
-	return setPermissions(self, allow, deny)
+	return _setPermissions(self, allow, deny)
 end
 
 local function setDeniedPermissions(self, denied)
 	local deny = denied._value
 	local allow = band(bnot(deny), self._allow)
-	return setPermissions(self, allow, deny)
+	return _setPermissions(self, allow, deny)
 end
 
 function PermissionOverwrite:_update(data)
 	self._allow = data.allow
 	self._deny = data.deny
-end
-
-local function getPermissions(self) -- not exposed
-	return Permissions(self._allow), Permissions(self._deny)
-end
-
-local function setPermissions(self, allow, deny) -- not exposed
-	local channel = self._parent
-	local client = channel._parent._parent
-	local success, data = client._api:editChannelPermissions(channel._id, self._id, {
-		allow = allow, deny = deny, type = self._type
-	})
-	if success then self._allow, self._deny = allow, deny end
-	return success
 end
 
 local function permissionAreAllowed(self, ...)
@@ -78,46 +78,45 @@ local function permissionAreDenied(self, ...)
 end
 
 local function allowPermissions(self, ...)
-	local allowed, denied = self:getPermissions()
+	local allowed, denied = _getPermissions(self)
 	allowed:enable(...); denied:disable(...)
-	return setPermissions(self, allowed._value, denied._value)
+	return _setPermissions(self, allowed._value, denied._value)
 end
 
 local function denyPermissions(self, ...)
-	local allowed, denied = self:getPermissions()
+	local allowed, denied = _getPermissions(self)
 	allowed:disable(...); denied:enable(...)
-	return setPermissions(self, allowed._value, denied._value)
+	return _setPermissions(self, allowed._value, denied._value)
 end
 
 local function clearPermissions(self, ...)
-	local allowed, denied = self:getPermissions()
+	local allowed, denied = _getPermissions(self)
 	allowed:disable(...); denied:disable(...)
-	return setPermissions(self, allowed._value, denied._value)
+	return _setPermissions(self, allowed._value, denied._value)
 end
 
 local function allowAllPermissions(self)
-	local allowed, denied = self:getPermissions()
+	local allowed, denied = _getPermissions(self)
 	allowed:enableAll(); denied:disableAll()
-	return setPermissions(self, allowed._value, denied._value)
+	return _setPermissions(self, allowed._value, denied._value)
 end
 
 local function denyAllPermissions(self)
-	local allowed, denied = self:getPermissions()
+	local allowed, denied = _getPermissions(self)
 	allowed:disableAll(); denied:enableAll()
-	return setPermissions(self, allowed._value, denied._value)
+	return _setPermissions(self, allowed._value, denied._value)
 end
 
 local function clearAllPermissions(self)
-	local allowed, denied = self:getPermissions()
+	local allowed, denied = _getPermissions(self)
 	allowed:disableAll(); denied:disableAll()
-	return setPermissions(self, allowed._value, denied._value)
+	return _setPermissions(self, allowed._value, denied._value)
 end
 
 local function delete(self)
 	local channel = self._parent
 	local client = channel._parent._parent
-	local success, data = client._api:deleteChannelPermission(channel._id, self._id)
-	return success
+	return (client._api:deleteChannelPermission(channel._id, self._id))
 end
 
 property('channel', '_parent', nil, 'GuildChannel', 'The channel to which the overwrite belongs')

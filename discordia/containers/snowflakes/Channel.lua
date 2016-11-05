@@ -1,7 +1,4 @@
-local User = require('./User')
 local Snowflake = require('../Snowflake')
-
-local format = string.format
 
 local Channel, property, method = class('Channel', Snowflake)
 Channel.__description = "Abstract base class for more specific channel types."
@@ -17,8 +14,7 @@ end
 
 local function delete(self)
 	local client = self._parent._parent or self._parent
-	local success, data = client._api:deleteChannel(self._id)
-	return success
+	return (client._api:deleteChannel(self._id))
 end
 
 property('type', '_type', nil, 'string', "The channel type (text or voice)")

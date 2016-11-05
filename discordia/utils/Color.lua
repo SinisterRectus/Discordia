@@ -1,6 +1,5 @@
 local bit = require('bit')
 
-local round = math.round
 local format = string.format
 local lshift, rshift, band = bit.lshift, bit.rshift, bit.band
 

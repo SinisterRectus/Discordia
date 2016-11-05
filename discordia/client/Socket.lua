@@ -56,7 +56,7 @@ function Socket:disconnect()
 	self._res, self._read, self._write = nil, nil, nil
 end
 
-local function handleUnexpectedDisconnect(self, token)
+local function handleUnexpectedDisconnect(self, client, token)
 	client:warning(format('Attemping to reconnect after %i ms...', self._backoff))
 	sleep(self._backoff)
 	incrementReconnectTime(self)
@@ -71,10 +71,10 @@ function Socket:handlePayloads(token)
 
 	for data in self._read do
 
-		local string = data.payload
-		local payload = decode(string)
+		local str = data.payload
+		local payload = decode(str)
 
-		client:emit('raw', payload, string)
+		client:emit('raw', payload, str)
 
 		local op = payload.op
 
@@ -102,7 +102,7 @@ function Socket:handlePayloads(token)
 			else
 				self:identify(token)
 			end
-		elseif op == 11 then
+		-- elseif op == 11 then
 			-- heartbeat acknowledged
 		else
 			client:warning('Unhandled payload: ' .. op)
@@ -115,7 +115,7 @@ function Socket:handlePayloads(token)
 		self:stopHeartbeat()
 		client:warning('Disconnected from gateway unexpectedly')
 		if client._options.autoReconnect then
-			return handleUnexpectedDisconnect(self, token)
+			return handleUnexpectedDisconnect(self, client, token)
 		end
 	end
 

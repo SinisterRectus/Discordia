@@ -106,15 +106,13 @@ local function _bulkDelete(self, query)
 	local success, data = client._api:getChannelMessages(self._id, query)
 	if success then
 		if #data == 1 then
-			local success, data = client._api:deleteMessage(self._id, data[1].id)
-			return success
+			return (client._api:deleteMessage(self._id, data[1].id))
 		else
 			local messages = {}
-			for _, data in ipairs(data) do
-				insert(messages, data.id)
+			for _, message_data in ipairs(data) do
+				insert(messages, message_data.id)
 			end
-			local success, data = client._api:bulkDeleteMessages(self._id, {messages = messages})
-			return success
+			return (client._api:bulkDeleteMessages(self._id, {messages = messages}))
 		end
 	end
 end
@@ -139,15 +137,14 @@ local function bulkDeleteAround(self, message, limit)
 	return _bulkDelete(self, query)
 end
 
-local function broadcastTyping()
+local function broadcastTyping(self)
 	local client = self._parent._parent or self._parent
-	local success, data = client._api:triggerTypingIndicator(self._id)
-	return success
+	return (client._api:triggerTypingIndicator(self._id))
 end
 
 -- messages --
 
-local function getMessageCount(self, key, value)
+local function getMessageCount(self)
 	return self._messages._count
 end
 

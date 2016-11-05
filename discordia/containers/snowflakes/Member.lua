@@ -132,6 +132,7 @@ local function removeRoles(self, ...)
 		local role = select(i, ...)
 		removals[role.id] = true
 	end
+	local role_ids = {}
 	for _, id in ipairs(self._roles) do
 		if not removals[id] then
 			insert(role_ids, id)
@@ -212,6 +213,7 @@ method('unban', unban, '[guild]', "Shortcut for `member.user:unban`. The member'
 method('kick', kick, '[guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
 method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
 method('removeRoles', removeRoles, 'roles[, ...]', "Removes a role or roles from the member.")
+method('setVoiceChannel', setVoiceChannel, 'channel', "Moves a member to a voice channel if they are already in one.")
 
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 

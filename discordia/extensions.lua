@@ -13,7 +13,7 @@ end
 
 function table.count(tbl)
 	local n = 0
-	for k, v in pairs(tbl) do
+	for _ in pairs(tbl) do
 		n = n + 1
 	end
 	return n
@@ -21,7 +21,7 @@ end
 
 function table.deepcount(tbl)
 	local n = 0
-	for k, v in pairs(tbl) do
+	for _, v in pairs(tbl) do
 		n = type(v) == 'table' and n + table.deepcount(v) or n + 1
 	end
 	return n

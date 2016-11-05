@@ -16,7 +16,7 @@ local months = {
 }
 
 local function parseDate(str)
-	local wday, day, month, year, hour, min, sec = str:match(
+	local _, day, month, year, hour, min, sec = str:match(
 		'(%a-), (%d-) (%a-) (%d-) (%d-):(%d-):(%d-) GMT'
 	)
 	local serverDate = {
@@ -27,7 +27,7 @@ local function parseDate(str)
 	clientDate.isdst = date('*t').isdst
 	local serverTime = difftime(time(serverDate), time(clientDate)) + time()
 	local calculated = date('!%a, %d %b %Y %H:%M:%S GMT', serverTime)
-	-- need a warning here
+	assert(calculated == str) -- debug
 	return serverTime
 end
 
@@ -89,7 +89,7 @@ function API:commit(method, url, reqHeaders, payload, routeLimiter, attempts)
 	routeLimiter:start(isRetry)
 	globalLimiter:start(isRetry)
 
-	local res, data = request(method, url, reqHeaders, payload)
+	local res, str = request(method, url, reqHeaders, payload)
 
 	local resHeaders = {}
 	for i, v in ipairs(res) do
@@ -105,7 +105,7 @@ function API:commit(method, url, reqHeaders, payload, routeLimiter, attempts)
 		routeDelay = max(1000 * dt, routeDelay)
 	end
 
-	local success, data = res.code < 300, decode(data)
+	local success, data = res.code < 300, decode(str)
 	local shouldRetry = false
 
 	if not success then

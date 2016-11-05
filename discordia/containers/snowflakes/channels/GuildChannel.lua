@@ -24,13 +24,13 @@ function GuildChannel:_update(data)
 	local overwrites = self._permission_overwrites
 	if #data.permission_overwrites > 0 then
 		local updated = {}
-		for _, data in ipairs(data.permission_overwrites) do
-			updated[data.id] = true
-			local overwrite = overwrites:get(data.id)
+		for _, overwrite_data in ipairs(data.permission_overwrites) do
+			updated[overwrite_data.id] = true
+			local overwrite = overwrites:get(overwrite_data.id)
 			if overwrite then
-				overwrite:_update(data)
+				overwrite:_update(overwrite_data)
 			else
-				overwrite = overwrites:new(data)
+				overwrites:new(overwrite_data)
 			end
 		end
 		for overwrite in overwrites:iter() do
@@ -67,8 +67,8 @@ local function getInvites(self)
 	local success, data = client._api:getChannelInvites(self._id)
 	if not success then return function() end end
 	return wrap(function()
-		for _, inviteData in ipairs(data) do
-			yield(Invite(inviteData, client))
+		for _, invite_data in ipairs(data) do
+			yield(Invite(invite_data, client))
 		end
 	end)
 end
@@ -112,6 +112,7 @@ property('position', '_position', setPosition, 'number', "The position of the ch
 property('invites', getInvites, nil, 'function', "Returns an iterator for the channel's invites (not cached)")
 
 method('createInvite', createInvite, 'maxAge, maxUses, temporary, unique', "Creates and returns an invite to the channel for users to join.")
+method('getPermissionOverwriteFor', getPermissionOverwriteFor, 'object', "Returns an overwrite for the provided Role or Member")
 
 cache('PermissionOverwrite', getPermissionOverwriteCount, getPermissionOverwrite, getPermissionOverwrites, findPermissionOverwrite, findPermissionOverwrites)
 

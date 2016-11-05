@@ -10,7 +10,6 @@ local pp = require('pretty-print')
 
 local open = io.open
 local time = os.time
-local remove = table.remove
 local format = string.format
 local colorize = pp.colorize
 local traceback = debug.traceback
@@ -33,7 +32,7 @@ function Client:__init(customOptions)
 	Emitter.__init(self)
 	if customOptions then
 		local options = {}
-		for k, v in pairs(defaultOptions) do
+		for k in pairs(defaultOptions) do
 			options[k] = customOptions[k] or defaultOptions[k]
 		end
 		self._options = options
@@ -84,7 +83,7 @@ local function getToken(self, email, password)
 	end
 end
 
-function Client:run(a, b)
+local function run(self, a, b)
 	return wrap(function()
 		local token = not b and a or getToken(self, a, b)
 		if token then
@@ -94,21 +93,21 @@ function Client:run(a, b)
 	end)()
 end
 
-function Client:stop(exit)
+local function stop(self, shouldExit)
 	if self._socket then self._socket:disconnect() end
-	if exit then os.exit() end
+	if shouldExit then exit() end
 end
 
 function Client:_connectToGateway(token)
 
 	local gateway, connected
 	local filename = 'gateway.cache'
-	local cache = open(filename, 'r')
+	local file = open(filename, 'r')
 
-	if cache then
-		gateway = cache:read()
+	if file then
+		gateway = file:read()
 		connected = self._socket:connect(gateway)
-		cache:close()
+		file:close()
 	end
 
 	if not connected then
@@ -117,13 +116,13 @@ function Client:_connectToGateway(token)
 			gateway = data.url
 			connected = self._socket:connect(gateway)
 		end
-		cache = nil
+		file = nil
 	end
 
 	if connected then
-		if not cache then
-			cache = open(filename, 'w')
-			if cache then cache:write(gateway):close() end
+		if not file then
+			file = open(filename, 'w')
+			if file then file:write(gateway):close() end
 		end
 		return wrap(self._socket.handlePayloads)(self._socket, token)
 	else
@@ -143,17 +142,16 @@ function Client:_loadUserData(data)
 	data.mfa_enabled = nil
 end
 
-function Client:listVoiceRegions()
+local function listVoiceRegions(self)
 	local success, data = self._api:listVoiceRegions()
 	if success then return data end
 end
 
-function Client:createGuild(name, region) -- limited use
-	local success, data = self._api:createGuild({name = name, region = region})
-	return success
+local function createGuild(self, name, region) -- limited use
+	return (self._api:createGuild({name = name, region = region}))
 end
 
-function Client:setUsername(username)
+local function setUsername(self, username)
 	local success, data = self._api:modifyCurrentUser({
 		avatar = self._user._avatar,
 		email = self._user._email,
@@ -163,7 +161,7 @@ function Client:setUsername(username)
 	return success
 end
 
-function Client:setNick(guild, nick)
+local function setNick(self, guild, nick)
 	local success, data = self._api:modifyCurrentUserNickname(guild._id, {
 		nick = nick or ''
 	})
@@ -171,7 +169,7 @@ function Client:setNick(guild, nick)
 	return success
 end
 
-function Client:setAvatar(avatar)
+local function setAvatar(self, avatar)
 	local success, data = self._api:modifyCurrentUser({
 		avatar = avatar,
 		email = self._user._email,
@@ -181,7 +179,7 @@ function Client:setAvatar(avatar)
 	return success
 end
 
-function Client:setStatusIdle()
+local function setStatusIdle(self)
 	self._idle_since = time() * 1000
 	local id = self._user._id
 	for guild in self._guilds:iter() do
@@ -191,7 +189,7 @@ function Client:setStatusIdle()
 	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
-function Client:setStatusOnline()
+local function setStatusOnline(self)
 	self._idle_since = nil
 	local id = self._user._id
 	for guild in self._guilds:iter() do
@@ -201,7 +199,7 @@ function Client:setStatusOnline()
 	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
-function Client:setGameName(gameName)
+local function setGameName(self, gameName)
 	self._game_name = gameName
 	local id = self._user._id
 	for guild in self._guilds:iter() do
@@ -211,12 +209,11 @@ function Client:setGameName(gameName)
 	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
-function Client:acceptInviteByCode(code)
-	local success, data = self._api:acceptInvite(code)
-	return success
+local function acceptInviteByCode(self, code)
+	return (self._api:acceptInvite(code))
 end
 
-function Client:getInviteByCode(code)
+local function getInviteByCode(self, code)
 	local success, data = self._api:getInvite(code)
 	if success then return Invite(data, self) end
 end
@@ -225,7 +222,7 @@ end
 
 -- users --
 
-local function getUserCount(self, key, value)
+local function getUserCount(self)
 	return self._users._count
 end
 
@@ -247,7 +244,7 @@ end
 
 -- guilds --
 
-local function getGuildCount(self, key, value)
+local function getGuildCount(self)
 	return self._guilds._count
 end
 
@@ -269,7 +266,7 @@ end
 
 -- channels --
 
-local function getChannelCount(self, key, value)
+local function getChannelCount(self)
 	local n = self._private_channels._count
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count + guild._voice_channels._count
@@ -297,7 +294,7 @@ local function getChannel(self, key, value)
 	local channel = self._private_channels:get(key, value)
 	if channel then return channel end
 	for guild in self._guilds:iter() do
-		local channel = guild._text_channels:get(key, value) or guild._voice_channels:get(key, value)
+		channel = guild._text_channels:get(key, value) or guild._voice_channels:get(key, value)
 		if channel then return channel end
 	end
 end
@@ -306,7 +303,7 @@ local function findChannel(self, predicate)
 	local channel = self._private_channels:find(predicate)
 	if channel then return channel end
 	for guild in self._guilds:iter() do
-		local channel = guild._text_channels:find(predicate) or guild._voice_channels:find(predicate)
+		channel = guild._text_channels:find(predicate) or guild._voice_channels:find(predicate)
 		if channel then return channel end
 	end
 end
@@ -329,7 +326,7 @@ end
 
 -- private channels --
 
-local function getPrivateChannelCount(self, key, value)
+local function getPrivateChannelCount(self)
 	return self._private_channels._count
 end
 
@@ -351,7 +348,7 @@ end
 
 -- text channels --
 
-local function getTextChannelCount(self, key, value)
+local function getTextChannelCount(self)
 	local n = self._private_channels._count
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count
@@ -376,7 +373,7 @@ local function getTextChannel(self, key, value)
 	local channel = self._private_channels:get(key, value)
 	if channel then return channel end
 	for guild in self._guilds:iter() do
-		local channel = guild._text_channels:get(key, value)
+		channel = guild._text_channels:get(key, value)
 		if channel then return channel end
 	end
 end
@@ -385,7 +382,7 @@ local function findTextChannel(self, predicate)
 	local channel = self._private_channels:find(predicate)
 	if channel then return channel end
 	for guild in self._guilds:iter() do
-		local channel = guild._text_channels:find(predicate)
+		channel = guild._text_channels:find(predicate)
 		if channel then return channel end
 	end
 end
@@ -405,7 +402,7 @@ end
 
 -- guild channels --
 
-local function getGuildChannelCount(self, key, value)
+local function getGuildChannelCount(self)
 	local n = self._private_channels._count
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count + guild._voice_channels._count
@@ -455,7 +452,7 @@ end
 
 -- guild text channels --
 
-local function getGuildTextChannelCount(self, key, value)
+local function getGuildTextChannelCount(self)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count
@@ -499,7 +496,7 @@ end
 
 -- guild voice channels --
 
-local function getGuildVoiceChannelCount(self, key, value)
+local function getGuildVoiceChannelCount(self)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + guild._voice_channels._count
@@ -543,7 +540,7 @@ end
 
 -- voice states --
 
-local function getVoiceStateCount(self, key, value)
+local function getVoiceStateCount(self)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + guild._voice_states._count
@@ -587,7 +584,7 @@ end
 
 -- roles --
 
-local function getRoleCount(self, key, value)
+local function getRoleCount(self)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + guild._roles._count
@@ -631,7 +628,7 @@ end
 
 -- members --
 
-local function getMemberCount(self, key, value)
+local function getMemberCount(self)
 	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + guild._members._count
@@ -667,7 +664,7 @@ local function findMembers(self, predicate)
 	return wrap(function()
 		for guild in self._guilds:iter() do
 			for member in guild._members:findAll(predicate) do
-				yield(role)
+				yield(member)
 			end
 		end
 	end)
@@ -675,7 +672,7 @@ end
 
 -- messages --
 
-local function getMessageCount(self, key, value)
+local function getMessageCount(self)
 	local n = 0
 	for channel in self._private_channels:iter() do
 		n = n + channel._messages._count
@@ -756,7 +753,23 @@ property('mobile', '_mobile', nil, 'boolean', "Whether the client has used a Dis
 property('verified', '_verified', nil, 'boolean', "Whether the client account is verified by Discord")
 property('mfaEnabled', '_mfa_enabled', nil, 'boolean', "Whether the client has MFA enabled")
 
+method('run', run, 'token', "Connects to a Discord gateway using a valid Discord token and starts the main program loop(s).")
+method('stop', stop, 'shouldExit', "Disconnects from the Discord gateway and optionally exits the process.")
+
+method('listVoiceRegions', listVoiceRegions, nil, "Returns a table of voice regions.")
+method('createGuild', createGuild, 'name, region', "Creates a guild with the provided name and voice region.")
+method('acceptInviteByCode', acceptInviteByCode, 'code', "Accepts a guild invitation with the raw invite code.")
+method('getInviteByCode', getInviteByCode, 'code', "Returns an Invite object corresponding to a raw invite code, if it exists.")
+
+method('setUsername', setUsername, 'username', "Sets the user's username.")
+method('setNickname', setNick, 'guild, nickname', "Sets the user's nickname for the indicated guild.")
+method('setAvatar', setAvatar, 'avatar', "Sets the user's avatar. Must be a base64-encoded JPEG.")
+method('setStatusIdle', setStatusIdle, nil, "Sets the user status to idle. Warning: This can silently fail!")
+method('setStatusOnline', setStatusOnline, nil, "Sets the user status to idle. Warning: This can silently fail!")
+method('setGameName', setGameName, 'gameName', "Sets the user's 'now playing' game title. Warning: This can silently fail!")
+
 cache('Guild', getGuildCount, getGuild, getGuilds, findGuild, findGuilds)
+cache('User', getUserCount, getUser, getUsers, findUser, findUsers)
 cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
 cache('PrivateChannel', getPrivateChannelCount, getPrivateChannel, getPrivateChannels, findPrivateChannel, findPrivateChannels)
 cache('GuildChannel', getGuildChannelCount, getGuildChannel, getGuildChannels, findGuildChannel, findGuildChannels)

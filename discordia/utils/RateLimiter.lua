@@ -4,7 +4,7 @@ local Deque = require('./Deque')
 local setTimeout = timer.setTimeout
 local running, yield, resume = coroutine.running, coroutine.yield, coroutine.resume
 
-local RateLimiter, property, method = class('RateLimiter', Deque)
+local RateLimiter, _, method = class('RateLimiter', Deque)
 RateLimiter.__description = "Extention of Deque that is used by the API class to throttle HTTP requests."
 
 function RateLimiter:__init()
