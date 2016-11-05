@@ -95,7 +95,7 @@ local function mentionsObject(self, obj)
 	if type == 'Member' then
 		obj = obj._user
 		for user in self:getMentionedUsers() do
-			if obj._user == user then return true end
+			if obj == user then return true end
 		end
 	elseif type == 'User' then
 		for user in self:getMentionedUsers() do

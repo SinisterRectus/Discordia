@@ -3,6 +3,7 @@ local json = require('json')
 local timer = require('timer')
 local websocket = require('coro-websocket')
 local EventHandler = require('./EventHandler')
+local Stopwatch = require('../utils/Stopwatch')
 
 local format = string.format
 local min, max = math.min, math.max
@@ -25,6 +26,7 @@ local Socket = class('Socket')
 function Socket:__init(client)
 	self._client = client
 	self._backoff = 1024
+	self._stopwatch = Stopwatch()
 end
 
 local function incrementReconnectTime(self)
@@ -102,8 +104,8 @@ function Socket:handlePayloads(token)
 			else
 				self:identify(token)
 			end
-		-- elseif op == 11 then
-			-- heartbeat acknowledged
+		elseif op == 11 then
+			client:emit('heartbeat', self._seq, self._stopwatch.milliseconds)
 		else
 			client:warning('Unhandled payload: ' .. op)
 		end
@@ -144,6 +146,7 @@ local function send(self, payload)
 end
 
 function Socket:heartbeat()
+	self._stopwatch:restart()
 	return send(self, {
 		op = 1,
 		d = self._seq

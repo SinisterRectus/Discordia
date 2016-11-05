@@ -84,6 +84,7 @@
 	- `typingStart` now has a timestamp as a third argument
 	- `messageUpdateUncached` and `messageDeleteUncached` events were added for uncached message events
 	- `warning` and `error` events were added
+	- `heartbeat` event was added with event sequence and roundtrip latency arguments
 
 
 - New Classes
