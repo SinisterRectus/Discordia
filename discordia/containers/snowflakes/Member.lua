@@ -109,19 +109,6 @@ local function kick(self, guild)
 	return self._user:kick(guild or self._parent)
 end
 
-local function _mapRoles(roles, map, tbl)
-	if roles.iter then
-		for role in roles:iter() do
-			map(role, tbl)
-		end
-	else
-		for _, role in pairs(roles) do
-			map(role, tbl)
-		end
-	end
-	return tbl
-end
-
 local function _applyRoles(self, roles)
 	local guild = self._parent
 	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {roles = roles})
@@ -129,40 +116,23 @@ local function _applyRoles(self, roles)
 	return success
 end
 
-local function addRoles(self, roles)
-	local map = function(role, tbl)
-		insert(tbl, role._id)
+local function addRoles(self, ...)
+	local role_ids = {}
+	for i = 1, select('#', ...) do
+		local role = select(i, ...)
+		insert(role_ids, role.id)
 	end
-	local role_ids = _mapRoles(roles, map, self._roles)
 	return _applyRoles(self, role_ids)
 end
 
-local function removeRoles(self, roles)
-	local map = function(role, tbl)
-		tbl[role._id] = true
+local function removeRoles(self, ...)
+	local removals = {}
+	for i = 1, select('#', ...) do
+		local role = select(i, ...)
+		removals[role.id] = true
 	end
-	local removals = _mapRoles(roles, map, {})
-	local role_ids = {}
 	for _, id in ipairs(self._roles) do
 		if not removals[id] then
-			insert(role_ids, id)
-		end
-	end
-	return _applyRoles(self, role_ids)
-end
-
-local function addRole(self, role)
-	local role_ids = {role._id}
-	for _, id in ipairs(self._roles) do
-		insert(role_ids, id)
-	end
-	return _applyRoles(self, role_ids)
-end
-
-local function removeRole(self, role)
-	local role_ids = {}
-	for _, id in ipairs(self._roles) do
-		if id ~= role._id then
 			insert(role_ids, id)
 		end
 	end
@@ -240,14 +210,12 @@ method('getRoles', getRoles, 'key, value', "Returns an iterator for the member's
 method('getRole', getRole, '[key,] value', "Returns the member's first role that matches the (key, value) pair.")
 method('findRole', findRole, 'predicate', "Returns the member's first role that satisfies a predicate.")
 method('findRoles', findRoles, 'predicate', "Returns all of the member's roles that satisfy a predicate.")
-method('getMembership', getMembership, '[Guild]', "Shortcut for `member.user:getMembership`")
+method('getMembership', getMembership, '[guild]', "Shortcut for `member.user:getMembership`")
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Shortcut for `member.user:sendMessage`")
-method('ban', ban, '[Guild]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
-method('unban', unban, '[Guild]', "Shortcut for `member.user:unban`. The member's guild is used if none is provided.")
-method('kick', kick, '[Guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
-method('addRoles', addRoles, 'roles', "Adds a table, cache, or deque of roles to the member.")
-method('removeRoles', removeRoles, 'roles', "Removes a table, cache, or deque of roles from the member.")
-method('addRole', addRole, 'role', "Adds a role to the member.")
-method('removeRole', removeRole, 'role', "Removes a role from the member.")
+method('ban', ban, '[guild]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
+method('unban', unban, '[guild]', "Shortcut for `member.user:unban`. The member's guild is used if none is provided.")
+method('kick', kick, '[guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
+method('addRoles', addRoles, 'roles', "Adds a role or roles to the member.")
+method('removeRoles', removeRoles, 'roles', "Removes a role or roles from the member.")
 
 return Member
