@@ -3,10 +3,19 @@ local Container = require('../utils/Container')
 local format = string.format
 
 local VoiceState, property = class('VoiceState', Container)
+VoiceState.__description = "Represents a guild member's connection to a voice channel"
 
 function VoiceState:__init(data, parent)
 	Container.__init(self, data, parent)
 	self:_update(data)
+end
+
+function VoiceState:__tostring()
+	return format('%s: %s', self.__name, self._session_id)
+end
+
+function VoiceState:__eq(other)
+	return self.__name == other.__name and self._session_id == other._session_id
 end
 
 local function getUser(self)
@@ -26,13 +35,5 @@ property('selfDeaf', '_self_deaf', nil, 'boolean', "Whether the user is locally 
 property('suppress', '_suppress', nil, 'boolean', "Whether the user is muted by the client")
 property('user', getUser, nil, 'string', "The user for which the voice state exists")
 property('channel', getChannel, nil, 'string', "The channel in which the voice state exists")
-
-function VoiceState:__tostring()
-	return format('%s: %s', self.__name, self._session_id)
-end
-
-function VoiceState:__eq(other)
-	return self.__name == other.__name and self._session_id == other._session_id
-end
 
 return VoiceState

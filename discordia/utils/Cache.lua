@@ -24,7 +24,7 @@ end
 
 function Cache:_add(obj)
 	if not obj[self._key] then -- debug
-		p(self._key)
+		print(obj, self._key)
 		for k, v in pairs(obj) do
 			print(k, v)
 		end
@@ -96,6 +96,17 @@ local function iter(self)
 end
 
 local function get(self, key, value)
+	if value == nil then
+			return self._objects[key]
+	elseif key == self._key then
+		return self._objects[value]
+	elseif key ~= nil then
+		for obj in self:iter() do
+			if obj[key] == value then
+				return obj
+			end
+		end
+	end
 end
 
 local function getAll(self, key, value)
@@ -153,8 +164,8 @@ method('add', add, 'obj', "Adds an object to the cache. Must match the defined t
 method('remove', remove, 'obj', "Remove an object from the cache. Must match the defined type.")
 method('has', has, 'obj', "Returns a boolean indicating whether the cache contains the specified object.")
 method('iter', iter, nil, "Returns an iterator for the objects in the queue. Order is not guaranteed.")
-method('get', get, '[key,] value', "Returns the first object matching the provided (key, value) pair.")
-method('getAll', get, '[key, value]', "Returns an iterator for all objects that match the (key, value) pair.")
+method('get', get, '[key,] value', "Returns the first object that matches provided (key, value) pair.")
+method('getAll', getAll, '[key, value]', "Returns an iterator for all objects that match the (key, value) pair.")
 method('find', find, 'predicate', "Returns the first object found that satisfies a predicate.")
 method('findAll', findAll, 'predicate', "Returns an iterator for all objects that satisfy a predicate.")
 method('keys', keys, nil, "Returns an array-like Lua table of all of the cached objects' keys, sorted by key.")

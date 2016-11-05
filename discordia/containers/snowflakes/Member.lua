@@ -4,7 +4,7 @@ local insert = table.insert
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Member, property = class('Member', Snowflake)
+local Member, property, method = class('Member', Snowflake)
 
 function Member:__init(data, parent)
 	self._id = data.user.id
@@ -12,6 +12,30 @@ function Member:__init(data, parent)
 	local users = self._parent._parent._users
 	self._user = users:get(data.user.id) or users:new(data.user)
 	self:_update(data)
+end
+
+function Member:__tostring()
+	if self._nick then
+		return format('%s: %s (%s)', self.__name, self._user._username, self._nick)
+	else
+		return format('%s: %s', self.__name, self._user._username)
+	end
+end
+
+function Member:_update(data)
+	Snowflake._update(self, data)
+	self._roles = data.roles -- raw table of IDs
+	self._nick = data.nick
+end
+
+function Member:_createPresence(data)
+	self._status = data.status
+	self._game = data.game
+end
+
+function Member:_updatePresence(data)
+	self:_createPresence(data)
+	self._user:_update(data.user)
 end
 
 local function setNick(self, nick)
@@ -48,116 +72,44 @@ local function setVoiceChannel(self, channel)
 	return success
 end
 
-property('roleCount', function(self)
-	return #self._roles
-end, nil, 'number', "How many roles the member has (excluding @everyone)")
-
-property('roles', function(self)
-	local roles = self._parent._roles
-	return wrap(function()
-		for _, id in ipairs(self._roles) do
-			yield(roles:get(id))
-		end
-	end)
-end, nil, 'function', "Returns an iterator for the member's roles (excluding @everyone)")
-
-property('nickname', '_nick', setNick, 'string', "The member's nickname for the guild in which it exists (can be nil if not set)")
-property('user', '_user', nil, 'User', "The base user associated with this member")
-property('deaf', '_deaf', setDeaf, 'boolean', "Whether the member is deafened")
-property('mute', '_mute', setMute, 'boolean', "Whether the member is muted")
-property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
-property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
-
-property('status', function(self)
+local function getStatus(self)
 	return self._status or 'offline'
-end, nil, 'string', "Whether the member is online, offline, or idle")
+end
 
-property('gameName', function(self)
+local function getGameName(self)
 	return self._game and self._game.name
-end, nil, 'string', "Name of the game set in the member's status (can be nil if not set)")
+end
 
-property('name', function(self)
+local function getName(self)
 	return self._nick or self._user._username
-end, nil, 'string', "The member's nickname if one is set. Otherwise, its username.")
-
-property('avatarUrl', function(self)
-	return self._user.avatarUrl
-end, nil, 'string', "Shortcut for member.user.avatarUrl")
-
-property('mentionString', function(self)
-	return self._user.mentionString
-end, nil, 'string', "Shortcut for member.user.mentionString")
-
-property('id', function(self)
-	return self._user._id
-end, nil, 'string', "Shortcut for member.user.id")
-
-property('bot', function(self)
-	return self._user._bot
-end, nil, 'string', "Shortcut for member.user.bot")
-
-property('avatar', function(self)
-	return self._user._avatar
-end, nil, 'string', "Shortcut for member.user.avatar")
-
-property('username', function(self)
-	return self._user._username
-end, nil, 'string', "Shortcut for member.user.username")
-
-property('discriminator', function(self)
-	return self._user._discriminator
-end, nil, 'string', "Shortcut for member.user.discriminator")
-
-function Member:__tostring()
-	if self._nick then
-		return format('%s: %s (%s)', self.__name, self._user._username, self._nick)
-	else
-		return format('%s: %s', self.__name, self._user._username)
-	end
-end
-
-function Member:_update(data)
-	Snowflake._update(self, data)
-	self._roles = data.roles -- raw table of IDs
-	self._nick = data.nick
-end
-
-function Member:_createPresence(data)
-	self._status = data.status
-	self._game = data.game
-end
-
-function Member:_updatePresence(data)
-	self:_createPresence(data)
-	self._user:_update(data.user)
 end
 
 -- User-compatability methods --
 
-function Member:getMembership(guild)
+local function getMembership(self, guild)
 	return self._user:getMembership(guild or self._parent)
 end
 
-function Member:sendMessage(...)
+local function sendMessage(self, ...)
 	return self._user:sendMessage(...)
 end
 
-function Member:ban(guild, days)
+local function ban(self, guild, days)
 	if not days and type(guild) == 'number' then
 		days, guild = guild, self._parent
 	end
 	return self._user:ban(guild or self._parent, days)
 end
 
-function Member:unban(guild)
+local function unban(self, guild)
 	return self._user:unban(guild or self._parent)
 end
 
-function Member:kick(guild)
+local function kick(self, guild)
 	return self._user:kick(guild or self._parent)
 end
 
-local function mapRoles(roles, map, tbl)
+local function _mapRoles(roles, map, tbl)
 	if roles.iter then
 		for role in roles:iter() do
 			map(role, tbl)
@@ -170,54 +122,70 @@ local function mapRoles(roles, map, tbl)
 	return tbl
 end
 
-local function applyRoles(self, roles)
+local function _applyRoles(self, roles)
 	local guild = self._parent
 	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {roles = roles})
 	if success then self._roles = roles end
 	return success
 end
 
-function Member:addRoles(roles)
+local function addRoles(self, roles)
 	local map = function(role, tbl)
 		insert(tbl, role._id)
 	end
-	local role_ids = mapRoles(roles, map, self._roles)
-	return applyRoles(self, role_ids)
+	local role_ids = _mapRoles(roles, map, self._roles)
+	return _applyRoles(self, role_ids)
 end
 
-function Member:removeRoles(roles)
+local function removeRoles(self, roles)
 	local map = function(role, tbl)
 		tbl[role._id] = true
 	end
-	local removals = mapRoles(roles, map, {})
+	local removals = _mapRoles(roles, map, {})
 	local role_ids = {}
 	for _, id in ipairs(self._roles) do
 		if not removals[id] then
 			insert(role_ids, id)
 		end
 	end
-	return applyRoles(self, role_ids)
+	return _applyRoles(self, role_ids)
 end
 
-function Member:addRole(role)
+local function addRole(self, role)
 	local role_ids = {role._id}
 	for _, id in ipairs(self._roles) do
 		insert(role_ids, id)
 	end
-	return applyRoles(self, role_ids)
+	return _applyRoles(self, role_ids)
 end
 
-function Member:removeRole(role)
+local function removeRole(self, role)
 	local role_ids = {}
 	for _, id in ipairs(self._roles) do
 		if id ~= role._id then
 			insert(role_ids, id)
 		end
 	end
-	return applyRoles(self, role_ids)
+	return _applyRoles(self, role_ids)
 end
 
-function Member:getRole(key, value)
+local function getRoleCount(self)
+	return #self._roles
+end
+
+local function getRoles(self, key, value)
+	local roles = self._parent._roles
+	return wrap(function()
+		for _, id in ipairs(self._roles) do
+			local role = roles:get(id)
+			if role[key] == value then
+				yield(role)
+			end
+		end
+	end)
+end
+
+local function getRole(self, key, value)
 	local roles = self._parent._roles
 	if key == nil and value == nil then return end
 	if value == nil then
@@ -230,7 +198,7 @@ function Member:getRole(key, value)
 	end
 end
 
-function Member:findRole(predicate)
+local function findRole(self, predicate)
 	local roles = self._parent._roles
 	for _, id in ipairs(self._roles) do
 		local role = roles:get(id)
@@ -238,7 +206,7 @@ function Member:findRole(predicate)
 	end
 end
 
-function Member:findRoles(predicate)
+local function findRoles(self, predicate)
 	return wrap(function()
 		local roles = self._parent._roles
 		for _, id in ipairs(self._roles) do
@@ -247,5 +215,39 @@ function Member:findRoles(predicate)
 		end
 	end)
 end
+
+property('avatarUrl', function(self) return self._user.avatarUrl end, nil, 'string', "Shortcut for member.user.avatarUrl")
+property('mentionString', function(self) return self._user.mentionString end, nil, 'string', "Shortcut for member.user.mentionString")
+property('id', function(self) return self._user._id end, nil, 'string', "Shortcut for member.user.id")
+property('bot', function(self) return self._user._bot end, nil, 'string', "Shortcut for member.user.bot")
+property('avatar', function(self) return self._user._avatar end, nil, 'string', "Shortcut for member.user.avatar")
+property('username', function(self) return self._user._username end, nil, 'string', "Shortcut for member.user.username")
+property('discriminator', function(self) return self._user._discriminator end, nil, 'string', "Shortcut for member.user.discriminator")
+
+property('status', getStatus, nil, 'string', "Whether the member is online, offline, or idle")
+property('gameName', getGameName, nil, 'string', "Name of the game set in the member's status (can be nil if not set)")
+property('name', getName, nil, 'string', "The member's nickname if one is set. Otherwise, its username.")
+property('roleCount', getRoleCount, nil, 'number', "How many roles the member has (excluding @everyone)")
+property('roles', getRoles, nil, 'function', "Returns an iterator for the member's roles (excluding @everyone)")
+property('nickname', '_nick', setNick, 'string', "The member's nickname for the guild in which it exists (can be nil if not set)")
+property('user', '_user', nil, 'User', "The base user associated with this member")
+property('deaf', '_deaf', setDeaf, 'boolean', "Whether the member is deafened")
+property('mute', '_mute', setMute, 'boolean', "Whether the member is muted")
+property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
+property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
+
+method('getRoles', getRoles, 'key, value', "Returns an iterator for the member's roles that match the (key, value) pair")
+method('getRole', getRole, '[key,] value', "Returns the member's first role that matches the (key, value) pair.")
+method('findRole', findRole, 'predicate', "Returns the member's first role that satisfies a predicate.")
+method('findRoles', findRoles, 'predicate', "Returns all of the member's roles that satisfy a predicate.")
+method('getMembership', getMembership, '[Guild]', "Shortcut for `member.user:getMembership`")
+method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Shortcut for `member.user:sendMessage`")
+method('ban', ban, '[Guild]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
+method('unban', unban, '[Guild]', "Shortcut for `member.user:unban`. The member's guild is used if none is provided.")
+method('kick', kick, '[Guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
+method('addRoles', addRoles, 'roles', "Adds a table, cache, or deque of roles to the member.")
+method('removeRoles', removeRoles, 'roles', "Removes a table, cache, or deque of roles from the member.")
+method('addRole', addRole, 'role', "Adds a role to the member.")
+method('removeRole', removeRole, 'role', "Removes a role from the member.")
 
 return Member

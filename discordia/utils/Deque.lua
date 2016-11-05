@@ -1,5 +1,5 @@
 local Deque, property, method = class('Deque')
-Deque.__description = "Implementation of a double-ended queue"
+Deque.__description = "Implementation of a double-ended queue."
 
 function Deque:__init()
 	self._objects = {}

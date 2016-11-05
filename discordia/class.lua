@@ -15,7 +15,7 @@ function meta:__tostring()
 	return 'class: ' .. self.__name
 end
 
-local Object -- defined below
+local Base -- defined below
 
 local class = setmetatable({__classes = classes, docs = docs}, {__call = function(self, name, ...)
 
@@ -25,7 +25,7 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 	local properties, methods = {}, {} -- for documentation
 	local getters, setters = {}, {} -- for property metatables
 
-	local bases = {Object, ...}
+	local bases = {Base, ...}
 	for _, base in ipairs(bases) do
 		for k, v in pairs(base) do
 			class[k] = v
@@ -115,9 +115,10 @@ local class = setmetatable({__classes = classes, docs = docs}, {__call = functio
 
 end})
 
-Object = class('Object') -- forward-declared above
+Base = class('Base') -- forward-declared above
+Base.__description = "The base class for all other classes."
 
-function Object:__tostring()
+function Base:__tostring()
 	return 'instance of class: ' .. self.__name
 end
 
@@ -129,7 +130,7 @@ local function isSub(class, base)
 	return false
 end
 
-function Object:isInstanceOf(name)
+function Base:isInstanceOf(name)
 	local class = classes[name]
 	if not class then return error(format('Class %q is undefined', name)) end
 	if self.__name == class then return true, true end
@@ -144,7 +145,7 @@ local function sorter(a, b)
 	return a[1] < b[1]
 end
 
-function Object:help()
+function Base:help()
 
 	printf('\n-- %s --\n%s\n', self.__name, self.__description)
 

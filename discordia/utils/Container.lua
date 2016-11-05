@@ -1,11 +1,7 @@
 local Container, property = class('Container')
-Container.__description = "Base object used to contain the raw data of Discord objects."
+Container.__description = "Abstract base class used to contain the raw data of Discord objects."
 
-local types = {
-	['string'] = true,
-	['number'] = true,
-	['boolean'] = true,
-}
+local types = {['string'] = true, ['number'] = true, ['boolean'] = true}
 
 local function load(self, data)
 	for k, v in pairs(data) do
@@ -20,11 +16,12 @@ function Container:__init(data, parent)
 	return load(self, data)
 end
 
-property('parent', '_parent', nil, '*', "Parent Discord object (ex: the Guild of a Member)")
-
-property('client', function(self)
+local function getClient(self)
 	return self._parent.client or self._parent
-end, nil, 'Client', "Client object to which the Discord object is known")
+end
+
+property('parent', '_parent', nil, '*', "Parent Discord object")
+property('client', getClient, nil, 'Client', "Client object to which the Discord object is known")
 
 Container._update = load
 

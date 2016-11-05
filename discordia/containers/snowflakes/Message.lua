@@ -5,7 +5,8 @@ local insert = table.insert
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
 
-local Message, property = class('Message', Snowflake)
+local Message, property, method = class('Message', Snowflake)
+Message.__description = "Represents a Discord text channel message."
 
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -14,32 +15,6 @@ function Message:__init(data, parent)
 	self._author = client._users:get(data.author.id) or client._users:new(data.author)
 	self:_update(data)
 end
-
-property('content', '_content', function(self, content)
-	local channel = self._parent
-	local client = channel._parent._parent or channel._parent
-	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
-	if success then self._content = data.content end
-	return success
-end, 'string', "The raw message text")
-
-property('tts', '_tts', nil, 'boolean', "Whether the message is a TTS one")
-property('pinned', '_pinned', nil, 'boolean', "Whether the message is pinned")
-property('timestamp', '_timestamp', nil, 'string', "Date and time that the message was created")
-property('editedTimestamp', '_edited_timestamp', nil, 'string', "Date and time that the message was edited")
-property('channel', '_parent', nil, 'TextChannel', "The channel in which the message exists (GuildTextChannel or PrivateChannel)")
-property('author', '_author', nil, 'User', "The user object representing the message's author")
-
-property('member', function(self)
-	local channel = self._parent
-	if channel._is_private then return end
-	return self._author:getMembership(channel._parent)
-end, nil, 'Member', "The member object for the author (does not exist for private channels)")
-
-property('guild', function(self)
-	local channel = self._parent
-	if not channel._is_private then return channel._parent end
-end, nil, 'Guild', "The guild in which the message exists (does not exist for private channels)")
 
 function Message:__tostring()
 	return format('%s: %s', self.__name, self._content)
@@ -62,16 +37,35 @@ function Message:_update(data)
 	-- self.attachments = data.attachments -- TODO
 end
 
-property('mentionedUsers', function(self)
+local function getContent(self, content)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
+	if success then self._content = data.content end
+	return success
+end
+
+local function getMember(self)
+	local channel = self._parent
+	if channel._is_private then return end
+	return self._author:getMembership(channel._parent)
+end
+
+local function getGuild(self)
+	local channel = self._parent
+	if not channel._is_private then return channel._parent end
+end
+
+local function getMentionedUsers(self)
 	local mentions, k, v = self._mentions
 	if not mentions then return function() end end
 	return function()
 		k, v = next(mentions, k)
 		return v
 	end
-end, nil, 'function', "An iterator for Users that are mentions in the message")
+end
 
-property('mentionedRoles', function(self)
+local function getMentionedRoles(self)
 	return wrap(function()
 		local guild = self._parent._parent
 		if self._mention_everyone then
@@ -85,9 +79,9 @@ property('mentionedRoles', function(self)
 			end
 		end
 	end)
-end, nil, 'function', "An iterator for Roles that are mentions in the message")
+end
 
-property('mentionedChannels', function(self)
+local function getMentionedChannels(self)
 	return wrap(function()
 		local textChannels = self._parent._parent._textChannels
 		for id in self._content:gmatch('<#(.-)>') do
@@ -95,34 +89,36 @@ property('mentionedChannels', function(self)
 			if channel then yield(channel) end
 		end
 	end)
-end, nil, 'function', "An iterator for GuildChannels that are mentions in the message")
+end
 
-function Message:mentionsUser(user)
-	for obj in self:getMentionedUsers() do
-		if obj == user then return true end
+local function mentionsObject(self, obj)
+	local type = obj.__name
+	if type == 'Member' then
+		local obj = obj._user
+		for user in self:getMentionedUsers() do
+			if obj == user then return true end
+		end
+	elseif type == 'User' then
+		for user in self:getMentionedUsers() do
+			if obj == user then return true end
+		end
+	elseif type == 'Role' then
+		for role in self:getMentionedRoles() do
+			if obj == role then return true end
+		end
+	elseif type == 'GuildTextChannel' then
+		for channel in self:getMentionedChannels() do
+			if obj == channel then return true end
+		end
 	end
 	return false
 end
 
-function Message:mentionsRole(role)
-	for obj in self:getMentionedRoles() do
-		if obj == role then return true end
-	end
-	return false
-end
-
-function Message:mentionsChannel(channel)
-	for obj in self:getMentionedChannels() do
-		if obj == channel then return true end
-	end
-	return false
-end
-
-function Message:reply(...)
+local function reply(self, ...)
 	return self._parent:sendMessage(...)
 end
 
-function Message:pin()
+local function pin(self)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
 	local success, data = client._api:addPinnedChannelMessage(channel._id, self._id)
@@ -130,7 +126,7 @@ function Message:pin()
 	return success
 end
 
-function Message:unpin()
+local function unpin(self)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
 	local success, data = client._api:deletePinnedChannelMessage(channel._id, self._id)
@@ -138,11 +134,30 @@ function Message:unpin()
 	return success
 end
 
-function Message:delete()
+local function delete(self)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
 	local success, data = client._api:deleteMessage(channel._id, self._id)
 	return success
 end
+
+property('content', '_content', getContent, 'string', "The raw message text")
+property('tts', '_tts', nil, 'boolean', "Whether the message is a TTS one")
+property('pinned', '_pinned', nil, 'boolean', "Whether the message is pinned")
+property('timestamp', '_timestamp', nil, 'string', "Date and time that the message was created")
+property('editedTimestamp', '_edited_timestamp', nil, 'string', "Date and time that the message was edited")
+property('channel', '_parent', nil, 'TextChannel', "The channel in which the message exists (GuildTextChannel or PrivateChannel)")
+property('author', '_author', nil, 'User', "The user object representing the message's author")
+property('member', getMember, nil, 'Member', "The member object for the author (does not exist for private channels)")
+property('guild', getGuild, nil, 'Guild', "The guild in which the message exists (does not exist for private channels)")
+property('mentionedUsers', getMentionedUsers, nil, 'function', "An iterator for Users that are mentions in the message")
+property('mentionedRoles', getMentionedRoles, nil, 'function', "An iterator for Roles that are mentions in the message")
+property('mentionedChannels', getMentionedChannels, nil, 'function', "An iterator for GuildChannels that are mentions in the message")
+
+method('reply', reply, 'content[, mentions, tts, nonce]', "Shortcut for `message.channel:sendMessage`.")
+method('pin', pin, nil, "Adds the message to the channel's pinned messages.")
+method('unpin', unpin, nil, "Removes the message from the channel's pinned messages.")
+method('delete', delete, nil, "Permanently deletes the message from the channel.")
+method('mentionsObject', mentionsObject, 'obj', "Returns a boolean indicating whether the provided object was mentioned in the message.")
 
 return Message

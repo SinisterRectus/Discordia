@@ -18,6 +18,10 @@ Join the [Discord API community](https://discord.gg/0SBTUU1wZTWVpm07) to discuss
 - To install the Discord library, run `lit install SinisterRectus/discordia`
 - Run your bot script using, for example, `luvit bot.lua`
 
+### Documentation
+
+Please visit this project's [Wiki](https://github.com/SinisterRectus/Discordia/wiki) for documentation and tutorials.
+
 ### Bug Reports
 
 Before reporting a library issue:
@@ -58,7 +62,3 @@ How can I contribute?
 
 Are there other Lua libraries?
 - Discordia was the first Lua library to be officially recognized by the Discord API community. There is a second recognized Lua library, [litcord](https://github.com/satom99/litcord), and at least two abanonded libraries (mentioned above). If you'd like to contribute Lua code to a Discord project, please consider contributing to the Lua libraries already recognized by the Discord API community.
-
-### Documentation
-
-Please visit this repository's [Wiki](https://github.com/SinisterRectus/Discordia/wiki) for Discordia's documentation and tutorials.

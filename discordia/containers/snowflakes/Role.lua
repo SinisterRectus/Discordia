@@ -4,7 +4,8 @@ local Permissions = require('../../utils/Permissions')
 
 local format = string.format
 
-local Role, property = class('Role', Snowflake)
+local Role, property, method = class('Role', Snowflake)
+Role.__description = "Represents a Discord guild role."
 
 function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -59,6 +60,44 @@ local function setPermissions(self, permissions)
 	return success
 end
 
+local function getMentionString(self)
+	return format('<@&%s>', self._id)
+end
+
+local function permissionIsEnabled(self, ...)
+	local permissions = self:getPermissions()
+	return permissions:has(...)
+end
+
+local function enablePermission(self, ...)
+	local permissions = self:getPermissions()
+	permissions:enable(...)
+	return self:setPermissions(permissions)
+end
+
+local function disablePermission(self, ...)
+	local permissions = self:getPermissions()
+	permissions:disable(...)
+	return self:setPermissions(permissions)
+end
+
+local function enableAllPermissions(self)
+	local permissions = self:getPermissions()
+	permissions:enableAll()
+	return self:setPermissions(permissions)
+end
+
+local function disableAllPermissions(self)
+	local permissions = self:getPermissions()
+	permissions:disableAll()
+	return self:setPermissions(permissions)
+end
+
+local function delete(self)
+	local success, data = self._parent._parent._api:deleteGuildRole(self._parent._id, self._id)
+	return success
+end
+
 property('name', '_name', setName, 'string', "Role name")
 property('hoist', '_hoist', setHoist, 'boolean', "Whether members with this role are displayed separated from others")
 property('guild', '_parent', nil, 'Guild', "Discord guild in which the role exists")
@@ -67,43 +106,13 @@ property('position', '_position', setPosition, 'number', "The position setting o
 property('mentionable', '_mentionable', setMentionable, 'boolean', "Whether guild members can mention this role")
 property('color', getColor, setColor, 'Color', "Object representing the role color")
 property('permissions', getPermissions, setPermissions, 'Permissions', "Object representing the role's permissions")
+property('mentionString', getMentionString, nil, 'string', 'string', "Raw string that is parsed by Discord into a role mention")
 
-property('mentionString', function(self)
-	return format('<@&%s>', self._id)
-end, nil, 'string', 'string', "Raw string that is parsed by Discord into a role mention")
-
-function Role:permissionIsEnabled(...)
-	local permissions = self:getPermissions()
-	return permissions:has(...)
-end
-
-function Role:enablePermission(...)
-	local permissions = self:getPermissions()
-	permissions:enable(...)
-	return self:setPermissions(permissions)
-end
-
-function Role:disablePermission(...)
-	local permissions = self:getPermissions()
-	permissions:disable(...)
-	return self:setPermissions(permissions)
-end
-
-function Role:enableAllPermissions()
-	local permissions = self:getPermissions()
-	permissions:enableAll()
-	return self:setPermissions(permissions)
-end
-
-function Role:disableAllPermissions()
-	local permissions = self:getPermissions()
-	permissions:disableAll()
-	return self:setPermissions(permissions)
-end
-
-function Role:delete()
-	local success, data = self._parent._parent._api:deleteGuildRole(self._parent._id, self._id)
-	return success
-end
+method('enablePermission', enablePermission, 'flag[, ...]', "Enables a permission or permissions for the role.")
+method('permissionIsEnabled', permissionIsEnabled, 'flag[, ...]', "Returns a boolean indicating whether a permission or permissions is/are enabled for the role.")
+method('disablePermission', disablePermission, 'flag[, ...]', "Disables a permission or permissions for the role.")
+method('enableAllPermissions', enableAllPermissions, nil, "Enables all permissions for the role.")
+method('disableAllPermissions', disableAllPermissions, nil, "Disables all permissions for the role.")
+method('delete', delete, nil, "Permanently deletes the role.")
 
 return Role

@@ -2,7 +2,8 @@ local Container = require('../utils/Container')
 
 local format = string.format
 
-local Invite, property = class('Invite', Container)
+local Invite, property, method = class('Invite', Container)
+Invite.__description = "Represents a Discord invitation for joining guilds."
 
 function Invite:__init(data, parent)
 	Container.__init(self, data, parent)
@@ -15,6 +16,24 @@ function Invite:__init(data, parent)
 		self._inviter = self._parent._users:get(data.inviter.id) or self._parent._users:new(data.inviter)
 	end
 	self:_update(data)
+end
+
+function Invite:__tostring()
+	return format('%s: %s', self.__name, self._code)
+end
+
+function Invite:__eq(other)
+	return self.__name == other.__name and self._code == other._code
+end
+
+local function accept(self)
+	local success, data = self._parent._api:acceptInvite(self._code)
+	return success
+end
+
+local function delete(self)
+	local success, data = self._parent._api:deleteInvite(self._code)
+	return success
 end
 
 property('code', '_code', nil, 'string', "Invite identifying code")
@@ -31,22 +50,7 @@ property('guildName', '_guild_name', nil, 'string', "Name of the guild for which
 property('channelName', '_channel_name', nil, 'string', "Name of the channel for which the invite exists")
 property('channelType', '_channel_type', nil, 'string', "Type of the channel for which the invite exists")
 
-function Invite:__tostring()
-	return format('%s: %s', self.__name, self._code)
-end
-
-function Invite:__eq(other)
-	return self.__name == other.__name and self._code == other._code
-end
-
-function Invite:accept()
-	local success, data = self._parent._api:acceptInvite(self._code)
-	return success
-end
-
-function Invite:delete()
-	local success, data = self._parent._api:deleteInvite(self._code)
-	return success
-end
+method('accept', accept, nil, "Joins the guild and channel for which the invite exists (non-bots only).")
+method('delete', delete, nil, "Revokes and deletes the invite.")
 
 return Invite

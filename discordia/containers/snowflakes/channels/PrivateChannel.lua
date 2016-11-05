@@ -4,6 +4,7 @@ local TextChannel = require('./TextChannel')
 local format = string.format
 
 local PrivateChannel, property = class('PrivateChannel', TextChannel)
+PrivateChannel.__description = "Represents a Discord private text channel between two users."
 
 function PrivateChannel:__init(data, parent)
 	TextChannel.__init(self, data, parent)
@@ -12,12 +13,6 @@ function PrivateChannel:__init(data, parent)
 	PrivateChannel._update(self, data)
 end
 
-property('recipient', '_recipient', nil, 'User', "The recipient of the private channel (the other half of your conversation)")
-
-property('name', function(self)
-	return self._recipient._username
-end, nil, 'string', "The username of the channel recipient")
-
 function PrivateChannel:__tostring()
 	return format('%s: %s', self.__name, self._recipient._username)
 end
@@ -25,5 +20,12 @@ end
 function PrivateChannel:_update(data)
 	TextChannel._update(self, data)
 end
+
+local function setName(self)
+	return self._recipient._username
+end
+
+property('recipient', '_recipient', nil, 'User', "The recipient of the private channel (the other half of your conversation)")
+property('name', setName, nil, 'string', "The username of the channel recipient")
 
 return PrivateChannel
