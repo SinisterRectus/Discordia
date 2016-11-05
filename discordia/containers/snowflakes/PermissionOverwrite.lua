@@ -67,29 +67,29 @@ local function setPermissions(self, allow, deny) -- not exposed
 	return success
 end
 
-local function permissionIsAllowed(self, ...)
+local function permissionAreAllowed(self, ...)
 	local allowed = self:getAllowedPermissions()
 	return allowed:has(...)
 end
 
-local function permissionIsDenied(self, ...)
+local function permissionAreDenied(self, ...)
 	local denied = self:getDeniedPermissions()
 	return denied:has(...)
 end
 
-local function allowPermission(self, ...)
+local function allowPermissions(self, ...)
 	local allowed, denied = self:getPermissions()
 	allowed:enable(...); denied:disable(...)
 	return setPermissions(self, allowed._value, denied._value)
 end
 
-local function denyPermission(self, ...)
+local function denyPermissions(self, ...)
 	local allowed, denied = self:getPermissions()
 	allowed:disable(...); denied:enable(...)
 	return setPermissions(self, allowed._value, denied._value)
 end
 
-local function clearPermission(self, ...)
+local function clearPermissions(self, ...)
 	local allowed, denied = self:getPermissions()
 	allowed:disable(...); denied:disable(...)
 	return setPermissions(self, allowed._value, denied._value)
@@ -120,18 +120,18 @@ local function delete(self)
 	return success
 end
 
-property('channel', '_parent', nil, 'Guild[Text|Voice]Channel', 'The channel to which the overwrite belongs')
+property('channel', '_parent', nil, 'GuildChannel', 'The channel to which the overwrite belongs')
 property('guild', getGuild, nil, 'Guild', "The guild in which the overwrite exists")
 property('object', getObject, nil, 'Role or Member', "The guild role or member object to which the overwrite applies")
 property('name', getName, nil, 'string', "Equivalent to the role or member to which the overwrite applies")
-property('allowedPermissions', getAllowedPermissions, setAllowedPermissions, 'Permissions', "The permissions that are allowed by the overwrite.")
-property('deniedPermissions', getDeniedPermissions, setDeniedPermissions, 'Permissions', "The permissions that are denied by the overwrite.")
+property('allowedPermissions', getAllowedPermissions, setAllowedPermissions, 'Permissions', "Object representing permissions that are allowed by the overwrite.")
+property('deniedPermissions', getDeniedPermissions, setDeniedPermissions, 'Permissions', "Object representing permissions that are denied by the overwrite.")
 
-method('permissionIsAllowed', permissionIsAllowed, 'flag[, ...]', "Returns a boolean indicating whether a permission or permissions is/are allowed.")
-method('permissionIsDenied', permissionIsDenied, 'flag[, ...]', "Returns a boolean indicating whether a permission or permissions is/are denied.")
-method('allowPermission', allowPermission, 'flag[, ...]', "Sets a permission or permissions to allowed.")
-method('denyPermission', denyPermission, 'flag[, ...]', "Sets a permission or permissions to denied.")
-method('clearPermission', clearPermission, 'flag[, ...]', "Clears the setting of a permission.")
+method('permissionAreAllowed', permissionAreAllowed, 'flag[, ...]', "Indicates whether permissions are allowed by the overwrite.")
+method('permissionAreDenied', permissionAreDenied, 'flag[, ...]', "Indicates whether permissions are denied by the overwrite.")
+method('allowPermissions', allowPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to allowed .")
+method('denyPermissions', denyPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to denied.")
+method('clearPermissions', clearPermissions, 'flag[, ...]', "Clears permissions settings for the overwrite by flag.")
 method('allowAllPermissions', allowAllPermissions, nil, "Sets all permissions to allowed.")
 method('denyAllPermissions', denyAllPermissions, nil, "Sets all permissions to denied.")
 method('clearAllPermissions', clearAllPermissions, nil, "Clears the setting of all permissions.")

@@ -64,18 +64,18 @@ local function getMentionString(self)
 	return format('<@&%s>', self._id)
 end
 
-local function permissionIsEnabled(self, ...)
+local function permissionsAreEnabled(self, ...)
 	local permissions = self:getPermissions()
 	return permissions:has(...)
 end
 
-local function enablePermission(self, ...)
+local function enablePermissions(self, ...)
 	local permissions = self:getPermissions()
 	permissions:enable(...)
 	return self:setPermissions(permissions)
 end
 
-local function disablePermission(self, ...)
+local function disablePermissions(self, ...)
 	local permissions = self:getPermissions()
 	permissions:disable(...)
 	return self:setPermissions(permissions)
@@ -108,9 +108,9 @@ property('color', getColor, setColor, 'Color', "Object representing the role col
 property('permissions', getPermissions, setPermissions, 'Permissions', "Object representing the role's permissions")
 property('mentionString', getMentionString, nil, 'string', 'string', "Raw string that is parsed by Discord into a role mention")
 
-method('enablePermission', enablePermission, 'flag[, ...]', "Enables a permission or permissions for the role.")
-method('permissionIsEnabled', permissionIsEnabled, 'flag[, ...]', "Returns a boolean indicating whether a permission or permissions is/are enabled for the role.")
-method('disablePermission', disablePermission, 'flag[, ...]', "Disables a permission or permissions for the role.")
+method('enablePermissions', enablePermissions, 'flag[, ...]', "Enables permissions for the role by flag.")
+method('permissionsAreEnabled', permissionsAreEnabled, 'flag[, ...]', "Indicates whether permissions are enabled for the role.")
+method('disablePermissions', disablePermissions, 'flag[, ...]', "Disables permissions for the role by flag.")
 method('enableAllPermissions', enableAllPermissions, nil, "Enables all permissions for the role.")
 method('disableAllPermissions', disableAllPermissions, nil, "Disables all permissions for the role.")
 method('delete', delete, nil, "Permanently deletes the role.")
