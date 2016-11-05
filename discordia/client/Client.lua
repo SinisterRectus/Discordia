@@ -756,6 +756,7 @@ property('mobile', '_mobile', nil, 'boolean', "Whether the client has used a Dis
 property('verified', '_verified', nil, 'boolean', "Whether the client account is verified by Discord")
 property('mfaEnabled', '_mfa_enabled', nil, 'boolean', "Whether the client has MFA enabled")
 
+cache('Guild', getGuildCount, getGuild, getGuilds, findGuild, findGuilds)
 cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
 cache('PrivateChannel', getPrivateChannelCount, getPrivateChannel, getPrivateChannels, findPrivateChannel, findPrivateChannels)
 cache('GuildChannel', getGuildChannelCount, getGuildChannel, getGuildChannels, findGuildChannel, findGuildChannels)
