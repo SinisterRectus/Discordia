@@ -23,12 +23,6 @@ function Cache:__tostring()
 end
 
 function Cache:_add(obj)
-	if not obj[self._key] then -- debug
-		print(obj, self._key)
-		for k, v in pairs(obj) do
-			print(k, v)
-		end
-	end
 	self._objects[obj[self._key]] = obj
 	self._count = self._count + 1
 end

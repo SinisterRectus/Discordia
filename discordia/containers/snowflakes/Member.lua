@@ -215,7 +215,7 @@ method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Shortcut 
 method('ban', ban, '[guild]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
 method('unban', unban, '[guild]', "Shortcut for `member.user:unban`. The member's guild is used if none is provided.")
 method('kick', kick, '[guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
-method('addRoles', addRoles, 'roles', "Adds a role or roles to the member.")
-method('removeRoles', removeRoles, 'roles', "Removes a role or roles from the member.")
+method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
+method('removeRoles', removeRoles, 'roles[, ...]', "Removes a role or roles from the member.")
 
 return Member

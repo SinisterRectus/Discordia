@@ -180,14 +180,14 @@ end
 function EventHandler.GUILD_BAN_ADD(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'guild', 'GUILD_BAN_ADD') end
-	local user = client._users:get(data.user.id) or client._users:new(data)
+	local user = client._users:get(data.user.id) or client._users:new(data.user)
 	return client:emit('userBan', user, guild)
 end
 
 function EventHandler.GUILD_BAN_REMOVE(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'guild', 'GUILD_BAN_REMOVE') end
-	local user = client._users:get(data.user.id) or client._users:new(data)
+	local user = client._users:get(data.user.id) or client._users:new(data.user)
 	return client:emit('userUnban', user, guild)
 end
 
