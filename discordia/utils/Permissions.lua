@@ -47,7 +47,7 @@ function Permissions:__init(value)
 end
 
 function Permissions:__tostring()
-	local tbl = self:toTable()
+	local tbl = self:toArray()
 	if #tbl == 0 then
 		return 'Permissions: 0 (none)'
 	else
@@ -108,6 +108,14 @@ end
 local function toTable(self)
 	local ret = {}
 	for flag, value in pairs(flags) do
+		ret[flag] = band(self._value, value) > 0
+	end
+	return ret
+end
+
+local function toArray(self)
+	local ret = {}
+	for flag, value in pairs(flags) do
 		if band(self._value, value) > 0 then
 			insert(ret, flag)
 		end
@@ -144,7 +152,8 @@ method('has', has, 'flag[, ...]', "Returns a boolean indicating whether a permis
 method('enableAll', enableAll, nil, "Enables all permissions.")
 method('disableAll', disableAll, nil, "Disables all permissions.")
 method('toHex', toHex, nil, "Returns a hex string for the permission's value.")
-method('toTable', toTable, nil, "Returns an array-like Lua table of the object's enabled flags.")
+method('toTable', toTable, nil, "Returns a Lua table indicating whether each permission flag is enabled.")
+method('toArray', toArray, nil, "Returns an array-like Lua table of all enabled flags.")
 method('union', union, 'other', "Returns a new Permissions object with the permissions that are in self or other (bitwise OR).")
 method('intersection', intersection, 'other', "Returns a new Permissions object with the permissions that are in self and other (bitwise AND).")
 method('difference', difference, 'other', "Returns a new Permissions object with the permissions that in self or other, but not both (bitwise XOR).")
