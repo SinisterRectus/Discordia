@@ -121,11 +121,10 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 		local k1 = k:gsub('^.', lower)
 		local k2 = name:gsub('(.*)(%u)', function(_, str) return lower(str) end)
 
+		property(f('%ss', k1), getAll, nil, 'function', f("Iterator for the %s's cached %ss.", k2, k))
 		property(f('%sCount', k1), count, nil, 'number', f("How many %ss are cached for the %s.", k, k2))
-		property(f('%ss', k1), get, nil, 'function', f("Iterator for the %s's cached %ss.", k2, k))
 
 		class[f('get%s', k)] =	get
-		class[f('get%ss', k)] = getAll
 		class[f('find%s', k)] = find
 		class[f('find%ss', k)]	= findAll
 
