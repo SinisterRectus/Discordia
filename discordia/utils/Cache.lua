@@ -130,28 +130,36 @@ local function findAll(self, predicate)
 	end)
 end
 
+local function keySorter(a, b)
+	return (tonumber(a) or a) < (tonumber(b) or b)
+end
+
 local function keys(self)
 	local key = self._key
 	local ret = {}
 	for obj in self:iter() do
 		insert(ret, obj[key])
 	end
-	sort(ret)
+	sort(ret, keySorter)
 	return ret
 end
 
 local function values(self)
+	local key = self._key
 	local ret = {}
 	for obj in self:iter() do
 		insert(ret, obj)
 	end
+	sort(ret, function(a, b)
+		return keySorter(a[key], b[key])
+	end)
 	return ret
 end
 
 property('count', '_count', nil, 'number', "How many objects are cached")
 
-method('new', new, 'data', "Adds a new Discord object from a JSON data table and returns the object.")
-method('merge', merge, 'array', "Adds many new Discord object from an array of JSON data tables.")
+method('new', new, 'data', "Adds a new Discord object from a data table and returns the object.")
+method('merge', merge, 'array', "Adds many new Discord object from an array of data tables.")
 method('add', add, 'obj', "Adds an object to the cache. Must match the defined type.")
 method('remove', remove, 'obj', "Remove an object from the cache. Must match the defined type.")
 method('has', has, 'obj', "Returns a boolean indicating whether the cache contains the specified object.")
