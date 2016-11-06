@@ -140,6 +140,6 @@ method('clearPermissions', clearPermissions, 'flag[, ...]', "Clears permissions 
 method('allowAllPermissions', allowAllPermissions, nil, "Sets all permissions to allowed.")
 method('denyAllPermissions', denyAllPermissions, nil, "Sets all permissions to denied.")
 method('clearAllPermissions', clearAllPermissions, nil, "Clears the setting of all permissions.")
-method('delete', delete, nil, "Permanently deletes the permission overwrite.")
+method('delete', delete, nil, "Deletes the permission overwrite.")
 
 return PermissionOverwrite

@@ -14,6 +14,7 @@ local sleep, setInterval, clearInterval = timer.sleep, timer.setInterval, timer.
 
 local ignore = {
 	['MESSAGE_ACK'] = true,
+	['CHANNEL_PINS_ACK'] = true,
 	['CHANNEL_PINS_UPDATE'] = true,
 	['GUILD_EMOJIS_UPDATE'] = true,
 	['GUILD_INTEGRATIONS_UPDATE'] = true,

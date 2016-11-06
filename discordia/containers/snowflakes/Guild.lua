@@ -446,7 +446,7 @@ method('banUser', banUser, 'user[, days]', "Bans a user from the guild and optio
 method('unbanUser', unbanUser, 'user', "Unbans a user from the guild.")
 method('kickUser', kickUser, 'user', "Kicks a user from the guild")
 method('getPruneCount', getPruneCount, '[days]', "Returns how many members would be removed if 1-30 day prune were performed (default: 1 day).")
-method('pruneMembers', pruneMembers, '[days]', "Removes members who have not been seen in 1-30 days (default: 1 day).")
+method('pruneMembers', pruneMembers, '[days]', "Removes members who have not been seen in 1-30 days (default: 1 day). Returns the number of pruned members.")
 method('createTextChannel', createTextChannel, 'name', "Creates a new text channel in the guild.")
 method('createVoiceChannel', createVoiceChannel, 'name', "Creates a new voice channel in the guild.")
 method('createRole', createRole, nil, "Creates a new role in the guild.")

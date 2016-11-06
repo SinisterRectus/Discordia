@@ -208,7 +208,7 @@ property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member
 
 method('getMembership', getMembership, '[guild]', "Shortcut for `member.user:getMembership`")
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Shortcut for `member.user:sendMessage`")
-method('ban', ban, '[guild]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
+method('ban', ban, '[guild][, days]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
 method('unban', unban, '[guild]', "Shortcut for `member.user:unban`. The member's guild is used if none is provided.")
 method('kick', kick, '[guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
 method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
