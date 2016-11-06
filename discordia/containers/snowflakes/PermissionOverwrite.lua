@@ -40,7 +40,7 @@ local function getObject(self)
 	if self._type == 'role' then
 		return guild._roles:get(self._id)
 	else
-		return guild:queryMember(self._id)
+		return guild:getMemberById(self._id)
 	end
 end
 

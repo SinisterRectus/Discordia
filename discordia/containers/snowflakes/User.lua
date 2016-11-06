@@ -24,7 +24,7 @@ local function getMentionString(self)
 end
 
 local function getMembership(self, guild)
-	return guild:queryMember(self._id)
+	return guild:getMemberById(self._id)
 end
 
 local function sendMessage(self, ...)
