@@ -82,9 +82,9 @@ end
 
 local function getMentionedChannels(self)
 	return wrap(function()
-		local textChannels = self._parent._parent._textChannels
+		local parent = self._parent._parent
 		for id in self._content:gmatch('<#(.-)>') do
-			local channel = textChannels:get(id)
+			local channel = parent:getTextChannel(id)
 			if channel then yield(channel) end
 		end
 	end)
@@ -148,9 +148,9 @@ property('channel', '_parent', nil, 'TextChannel', "The channel in which the mes
 property('author', '_author', nil, 'User', "The user object representing the message's author")
 property('member', getMember, nil, 'Member', "The member object for the author (does not exist for private channels)")
 property('guild', getGuild, nil, 'Guild', "The guild in which the message exists (does not exist for private channels)")
-property('mentionedUsers', getMentionedUsers, nil, 'function', "An iterator for Users that are mentions in the message")
-property('mentionedRoles', getMentionedRoles, nil, 'function', "An iterator for Roles that are mentions in the message")
-property('mentionedChannels', getMentionedChannels, nil, 'function', "An iterator for GuildChannels that are mentions in the message")
+property('mentionedUsers', getMentionedUsers, nil, 'function', "An iterator for known Users that are mentioned in the message")
+property('mentionedRoles', getMentionedRoles, nil, 'function', "An iterator for known Roles that are mentioned in the message")
+property('mentionedChannels', getMentionedChannels, nil, 'function', "An iterator for known GuildTextChannels that are mentioned in the message")
 
 method('reply', reply, 'content[, mentions, tts, nonce]', "Shortcut for `message.channel:sendMessage`.")
 method('pin', pin, nil, "Adds the message to the channel's pinned messages.")
