@@ -4,5 +4,6 @@
 !/examples
 !README.md
 !CHANGELOG.md
+!docgen.lua
 !TODO.md
 !.gitignore

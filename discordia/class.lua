@@ -24,8 +24,8 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 	if classes[name] then return error(f('Class %q already defined', name)) end
 
 	local class = setmetatable({}, meta)
-	local properties, methods = {}, {} -- for documentation
 	local getters, setters = {}, {} -- for property metatables
+	local properties, methods, caches = {}, {}, {} -- for documentation
 
 	local bases = {Base, ...}
 	for _, base in ipairs(bases) do
@@ -38,6 +38,9 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 		for k, v in pairs(base.__setters) do
 			setters[k] = v
 		end
+		for k, v in pairs(base.__caches) do
+			caches[k] = v
+		end
 		for k, v in pairs(base.__methods) do
 			methods[k] = v
 		end
@@ -48,6 +51,7 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 
 	class.__name = name
 	class.__bases = bases
+	class.__caches = caches
 	class.__setters = setters
 	class.__getters = getters
 	class.__methods = methods
@@ -120,10 +124,12 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 		property(f('%sCount', k1), count, nil, 'number', f("How many %ss are cached for the %s.", k, k2))
 		property(f('%ss', k1), get, nil, 'function', f("Iterator for the %s's cached %ss.", k2, k))
 
-		method(f('get%s', k), get, '[key,] value', f("Returns the %s's first cached %s that matches the (key, value) pair.", k2, k))
-		method(f('get%ss', k), getAll, '[key, value]', f("Returns an iterator for the %s's cached %ss that match the (key, value) pair", k2, k))
-		method(f('find%s', k), find, 'predicate', f("Returns the %s's first cached %s that satisfies a predicate.", k2, k))
-		method(f('find%ss', k), findAll, 'predicate', f("Returns an iterator for the %s's cached %ss that satisfy a predicate.", k2, k))
+		class[f('get%s', k)] =	get
+		class[f('get%ss', k)] = getAll
+		class[f('find%s', k)] = find
+		class[f('find%ss', k)]	= findAll
+
+		caches[k] = true
 
 	end
 
