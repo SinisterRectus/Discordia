@@ -38,7 +38,7 @@ local function on(self, name, listener)
 	insert(listeners, listener)
 end
 
-local function listenerCount(self, name)
+local function getListenerCount(self, name)
 	local listeners = self._listeners[name]
 	return listeners and #listeners or 0
 end
@@ -74,8 +74,15 @@ local function removeAllListeners(self, name)
 	 self._listeners[name] = nil
 end
 
-local function listeners(self, name)
-	return self._listeners[name] or {}
+local function getListeners(self, name)
+	local listeners = self._listeners[name]
+	if not listeners then return function() end end
+	local i, v = 1
+	return function()
+		v = listeners[i]
+		i = i + 1
+		return v
+	end
 end
 
 local function propagate(self, name, target)
@@ -88,11 +95,11 @@ end
 
 method('once', once, 'name, listener', "Registers a listener function that is called once and unregistered when a named event is emitted.")
 method('on', on, 'name, listener', "Registers a listener function that is called every time a named event is emitted.")
-method('listenerCount', listenerCount, 'name', "Returns the number of listeners that are registered to a named event.")
+method('getListenerCount', getListenerCount, 'name', "Returns the number of listeners that are registered to a named event.")
 method('emit', emit, 'name[, ...]', "Emits a named event with an optional variable amount of arguments.")
 method('removeListener', removeListener, 'name, listener', "Unregisters a listener from a named event.")
 method('removeAllListeners', removeAllListeners, 'name', "Unregisters all listeners from a named event.")
-method('listeners', listeners, 'name', "Returns a table of listeners registered to a named event.")
+method('getListeners', getListeners, 'name', "Returns a iterator for the listeners registered to a named event.")
 method('propagate', propagate, 'name, target', "Causes all named event emissions to propagates to another target emitter.")
 
 return Emitter
