@@ -8,6 +8,7 @@ User.__description = "Represents a Discord user."
 function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self:_update(data)
+	self._bot = self._bot or false
 end
 
 function User:__tostring()
