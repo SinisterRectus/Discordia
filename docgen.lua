@@ -76,11 +76,10 @@ function writers.__properties(file, properties)
 	)
 
 	for _, property in ipairs(properties) do
-		local mutable = property[3] and 'X' or ''
 		file:writefln('| %s | %s | %s | %s |',
 			padRight(property[1], longestName),
 			padRight(property[2], longestType),
-			padCenter(mutable, 7),
+			padCenter(property[3] and 'X' or '', 7),
 			padRight(property[4], longestDesc)
 		)
 	end

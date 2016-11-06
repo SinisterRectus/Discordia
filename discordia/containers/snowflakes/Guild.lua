@@ -221,6 +221,13 @@ local function createRole(self)
 	if success then return self._roles:new(data) end
 end
 
+local function queryMember(self, id)
+	local member = self._members:get(id)
+	if member then return member end
+	local success, data = self._parent._api:getGuildMember(self._id, id)
+	if success then return self._members:new(data) end
+end
+
 -- channels --
 
 local function getChannelCount(self)
@@ -443,6 +450,7 @@ method('pruneMembers', pruneMembers, '[days]', "Removes members who have not bee
 method('createTextChannel', createTextChannel, 'name', "Creates a new text channel in the guild.")
 method('createVoiceChannel', createVoiceChannel, 'name', "Creates a new voice channel in the guild.")
 method('createRole', createRole, nil, "Creates a new role in the guild.")
+method('queryMember', queryMember, 'id', "Returns a member from the guild cache or from Discord if it is not cached.")
 
 cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
 cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)

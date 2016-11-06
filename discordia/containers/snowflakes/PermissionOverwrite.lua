@@ -12,6 +12,11 @@ function PermissionOverwrite:__init(data, parent)
 	self:_update(data)
 end
 
+function PermissionOverwrite:__tostring()
+	local obj = self.object
+	return obj and obj._name or self._id
+end
+
 local function _getPermissions(self)
 	return Permissions(self._allow), Permissions(self._deny)
 end
@@ -31,10 +36,11 @@ local function getGuild(self)
 end
 
 local function getObject(self)
+	local guild = self._parent._parent
 	if self._type == 'role' then
-		return self._parent._parent._roles:get(self._id)
+		return guild._roles:get(self._id)
 	else
-		return self._parent._parent._members:get(self._id)
+		return guild:queryMember(self._id)
 	end
 end
 

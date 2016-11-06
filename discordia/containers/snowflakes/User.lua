@@ -24,12 +24,7 @@ local function getMentionString(self)
 end
 
 local function getMembership(self, guild)
-	local member = guild._members:get(self._id)
-	if not member then
-		local success, data = guild._parent._api:getGuildMember(guild._id, self._id)
-		if success then member = guild._members:new(data) end
-	end
-	return member
+	return guild:queryMember(self._id)
 end
 
 local function sendMessage(self, ...)

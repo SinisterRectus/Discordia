@@ -41,6 +41,14 @@ local function loadMessages(self, limit)
 	return success
 end
 
+local function queryMessage(self, id)
+	local message = self._messages:get(id)
+	if message then return message end
+	local client = self._parent._parent or self._parent
+	local success, data = client._api:getChannelMessage(self.id, id)
+	if success then return Message(data, self) end
+end
+
 local function _getMessageHistory(self, query)
 	local client = self._parent._parent or self._parent
 	local success, data = client._api:getChannelMessages(self._id, query)
@@ -167,6 +175,7 @@ end
 property('pinnedMessages', getPinnedMessages, nil, 'function', "Iterator for all of the pinned messages in the channel")
 
 method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.")
+method('queryMessage', queryMessage, 'id', "Returns a message from the channel cache or from Discord if it is not cached.")
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.")
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Sends a message to the channel.")
 

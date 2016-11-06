@@ -19,7 +19,7 @@ function VoiceState:__eq(other)
 end
 
 local function getUser(self)
-	return self._parent._parent._users:get(self._user_id)
+	return self._parent._parent:queryUser(self._user_id)
 end
 
 local function getChannel(self)

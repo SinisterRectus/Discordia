@@ -218,6 +218,13 @@ local function getInviteByCode(self, code)
 	if success then return Invite(data, self) end
 end
 
+local function queryUser(self, id)
+	local user = self._users:get(id)
+	if user then return user end
+	local success, data = self._api:getUser(id)
+	if success then return self._users:new(data) end
+end
+
 -- cache accessors --
 
 -- users --
@@ -403,7 +410,7 @@ end
 -- guild channels --
 
 local function getGuildChannelCount(self)
-	local n = self._private_channels._count
+	local n = 0
 	for guild in self._guilds:iter() do
 		n = n + guild._text_channels._count + guild._voice_channels._count
 	end
@@ -760,6 +767,7 @@ method('listVoiceRegions', listVoiceRegions, nil, "Returns a table of voice regi
 method('createGuild', createGuild, 'name, region', "Creates a guild with the provided name and voice region.")
 method('acceptInviteByCode', acceptInviteByCode, 'code', "Accepts a guild invitation with the raw invite code.")
 method('getInviteByCode', getInviteByCode, 'code', "Returns an Invite object corresponding to a raw invite code, if it exists.")
+method('queryUser', queryUser, 'id', "Returns a user from the client cache or from Discord if it is not cached.")
 
 method('setUsername', setUsername, 'username', "Sets the user's username.")
 method('setNickname', setNick, 'guild, nickname', "Sets the user's nickname for the indicated guild.")
