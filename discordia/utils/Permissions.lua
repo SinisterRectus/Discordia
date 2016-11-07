@@ -17,7 +17,7 @@ local flags = {
 	addReactions		= 0x00000040, -- text
 	readMessages		= 0x00000400, -- text
 	sendMessages		= 0x00000800, -- text
-	sendTTSMessages		= 0x00001000, -- text
+	sendTextToSpeech	= 0x00001000, -- text
 	manageMessages		= 0x00002000, -- text
 	embedLinks			= 0x00004000, -- text
 	attachFiles			= 0x00008000, -- text
@@ -32,7 +32,7 @@ local flags = {
 	useVoiceActivity	= 0x02000000, -- voice
 	changeNickname		= 0x04000000, -- general
 	manageNicknames		= 0x08000000, -- general
-	managePermissions	= 0x10000000, -- general
+	manageRoles			= 0x10000000, -- general
 	manageWebhooks		= 0x20000000, -- general
 	manageEmojis		= 0x40000000, -- general
 }
