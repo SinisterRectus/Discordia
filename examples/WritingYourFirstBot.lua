@@ -17,10 +17,23 @@ end)
 -- Let's say we want to mention someone with our bot:
 client:on('messageCreate', function(message)
 
+	local cmd, arg = string.match(message.content, '(%S+) (.*)')
+	cmd = cmd or message.content
+		
 	if message.content == "!mention" then
 		message.channel:sendMessage(string.format("%s mentioned!", message.author.mentionString)
 	end
-	
+
+
+	if arg == "!guild" then
+		if arg == "name" then -- you should type !guild name in chat to call this
+			message.channel:sendMessage(string.format("The name of this guild is %s.", message.guild.name)
+		elseif arg == "id" then
+			message.channel:sendMessage(string.format("The id of this guild is %s.", message.guild.id)
+		else
+			message.channel:sendMessage("Invalid argument.")
+		end
+	end	
 end)
 
 
