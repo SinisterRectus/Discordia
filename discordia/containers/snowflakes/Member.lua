@@ -117,7 +117,7 @@ local function _applyRoles(self, roles) -- TODO: filter @everyone ID
 end
 
 local function addRoles(self, ...)
-	local role_ids = {}
+	local role_ids = self._roles
 	for i = 1, select('#', ...) do
 		local role = select(i, ...)
 		insert(role_ids, role._id)
