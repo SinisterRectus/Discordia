@@ -71,6 +71,13 @@ function table.values(tbl)
 	return values
 end
 
+function table.hash(tbl, key)
+	for i, v in ipairs(tbl) do
+		tbl[v[key]] = v
+		tbl[i] = nil
+	end
+end
+
 function table.randomipair(tbl)
 	local i = random(#tbl)
 	return i, tbl[i]

@@ -4,9 +4,9 @@ local Member = require('./Member')
 local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
 local Invite = require('../Invite')
-local VoiceState = require('../VoiceState')
 local Cache = require('../../utils/Cache')
 
+local hash = table.hash
 local clamp = math.clamp
 local format = string.format
 local wrap, yield = coroutine.wrap, coroutine.yield
@@ -18,7 +18,6 @@ function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._roles = Cache({}, Role, 'id', self)
 	self._members = Cache({}, Member, 'id', self)
-	self._voice_states = Cache({}, VoiceState, '_session_id', self)
 	self._text_channels = Cache({}, GuildTextChannel, 'id', self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, 'id', self)
 	if data.unavailable then
@@ -38,7 +37,9 @@ function Guild:_makeAvailable(data)
 
 	self._roles:merge(data.roles)
 	self._members:merge(data.members)
-	self._voice_states:merge(data.voice_states)
+
+	hash(data.voice_states, 'session_id')
+	self._voice_states = data.voice_states
 
 	if data.presences then
 		self:_loadMemberPresences(data.presences)

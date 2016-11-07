@@ -341,34 +341,35 @@ end
 function EventHandler.VOICE_STATE_UPDATE(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'guild', 'VOICE_STATE_UPDATE') end
-	local state = guild._voice_states:get(data.session_id)
 	local member = guild._members:get(data.user_id)
 	if not member then return warning(client, 'member', 'VOICE_STATE_UPDATE') end
 	local mute = data.mute or data.self_mute
 	local deaf = data.deaf or data.self_deaf
+	local id = data.session_id
+	local state = guild._voice_states[id]
 	if state then
 		if data.channel_id then
-			if data.channel_id == state._channel_id then
-				state:_update(data)
+			if data.channel_id == state.channel_id then
+				guild._voice_states[id] = data
 				client:emit('voiceUpdate', member, mute, deaf)
 			else
-				local old = guild._voice_channels:get(state._channel_id)
+				local old = guild._voice_channels:get(state.channel_id)
 				local new = guild._voice_channels:get(data.channel_id)
-				state:_update(data)
+				guild._voice_states[id] = data
 				client:emit('voiceChannelLeave', member, old)
 				client:emit('voiceChannelJoin', member, new)
 			end
 		else
-			guild._voice_states:remove(state)
-			local channel = guild._voice_channels:get(state._channel_id)
-			client:emit('voiceChannelLeave', member, channel)
+			guild._voice_states[id] = nil
+			local old = guild._voice_channels:get(state.channel_id)
+			client:emit('voiceChannelLeave', member, old)
 			client:emit('voiceDisconnect', member, mute, deaf)
 		end
 	else
-		state = guild._voice_states:new(data)
-		local channel = guild._voice_channels:get(state._channel_id)
+		guild._voice_states[id] = data
+		local new = guild._voice_channels:get(data.channel_id)
 		client:emit('voiceConnect', member, mute, deaf)
-		client:emit('voiceChannelJoin', member, channel)
+		client:emit('voiceChannelJoin', member, new)
 	end
 end
 
