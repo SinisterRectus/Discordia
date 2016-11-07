@@ -9,11 +9,10 @@ local PrivateChannel = require('../containers/snowflakes/channels/PrivateChannel
 local pp = require('pretty-print')
 
 local open = io.open
-local time = os.time
 local format = string.format
 local colorize = pp.colorize
 local traceback = debug.traceback
-local date, exit = os.date, os.exit
+local date, time, exit = os.date, os.time, os.exit
 local wrap, yield, running = coroutine.wrap, coroutine.yield, coroutine.running
 
 local defaultOptions = {
@@ -26,14 +25,18 @@ local defaultOptions = {
 }
 
 local Client, property, method, cache = class('Client', Emitter)
-Client.__description = "The main point of entry into a Discordia app."
+Client.__description = "The main point of entry into a Discordia application."
 
 function Client:__init(customOptions)
 	Emitter.__init(self)
 	if customOptions then
 		local options = {}
-		for k in pairs(defaultOptions) do
-			options[k] = customOptions[k] or defaultOptions[k]
+		for k, v in pairs(defaultOptions) do
+			if customOptions[k] ~= nil then
+				options[k] = customOptions[k]
+			else
+				options[k] = v
+			end
 		end
 		self._options = options
 	else
@@ -41,9 +44,9 @@ function Client:__init(customOptions)
 	end
 	self._api = API(self)
 	self._socket = Socket(self)
-	self._users = Cache({}, User, '_id', self)
-	self._guilds = Cache({}, Guild, '_id', self)
-	self._private_channels = Cache({}, PrivateChannel, '_id', self)
+	self._users = Cache({}, User, 'id', self)
+	self._guilds = Cache({}, Guild, 'id', self)
+	self._private_channels = Cache({}, PrivateChannel, 'id', self)
 end
 
 function Client:__tostring()
@@ -86,10 +89,9 @@ end
 local function run(self, a, b)
 	return wrap(function()
 		local token = not b and a or getToken(self, a, b)
-		if token then
-			self._api:setToken(token)
-			return self:_connectToGateway(token)
-		end
+		if not token then return end
+		self._api:setToken(token)
+		return self:_connectToGateway(token)
 	end)()
 end
 
@@ -124,7 +126,7 @@ function Client:_connectToGateway(token)
 			file = open(filename, 'w')
 			if file then file:write(gateway):close() end
 		end
-		return wrap(self._socket.handlePayloads)(self._socket, token)
+		return self._socket:handlePayloads(token)
 	else
 		self:error('Cannot connect to gateway: ' .. (gateway and gateway or 'nil'))
 	end
@@ -154,7 +156,6 @@ end
 local function setUsername(self, username)
 	local success, data = self._api:modifyCurrentUser({
 		avatar = self._user._avatar,
-		email = self._user._email,
 		username = username,
 	})
 	if success then self._user._username = data.username end
@@ -172,7 +173,6 @@ end
 local function setAvatar(self, avatar)
 	local success, data = self._api:modifyCurrentUser({
 		avatar = avatar,
-		email = self._user._email,
 		username = self._user._username,
 	})
 	if success then self._user._avatar = data.avatar end
@@ -210,7 +210,8 @@ local function setGameName(self, gameName)
 end
 
 local function acceptInviteByCode(self, code)
-	return (self._api:acceptInvite(code))
+	local success, data = self._api:acceptInvite(code)
+	if success then return Invite(data, self) end
 end
 
 local function getInviteByCode(self, code)
@@ -784,6 +785,7 @@ cache('GuildChannel', getGuildChannelCount, getGuildChannel, getGuildChannels, f
 cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)
 cache('GuildTextChannel', getGuildTextChannelCount, getGuildTextChannel, getGuildTextChannels, findGuildTextChannel, findGuildTextChannels)
 cache('GuildVoiceChannel', getGuildVoiceChannelCount, getGuildVoiceChannel, getGuildVoiceChannels, findGuildVoiceChannel, findGuildVoiceChannels)
+cache('VoiceChannel', getGuildVoiceChannelCount, getGuildVoiceChannel, getGuildVoiceChannels, findGuildVoiceChannel, findGuildVoiceChannels)
 cache('VoiceState', getVoiceStateCount, getVoiceState, getVoiceStates, findVoiceState, findVoiceStates)
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)

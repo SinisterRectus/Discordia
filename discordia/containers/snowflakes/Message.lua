@@ -49,7 +49,7 @@ local function getCleanContent(self)
 	local parent = self._parent
 	local guild = not parent._is_private and parent._parent
 	for user in self.mentionedUsers do
-		local name = guild and user:getMembership(guild).name or user.username
+		local name = guild and user:getMembership(guild).name or user._username
 		content = content:gsub(format('<@!?%s>', user._id), '@' .. name)
 	end
 	for role in self.mentionedRoles do

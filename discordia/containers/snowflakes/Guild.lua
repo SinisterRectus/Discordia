@@ -16,11 +16,11 @@ Guild.__description = "Represents a Discord guild (also known as a server)."
 
 function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self._roles = Cache({}, Role, '_id', self)
-	self._members = Cache({}, Member, '_id', self)
-	self._voice_states = Cache({}, VoiceState, '_session_id', self)
-	self._text_channels = Cache({}, GuildTextChannel, '_id', self)
-	self._voice_channels = Cache({}, GuildVoiceChannel, '_id', self)
+	self._roles = Cache({}, Role, 'id', self)
+	self._members = Cache({}, Member, 'id', self)
+	self._voice_states = Cache({}, VoiceState, 'sessionId', self)
+	self._text_channels = Cache({}, GuildTextChannel, 'id', self)
+	self._voice_channels = Cache({}, GuildVoiceChannel, 'id', self)
 	if data.unavailable then
 		self._unavailable = true
 	else
@@ -384,10 +384,10 @@ local function getMessageCount(self)
 	return n
 end
 
-local function getMessages(self)
+local function getMessages(self, key, value)
 	return wrap(function()
 		for channel in self._text_channels:iter() do
-			for message in channel._messages:iter() do
+			for message in channel._messages:getAll(key, value) do
 				yield(message)
 			end
 		end

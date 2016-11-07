@@ -68,11 +68,6 @@ local function setDeniedPermissions(self, denied)
 	return _setPermissions(self, allow, deny)
 end
 
-function PermissionOverwrite:_update(data)
-	self._allow = data.allow
-	self._deny = data.deny
-end
-
 local function permissionAreAllowed(self, ...)
 	local allowed = self:getAllowedPermissions()
 	return allowed:has(...)

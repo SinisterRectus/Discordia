@@ -26,7 +26,6 @@ end
 function Member:_update(data)
 	Snowflake._update(self, data)
 	self._roles = data.roles -- raw table of IDs
-	self._nick = data.nick
 end
 
 function Member:_createPresence(data)
@@ -110,7 +109,7 @@ local function kick(self, guild)
 	return self._user:kick(guild or self._parent)
 end
 
-local function _applyRoles(self, roles)
+local function _applyRoles(self, roles) -- TODO: filter @everyone ID
 	local guild = self._parent
 	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {roles = roles})
 	if success then self._roles = roles end
@@ -121,7 +120,7 @@ local function addRoles(self, ...)
 	local role_ids = {}
 	for i = 1, select('#', ...) do
 		local role = select(i, ...)
-		insert(role_ids, role.id)
+		insert(role_ids, role._id)
 	end
 	return _applyRoles(self, role_ids)
 end
@@ -130,7 +129,7 @@ local function removeRoles(self, ...)
 	local removals = {}
 	for i = 1, select('#', ...) do
 		local role = select(i, ...)
-		removals[role.id] = true
+		removals[role._id] = true
 	end
 	local role_ids = {}
 	for _, id in ipairs(self._roles) do
@@ -191,7 +190,7 @@ end
 property('avatarUrl', function(self) return self._user.avatarUrl end, nil, 'string', "Shortcut for member.user.avatarUrl")
 property('mentionString', function(self) return self._user.mentionString end, nil, 'string', "Shortcut for member.user.mentionString")
 property('id', function(self) return self._user._id end, nil, 'string', "Shortcut for member.user.id")
-property('bot', function(self) return self._user._bot end, nil, 'string', "Shortcut for member.user.bot")
+property('bot', function(self) return self._user._bot or false end, nil, 'string', "Shortcut for member.user.bot")
 property('avatar', function(self) return self._user._avatar end, nil, 'string', "Shortcut for member.user.avatar")
 property('username', function(self) return self._user._username end, nil, 'string', "Shortcut for member.user.username")
 property('discriminator', function(self) return self._user._discriminator end, nil, 'string', "Shortcut for member.user.discriminator")

@@ -28,7 +28,7 @@ local function setUserLimit(self, limit)
 	return success
 end
 
-property('bitrate', '_bitrate', setBitrate, 'number', "Channel bitrate in bits per seconds (8000 to 9600 or 128000 for VIP guilds)")
-property('userLimit', '_user_limit', setUserLimit, 'number', "Limit to the number of users allowed in the channel (use 0 for infinite)")
+property('bitrate', '_bitrate', setBitrate, '[number]', "Channel bitrate in bits per seconds (8000 to 96000 or 128000 for VIP guilds, default: 64000)")
+property('userLimit', '_user_limit', setUserLimit, '[number]', "Limit to the number of users allowed in the channel (use 0 for infinite, default: 0)")
 
 return GuildVoiceChannel

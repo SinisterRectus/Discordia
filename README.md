@@ -14,15 +14,15 @@ Join the [Discord API community](https://discord.gg/0SBTUU1wZTWVpm07) to discuss
 
 ### Installation
 
-- To install Luvit, visit https://luvit.io and follow the instructions provide for your platform.
-- To install the Discord library, run `lit install SinisterRectus/discordia`
+- To install Luvit, visit https://luvit.io and follow the instructions provided for your platform.
+- To install Discordia, run `lit install SinisterRectus/discordia`
 - Run your bot script using, for example, `luvit bot.lua`
 
 ### Example
 
 ```lua
 local discordia = require('discordia')
-local client = discordia.Client(options)
+local client = discordia.Client()
 
 client:on('ready', function()
 	print('Logged in as '.. client.user.username)

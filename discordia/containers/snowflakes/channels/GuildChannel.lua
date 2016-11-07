@@ -11,7 +11,7 @@ GuildChannel.__description = "Abstract base class for guild text and voice chann
 
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
-	self._permission_overwrites = Cache({}, PermissionOverwrite, '_id', self)
+	self._permission_overwrites = Cache({}, PermissionOverwrite, 'id', self)
 	-- abstract class, don't call update
 end
 
@@ -47,7 +47,7 @@ local function setName(self, name)
 	return success
 end
 
-local function setPosition(self, position) -- will probably need more abstraction
+local function setPosition(self, position) -- TODO: add position corrections
 	local success, data = self._parent._parent._api:modifyChannel(self._id, {position = position})
 	if success then self._position = data.position end
 	return success

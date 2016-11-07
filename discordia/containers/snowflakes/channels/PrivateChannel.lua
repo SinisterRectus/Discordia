@@ -20,11 +20,11 @@ function PrivateChannel:_update(data)
 	TextChannel._update(self, data)
 end
 
-local function setName(self)
+local function getName(self)
 	return self._recipient._username
 end
 
 property('recipient', '_recipient', nil, 'User', "The recipient of the private channel (the other half of your conversation)")
-property('name', setName, nil, 'string', "The username of the channel recipient")
+property('name', getName, nil, 'string', "The username of the channel recipient")
 
 return PrivateChannel

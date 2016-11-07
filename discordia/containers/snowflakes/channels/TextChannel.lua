@@ -83,24 +83,24 @@ end
 
 local function sendMessage(self, content, mentions, tts, nonce)
 	if type(mentions) == 'table' then
-		local tbl = {}
+		local strings = {}
 		if mentions.iter then
 			for obj in mentions:iter() do
 				if obj.getMentionString then
-					insert(tbl, obj:getMentionString())
+					insert(strings, obj:getMentionString())
 				end
 			end
 		elseif mentions.getMentionString then
-			insert(tbl, mentions:getMentionString())
+			insert(strings, mentions:getMentionString())
 		else
 			for _, obj in pairs(mentions) do
 				if obj.getMentionString then
-					insert(tbl, obj:getMentionString())
+					insert(strings, obj:getMentionString())
 				end
 			end
 		end
-		insert(tbl, content)
-		content = concat(tbl, ' ')
+		insert(strings, content)
+		content = concat(strings, ' ')
 	end
 	local client = self._parent._parent or self._parent
 	local success, data = client._api:createMessage(self._id, {

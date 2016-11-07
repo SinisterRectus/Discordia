@@ -47,7 +47,7 @@ function API:__init(client)
 	self._route_delay = client._options.routeDelay
 	self._global_delay = client._options.globalDelay
 	self._global_limiter = RateLimiter()
-	self._route_limiter = {}
+	self._route_limiters = {}
 	self._headers = {
 		['Content-Type'] = 'application/json',
 		['User-Agent'] = format('DiscordBot (%s, %s)', package.homepage, package.version),
@@ -72,8 +72,8 @@ function API:request(method, route, endpoint, payload)
 		insert(reqHeaders, {'Content-Length', #payload})
 	end
 
-	local routeLimiter = self._route_limiter[route] or RateLimiter()
-	self._route_limiter[route] = routeLimiter
+	local routeLimiter = self._route_limiters[route] or RateLimiter()
+	self._route_limiters[route] = routeLimiter
 
 	return self:commit(method, url, reqHeaders, payload, routeLimiter, 1)
 
@@ -532,7 +532,7 @@ end
 
 -- end of auto-generated methods --
 
-function API:getToken(payload) -- Client:run
+function API:getToken(payload) -- Client:run (not recommended)
 	local route = "/auth/login"
 	return self:request('POST', route, route, payload)
 end

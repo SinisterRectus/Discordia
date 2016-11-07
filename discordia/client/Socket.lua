@@ -125,6 +125,7 @@ function Socket:handlePayloads(token)
 end
 
 function Socket:startHeartbeat(interval)
+	if self._heartbeatInterval then clearInterval(self._heartbeatInterval) end
 	self._heartbeatInterval = setInterval(interval, wrap(function()
 		while true do
 			decrementReconnectTime(self)

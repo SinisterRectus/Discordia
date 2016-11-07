@@ -16,7 +16,6 @@ function Invite:__init(data, parent)
 		self._inviter = self._parent._users:get(data.inviter.id) or self._parent._users:new(data.inviter)
 	end
 	self:_update(data)
-	self._revoked = self._revoked or false
 end
 
 function Invite:__tostring()
@@ -25,6 +24,10 @@ end
 
 function Invite:__eq(other)
 	return self.__name == other.__name and self._code == other._code
+end
+
+local function getRevoked(self)
+	return self._revoked or false
 end
 
 local function accept(self)
@@ -38,7 +41,7 @@ end
 property('code', '_code', nil, 'string', "Invite identifying code")
 property('uses', '_uses', nil, 'number', "How many times this invite has been used")
 property('maxAge', '_max_age', nil, 'number', "How many seconds since creation the invite lasts") -- TODO: change to expiration time?
-property('revoked', '_revoked', nil, 'boolean', "Whether the invite is revoked and invalid")
+property('revoked', '_revoked', getRevoked, 'boolean', "Whether the invite is revoked and invalid")
 property('maxUses', '_max_uses', nil, 'number', "How many times the invite can be used")
 property('temporary', '_temporary', nil, 'boolean', "Whether the invite grants temporary guild membership")
 property('createdAt', '_created_at', nil, 'string', "When the invite was created")

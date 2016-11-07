@@ -8,7 +8,6 @@ User.__description = "Represents a Discord user."
 function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self:_update(data)
-	self._bot = self._bot or false
 end
 
 function User:__tostring()
@@ -57,7 +56,7 @@ property('avatar', '_avatar', nil, 'string', "Hash representing the user's avata
 property('name', '_username', nil, 'string', "The user's name (alias of username)")
 property('username', '_username', nil, 'string', "The user's name (alias of name)")
 property('discriminator', '_discriminator', nil, 'string', "The user's 4-digit discriminator")
-property('bot', '_bot', nil, 'boolean', "Whether the user is a bot account")
+property('bot', '_bot', function(self) return self._bot or false end, 'boolean', "Whether the user is a bot account")
 
 method('ban', ban, 'guild[, days]', "Bans the user from a guild and optionally deletes their messages from 1-7 days.")
 method('unban', unban, 'guild', "Unbans the user from the provided guild.")
