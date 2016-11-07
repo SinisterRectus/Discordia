@@ -1,7 +1,7 @@
 local Snowflake = require('../Snowflake')
 
 local insert = table.insert
-local format = string.format
+local format, char = string.format, string.char
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Message, property, method = class('Message', Snowflake)
@@ -27,7 +27,7 @@ function Message:_update(data)
 		local users = client._users
 		local mentions = {}
 		for _, user_data in ipairs(data.mentions) do
-			insert(mentions, users:get(user_data._id) or users:new(user_data))
+			insert(mentions, users:get(user_data.id) or users:new(user_data))
 		end
 		self._mentions = mentions
 	end
@@ -36,12 +36,31 @@ function Message:_update(data)
 	-- self.attachments = data.attachments -- TODO
 end
 
-local function getContent(self, content)
+local function setContent(self, content)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
 	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
 	if success then self._content = data.content end
 	return success
+end
+
+local function getCleanContent(self)
+	local content = self.content
+	local parent = self._parent
+	local guild = not parent._is_private and parent._parent
+	for user in self.mentionedUsers do
+		local name = guild and user:getMembership(guild).name or user.username
+		content = content:gsub(format('<@!?%s>', user._id), '@' .. name)
+	end
+	for role in self.mentionedRoles do
+		content = content:gsub(format('<@&%s>', role._id), '@' .. role._name)
+	end
+	for channel in self.mentionedChannels do
+		content = content:gsub(format('<#%s>', channel._id), '#' .. channel._name)
+	end
+	content = content:gsub('@everyone', format('@%severyone', char(0)))
+	content = content:gsub('@here', format('@%shere', char(0)))
+	return content
 end
 
 local function getMember(self)
@@ -139,7 +158,8 @@ local function delete(self)
 	return (client._api:deleteMessage(channel._id, self._id))
 end
 
-property('content', '_content', getContent, 'string', "The raw message text")
+property('content', '_content', setContent, 'string', "The raw message text")
+property('cleanContent', getCleanContent, nil, 'string', "The message text with sanitized mentions")
 property('tts', '_tts', nil, 'boolean', "Whether the message is a TTS one")
 property('pinned', '_pinned', nil, 'boolean', "Whether the message is pinned")
 property('timestamp', '_timestamp', nil, 'string', "Date and time that the message was created")
