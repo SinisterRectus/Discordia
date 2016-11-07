@@ -64,11 +64,6 @@ local function getMentionString(self)
 	return format('<@&%s>', self._id)
 end
 
-local function permissionsAreEnabled(self, ...)
-	local permissions = self:getPermissions()
-	return permissions:has(...)
-end
-
 local function enablePermissions(self, ...)
 	local permissions = self:getPermissions()
 	permissions:enable(...)
@@ -108,7 +103,6 @@ property('permissions', getPermissions, setPermissions, 'Permissions', "Object r
 property('mentionString', getMentionString, nil, 'string', 'string', "Raw string that is parsed by Discord into a role mention")
 
 method('enablePermissions', enablePermissions, 'flag[, ...]', "Enables permissions for the role by flag.")
-method('permissionsAreEnabled', permissionsAreEnabled, 'flag[, ...]', "Indicates whether permissions are enabled for the role.")
 method('disablePermissions', disablePermissions, 'flag[, ...]', "Disables permissions for the role by flag.")
 method('enableAllPermissions', enableAllPermissions, nil, "Enables all permissions for the role.")
 method('disableAllPermissions', disableAllPermissions, nil, "Disables all permissions for the role.")

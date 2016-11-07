@@ -17,20 +17,6 @@ function PermissionOverwrite:__tostring()
 	return obj and obj._name or self._id
 end
 
-local function _getPermissions(self)
-	return Permissions(self._allow), Permissions(self._deny)
-end
-
-local function _setPermissions(self, allow, deny)
-	local channel = self._parent
-	local client = channel._parent._parent
-	local success = client._api:editChannelPermissions(channel._id, self._id, {
-		allow = allow, deny = deny, type = self._type
-	})
-	if success then self._allow, self._deny = allow, deny end
-	return success
-end
-
 local function getGuild(self)
 	return self._parent._parent
 end
@@ -48,6 +34,25 @@ local function getName(self)
 	return self.object._name
 end
 
+-- directly accessing both permissions is not exposed
+-- because users might confuse this with a role's single-valued permissions
+local function _getPermissions(self)
+	return Permissions(self._allow), Permissions(self._deny)
+end
+
+-- directly setting both permissions is not exposed
+-- this prevents allowing and denying the same permission
+-- which, apparently, Discord does not prevent
+local function _setPermissions(self, allow, deny)
+	local channel = self._parent
+	local client = channel._parent._parent
+	local success = client._api:editChannelPermissions(channel._id, self._id, {
+		allow = allow, deny = deny, type = self._type
+	})
+	if success then self._allow, self._deny = allow, deny end
+	return success
+end
+
 local function getAllowedPermissions(self)
 	return Permissions(self._allow)
 end
@@ -58,24 +63,14 @@ end
 
 local function setAllowedPermissions(self, allowed)
 	local allow = allowed._value
-	local deny = band(bnot(allow), self._deny)
+	local deny = band(bnot(allow), self._deny) -- un-deny the allowed permissions
 	return _setPermissions(self, allow, deny)
 end
 
 local function setDeniedPermissions(self, denied)
 	local deny = denied._value
-	local allow = band(bnot(deny), self._allow)
+	local allow = band(bnot(deny), self._allow) -- un-allow the denied permissions
 	return _setPermissions(self, allow, deny)
-end
-
-local function permissionAreAllowed(self, ...)
-	local allowed = self:getAllowedPermissions()
-	return allowed:has(...)
-end
-
-local function permissionAreDenied(self, ...)
-	local denied = self:getDeniedPermissions()
-	return denied:has(...)
 end
 
 local function allowPermissions(self, ...)
@@ -127,9 +122,7 @@ property('name', getName, nil, 'string', "Equivalent to the role or member to wh
 property('allowedPermissions', getAllowedPermissions, setAllowedPermissions, 'Permissions', "Object representing permissions that are allowed by the overwrite.")
 property('deniedPermissions', getDeniedPermissions, setDeniedPermissions, 'Permissions', "Object representing permissions that are denied by the overwrite.")
 
-method('permissionAreAllowed', permissionAreAllowed, 'flag[, ...]', "Indicates whether permissions are allowed by the overwrite.")
-method('permissionAreDenied', permissionAreDenied, 'flag[, ...]', "Indicates whether permissions are denied by the overwrite.")
-method('allowPermissions', allowPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to allowed .")
+method('allowPermissions', allowPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to allowed.")
 method('denyPermissions', denyPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to denied.")
 method('clearPermissions', clearPermissions, 'flag[, ...]', "Clears permissions settings for the overwrite by flag.")
 method('allowAllPermissions', allowAllPermissions, nil, "Sets all permissions to allowed.")
