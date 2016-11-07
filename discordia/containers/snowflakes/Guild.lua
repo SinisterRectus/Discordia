@@ -126,6 +126,11 @@ local function setAfkChannel(self, channel)
 	return success
 end
 
+local function getIconUrl(self)
+	if not self._icon then return nil end
+	return format('https://discordapp.com/api/guilds/%s/icons/%s.jpg', self._id, self._icon)
+end
+
 local function getMe(self)
 	return self._members:get(self._parent._user._id)
 end
@@ -398,7 +403,8 @@ end
 
 property('vip', '_vip', nil, 'boolean', "Whether the guild is featured by Discord")
 property('name', '_name', setName, 'string', "Name of the guild")
-property('icon', '_icon', setIcon, 'string', "Hash representing the guild's icon") -- TODO: add iconUrl
+property('icon', '_icon', setIcon, 'string', "Hash representing the guild's icon")
+property('iconUrl', getIconUrl, nil, 'string', "URL that points to the guild's icon")
 property('large', '_large', nil, 'boolean', "Whether the guild has a lot of members")
 property('splash', '_splash', nil, 'string', "Hash representing the guild's custom splash")
 property('region', '_region', setRegion, 'string', "String representing the guild's voice region")
