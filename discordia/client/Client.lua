@@ -546,50 +546,6 @@ local function findGuildVoiceChannels(self, predicate)
 	end)
 end
 
--- voice states --
-
-local function getVoiceStateCount(self)
-	local n = 0
-	for guild in self._guilds:iter() do
-		n = n + guild._voice_states._count
-	end
-	return n
-end
-
-local function getVoiceStates(self, key, value)
-	return wrap(function()
-		for guild in self._guilds:iter() do
-			for state in guild._voice_states:getAll(key, value) do
-				yield(state)
-			end
-		end
-	end)
-end
-
-local function getVoiceState(self, key, value)
-	for guild in self._guilds:iter() do
-		local state = guild._voice_states:get(key, value)
-		if state then return state end
-	end
-end
-
-local function findVoiceState(self, predicate)
-	for guild in self._guilds:iter() do
-		local state = guild._voice_states:find(predicate)
-		if state then return state end
-	end
-end
-
-local function findVoiceStates(self, predicate)
-	return wrap(function()
-		for guild in self._guilds:iter() do
-			for state in guild._voice_states:findAll(predicate) do
-				yield(state)
-			end
-		end
-	end)
-end
-
 -- roles --
 
 local function getRoleCount(self)
@@ -786,7 +742,6 @@ cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findT
 cache('GuildTextChannel', getGuildTextChannelCount, getGuildTextChannel, getGuildTextChannels, findGuildTextChannel, findGuildTextChannels)
 cache('GuildVoiceChannel', getGuildVoiceChannelCount, getGuildVoiceChannel, getGuildVoiceChannels, findGuildVoiceChannel, findGuildVoiceChannels)
 cache('VoiceChannel', getGuildVoiceChannelCount, getGuildVoiceChannel, getGuildVoiceChannels, findGuildVoiceChannel, findGuildVoiceChannels)
-cache('VoiceState', getVoiceStateCount, getVoiceState, getVoiceStates, findVoiceState, findVoiceStates)
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)

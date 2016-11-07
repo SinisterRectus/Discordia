@@ -18,7 +18,7 @@ function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._roles = Cache({}, Role, 'id', self)
 	self._members = Cache({}, Member, 'id', self)
-	self._voice_states = Cache({}, VoiceState, 'sessionId', self)
+	self._voice_states = Cache({}, VoiceState, '_session_id', self)
 	self._text_channels = Cache({}, GuildTextChannel, 'id', self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, 'id', self)
 	if data.unavailable then
@@ -352,28 +352,6 @@ local function findMembers(self, predicate)
 	return self._members:findAll(predicate)
 end
 
--- members --
-
-local function getVoiceStateCount(self)
-	return self._voice_states._count
-end
-
-local function getVoiceStates(self, key, value)
-	return self._voice_states:getAll(key, value)
-end
-
-local function getVoiceState(self, key, value)
-	return self._voice_states:get(key, value)
-end
-
-local function findVoiceState(self, predicate)
-	return self._voice_states:find(predicate)
-end
-
-local function findVoiceStates(self, predicate)
-	return self._voice_states:findAll(predicate)
-end
-
 -- messages --
 
 local function getMessageCount(self)
@@ -455,7 +433,6 @@ method('getMemberById', getMemberById, 'id', "Returns a member from the guild ca
 cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
 cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)
 cache('VoiceChannel', getVoiceChannelCount, getVoiceChannel, getVoiceChannels, findVoiceChannel, findVoiceChannels)
-cache('VoiceState', getVoiceStateCount, getVoiceState, getVoiceStates, findVoiceState, findVoiceStates)
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)

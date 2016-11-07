@@ -81,6 +81,7 @@
 	- `serverDelete` was renamed/split into `guildDelete` and `guildUnavailable`
 	- `messageAcknowledge` and `membersChunk` were removed
 	- `memberBan` and `memberUnban` were renamed to `userBan` and `userUnban` and now provide a `User` object instead of a `Member` object
+	- `voiceJoin` and `VoiceLeave` were renamed/split into `VoiceChannel[Join|Leave]` and `voice[Connected|Disconnect]`
 	- `typingStart` now has a timestamp as a third argument
 	- `messageUpdateUncached` and `messageDeleteUncached` events were added for uncached message events
 	- `warning` and `error` events were added

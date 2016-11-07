@@ -200,11 +200,11 @@ property('gameName', getGameName, nil, 'string', "Name of the game set in the me
 property('name', getName, nil, 'string', "The member's nickname if one is set. Otherwise, its username.")
 property('nickname', '_nick', setNick, 'string', "The member's nickname for the guild in which it exists (can be nil if not set)")
 property('user', '_user', nil, 'User', "The base user associated with this member")
-property('deaf', '_deaf', setDeaf, 'boolean', "Whether the member is deafened")
-property('mute', '_mute', setMute, 'boolean', "Whether the member is muted")
 property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
 property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
 
+method('setMute', setMute, '[boolean]', "Mutes or unmutes the member guild-wide (default: false).")
+method('setDeaf', setDeaf, '[boolean]', "Deafens or undeafens the member guild-wide (default: false).")
 method('getMembership', getMembership, '[guild]', "Shortcut for `member.user:getMembership`")
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Shortcut for `member.user:sendMessage`")
 method('ban', ban, '[guild][, days]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
