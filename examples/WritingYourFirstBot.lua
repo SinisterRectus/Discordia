@@ -25,7 +25,7 @@ client:on('messageCreate', function(message)
 	end
 
 
-	if arg == "!guild" then
+	if cmd == "!guild" then
 		if arg == "name" then -- you should type !guild name in chat to call this
 			message.channel:sendMessage(string.format("The name of this guild is %s.", message.guild.name)
 		elseif arg == "id" then
