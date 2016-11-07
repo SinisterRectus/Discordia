@@ -18,19 +18,28 @@ Join the [Discord API community](https://discord.gg/0SBTUU1wZTWVpm07) to discuss
 - To install the Discord library, run `lit install SinisterRectus/discordia`
 - Run your bot script using, for example, `luvit bot.lua`
 
+### Example
+
+```lua
+local discordia = require('discordia')
+local client = discordia.Client(options)
+
+client:on('ready', function()
+	print('Logged in as '.. client.user.username)
+end)
+
+client:on('messageCreate', function(message)
+	if message.content == '!ping' then
+		message.channel:sendMessage('!pong')
+	end
+end)
+
+client:run('INSERT_TOKEN_HERE')
+```
+
 ### Documentation
 
 Please visit this project's [Wiki](https://github.com/SinisterRectus/Discordia/wiki) for documentation and tutorials.
-
-### Bug Reports
-
-Before reporting a library issue:
- - Make sure that you are running the latest version of both Discordia and Luvit.
- - To the best of your ability, check that the issue is a library one and not a result of your own code.
- - Please provide a full stacktrace or console message when applicable.
- - If possible, provide a reduced code sample that reproduces the bug.
-
-Issues can be reported via GitHub or the Discord channel linked above. Higher priority is placed on GitHub issues.
 
 ### History
 
