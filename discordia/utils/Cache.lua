@@ -134,8 +134,8 @@ local function keySorter(a, b)
 	return (tonumber(a) or a) < (tonumber(b) or b)
 end
 
-local function keys(self)
-	local key = self._key
+local function keys(self, key)
+	key = key or self._key
 	local ret = {}
 	for obj in self:iter() do
 		insert(ret, obj[key])
@@ -144,8 +144,8 @@ local function keys(self)
 	return ret
 end
 
-local function values(self)
-	local key = self._key
+local function values(self, key)
+	key = key or self._key
 	local ret = {}
 	for obj in self:iter() do
 		insert(ret, obj)
@@ -168,7 +168,7 @@ method('get', get, '[key,] value', "Returns the first object that matches provid
 method('getAll', getAll, '[key, value]', "Returns an iterator for all objects that match the (key, value) pair.")
 method('find', find, 'predicate', "Returns the first object found that satisfies a predicate.")
 method('findAll', findAll, 'predicate', "Returns an iterator for all objects that satisfy a predicate.")
-method('keys', keys, nil, "Returns an array-like Lua table of all of the cached objects' keys, sorted by key.")
-method('values', values, nil, "Returns an array-like Lua table of all of the cached objects, sorted by key.")
+method('keys', keys, '[key]', "Returns an array-like Lua table of all of the cached objects' keys, sorted by key.")
+method('values', values, '[key]', "Returns an array-like Lua table of all of the cached objects, sorted by key.")
 
 return Cache
