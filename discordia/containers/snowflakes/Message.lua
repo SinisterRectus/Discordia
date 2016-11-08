@@ -32,28 +32,8 @@ function Message:_update(data)
 		self._mentions = mentions
 	end
 	if data.mention_roles ~= nil then self._mention_roles = data.mention_roles end
-	self._embeds = data.embeds -- raw table of embeds
-	self._attachments = data.attachments -- raw table of attachments
-end
-
-local function getEmbeds(self)
-	local embeds = self._embeds
-	local i, v = 1
-	return function()
-		v = embeds[i]
-		i = i + 1
-		return v
-	end
-end
-
-local function getAttachments(self)
-	local attachments = self._attachments
-	local i, v = 1
-	return function()
-		v = attachments[i]
-		i = i + 1
-		return v
-	end
+	self._embeds = data.embeds -- TODO: parse embeds
+	self._attachments = data.attachments -- TODO: parse attachments
 end
 
 local function setContent(self, content)
@@ -191,8 +171,6 @@ property('guild', getGuild, nil, 'Guild', "The guild in which the message exists
 property('mentionedUsers', getMentionedUsers, nil, 'function', "An iterator for known Users that are mentioned in the message")
 property('mentionedRoles', getMentionedRoles, nil, 'function', "An iterator for known Roles that are mentioned in the message")
 property('mentionedChannels', getMentionedChannels, nil, 'function', "An iterator for known GuildTextChannels that are mentioned in the message")
-property('embeds', getEmbeds, nil, 'function', "Iterator for raw message embeds")
-property('attachments', getAttachments, nil, 'function', "Iterator for raw message attachments")
 
 method('reply', reply, 'content[, mentions, tts, nonce]', "Shortcut for `message.channel:sendMessage`.")
 method('pin', pin, nil, "Adds the message to the channel's pinned messages.")

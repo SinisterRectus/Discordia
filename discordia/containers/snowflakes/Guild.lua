@@ -61,8 +61,8 @@ function Guild:_makeAvailable(data)
 
 	self._vip = next(data.features) and true or false
 
-	-- self.emojis = data.emojis -- TODO
-	-- self.features = data.features -- TODO
+	-- TODO: parse emojis
+	-- TODO: parse features
 
 end
 

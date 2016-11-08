@@ -1,6 +1,7 @@
 Probable additions
 - Sharding
 - File uploading
+- Parse message attachments and embeds
 - Logging support
 
 Possible additions
