@@ -109,7 +109,7 @@ local function kick(self, guild)
 	return self._user:kick(guild or self._parent)
 end
 
-local function _applyRoles(self, roles) -- TODO: filter @everyone ID
+local function _applyRoles(self, roles)
 	local guild = self._parent
 	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {roles = roles})
 	if success then self._roles = roles end
@@ -118,9 +118,13 @@ end
 
 local function addRoles(self, ...)
 	local role_ids = self._roles
+	local guild_id = self._parent._id
 	for i = 1, select('#', ...) do
 		local role = select(i, ...)
-		insert(role_ids, role._id)
+		local id = role._id
+		if id ~= guild_id then -- stop attempt to add @everyone
+			insert(role_ids, id)
+		end
 	end
 	return _applyRoles(self, role_ids)
 end
