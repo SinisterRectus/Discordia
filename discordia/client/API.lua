@@ -123,17 +123,17 @@ function API:commit(method, url, reqHeaders, payload, routeMutex, attempts)
 						globalMutex:lock(isRetry)
 					end
 					self._globally_limited = true
-					setTimeout(data._retry_after, function()
+					setTimeout(data.retry_after, function()
 						self._globally_limited = false
 					end)
 				end
 				globalDelay = data.retry_after
 			end
 			routeDelay = data.retry_after
-			shouldRetry = attempts < 5
+			shouldRetry = attempts < 6
 		elseif res.code == 502 then
 			routeDelay = routeDelay + random(2000)
-			shouldRetry = attempts < 5
+			shouldRetry = attempts < 6
 		end
 	end
 
