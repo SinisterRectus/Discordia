@@ -22,7 +22,7 @@
 			- Client instances are initialized using `discordia.Client()` instead of `discordia.Client:new()`
 			- A table of options can be passed to the client initializer. Currently supported options are:
 				- `routeDelay`: minimum time to wait between requests per-route (default: 300 ms)
-				- `globalDelay`: minimum time to wait between requests globally (default: 10 ms)
+				- `globalDelay`: minimum time to wait between requests globally after a global 429 (default: 10 ms)
 				- `messageLimit`: limit to the number of cached messages per channel (default: 100)
 				- `largeThreshold`: limit to how many members are initially fetched per-guild on start-up (default: 100)
 				- `fetchMembers`: whether to fetch all members for all guilds (default: false)
@@ -94,8 +94,8 @@
 	- `Container` - Base object used to store Discord objects
 	- `Cache` - Data structure used to store and access `Container` objects
 	- `Emitter` - A simplified re-write of Luvit's built-in event emitter
+	- `Mutex` - Extension of `Deque` that is used by the `API` class to throttle HTTP requests
 	- `OrderedCache` - Extension of `Cache` that maintains the order of objects as a doubly-linked list
-	- `RateLimiter` - Extension of `Deque` that is used by the `API` class to throttle HTTP requests
 	- `Stopwatch` - Used to measure elapsed time with nanosecond precision
 	- `PermissionOverwrite` - Extension of `Snowflake` that maintains per-channel permissions
 

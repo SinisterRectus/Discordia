@@ -2,7 +2,6 @@ Probable additions
 - Sharding
 - File uploading
 - Logging support
-- Message attachment parsing
 
 Possible additions
 - Webhooks
@@ -10,6 +9,7 @@ Possible additions
 - Message reactions
 - Twitch streaming url
 - Implement Game object
+- Message attachment/embed parsing
 - Handle unhandled gateway events
 - Helper functions, like getMembersWithRole, ...
 - Guild integrations, emojis, and features

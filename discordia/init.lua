@@ -7,8 +7,8 @@ return {
 	Color = require('./utils/Color'),
 	Deque = require('./utils/Deque'),
 	Emitter = require('./utils/Emitter'),
+	Mutex = require('./utils/Mutex'),
 	OrderedCache = require('./utils/OrderedCache'),
 	Permissions = require('./utils/Permissions'),
-	RateLimiter = require('./utils/RateLimiter'),
 	Stopwatch = require('./utils/Stopwatch'),
 }

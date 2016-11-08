@@ -1,10 +1,12 @@
 local json = require('json')
+local timer = require('timer')
 local http = require('coro-http')
 local package = require('../package')
-local RateLimiter = require('../utils/RateLimiter')
+local Mutex = require('../utils/Mutex')
 
 local format = string.format
 local request = http.request
+local setTimeout = timer.setTimeout
 local max, random = math.max, math.random
 local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
@@ -27,7 +29,9 @@ local function parseDate(str)
 	clientDate.isdst = date('*t').isdst
 	local serverTime = difftime(time(serverDate), time(clientDate)) + time()
 	local calculated = date('!%a, %d %b %Y %H:%M:%S GMT', serverTime)
-	assert(calculated == str) -- debug
+	if calculated ~= str then -- hopefully this never happens
+		error(format('Incorrectly parsed date header: %s / %s', str, calculated))
+	end
 	return serverTime
 end
 
@@ -46,8 +50,8 @@ function API:__init(client)
 	self._client = client
 	self._route_delay = client._options.routeDelay
 	self._global_delay = client._options.globalDelay
-	self._global_limiter = RateLimiter()
-	self._route_limiters = {}
+	self._global_mutex = Mutex()
+	self._route_mutexes = {}
 	self._headers = {
 		['Content-Type'] = 'application/json',
 		['User-Agent'] = format('DiscordBot (%s, %s)', package.homepage, package.version),
@@ -72,22 +76,24 @@ function API:request(method, route, endpoint, payload)
 		insert(reqHeaders, {'Content-Length', #payload})
 	end
 
-	local routeLimiter = self._route_limiters[route] or RateLimiter()
-	self._route_limiters[route] = routeLimiter
+	local routeMutex = self._route_mutexes[route] or Mutex()
+	self._route_mutexes[route] = routeMutex
 
-	return self:commit(method, url, reqHeaders, payload, routeLimiter, 1)
+	return self:commit(method, url, reqHeaders, payload, routeMutex, 1)
 
 end
 
-function API:commit(method, url, reqHeaders, payload, routeLimiter, attempts)
+function API:commit(method, url, reqHeaders, payload, routeMutex, attempts)
 
 	local isRetry = attempts > 1
 	local routeDelay = self._route_delay
 	local globalDelay = self._global_delay
-	local globalLimiter = self._global_limiter
+	local globalMutex = self._global_mutex
 
-	routeLimiter:start(isRetry)
-	globalLimiter:start(isRetry)
+	routeMutex:lock(isRetry)
+	if self._globally_limited or globalMutex._active then
+		globalMutex:lock(isRetry)
+	end
 
 	local res, str = request(method, url, reqHeaders, payload)
 
@@ -112,6 +118,15 @@ function API:commit(method, url, reqHeaders, payload, routeLimiter, attempts)
 		self._client:warning(format('%i / %s / %s\n%s %s', res.code, res.reason, data.message, method, url))
 		if res.code == 429 then
 			if data.global then
+				if not self._globally_limited then
+					if not globalMutex._active then
+						globalMutex:lock(isRetry)
+					end
+					self._globally_limited = true
+					setTimeout(data._retry_after, function()
+						self._globally_limited = false
+					end)
+				end
 				globalDelay = data.retry_after
 			end
 			routeDelay = data.retry_after
@@ -122,11 +137,13 @@ function API:commit(method, url, reqHeaders, payload, routeLimiter, attempts)
 		end
 	end
 
-	routeLimiter:stop(routeDelay)
-	globalLimiter:stop(globalDelay)
+	routeMutex:unlockAfter(routeDelay)
+	if globalMutex._active then
+		globalMutex:unlockAfter(globalDelay)
+	end
 
 	if shouldRetry then
-		return self:commit(method, url, reqHeaders, payload, routeLimiter, attempts + 1)
+		return self:commit(method, url, reqHeaders, payload, routeMutex, attempts + 1)
 	end
 
 	return success, data
