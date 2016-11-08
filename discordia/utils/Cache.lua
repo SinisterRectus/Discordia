@@ -87,7 +87,7 @@ local function iter(self)
 	end
 end
 
-local function get(self, key, value) -- TODO: 2 key handling (id and _id)
+local function get(self, key, value)
 	if value == nil then
 			return self._objects[key]
 	elseif key == self._key then

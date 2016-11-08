@@ -40,7 +40,7 @@ end
 
 property('code', '_code', nil, 'string', "Invite identifying code")
 property('uses', '_uses', nil, 'number', "How many times this invite has been used")
-property('maxAge', '_max_age', nil, 'number', "How many seconds since creation the invite lasts") -- TODO: change to expiration time?
+property('maxAge', '_max_age', nil, 'number', "How many seconds since creation the invite lasts")
 property('revoked', '_revoked', getRevoked, 'boolean', "Whether the invite is revoked and invalid")
 property('maxUses', '_max_uses', nil, 'number', "How many times the invite can be used")
 property('temporary', '_temporary', nil, 'boolean', "Whether the invite grants temporary guild membership")
