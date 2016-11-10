@@ -23,8 +23,8 @@ end
 local function _messageIterator(self, success, data)
 	if not success then return function() end end
 	return wrap(function()
-		for i = #data, 1, -1 do
-			yield(Message(data[i], self))
+		for _, v in ipairs(data) do
+			yield(Message(v, self))
 		end
 	end)
 end
