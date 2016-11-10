@@ -542,7 +542,7 @@ function API:getGatewayBot() -- not exposed, maybe in the future
 	return self:request("GET", route, route)
 end
 
-function API:getCurrentApplicationInformation() -- not exposed, maybe in the future
+function API:getCurrentApplicationInformation() -- client.owner property
 	local route = "/oauth2/applications/@me"
 	return self:request("GET", route, route)
 end

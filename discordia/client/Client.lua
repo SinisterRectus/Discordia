@@ -144,6 +144,19 @@ function Client:_loadUserData(data)
 	data.mfa_enabled = nil
 end
 
+local function getOwner(self)
+	if self._user and self._user._bot then
+		local user = self._users:get(self._owner_id)
+		if user then return user end
+		local success, data = self._api:getCurrentApplicationInformation()
+		if success then
+			self._owner_id = data.owner.id
+			return self._users:new(data.owner)
+		end
+	end
+	return self._user
+end
+
 local function listVoiceRegions(self)
 	local success, data = self._api:listVoiceRegions()
 	if success then return data end
@@ -708,6 +721,7 @@ end
 ----
 
 property('user', '_user', nil, 'User', "The User object for the client")
+property('owner', getOwner, nil, 'User', "The User object for the account's owner")
 property('email', '_email', nil, 'string', "The client's email address (non-bot only)")
 property('mobile', '_mobile', nil, 'boolean', "Whether the client has used a Discord mobile app (non-bot only)")
 property('verified', '_verified', nil, 'boolean', "Whether the client account is verified by Discord")
