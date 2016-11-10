@@ -20,6 +20,7 @@ local ignore = {
 	['GUILD_INTEGRATIONS_UPDATE'] = true,
 	['MESSAGE_REACTION_ADD'] = true,
 	['MESSAGE_REACTION_REMOVE'] = true,
+	['WEBHOOKS_UDPATE'] = true,
 }
 
 local Socket = class('Socket')

@@ -99,44 +99,6 @@ local function sendMessage(self, content, mentions, tts, nonce)
 	if success then return self._messages:new(data, self) end
 end
 
-local function _bulkDelete(self, query)
-	local client = self._parent._parent or self._parent
-	local success, data = client._api:getChannelMessages(self._id, query)
-	if success then
-		if #data == 1 then
-			success = client._api:deleteMessage(self._id, data[1].id)
-			return _messageIterator(self, success, data)
-		else
-			local messages = {}
-			for _, message_data in ipairs(data) do
-				insert(messages, message_data.id)
-			end
-			success = client._api:bulkDeleteMessages(self._id, {messages = messages})
-			return _messageIterator(self, success, data)
-		end
-	end
-end
-
-local function bulkDelete(self, limit)
-	local query = limit and {limit = clamp(limit, 1, 100)}
-	return _bulkDelete(self, query)
-end
-
-local function bulkDeleteAfter(self, message, limit)
-	local query = {after = message._id, limit = limit and clamp(limit, 1, 100) or nil}
-	return _bulkDelete(self, query)
-end
-
-local function bulkDeleteBefore(self, message, limit)
-	local query = {before = message._id, limit = limit and clamp(limit, 1, 100) or nil}
-	return _bulkDelete(self, query)
-end
-
-local function bulkDeleteAround(self, message, limit)
-	local query = {around = message._id, limit = limit and clamp(limit, 2, 100) or nil}
-	return _bulkDelete(self, query)
-end
-
 local function broadcastTyping(self)
 	local client = self._parent._parent or self._parent
 	return (client._api:triggerTypingIndicator(self._id))
@@ -178,11 +140,6 @@ method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator f
 method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Get message history before a specific message.')
 method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit]', 'Get message history after a specific message.')
 method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit]', 'Get message history around a specific message.')
-
-method('bulkDelete', bulkDelete, '[limit]', 'Deletes 1 to 100 (default: 50) of the most recent messages from the channel and returns an iterator for them.')
-method('bulkDeleteAfter', bulkDeleteAfter, 'message[, limit]', 'Bulk delete after a specific message.')
-method('bulkDeleteBefore', bulkDeleteBefore, 'message[, limit]', 'Bulk delete before a specific message.')
-method('bulkDeleteAround', bulkDeleteAround, 'message[, limit]', 'Bulk delete around a specific message.')
 
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
 
