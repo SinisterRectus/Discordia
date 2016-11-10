@@ -41,14 +41,6 @@ local function loadMessages(self, limit)
 	return success
 end
 
-local function getMessageById(self, id)
-	local message = self._messages:get(id)
-	if message then return message end
-	local client = self._parent._parent or self._parent
-	local success, data = client._api:getChannelMessage(self.id, id)
-	if success then return Message(data, self) end
-end
-
 local function _getMessageHistory(self, query)
 	local client = self._parent._parent or self._parent
 	return _messageIterator(self, client._api:getChannelMessages(self._id, query))
@@ -161,7 +153,11 @@ local function getMessages(self, key, value)
 end
 
 local function getMessage(self, key, value)
-	return self._messages:get(key, value)
+	local message = self._messages:get(key, value)
+	if message or value then return message end
+	local client = self._parent._parent or self._parent
+	local success, data = client._api:getChannelMessage(self.id, key)
+	if success then return Message(data, self) end
 end
 
 local function findMessage(self, predicate)
@@ -175,7 +171,6 @@ end
 property('pinnedMessages', getPinnedMessages, nil, 'function', "Iterator for all of the pinned messages in the channel")
 
 method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.")
-method('getMessageById', getMessageById, 'id', "Returns a message from the channel cache or from Discord if it is not cached.")
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.")
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Sends a message to the channel.")
 

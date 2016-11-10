@@ -172,7 +172,7 @@ function API:getChannelMessages(channel_id, query) -- TextChannel:getMessageHist
 	return self:request("GET", route, attachQuery(route, query))
 end
 
-function API:getChannelMessage(channel_id, message_id) -- TextChannel:getMessageById
+function API:getChannelMessage(channel_id, message_id) -- TextChannel:getMessage fallback
 	local route = format("/channels/%s/messages/%%s", channel_id)
 	return self:request("GET", route, format(route, message_id))
 end
@@ -287,7 +287,7 @@ function API:modifyGuildChannelPosition(guild_id, payload) -- not exposed, see m
 	return self:request("PATCH", route, route, payload)
 end
 
-function API:getGuildMember(guild_id, user_id) -- Guild:getMemberById
+function API:getGuildMember(guild_id, user_id) -- Guild:getMember fallback
 	local route = format("/guilds/%s/members/%%s", guild_id)
 	return self:request("GET", route, format(route, user_id))
 end
@@ -407,7 +407,7 @@ function API:modifyGuildEmbed(guild_id, payload) -- not exposed, maybe in the fu
 	return self:request("PATCH", route, route, payload)
 end
 
-function API:getInvite(invite_code) -- Client:getInviteByCode
+function API:getInvite(invite_code) -- Client:getInvite
 	local route = "/invites/%s"
 	return self:request("GET", route, format(route, invite_code))
 end
@@ -417,7 +417,7 @@ function API:deleteInvite(invite_code) -- Invite:delete
 	return self:request("DELETE", route, format(route, invite_code))
 end
 
-function API:acceptInvite(invite_code, payload) -- Invite:accept, Client:acceptInviteByCode
+function API:acceptInvite(invite_code, payload) -- Invite:accept, Client:acceptInvite
 	local route = "/invites/%s"
 	return self:request("POST", route, format(route, invite_code), payload)
 end
@@ -427,7 +427,7 @@ function API:getCurrentUser() -- not exposed, use cache (Client.user)
 	return self:request("GET", route, route)
 end
 
-function API:getUser(user_id) -- Client:getUserById
+function API:getUser(user_id) -- Client:getUser fallback
 	local route = "/users/%s"
 	return self:request("GET", route, format(route, user_id))
 end

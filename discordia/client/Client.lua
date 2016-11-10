@@ -209,21 +209,14 @@ local function setGameName(self, gameName)
 	return self._socket:statusUpdate(self._idle_since, self._game_name)
 end
 
-local function acceptInviteByCode(self, code)
+local function acceptInvite(self, code)
 	local success, data = self._api:acceptInvite(code)
 	if success then return Invite(data, self) end
 end
 
-local function getInviteByCode(self, code)
+local function getInvite(self, code)
 	local success, data = self._api:getInvite(code)
 	if success then return Invite(data, self) end
-end
-
-local function getUserById(self, id)
-	local user = self._users:get(id)
-	if user then return user end
-	local success, data = self._api:getUser(id)
-	if success then return self._users:new(data) end
 end
 
 -- cache accessors --
@@ -239,7 +232,10 @@ local function getUsers(self, key, value)
 end
 
 local function getUser(self, key, value)
-	return self._users:get(key, value)
+	local user = self._users:get(key, value)
+	if user or value then return user end
+	local success, data = self._api:getUser(key)
+	if success then return self._users:new(data) end
 end
 
 local function findUser(self, predicate)
@@ -722,9 +718,8 @@ method('stop', stop, 'shouldExit', "Disconnects from the Discord gateway and opt
 
 method('listVoiceRegions', listVoiceRegions, nil, "Returns a table of voice regions.")
 method('createGuild', createGuild, 'name, region', "Creates a guild with the provided name and voice region.")
-method('acceptInviteByCode', acceptInviteByCode, 'code', "Accepts a guild invitation with the raw invite code.")
-method('getInviteByCode', getInviteByCode, 'code', "Returns an Invite object corresponding to a raw invite code, if it exists.")
-method('getUserById', getUserById, 'id', "Returns a user from the client cache or from Discord if it is not cached.")
+method('acceptInvite', acceptInvite, 'code', "Accepts a guild invitation with the raw invite code.")
+method('getInvite', getInvite, 'code', "Returns an Invite object corresponding to a raw invite code, if it exists.")
 
 method('setUsername', setUsername, 'username', "Sets the user's username.")
 method('setNickname', setNick, 'guild, nickname', "Sets the user's nickname for the indicated guild.")
