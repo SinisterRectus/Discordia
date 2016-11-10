@@ -1,5 +1,5 @@
 local format = string.format
-local insert, sort = table.insert, table.sort
+local insert, sort, transposed = table.insert, table.sort, table.transposed
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Cache, property, method = class('Cache')
@@ -130,30 +130,30 @@ local function findAll(self, predicate)
 	end)
 end
 
-local function keySorter(a, b)
+local function rowSorter(a, b)
+	a, b = a[1], b[1]
 	return (tonumber(a) or a) < (tonumber(b) or b)
 end
 
-local function keys(self, key)
-	key = key or self._key
+local function rows(self, ...)
 	local ret = {}
-	for obj in self:iter() do
-		insert(ret, obj[key])
+	local keys = {...}
+	if #keys == 0 then
+		insert(keys, self._key)
 	end
-	sort(ret, keySorter)
+	for obj in self:iter() do
+		local row = {}
+		for _, key in ipairs(keys) do
+			insert(row, obj[key])
+		end
+		insert(ret, row)
+	end
+	sort(ret, rowSorter)
 	return ret
 end
 
-local function values(self, key)
-	key = key or self._key
-	local ret = {}
-	for obj in self:iter() do
-		insert(ret, obj)
-	end
-	sort(ret, function(a, b)
-		return keySorter(a[key], b[key])
-	end)
-	return ret
+local function columns(self, ...)
+	return transposed(rows(self, ...))
 end
 
 property('count', '_count', nil, 'number', "How many objects are cached")
@@ -168,7 +168,7 @@ method('get', get, '[key,] value', "Returns the first object that matches provid
 method('getAll', getAll, '[key, value]', "Returns an iterator for all objects that match the (key, value) pair.")
 method('find', find, 'predicate', "Returns the first object found that satisfies a predicate.")
 method('findAll', findAll, 'predicate', "Returns an iterator for all objects that satisfy a predicate.")
-method('keys', keys, '[key]', "Returns an array-like Lua table of all of the cached objects' keys, sorted by key.")
-method('values', values, '[key]', "Returns an array-like Lua table of all of the cached objects, sorted by key.")
+method('rows', rows, '[keys[, ...]]', "Returns a table of object keys in row-format, sorted by first key.")
+method('columns', columns, '[keys[, ...]]', "Returns a table of object keys in column-format, sorted by first key.")
 
 return Cache

@@ -99,6 +99,18 @@ function table.sorted(tbl, fn)
 	return tbl
 end
 
+function table.transposed(tbl)
+	local ret = {}
+	for _, row in ipairs(tbl) do
+		for i, element in ipairs(row) do
+			local column = ret[i] or {}
+			insert(column, element)
+			ret[i] = column
+		end
+	end
+	return ret
+end
+
 -- string --
 
 function string.split(str, delim)
