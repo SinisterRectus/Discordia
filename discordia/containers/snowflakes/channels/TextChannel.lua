@@ -51,8 +51,7 @@ end
 
 local function _getMessageHistory(self, query)
 	local client = self._parent._parent or self._parent
-	local success, data = client._api:getChannelMessages(self._id, query)
-	return _messageIterator(self, success, data)
+	return _messageIterator(self, client._api:getChannelMessages(self._id, query))
 end
 
 local function getMessageHistory(self, limit)
@@ -77,8 +76,7 @@ end
 
 local function getPinnedMessages(self)
 	local client = self._parent._parent or self._parent
-	local success, data = client._api:getPinnedMessages(self._id)
-	return _messageIterator(self, success, data)
+	return _messageIterator(self, client._api:getPinnedMessages(self._id))
 end
 
 local function sendMessage(self, content, mentions, tts, nonce)
@@ -114,13 +112,15 @@ local function _bulkDelete(self, query)
 	local success, data = client._api:getChannelMessages(self._id, query)
 	if success then
 		if #data == 1 then
-			return (client._api:deleteMessage(self._id, data[1].id))
+			success = client._api:deleteMessage(self._id, data[1].id)
+			return _messageIterator(self, success, data)
 		else
 			local messages = {}
 			for _, message_data in ipairs(data) do
 				insert(messages, message_data.id)
 			end
-			return (client._api:bulkDeleteMessages(self._id, {messages = messages}))
+			success = client._api:bulkDeleteMessages(self._id, {messages = messages})
+			return _messageIterator(self, success, data)
 		end
 	end
 end
@@ -179,12 +179,12 @@ method('getMessageById', getMessageById, 'id', "Returns a message from the chann
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.")
 method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Sends a message to the channel.")
 
-method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator 1 to 100 (default: 50) of the most recent messages in the channel.')
+method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator for 1 to 100 (default: 50) of the most recent messages in the channel.')
 method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Get message history before a specific message.')
 method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit]', 'Get message history after a specific message.')
 method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit]', 'Get message history around a specific message.')
 
-method('bulkDelete', bulkDelete, '[limit]', 'Permanently deletes 1 to 100 (default: 50) of the most recent messages from the channel.')
+method('bulkDelete', bulkDelete, '[limit]', 'Deletes 1 to 100 (default: 50) of the most recent messages from the channel and returns an iterator for them.')
 method('bulkDeleteAfter', bulkDeleteAfter, 'message[, limit]', 'Bulk delete after a specific message.')
 method('bulkDeleteBefore', bulkDeleteBefore, 'message[, limit]', 'Bulk delete before a specific message.')
 method('bulkDeleteAround', bulkDeleteAround, 'message[, limit]', 'Bulk delete around a specific message.')
