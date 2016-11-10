@@ -80,7 +80,7 @@ local function setB(self, v)
 end
 
 local function toHex(self)
-	return format('0x%06X', self._value)
+	return format('#%06X', self._value)
 end
 
 local function copy(self)
