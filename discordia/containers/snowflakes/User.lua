@@ -14,9 +14,28 @@ function User:__tostring()
 	return format('%s: %s', self.__name, self._username)
 end
 
+local defaultAvatars = {
+	'6debd47ed13483642cf09e832ed0bc1b',
+    '322c936a8c8be1b803cd94861bdfa868',
+    'dd4dbc0016779df1378e7812eabaa04d',
+    '0e291f67c9274a1abdddeb3fd919cbaa',
+	'1cbd08c76f8af6dddce02c5138971129'
+}
+
+local function getDefaultAvatar(self)
+	return defaultAvatars[self._discriminator % #defaultAvatars + 1]
+end
+
+local function getDefaultAvatarUrl(self)
+	return format('https://discordapp.com/assets/%s.png', getDefaultAvatar(self))
+end
+
 local function getAvatarUrl(self)
-	if not self._avatar then return nil end
-	return format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self._id, self._avatar)
+	if self._avatar then
+		return format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self._id, self._avatar)
+	else
+		return getDefaultAvatarUrl(self)
+	end
 end
 
 local function getMentionString(self)
@@ -50,9 +69,11 @@ local function kick(self, guild)
 	return guild:kickUser(self)
 end
 
-property('avatarUrl', getAvatarUrl, nil, 'string', "URL that points to the user's avatar")
-property('mentionString', getMentionString, nil, 'string', "Raw string that is parsed by Discord into a user mention")
 property('avatar', '_avatar', nil, 'string', "Hash representing the user's avatar")
+property('avatarUrl', getAvatarUrl, nil, 'string', "URL that points to the user's avatar")
+property('defaultAvatar', getDefaultAvatar, nil, 'string', "Hash representing the user's default avatar")
+property('defaultAvatarUrl', getDefaultAvatarUrl, nil, 'string', "URL that points to the user's default avatar")
+property('mentionString', getMentionString, nil, 'string', "Raw string that is parsed by Discord into a user mention")
 property('name', '_username', nil, 'string', "The user's name (alias of username)")
 property('username', '_username', nil, 'string', "The user's name (alias of name)")
 property('discriminator', '_discriminator', nil, 'string', "The user's 4-digit discriminator")

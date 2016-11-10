@@ -192,10 +192,12 @@ local function findRoles(self, predicate)
 end
 
 property('avatarUrl', function(self) return self._user.avatarUrl end, nil, 'string', "Shortcut for member.user.avatarUrl")
+property('defaultAvatarUrl', function(self) return self._user.defaultAvatarUrl end, nil, 'string', "Shortcut for member.user.defaultAvatarUrl")
 property('mentionString', function(self) return self._user.mentionString end, nil, 'string', "Shortcut for member.user.mentionString")
 property('id', function(self) return self._user._id end, nil, 'string', "Shortcut for member.user.id")
 property('bot', function(self) return self._user._bot or false end, nil, 'string', "Shortcut for member.user.bot")
 property('avatar', function(self) return self._user._avatar end, nil, 'string', "Shortcut for member.user.avatar")
+property('defaultAvatar', function(self) return self._user.defaultAvatar end, nil, 'string', "Shortcut for member.user.defaultAvatar")
 property('username', function(self) return self._user._username end, nil, 'string', "Shortcut for member.user.username")
 property('discriminator', function(self) return self._user._discriminator end, nil, 'string', "Shortcut for member.user.discriminator")
 
