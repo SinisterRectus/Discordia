@@ -95,8 +95,12 @@ function table.randompair(tbl)
 end
 
 function table.sorted(tbl, fn)
-	sort(tbl, fn)
-	return tbl
+	local ret = {}
+	for i, v in ipairs(tbl) do
+		ret[i] = v
+	end
+	sort(ret, fn)
+	return ret
 end
 
 function table.transposed(tbl)
