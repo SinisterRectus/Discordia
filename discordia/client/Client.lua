@@ -22,6 +22,7 @@ local defaultOptions = {
 	largeThreshold = 100,
 	fetchMembers = false,
 	autoReconnect = true,
+	dateTime = '%c',
 }
 
 local Client, property, method, cache = class('Client', Emitter)
@@ -57,13 +58,13 @@ function Client:__tostring()
 	end
 end
 
-local function log(message, color)
-	return print(colorize(color, format('%s - %s', date(), message)))
+local function log(self, message, color)
+	return print(colorize(color, format('%s - %s', date(self._options.dateTime), message)))
 end
 
 function Client:warning(message)
 	if self._listeners['warning'] then return self:emit('warning', message) end
-	return log(message, 'highlight')
+	return log(self, message, 'highlight')
 end
 
 function Client:error(message)
@@ -355,7 +356,7 @@ local function getPrivateChannel(self, key, value)
 	local channel = self._private_channels:get(key, value)
 	if channel or value then return channel end
 	local success, data = self._api:getChannel(key)
-	if success then return self._private_channels:new(data) end	
+	if success then return self._private_channels:new(data) end
 end
 
 local function findPrivateChannel(self, predicate)
