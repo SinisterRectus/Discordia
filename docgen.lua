@@ -8,9 +8,9 @@ local classes = class.__classes
 
 local open = io.open
 local max = math.max
-local floor, ceil = math.floor, math.ceil
 local insert, sort = table.insert, table.sort
 local f, rep, upper = string.format, string.rep, string.upper
+local padright, padcenter = string.padright, string.padcenter
 
 local tmp = io.tmpfile()
 local mt = getmetatable(tmp)
@@ -38,15 +38,6 @@ local function actualClass(type, class, name)
 	return class
 end
 
-local function padRight(str, len)
-	return str .. rep(' ', len - #str)
-end
-
-local function padCenter(str, len)
-	local pad = 0.5 * (len - #str)
-	return rep(' ', floor(pad)) .. str .. rep(' ', ceil(pad))
-end
-
 local writers = {}
 
 function writers.__properties(file, properties)
@@ -62,10 +53,10 @@ function writers.__properties(file, properties)
 	end
 
 	file:writefln('| %s | %s | %s | %s |',
-		padRight('Name', longestName),
-		padRight('Type', longestType),
+		padright('Name', longestName),
+		padright('Type', longestType),
 		'Mutable',
-		padRight('Description', longestDesc)
+		padright('Description', longestDesc)
 	)
 
 	file:writefln('| %s | %s |:%s:| %s |',
@@ -77,10 +68,10 @@ function writers.__properties(file, properties)
 
 	for _, property in ipairs(properties) do
 		file:writefln('| %s | %s | %s | %s |',
-			padRight(property[1], longestName),
-			padRight(property[2], longestType),
-			padCenter(property[3] and 'X' or '', 7),
-			padRight(property[4], longestDesc)
+			padright(property[1], longestName),
+			padright(property[2], longestType),
+			padcenter(property[3] and 'X' or '', 7),
+			padright(property[4], longestDesc)
 		)
 	end
 
@@ -98,8 +89,8 @@ function writers.__methods(file, methods)
 	end
 
 	file:writefln('| %s | %s |',
-		padRight('Prototype', longestName),
-		padRight('Description', longestDesc)
+		padright('Prototype', longestName),
+		padright('Description', longestDesc)
 	)
 
 	file:writefln('| %s | %s |',
@@ -109,8 +100,8 @@ function writers.__methods(file, methods)
 
 	for _, method in ipairs(methods) do
 		file:writefln('| %s | %s |',
-			padRight(method[1], longestName),
-			padRight(method[3], longestDesc)
+			padright(method[1], longestName),
+			padright(method[3], longestDesc)
 		)
 	end
 

@@ -1,7 +1,7 @@
 local max = math.max
 local insert, sort = table.insert, table.sort
 local lower, upper = string.lower, string.upper
-local f, rep = string.format, string.rep
+local f, padright = string.format, string.padright
 local printf = printf -- luacheck: ignore printf
 
 local meta = {}
@@ -159,10 +159,6 @@ function Base:isInstanceOf(name)
 	return isSub(self, other), false
 end
 
-local function padRight(str, len)
-	return str .. rep(' ', len - #str)
-end
-
 local function sorter(a, b)
 	return a[1] < b[1]
 end
@@ -181,7 +177,7 @@ function Base:help()
 		end
 		sort(properties, sorter)
 		for _, v in ipairs(properties) do
-			printf('%s  %s  %s', padRight(v[1], n), padRight(v[2], m), v[3])
+			printf('%s  %s  %s', padright(v[1], n), padright(v[2], m), v[3])
 		end
 		print()
 	end
@@ -196,7 +192,7 @@ function Base:help()
 		end
 		sort(methods, sorter)
 		for _, v in ipairs(methods) do
-			printf('%s  %s', padRight(f('%s(%s)', v[1], v[2]), n), padRight(v[3], m))
+			printf('%s  %s', padright(f('%s(%s)', v[1], v[2]), n), padright(v[3], m))
 		end
 		print()
 	end

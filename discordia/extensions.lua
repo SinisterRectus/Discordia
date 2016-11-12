@@ -1,7 +1,9 @@
 local random = math.random
 local insert, remove, sort = table.insert, table.remove, table.sort
-local format, gmatch = string.format, string.gmatch
-local min, max, floor = math.min, math.max, math.floor
+local gmatch, match = string.gmatch, string.match
+local format, rep = string.format, string.rep
+local min, max = math.min, math.max
+local ceil, floor = math.ceil, math.floor
 
 -- globals --
 
@@ -131,6 +133,23 @@ function string.totable(str)
 		insert(chars, char)
 	end
 	return chars
+end
+
+function string.trim(str)
+	return match(str, '^%s*(.-)%s*$')
+end
+
+function string.padleft(str, len)
+	return rep(' ', len - #str) .. str
+end
+
+function string.padright(str, len)
+	return str .. rep(' ', len - #str)
+end
+
+function string.padcenter(str, len)
+	local pad = 0.5 * (len - #str)
+	return rep(' ', floor(pad)) .. str .. rep(' ', ceil(pad))
 end
 
 -- math --
