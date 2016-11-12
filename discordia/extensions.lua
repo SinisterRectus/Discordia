@@ -41,6 +41,14 @@ function table.reverse(tbl)
 	end
 end
 
+function table.reversed(tbl)
+	local ret = {}
+	for i = #tbl, 1, -1 do
+		insert(ret, tbl[i])
+	end
+	return ret
+end
+
 function table.copy(tbl)
 	local new = {}
 	for k, v in pairs(tbl) do
