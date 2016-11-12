@@ -352,7 +352,10 @@ local function getPrivateChannels(self, key, value)
 end
 
 local function getPrivateChannel(self, key, value)
-	return self._private_channels:get(key, value)
+	local channel = self._private_channels:get(key, value)
+	if channel or value then return channel end
+	local success, data = self._api:getChannel(key)
+	if success then return self._private_channels:new(data) end	
 end
 
 local function findPrivateChannel(self, predicate)

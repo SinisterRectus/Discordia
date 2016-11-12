@@ -152,7 +152,7 @@ end
 
 -- endpoint methods auto-generated from Discord documentation --
 
-function API:getChannel(channel_id) -- not exposed, use cache
+function API:getChannel(channel_id) -- Client:getPrivateChannel fallback
 	local route = format("/channels/%s", channel_id)
 	return self:request("GET", route, route)
 end
