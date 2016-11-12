@@ -1,6 +1,7 @@
 local bit = require('bit')
 
 local format = string.format
+local rol, ror = bit.rol, bit.ror
 local lshift, rshift, band = bit.lshift, bit.rshift, bit.band
 
 local Color, property, method = class('Color')
@@ -55,28 +56,37 @@ function Color:__div(n)
 	return Color(self._value / n)
 end
 
+local function getByte(self, byte)
+	return band(rshift(self._value, 8 * byte), 0xFF)
+end
+
+local function setByte(self, byte, v)
+	local bits = 8 * byte  
+	self._value = rol(lshift(rshift(ror(self._value, bits), 8), 8) + v, bits)
+end
+
 local function getR(self)
-	return rshift(band(self._value, 0xFF0000), 16)
+	return getByte(self, 2)
 end
 
 local function getG(self)
-	return rshift(band(self._value, 0x00FF00), 8)
+	return getByte(self, 1)
 end
 
 local function getB(self)
-	return band(self._value, 0x0000FF)
+	return getByte(self, 0)
 end
 
-local function setR(self, v)
-	self._value = lshift(v, 16) + lshift(self.g, 8) + self.b
+local function setR(self, r)
+	setByte(self, 2, r)
 end
 
-local function setG(self, v)
-	self._value = lshift(self.r, 16) + lshift(v, 8) + self.b
+local function setG(self, g)
+	setByte(self, 1, g)
 end
 
-local function setB(self, v)
-	self._value = lshift(self.r, 16) + lshift(self.g, 8) + v
+local function setB(self, b)
+	setByte(self, 0, b)
 end
 
 local function toHex(self)
