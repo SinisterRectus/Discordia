@@ -20,11 +20,11 @@ function mt.writef(self, ...)
 end
 
 function mt.writeln(self, str)
-	return self:write(str .. '\n')
+	return self:write(str, '\n')
 end
 
 function mt.writefln(self, ...)
-	return self:write(f(...) .. '\n')
+	return self:write(f(...), '\n')
 end
 
 tmp:close()

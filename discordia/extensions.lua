@@ -128,19 +128,19 @@ end
 -- string --
 
 function string.split(str, delim)
-	local words = {}
-	for word in gmatch(str .. delim, '(.-)' .. delim) do
-		insert(words, word)
+	if delim and delim ~= '' then
+		local words = {}
+		for word in gmatch(str .. delim, '(.-)' .. delim) do
+			insert(words, word)
+		end
+		return words
+	else
+		local chars = {}
+		for char in gmatch(str, '.') do
+			insert(chars, char)
+		end
+		return chars
 	end
-	return words
-end
-
-function string.totable(str)
-	local chars = {}
-	for char in gmatch(str, '.') do
-		insert(chars, char)
-	end
-	return chars
 end
 
 function string.trim(str)

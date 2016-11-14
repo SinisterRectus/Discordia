@@ -1,17 +1,27 @@
 Probable additions
-- Sharding
-- File uploading
+- Implicit permissions checking
+- Sanitized channel/role position setting
+- Option to disable event handler
 - Parse message attachments and embeds
-- Logging support
+- Message reactions
+- File uploading
+- Sharding
 
 Possible additions
+- Logging support
+- Group DMs
 - Webhooks
-- group DMs
-- Message reactions
-- Twitch streaming url
-- Implement Game object
-- Message attachment/embed parsing
+- Twitch streaming URL
+- Game class
 - Handle unhandled gateway events
 - Helper functions, like getMembersWithRole, ...
 - Guild integrations, emojis, and features
 - Voice support
+- Add client layer between the HTTP requests and OO methods
+- Class statics
+- PermissionOverwrite caches per Client/Guild
+- bulkDelete and/or getMessageHistory predicate
+- Exposed columns/rows cache accessors
+- Uptime indicator
+- "get or new" cache method
+- Make new objects on events when necessary and possible
