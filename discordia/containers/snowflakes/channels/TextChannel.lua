@@ -98,7 +98,7 @@ local function sendMessage(self, content, mentions, tts)
 	local success, data = client._api:createMessage(self._id, {
 		content = content, tts = tts
 	})
-	if success then return self._messages:new(data, self) end
+	if success then return self._messages:new(data) end
 end
 
 local function broadcastTyping(self)
