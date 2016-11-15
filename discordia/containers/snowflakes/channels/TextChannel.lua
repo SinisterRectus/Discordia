@@ -4,7 +4,6 @@ local OrderedCache = require('../../../utils/OrderedCache')
 
 local clamp = math.clamp
 local insert, concat = table.insert, table.concat
-local wrap, yield = coroutine.wrap, coroutine.yield
 
 local TextChannel, property, method, cache = class('TextChannel', Channel)
 TextChannel.__description = "Abstract base class for guild and private text channels."
@@ -22,11 +21,14 @@ end
 
 local function _messageIterator(self, success, data)
 	if not success then return function() end end
-	return wrap(function()
-		for _, v in ipairs(data) do
-			yield(Message(v, self))
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Message(v, self)
 		end
-	end)
+	end
 end
 
 local function loadMessages(self, limit)
@@ -71,17 +73,17 @@ local function getPinnedMessages(self)
 	return _messageIterator(self, client._api:getPinnedMessages(self._id))
 end
 
-local function sendMessage(self, content, mentions, tts, nonce)
+local function sendMessage(self, content, mentions, tts)
 	if type(mentions) == 'table' then
 		local strings = {}
-		if mentions.iter then
+		if mentions.getMentionString then
+			insert(strings, mentions:getMentionString())
+		elseif mentions.iter then
 			for obj in mentions:iter() do
 				if obj.getMentionString then
 					insert(strings, obj:getMentionString())
 				end
 			end
-		elseif mentions.getMentionString then
-			insert(strings, mentions:getMentionString())
 		else
 			for _, obj in pairs(mentions) do
 				if obj.getMentionString then
@@ -94,7 +96,7 @@ local function sendMessage(self, content, mentions, tts, nonce)
 	end
 	local client = self._parent._parent or self._parent
 	local success, data = client._api:createMessage(self._id, {
-		content = content, tts = tts, nonce = nonce
+		content = content, tts = tts
 	})
 	if success then return self._messages:new(data, self) end
 end
@@ -134,7 +136,7 @@ property('pinnedMessages', getPinnedMessages, nil, 'function', "Iterator for all
 
 method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.")
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.")
-method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Sends a message to the channel.")
+method('sendMessage', sendMessage, 'content[, mentions, tts]', "Sends a message to the channel.")
 
 method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator for 1 to 100 (default: 50) of the most recent messages in the channel.')
 method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Get message history before a specific message.')

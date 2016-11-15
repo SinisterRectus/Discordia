@@ -5,7 +5,6 @@ local TextChannel = require('./TextChannel')
 local clamp = math.clamp
 local insert = table.insert
 local format = string.format
-local wrap, yield = coroutine.wrap, coroutine.yield
 
 local GuildTextChannel, property, method = class('GuildTextChannel', TextChannel, GuildChannel)
 GuildTextChannel.__description = "Represents a Discord guild text channel."
@@ -23,11 +22,14 @@ end
 
 local function _messageIterator(self, success, data)
 	if not success then return function() end end
-	return wrap(function()
-		for _, v in ipairs(data) do
-			yield(Message(v, self))
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Message(v, self)
 		end
-	end)
+	end
 end
 
 local function getMentionString(self)

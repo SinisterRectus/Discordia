@@ -4,7 +4,6 @@ local Channel = require('../Channel')
 local PermissionOverwrite = require('../PermissionOverwrite')
 
 local format = string.format
-local wrap, yield = coroutine.wrap, coroutine.yield
 
 local GuildChannel, property, method, cache = class('GuildChannel', Channel)
 GuildChannel.__description = "Abstract base class for guild text and voice channels."
@@ -54,7 +53,7 @@ local function setPosition(self, position) -- TODO: add position corrections
 end
 
 local function getPermissionOverwriteFor(self, object)
-	local type = type(object) == 'table' and object.__name:lower() or nil
+	local type = type(object) == 'table' and object.__name:lower()
 	if type ~= 'role' and type ~= 'member' then return end
 	local id = object._id
 	return self._permission_overwrites:get(id) or self._permission_overwrites:new({
@@ -66,11 +65,14 @@ local function getInvites(self)
 	local client = self._parent._parent
 	local success, data = client._api:getChannelInvites(self._id)
 	if not success then return function() end end
-	return wrap(function()
-		for _, invite_data in ipairs(data) do
-			yield(Invite(invite_data, client))
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Invite(v, client)
 		end
-	end)
+	end
 end
 
 local function createInvite(self, maxAge, maxUses, temporary, unique)

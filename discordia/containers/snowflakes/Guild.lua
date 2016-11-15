@@ -47,9 +47,10 @@ function Guild:_makeAvailable(data)
 
 	if data.channels then
 		for _, channel_data in ipairs(data.channels) do
-			if channel_data.type == 'text' then
+			local type = channel_data.type
+			if type == 'text' then
 				self._text_channels:new(channel_data)
-			elseif channel_data.type == 'voice' then
+			elseif type == 'voice' then
 				self._voice_channels:new(channel_data)
 			end
 		end
@@ -169,22 +170,28 @@ local function getBannedUsers(self)
 	local success, data = self._parent._api:getGuildBans(self._id)
 	if not success then return function() end end
 	local users = self._parent._users
-	return wrap(function()
-		for _, v in ipairs(data) do
-			yield(users:get(v.user.id) or users:new(v.user))
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return users:get(v.user.id) or users:new(v.user)
 		end
-	end)
+	end
 end
 
 local function getInvites(self)
 	local success, data = self._parent._api:getGuildInvites(self._id)
 	local parent = self._parent
 	if not success then return function() end end
-	return wrap(function()
-		for _, invite_data in ipairs(data) do
-			yield(Invite(invite_data, parent))
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Invite(v, parent)
 		end
-	end)
+	end
 end
 
 local function banUser(self, user, days)
