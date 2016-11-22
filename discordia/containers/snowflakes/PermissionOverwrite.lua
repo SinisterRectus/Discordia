@@ -31,7 +31,12 @@ local function getObject(self)
 end
 
 local function getName(self)
-	return self.object._name
+	local object = self.object
+	if self._type == 'role' then
+		return object._name
+	else
+		return object._user._username
+	end
 end
 
 -- directly accessing both permissions is not exposed
