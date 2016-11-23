@@ -125,6 +125,14 @@ function table.transposed(tbl)
 	return ret
 end
 
+function table.slice(tbl, start, stop, step)
+	local ret = {}
+	for i = start or 1, stop or #tbl, step or 1 do
+		insert(ret, tbl[i])
+	end
+	return ret
+end
+
 -- string --
 
 function string.split(str, delim)
