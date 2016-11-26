@@ -1,7 +1,7 @@
 local random = math.random
 local insert, remove, sort = table.insert, table.remove, table.sort
-local gmatch, match = string.gmatch, string.match
-local format, rep = string.format, string.rep
+local gmatch, match, byte = string.gmatch, string.match, string.byte
+local format, rep, find = string.format, string.rep, string.find
 local min, max = math.min, math.max
 local ceil, floor = math.ceil, math.floor
 
@@ -166,6 +166,48 @@ end
 function string.padcenter(str, len)
 	local pad = 0.5 * (len - #str)
 	return rep(' ', floor(pad)) .. str .. rep(' ', ceil(pad))
+end
+
+function string.startswith(str, pattern, plain)
+	local start = 1
+	return find(str, pattern, start, plain) == start
+end
+
+function string.endswith(str, pattern, plain)
+	local start = #str - #pattern + 1
+	return find(str, pattern, start, plain) == start
+end
+
+function string.levenshtein(str1, str2)
+
+	if str1 == str2 then return 0 end
+
+	local len1 = #str1
+	local len2 = #str2
+
+	if len1 == 0 then
+		return len2
+	elseif len2 == 0 then
+		return len1
+	end
+
+	local matrix = {}
+	for i = 0, len1 do
+		matrix[i] = {[0] = i}
+	end
+	for j = 0, len2 do
+		matrix[0][j] = j
+	end
+
+	for i = 1, len1 do
+		for j = 1, len2 do
+			local cost = byte(str1, i) == byte(str2, j) and 0 or 1
+  			matrix[i][j] = min(matrix[i-1][j] + 1, matrix[i][j-1] + 1, matrix[i-1][j-1] + cost)
+		end
+	end
+
+	return matrix[len1][len2]
+
 end
 
 -- math --

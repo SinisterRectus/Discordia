@@ -23,5 +23,3 @@ Possible additions
 - bulkDelete and/or getMessageHistory predicate
 - Exposed columns/rows cache accessors
 - Uptime indicator
-- "get or new" cache method
-- Make new objects on events when necessary and possible
