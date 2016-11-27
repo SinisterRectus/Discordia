@@ -341,11 +341,11 @@ end
 function EventHandler.VOICE_STATE_UPDATE(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'Guild', data.guild_id, 'VOICE_STATE_UPDATE') end
-	local member = guild._members:get(data.user_id)
-	if not member then return warning(client, 'Member', data.user_id, 'VOICE_STATE_UPDATE') end
+	local id = data.user_id
+	local member = guild._members:get(id)
+	if not member then return warning(client, 'Member', id, 'VOICE_STATE_UPDATE') end
 	local mute = data.mute or data.self_mute
 	local deaf = data.deaf or data.self_deaf
-	local id = data.session_id
 	local state = guild._voice_states[id]
 	if state then
 		if data.channel_id then

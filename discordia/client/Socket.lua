@@ -175,6 +175,15 @@ function Socket:statusUpdate(idleSince, gameName)
 	})
 end
 
+function Socket:joinVoiceChannel(guild_id, channel_id, self_mute, self_deaf)
+	return send(self, 4, {
+		guild_id = guild_id,
+		channel_id = channel_id,
+		self_mute = self_mute or false,
+		self_deaf = self_deaf or false,
+	})
+end
+
 function Socket:resume(token)
 	return send(self, 6, {
 		token = token,

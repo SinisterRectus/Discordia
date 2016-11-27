@@ -38,7 +38,7 @@ function Guild:_makeAvailable(data)
 	self._roles:merge(data.roles)
 	self._members:merge(data.members)
 
-	hash(data.voice_states, 'session_id')
+	hash(data.voice_states, 'user_id')
 	self._voice_states = data.voice_states
 
 	if data.presences then
