@@ -3,6 +3,7 @@ _G.class = require('./class')
 
 return {
 	Client = require('./client/Client'),
+	Buffer = require('./utils/Buffer'),
 	Cache = require('./utils/Cache'),
 	Color = require('./utils/Color'),
 	Deque = require('./utils/Deque'),

@@ -8,6 +8,7 @@ Probable additions
 - Sharding
 
 Possible additions
+- Commands module
 - Logging support
 - Group DMs
 - Webhooks
