@@ -141,76 +141,58 @@ function Socket:stopHeartbeat()
 	self._heartbeatInterval = nil
 end
 
-local function send(self, payload)
+local function send(self, op, d)
 	return self._write({
 		opcode = 1,
-		payload = encode(payload)
+		payload = encode({op = op, d = d})
 	})
 end
 
 function Socket:heartbeat()
 	self._stopwatch:restart()
-	return send(self, {
-		op = 1,
-		d = self._seq
-	})
+	return send(self, 1, self._seq)
 end
 
 function Socket:identify(token)
-	return send(self, {
-		op = 2,
-		d = {
-			token = token,
-			properties = {
-				['$os'] = jit.os,
-				['$browser'] = 'Discordia',
-				['$device'] = 'Discordia',
-				['$referrer'] = '',
-				['$referring_domain'] = ''
-			},
-			large_threshold = self._client._options.largeThreshold,
-			compress = false,
-		}
+	return send(self, 2, {
+		token = token,
+		properties = {
+			['$os'] = jit.os,
+			['$browser'] = 'Discordia',
+			['$device'] = 'Discordia',
+			['$referrer'] = '',
+			['$referring_domain'] = ''
+		},
+		large_threshold = self._client._options.largeThreshold,
+		compress = false,
 	})
 end
 
 function Socket:statusUpdate(idleSince, gameName)
-	return send(self, {
-		op = 3,
-		d = {
-			idle_since = idleSince or json.null,
-			game = {name = gameName or json.null},
-		}
+	return send(self, 3, {
+		idle_since = idleSince or json.null,
+		game = {name = gameName or json.null},
 	})
 end
 
 function Socket:resume(token)
-	return send(self, {
-		op = 6,
-		d = {
-			token = token,
-			session_id = self._session_id,
-			seq = self._seq
-		}
+	return send(self, 6, {
+		token = token,
+		session_id = self._session_id,
+		seq = self._seq
 	})
 end
 
 function Socket:requestGuildMembers(guild_id)
-	return send(self, {
-		op = 8,
-		d = {
-			guild_id = guild_id,
-			query = '',
-			limit = 0
-		}
+	return send(self, 8, {
+		guild_id = guild_id,
+		query = '',
+		limit = 0
 	})
 end
 
 function Socket:syncGuilds(guild_ids)
-	return send(self, {
-		op = 12,
-		d = guild_ids
-	})
+	return send(self, 12, guild_ids)
 end
 
 return Socket
