@@ -2,6 +2,7 @@ local timer = require('timer')
 local Stopwatch = require('../utils/Stopwatch')
 
 local format = string.format
+local wrap = coroutine.wrap
 local insert, concat, keys = table.insert, table.concat, table.keys
 
 local function warning(client, object, id, event)
@@ -371,6 +372,30 @@ function EventHandler.VOICE_STATE_UPDATE(data, client)
 		client:emit('voiceConnect', member, mute, deaf)
 		client:emit('voiceChannelJoin', member, new)
 	end
+end
+
+function EventHandler.VOICE_SERVER_UPDATE(data, client)
+
+	local guild_id = data.guild_id
+	local user_id = client._user._id
+
+	local guild = client._guilds:get(guild_id)
+	if not guild then return warning(client, 'Guild', guild_id, 'VOICE_STATE_UPDATE') end
+	local state = guild._voice_states[user_id]
+
+	local socket = client._voice_socket
+
+	wrap(function()
+		socket:connect(data.endpoint)
+		socket:identify({
+			server_id = guild_id,
+			user_id = user_id,
+			session_id = state.session_id,
+			token = data.token,
+		})
+		return socket:handlePayloads()
+	end)()
+
 end
 
 return EventHandler
