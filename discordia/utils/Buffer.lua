@@ -118,7 +118,7 @@ local function toHex(self, i, j)
 	local str = {}
 	i = i or 0
 	j = j or self._len
-	for n = i, j do
+	for n = i, j - 1 do
 		str[n + 1] = tohex(self[n], 2)
 	end
 	return concat(str, ' ')

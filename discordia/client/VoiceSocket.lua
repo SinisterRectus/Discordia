@@ -3,6 +3,7 @@ local json = require('json')
 local timer = require('timer')
 local websocket = require('coro-websocket')
 local Buffer = require('../utils/Buffer')
+local ffi = require('ffi')
 
 local time = os.time
 local encode, decode = json.encode, json.decode
@@ -38,8 +39,9 @@ function VoiceSocket:handlePayloads()
 			self:startHeartbeat(d.heartbeat_interval)
 			self:handshake(d.ip, d.port, d.ssrc)
 		elseif op == 4 then
-			self._key = payload.d.secret_key
-			self._client:emit('connect')
+			local client = self._client
+			client._key = ffi.new('const unsigned char[32]', payload.d.secret_key)
+			client:emit('connect')
 		end
 
 	end
@@ -67,6 +69,12 @@ function VoiceSocket:handshake(ip, port, ssrc)
 				port = a * 0x100 + b,
 				mode = 'xsalsa20_poly1305',
 			})
+
+			local client = self._client
+			client._ip = ip
+			client._port = port
+			client._ssrc = ssrc
+			client._udp = udp
 
 		end
 
