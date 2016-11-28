@@ -37,10 +37,9 @@ function VoiceSocket:handlePayloads()
 			local d = payload.d
 			self:startHeartbeat(d.heartbeat_interval)
 			self:handshake(d.ip, d.port, d.ssrc)
-		elseif op == 3 then
-			-- heartbeat acknowledgement
 		elseif op == 4 then
-			-- session description
+			self._key = payload.d.secret_key
+			self._client:emit('connect')
 		end
 
 	end

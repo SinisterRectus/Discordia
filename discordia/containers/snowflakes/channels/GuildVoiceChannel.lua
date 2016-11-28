@@ -2,7 +2,7 @@ local GuildChannel = require('./GuildChannel')
 
 local clamp = math.clamp
 
-local GuildVoiceChannel, property, method = class('GuildVoiceChannel', GuildChannel)
+local GuildVoiceChannel, property = class('GuildVoiceChannel', GuildChannel)
 GuildVoiceChannel.__description = "Represents a Discord guild voice channel."
 
 function GuildVoiceChannel:__init(data, parent)
@@ -28,13 +28,7 @@ local function setUserLimit(self, limit)
 	return success
 end
 
-local function join(self, selfMute, selfDeaf)
-	return self.client._socket:joinVoiceChannel(self._parent._id, self._id, selfMute, selfDeaf)
-end
-
 property('bitrate', '_bitrate', setBitrate, '[number]', "Channel bitrate in bits per seconds (8000 to 96000 or 128000 for VIP guilds, default: 64000)")
 property('userLimit', '_user_limit', setUserLimit, '[number]', "Limit to the number of users allowed in the channel (use 0 for infinite, default: 0)")
-
-method('join', join, '[selfMute, selfDead]', 'Joins the voice channel.')
 
 return GuildVoiceChannel
