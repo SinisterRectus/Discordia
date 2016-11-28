@@ -1,3 +1,4 @@
+local opus = require('../opus')
 local Emitter = require('../utils/Emitter')
 local VoiceSocket = require('./VoiceSocket')
 
@@ -5,6 +6,7 @@ local VoiceClient = class('VoiceClient', Emitter)
 
 function VoiceClient:__init()
 	Emitter.__init(self)
+	self._encoder = opus.Encoder(48000, 2)
 	self._voice_socket = VoiceSocket(self)
 end
 
