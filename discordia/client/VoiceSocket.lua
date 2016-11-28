@@ -70,11 +70,7 @@ function VoiceSocket:handshake(ip, port, ssrc)
 				mode = 'xsalsa20_poly1305',
 			})
 
-			local client = self._client
-			client._ip = ip
-			client._port = port
-			client._ssrc = ssrc
-			client._udp = udp
+			self._client:_prepare(udp, ip, port, ssrc)
 
 		end
 

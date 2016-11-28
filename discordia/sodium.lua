@@ -1,5 +1,5 @@
-local ffi = require("ffi")
-local lib = ffi.load("libsodium")
+local ffi = require('ffi')
+local lib = ffi.load('libsodium')
 
 local new, string = ffi.new, ffi.string
 

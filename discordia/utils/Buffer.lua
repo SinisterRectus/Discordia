@@ -1,4 +1,4 @@
-local Buffer, property, method = class('Buffer')
+local Buffer, _, method = class('Buffer')
 Buffer.__description = "Modified version of Luvit's low-level buffer class."
 
 local ffi = require('ffi')
@@ -25,6 +25,10 @@ function Buffer:__tostring()
 	return ffi.string(self._cdata, self._len)
 end
 
+function Buffer:__len()
+	return self._len
+end
+
 local rawindex = Buffer.__index
 function Buffer:__index(k)
 	if type(k) == 'number' then
@@ -46,18 +50,6 @@ function Buffer:__newindex(k, v)
 		return
 	end
 	return rawnewindex(self, k, v)
-end
-
-function Buffer:__ipairs()
-	local i = -1
-	local len = self._len
-	local cdata = self._cdata
-	return function()
-		if i < len then
-			i = i + 1
-			return i, cdata[i]
-		end
-	end
 end
 
 local function readUInt8(self, k)
@@ -123,8 +115,6 @@ local function toHex(self, i, j)
 	end
 	return concat(str, ' ')
 end
-
-property('length', '_len', nil, 'number', 'Pre-determined length of the buffer')
 
 method('readUInt8', readUInt8, 'offset', 'Reads an unsigned 8-bit integer from the buffer')
 method('readUInt16LE', readUInt16LE, 'offset', 'Reads an unsigned 16-bit little-endian integer from the buffer')
