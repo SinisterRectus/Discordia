@@ -15,7 +15,6 @@ function Invite:__init(data, parent)
 	if data.inviter then
 		self._inviter = self._parent._users:get(data.inviter.id) or self._parent._users:new(data.inviter)
 	end
-	self:_update(data)
 end
 
 function Invite:__tostring()

@@ -9,7 +9,6 @@ Role.__description = "Represents a Discord guild role."
 
 function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self:_update(data)
 end
 
 function Role:__tostring()
@@ -100,7 +99,7 @@ property('position', '_position', setPosition, 'number', "The position setting o
 property('mentionable', '_mentionable', setMentionable, 'boolean', "Whether guild members can mention this role")
 property('color', getColor, setColor, 'Color', "Object representing the role color")
 property('permissions', getPermissions, setPermissions, 'Permissions', "Object representing the role's permissions")
-property('mentionString', getMentionString, nil, 'string', 'string', "Raw string that is parsed by Discord into a role mention")
+property('mentionString', getMentionString, nil, 'string', "Raw string that is parsed by Discord into a role mention")
 
 method('enablePermissions', enablePermissions, 'flag[, ...]', "Enables permissions for the role by flag.")
 method('disablePermissions', disablePermissions, 'flag[, ...]', "Disables permissions for the role by flag.")

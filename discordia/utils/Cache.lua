@@ -32,6 +32,25 @@ function Cache:_remove(obj)
 	self._count = self._count - 1
 end
 
+function Cache:_update(data)
+	local key = self._key
+	local updated = {}
+	for _, obj_data in ipairs(data) do
+		updated[obj_data[key]] = true
+		local obj = self:get(obj_data[key])
+		if obj then
+			obj:_update(obj_data)
+		else
+			self:new(obj_data)
+		end
+	end
+	for obj in self:iter() do
+		if not updated[obj[key]] then
+			self:remove(obj)
+		end
+	end
+end
+
 local function new(self, data)
 	local newObj = self._constructor(data, self._parent)
 	local oldObj = self._objects[newObj[self._key]]

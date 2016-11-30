@@ -9,12 +9,11 @@ PermissionOverwrite.__description = "Represents a Discord guild channel permissi
 
 function PermissionOverwrite:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self:_update(data)
 end
 
 function PermissionOverwrite:__tostring()
 	local obj = self.object
-	return obj and obj._name or self._id
+	return obj and obj.name or self._id
 end
 
 local function getGuild(self)

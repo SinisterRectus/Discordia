@@ -20,23 +20,8 @@ end
 
 function GuildChannel:_update(data)
 	Channel._update(self, data)
-	local overwrites = self._permission_overwrites
 	if #data.permission_overwrites > 0 then
-		local updated = {}
-		for _, overwrite_data in ipairs(data.permission_overwrites) do
-			updated[overwrite_data.id] = true
-			local overwrite = overwrites:get(overwrite_data.id)
-			if overwrite then
-				overwrite:_update(overwrite_data)
-			else
-				overwrites:new(overwrite_data)
-			end
-		end
-		for overwrite in overwrites:iter() do
-			if not updated[overwrite._id] then
-				overwrites:remove(overwrite)
-			end
-		end
+		self._permission_overwrites:_update(data.permission_overwrites)
 	end
 end
 
