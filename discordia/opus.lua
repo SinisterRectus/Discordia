@@ -50,7 +50,7 @@ end
 function Encoder:encode(input, frame_size, max_data_bytes)
 
 	if type(input) == 'string' then
-		input = {input:byte(#input)}
+		input = {input:byte(1, #input)}
 	end
 
 	local pcm = ffi.new('opus_int16[?]', #input, input)
