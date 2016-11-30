@@ -16,7 +16,7 @@ Possible additions
 - Game class
 - Handle unhandled gateway events
 - Helper functions, like getMembersWithRole, ...
-- Guild integrations, emojis, and features
+- Guild integrations and features
 - Voice support
 - Add client layer between the HTTP requests and OO methods
 - Class statics

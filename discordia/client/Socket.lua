@@ -16,11 +16,10 @@ local ignore = {
 	['MESSAGE_ACK'] = true,
 	['CHANNEL_PINS_ACK'] = true,
 	['CHANNEL_PINS_UPDATE'] = true,
-	['GUILD_EMOJIS_UPDATE'] = true,
 	['GUILD_INTEGRATIONS_UPDATE'] = true,
 	['MESSAGE_REACTION_ADD'] = true,
 	['MESSAGE_REACTION_REMOVE'] = true,
-	['WEBHOOKS_UDPATE'] = true,
+	['WEBHOOKS_UPDATE'] = true,
 }
 
 local Socket = class('Socket')

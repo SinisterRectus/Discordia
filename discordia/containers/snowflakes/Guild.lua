@@ -1,5 +1,6 @@
 local Snowflake = require('../Snowflake')
 local Role = require('./Role')
+local Emoji = require('./Emoji')
 local Member = require('./Member')
 local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
@@ -17,6 +18,7 @@ Guild.__description = "Represents a Discord guild (also known as a server)."
 function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._roles = Cache({}, Role, 'id', self)
+	self._emojis = Cache({}, Emoji, 'id', self)
 	self._members = Cache({}, Member, 'id', self)
 	self._text_channels = Cache({}, GuildTextChannel, 'id', self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, 'id', self)
@@ -36,6 +38,7 @@ function Guild:_makeAvailable(data)
 	self:_update(data)
 
 	self._roles:merge(data.roles)
+	self._emojis:merge(data.emojis)
 	self._members:merge(data.members)
 
 	hash(data.voice_states, 'session_id')
@@ -336,6 +339,28 @@ local function findRoles(self, predicate)
 	return self._roles:findAll(predicate)
 end
 
+-- emojis --
+
+local function getEmojiCount(self)
+	return self._emojis._count
+end
+
+local function getEmojis(self, key, value)
+	return self._emojis:getAll(key, value)
+end
+
+local function getEmoji(self, key, value)
+	return self._emojis:get(key, value)
+end
+
+local function findEmoji(self, predicate)
+	return self._emojis:find(predicate)
+end
+
+local function findEmojis(self, predicate)
+	return self._emojis:findAll(predicate)
+end
+
 -- members --
 
 local function getMemberCount(self)
@@ -443,6 +468,7 @@ cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChan
 cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)
 cache('VoiceChannel', getVoiceChannelCount, getVoiceChannel, getVoiceChannels, findVoiceChannel, findVoiceChannels)
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
+cache('Emoji', getEmojiCount, getEmoji, getEmojis, findEmoji, findEmojis)
 cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
 
