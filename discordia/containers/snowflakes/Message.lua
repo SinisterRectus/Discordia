@@ -1,4 +1,5 @@
 local Snowflake = require('../Snowflake')
+local Reaction = require('../Reaction')
 
 local insert = table.insert
 local format, char = string.format, string.char
@@ -20,7 +21,9 @@ function Message:__tostring()
 end
 
 function Message:_update(data)
+
 	Snowflake._update(self, data)
+
 	if data.mentions then
 		local channel = self._parent
 		local client = channel._parent._parent or channel._parent
@@ -32,8 +35,121 @@ function Message:_update(data)
 		self._mentions = mentions
 	end
 	if data.mention_roles ~= nil then self._mention_roles = data.mention_roles end
+
+	if data.reactions then
+		local reactions = {}
+		for _, reaction_data in ipairs(data.reactions) do
+			local emoji = reaction_data.emoji
+			local key = emoji.id or emoji.name
+			reactions[key] = Reaction(reaction_data, self)
+		end
+		self._reactions = reactions
+	end
+
 	self._embeds = data.embeds -- TODO: parse embeds
 	self._attachments = data.attachments -- TODO: parse attachments
+
+end
+
+local httpAdded = {}
+function Message:_addReaction(data, user, http)
+	local emoji = data.emoji
+	local reactions = self._reactions or {}
+	local key = emoji.id or emoji.name
+	local reaction = reactions[key]
+	if reaction then
+		if httpAdded[key] then
+			httpAdded[key] = nil
+			return reaction
+		end
+		reaction._count = reaction._count + 1
+		if user == self.client.user then
+			reaction._me = true
+		end
+	else
+		reaction = Reaction({
+			me = user == self.client.user,
+			count = 1,
+			emoji = emoji
+		}, self)
+		reactions[key] = reaction
+	end
+	httpAdded[key] = http
+	self._reactions = reactions
+	return reaction
+end
+
+local httpRemoved = {}
+function Message:_removeReaction(data, user, http)
+	local emoji = data.emoji
+	local reactions = self._reactions or {}
+	local key = emoji.id or emoji.name
+	local reaction = reactions[key]
+	if reaction then
+		if httpRemoved[key] then
+			httpRemoved[key] = nil
+			return reaction
+		end
+		reaction._count = reaction._count - 1
+		if user == self.client.user then
+			reaction._me = false
+		end
+	else
+		reaction = Reaction({
+			me = user == self.client.user,
+			count = 0,
+			emoji = emoji
+		}, self)
+		reactions[key] = reaction
+	end
+	httpRemoved[key] = http
+	self._reactions = reactions
+	return reaction
+end
+
+local function addReaction(self, emoji)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local str = type(emoji) == 'table' and format('%s:%s', emoji._name, emoji._id) or emoji
+	local success = client._api:createReaction(channel._id, self._id, str)
+	if success then
+		self:_addReaction({emoji = {id = emoji._id, name = emoji._name or emoji}}, self.client.user, true)
+	end
+	return success
+end
+
+local function removeReaction(self, emoji, member) -- or user
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	if type(emoji) == 'table' then
+		emoji = format('%s:%s', emoji._name, emoji._id)
+	end
+	local success
+	if member then
+		success = client._api:deleteUserReaction(channel._id, self._id, emoji, member.id)
+	else
+		success = client._api:deleteOwnReaction(channel._id, self._id, emoji)
+	end
+	if success then
+		self:_removeReaction({emoji = {id = emoji._id, name = emoji._name or emoji}}, self.client.user, true)
+	end
+	return success
+end
+
+local function clearReactions(self)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success = client._api:deleteAllReactions(channel._id, self._id)
+	return success
+end
+
+local function getReactions(self)
+	local reactions, k, v = self._reactions
+	if not reactions then return function() end end
+	return function()
+		k, v = next(reactions, k)
+		return v
+	end
 end
 
 local function setContent(self, content)
@@ -171,11 +287,15 @@ property('guild', getGuild, nil, 'Guild', "The guild in which the message exists
 property('mentionedUsers', getMentionedUsers, nil, 'function', "An iterator for known Users that are mentioned in the message")
 property('mentionedRoles', getMentionedRoles, nil, 'function', "An iterator for known Roles that are mentioned in the message")
 property('mentionedChannels', getMentionedChannels, nil, 'function', "An iterator for known GuildTextChannels that are mentioned in the message")
+property('reactions', getReactions, nil, 'function', "An iterator for known Reactions that this message has")
 
 method('reply', reply, 'content[, mentions, tts, nonce]', "Shortcut for `message.channel:sendMessage`.")
 method('pin', pin, nil, "Adds the message to the channel's pinned messages.")
 method('unpin', unpin, nil, "Removes the message from the channel's pinned messages.")
 method('delete', delete, nil, "Permanently deletes the message from the channel.")
 method('mentionsObject', mentionsObject, 'obj', "Returns a boolean indicating whether the provided object was mentioned in the message.")
+method('addReaction', addReaction, 'emoji', "Adds an emoji (object or string) reaction to the message.")
+method('removeReaction', removeReaction, 'emoji[, member]', "Removes an emoji (object or string) reaction from the message.")
+method('clearReactions', clearReactions, nil, "Removes all emoji reactions from the message.")
 
 return Message

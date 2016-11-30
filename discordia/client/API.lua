@@ -182,9 +182,29 @@ function API:createMessage(channel_id, payload) -- TextChannel:[create|send]Mess
 	return self:request("POST", route, route, payload)
 end
 
-function API:uploadFile(channel_id, payload) -- TODO
-	local route = format("/channels/%s/messages", channel_id)
-	return self:request("POST", route, route, payload)
+function API:createReaction(channel_id, message_id, emoji) -- Message:addReaction
+    local route = format("/channels/%s/messages/%%s/reactions/%%s/@me", channel_id)
+    return self:request("PUT", route, format(route, message_id, emoji))
+end
+
+function API:deleteOwnReaction(channel_id, message_id, emoji) -- Message:removeReaction
+    local route = format("/channels/%s/messages/%%s/reactions/%%s/@me", channel_id)
+    return self:request("DELETE", route, format(route, message_id, emoji))
+end
+
+function API:deleteUserReaction(channel_id, message_id, emoji, user_id) -- Message:removeReaction
+    local route = format("/channels/%s/messages/%%s/reactions/%%s/%%s", channel_id)
+    return self:request("DELETE", route, format(route, message_id, emoji, user_id))
+end
+
+function API:getReactions(channel_id, message_id, emoji) -- not exposed, use "cache"
+    local route = format("/channels/%s/messages/%%s/reactions/%%s", channel_id)
+    return self:request("GET", route, format(route, message_id, emoji))
+end
+
+function API:deleteAllReactions(channel_id, message_id) -- Message:clearReactions
+    local route = format("/channels/%s/messages/%%s/reactions", channel_id)
+    return self:request("DELETE", route, format(route, message_id))
 end
 
 function API:editMessage(channel_id, message_id, payload) -- Message:setContent

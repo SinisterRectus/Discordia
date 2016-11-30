@@ -322,6 +322,28 @@ function EventHandler.MESSAGE_DELETE_BULK(data, client)
 	end
 end
 
+function EventHandler.MESSAGE_REACTION_ADD(data, client)
+	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_REACTION_ADD') end
+	local message = channel._messages:get(data.message_id)
+	if not message then return warning(client, 'Message', data.message_id, 'MESSAGE_REACTION_ADD') end
+	local user = client._users:get(data.user_id)
+	if not user then return warning(client, 'User', data.user_id, 'MESSAGE_REACTION_ADD') end
+	local reaction = message:_addReaction(data, user)
+	return client:emit('reactionAdd', reaction, user)
+end
+
+function EventHandler.MESSAGE_REACTION_REMOVE(data, client)
+	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_REACTION_REMOVE') end
+	local message = channel._messages:get(data.message_id)
+	if not message then return warning(client, 'Message', data.message_id, 'MESSAGE_REACTION_REMOVE') end
+	local user = client._users:get(data.user_id)
+	if not user then return warning(client, 'User', data.user_id, 'MESSAGE_REACTION_REMOVE') end
+	local reaction = message:_removeReaction(data, user)
+	return client:emit('reactionRemove', reaction, user)
+end
+
 function EventHandler.PRESENCE_UPDATE(data, client)
 	if not data.guild_id then return end -- friend update
 	local guild = client._guilds:get(data.guild_id)

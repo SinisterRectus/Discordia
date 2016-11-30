@@ -3,7 +3,6 @@ Probable additions
 - Sanitized channel/role position setting
 - Option to disable event handler
 - Parse message attachments and embeds
-- Message reactions
 - File uploading
 - Sharding
 
