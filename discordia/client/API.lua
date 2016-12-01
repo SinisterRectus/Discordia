@@ -62,7 +62,7 @@ function API:setToken(token)
 	self._headers['Authorization'] = token
 end
 
-function API:request(method, route, endpoint, payload, ContentType)
+function API:request(method, route, endpoint, payload, contentType)
 
 	local url = "https://discordapp.com/api" .. endpoint
 	
