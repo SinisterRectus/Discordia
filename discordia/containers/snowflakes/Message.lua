@@ -152,6 +152,25 @@ local function getReactions(self)
 	end
 end
 
+local function getReactionUsers(self, emoji)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	if type(emoji) == 'table' then
+		emoji = format('%s:%s', emoji._name, emoji._id)
+	end
+	local success, data = client._api:getReactions(channel._id, self._id, emoji)
+	if not success then return function() end end
+	local users = client._users
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return users:get(v.id) or users:new(v)
+		end
+	end
+end
+
 local function setContent(self, content)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
@@ -297,5 +316,6 @@ method('mentionsObject', mentionsObject, 'obj', "Returns a boolean indicating wh
 method('addReaction', addReaction, 'emoji', "Adds an emoji (object or string) reaction to the message.")
 method('removeReaction', removeReaction, 'emoji[, member]', "Removes an emoji (object or string) reaction from the message.")
 method('clearReactions', clearReactions, nil, "Removes all emoji reactions from the message.")
+method('getReactionUsers', getReactionUsers, 'Emoji or string', "Returns an iterator for the Users that have reacted with a specific emoji.")
 
 return Message

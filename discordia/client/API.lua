@@ -197,7 +197,7 @@ function API:deleteUserReaction(channel_id, message_id, emoji, user_id) -- Messa
     return self:request("DELETE", route, format(route, message_id, emoji, user_id))
 end
 
-function API:getReactions(channel_id, message_id, emoji) -- not exposed, use "cache"
+function API:getReactions(channel_id, message_id, emoji) -- Message:getReactionUsers
     local route = format("/channels/%s/messages/%%s/reactions/%%s", channel_id)
     return self:request("GET", route, format(route, message_id, emoji))
 end
