@@ -66,7 +66,7 @@ function VoiceSocket:handshake(ip, port, ssrc)
 
 			wrap(self.selectProtocol)(self, {
 				address = address,
-				port = a * 0x100 + b,
+				port = a + b * 0x100,
 				mode = 'xsalsa20_poly1305',
 			})
 
@@ -118,6 +118,13 @@ end
 
 function VoiceSocket:heartbeat()
 	return send(self, 3, time())
+end
+
+function VoiceSocket:setSpeaking(speaking)
+	return send(self, 5, {
+		speaking = speaking,
+		delay = 0,
+	})
 end
 
 return VoiceSocket
