@@ -66,7 +66,7 @@ function API:request(method, route, endpoint, payload, contentType)
 
 	local url = "https://discordapp.com/api" .. endpoint
 	
-	self._headers['Content-Type'] = ContentType or self._headers['Content-Type']
+	self._headers['Content-Type'] = contentType or self._headers['Content-Type']
 	
 	local reqHeaders = {}
 	for k, v in pairs(self._headers) do
