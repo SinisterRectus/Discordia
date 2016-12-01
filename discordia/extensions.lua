@@ -155,17 +155,20 @@ function string.trim(str)
 	return match(str, '^%s*(.-)%s*$')
 end
 
-function string.padleft(str, len)
-	return rep(' ', len - #str) .. str
+function string.padleft(str, len, pattern)
+	pattern = pattern or ' '
+	return rep(pattern, len - #str) .. str
 end
 
-function string.padright(str, len)
-	return str .. rep(' ', len - #str)
+function string.padright(str, len, pattern)
+	pattern = pattern or ' '
+	return str .. rep(pattern, len - #str)
 end
 
-function string.padcenter(str, len)
+function string.padcenter(str, len, pattern)
+	pattern = pattern or ' '
 	local pad = 0.5 * (len - #str)
-	return rep(' ', floor(pad)) .. str .. rep(' ', ceil(pad))
+	return rep(pattern, floor(pad)) .. str .. rep(pattern, ceil(pad))
 end
 
 function string.startswith(str, pattern, plain)
