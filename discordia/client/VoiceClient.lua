@@ -1,8 +1,7 @@
 local opus = require('../opus')
 local sodium = require('../sodium')
-local ffi = require('ffi')
-local timer = require('timer')
 
+local timer = require('timer')
 local Buffer = require('../utils/Buffer')
 local Emitter = require('../utils/Emitter')
 local Stopwatch = require('../utils/Stopwatch')
@@ -11,8 +10,6 @@ local VoiceSocket = require('./VoiceSocket')
 local max = math.max
 local open = io.open
 local sleep = timer.sleep
-local Encoder = opus.Encoder
-local encrypt = sodium.encrypt
 local unpack, rep, f = string.unpack, string.rep, string.format
 
 local CHANNELS = 2
@@ -24,9 +21,18 @@ local SILENCE = '\xF8\xFF\xFE'
 
 local VoiceClient = class('VoiceClient', Emitter)
 
-function VoiceClient:__init()
+function VoiceClient._loadOpus(filename)
+	opus = opus.load(filename)
+end
+
+function VoiceClient._loadSodium(filename)
+	sodium = sodium.load(filename)
+end
+
+function VoiceClient:__init(client)
 	Emitter.__init(self)
-	self._encoder = Encoder(SAMPLE_RATE, CHANNELS)
+	self._client = client
+	self._encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
 	self._voice_socket = VoiceSocket(self)
 	self._seq = 0
 	self._timestamp = 0
@@ -63,8 +69,7 @@ local function send(self, data)
 	self._seq = self._seq < 0xFFFF and self._seq + 1 or 0
 	self._timestamp = self._timestamp < 0xFFFFFFFF and self._timestamp + FRAME_SIZE or 0
 
-	local encrypted = encrypt(data, tostring(nonce), self._key)
-	assert(data == sodium.decrypt(encrypted, tostring(nonce), self._key)) -- debug
+	local encrypted = sodium.encrypt(data, tostring(nonce), self._key)
 
 	local len = #encrypted
 	local packet = Buffer(12 + len)

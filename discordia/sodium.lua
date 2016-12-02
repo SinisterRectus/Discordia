@@ -1,5 +1,8 @@
-local ffi = require('ffi')
-local lib = ffi.load('libsodium')
+return {load = function(filename)
+
+local ffi = require("ffi")
+local success, lib = pcall(ffi.load, filename)
+if not success then error('File not found: ' .. filename) end
 
 local new, string = ffi.new, ffi.string
 
@@ -29,12 +32,10 @@ int crypto_secretbox_open_easy(
 );
 ]]
 
-local MACBYTES = lib.crypto_secretbox_macbytes()
-
 local function encrypt(decrypted, nonce, key)
 
 	local decrypted_len = #decrypted
-	local encrypted_len = decrypted_len + MACBYTES
+	local encrypted_len = decrypted_len + lib.crypto_secretbox_macbytes()
 
 	local encrypted = new('unsigned char[?]', encrypted_len)
 
@@ -49,7 +50,7 @@ end
 local function decrypt(encrypted, nonce, key)
 
 	local encrypted_len = #encrypted
-	local decrypted_len = encrypted_len - MACBYTES
+	local decrypted_len = encrypted_len - lib.crypto_secretbox_macbytes()
 
 	local decrypted = new('unsigned char[?]', decrypted_len)
 
@@ -65,3 +66,5 @@ return {
 	encrypt = encrypt,
 	decrypt = decrypt,
 }
+
+end}
