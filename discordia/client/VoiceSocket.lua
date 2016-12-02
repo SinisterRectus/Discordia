@@ -55,25 +55,18 @@ function VoiceSocket:handshake(ip, port, ssrc)
 	local udp = uv.new_udp()
 
 	udp:recv_start(function(err, msg)
-
 		assert(not err, err)
-
 		if msg then
-
 			udp:recv_stop()
 			local address = msg:match('%d.*%d')
 			local a, b = msg:sub(-2):byte(1, 2)
-
 			wrap(self.selectProtocol)(self, {
 				address = address,
 				port = a + b * 0x100,
 				mode = 'xsalsa20_poly1305',
 			})
-
 			self._client:_prepare(udp, ip, port, ssrc)
-
 		end
-
 	end)
 
 	local buffer = Buffer(70)
