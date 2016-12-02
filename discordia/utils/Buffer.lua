@@ -1,10 +1,10 @@
-local Buffer, property, method = class('Buffer')
+local Buffer, _, method = class('Buffer')
 Buffer.__description = "Modified version of Luvit's low-level buffer class."
 
 local ffi = require('ffi')
 
 local concat = table.concat
-local gc, cast = ffi.gc, ffi.cast
+local gc, cast, ffi_copy, ffi_string = ffi.gc, ffi.cast, ffi.copy, ffi.string
 local lshift, rshift, tohex = bit.lshift, bit.rshift, bit.tohex
 
 ffi.cdef[[
@@ -16,13 +16,23 @@ ffi.cdef[[
 
 local C = ffi.os == 'Windows' and ffi.load('msvcrt') or ffi.C
 
-function Buffer:__init(len)
-	self._len = len
-	self._cdata = gc(cast('unsigned char*', C.calloc(len, 1)), C.free)
+function Buffer:__init(arg)
+	if type(arg) == 'number' then
+		self._len = arg
+		self._cdata = gc(cast('unsigned char*', C.calloc(arg, 1)), C.free)
+	elseif type(arg) == 'string' then
+		self._len = #arg
+		self._cdata = gc(cast("unsigned char*", C.calloc(self._len, 1)), C.free)
+		ffi_copy(self._cdata, arg, self._len)
+	end
 end
 
 function Buffer:__tostring()
-	return ffi.string(self._cdata, self._len)
+	return ffi_string(self._cdata, self._len)
+end
+
+function Buffer:__len()
+	return self._len
 end
 
 local rawindex = Buffer.__index
@@ -46,18 +56,6 @@ function Buffer:__newindex(k, v)
 		return
 	end
 	return rawnewindex(self, k, v)
-end
-
-function Buffer:__ipairs()
-	local i = -1
-	local len = self._len
-	local cdata = self._cdata
-	return function()
-		if i < len then
-			i = i + 1
-			return i, cdata[i]
-		end
-	end
 end
 
 local function readUInt8(self, k)
@@ -108,23 +106,35 @@ local function writeUInt32BE(self, k, v)
 	self[k + 3] = v
 end
 
+local function writeString(self, k, str, len)
+	k = k or 0
+	len = len or #str
+	ffi_copy(self._cdata + k, str, len)
+end
+
 local function toString(self, i, j)
 	i = i or 0
 	j = j or self._len
-	return ffi.string(self._cdata + i, j - i)
+	return ffi_string(self._cdata + i, j - i)
 end
 
 local function toHex(self, i, j)
 	local str = {}
 	i = i or 0
 	j = j or self._len
-	for n = i, j do
+	for n = i, j - 1 do
 		str[n + 1] = tohex(self[n], 2)
 	end
 	return concat(str, ' ')
 end
 
-property('length', '_len', nil, 'number', 'Pre-determined length of the buffer')
+local function copy(self, target, targetStart, sourceStart, sourceEnd)
+	targetStart = targetStart or 0
+	sourceStart = sourceStart or 0
+	sourceEnd = sourceEnd or self._len
+	local len = sourceEnd - sourceStart
+	ffi_copy(target._cdata + targetStart, self._cdata + sourceStart, len)
+end
 
 method('readUInt8', readUInt8, 'offset', 'Reads an unsigned 8-bit integer from the buffer')
 method('readUInt16LE', readUInt16LE, 'offset', 'Reads an unsigned 16-bit little-endian integer from the buffer')
@@ -137,8 +147,10 @@ method('writeUInt16LE', writeUInt16LE, 'offset', 'Writes an unsigned 16-bit litt
 method('writeUInt16BE', writeUInt16BE, 'offset', 'Writes an unsigned 16-bit big-endian integer to the buffer')
 method('writeUInt32LE', writeUInt32LE, 'offset', 'Writes an unsigned 32-bit little-endian integer to the buffer')
 method('writeUInt32BE', writeUInt32BE, 'offset', 'Writes an unsigned 32-bit big-endian integer to the buffer')
+method('writeString', writeString, 'offset, string[, len]', 'Writes a Lua string to the buffer')
 
 method('toString', toString, '[i, j]', 'Returns a slice of the buffer as a raw string')
 method('toHex', toHex, '[i, j]', 'Returns a slice of the buffer as a hex string')
+method('copy', copy, 'target[, targetStart, sourceStart, sourceEnd]', 'Copies a slice of the buffer into another buffer')
 
 return Buffer
