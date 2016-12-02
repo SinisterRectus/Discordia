@@ -69,7 +69,7 @@ end
 
 function Client:error(message)
 	if self._listeners['error'] then return self:emit('error', message) end
-	log(traceback(running(), message, 2), 'failure')
+	log(self, traceback(running(), message, 2), 'failure')
 	return exit()
 end
 
