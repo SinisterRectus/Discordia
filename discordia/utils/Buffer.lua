@@ -78,6 +78,12 @@ local function readUInt32BE(self, k)
 	return self[k] * 0x1000000 + lshift(self[k + 1], 16) + lshift(self[k + 2], 8) + self[k + 3]
 end
 
+local function readString(self, k, len)
+	k = k or 0
+	len = len or self._len - k
+	return ffi_string(self._cdata + k, len)
+end
+
 local function writeUInt8(self, k, v)
 	self[k] = v
 end
@@ -141,6 +147,7 @@ method('readUInt16LE', readUInt16LE, 'offset', 'Reads an unsigned 16-bit little-
 method('readUInt16BE', readUInt16BE, 'offset', 'Reads an unsigned 16-bit big-endian integer from the buffer')
 method('readUInt32LE', readUInt32LE, 'offset', 'Reads an unsigned 32-bit little-endian integer from the buffer')
 method('readUInt32BE', readUInt32BE, 'offset', 'Reads an unsigned 32-bit big-endian integer from the buffer')
+method('readString', readString, '[offset, len]', 'Reads a Lua string from the buffer')
 
 method('writeUInt8', writeUInt8, 'offset', 'Writes an unsigned 8-bit integer to the buffer')
 method('writeUInt16LE', writeUInt16LE, 'offset', 'Writes an unsigned 16-bit little-endian integer to the buffer')
