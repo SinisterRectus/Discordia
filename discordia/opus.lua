@@ -1,8 +1,8 @@
-return {load = function(filename)
+return function(filename)
 
 local ffi = require("ffi")
 local success, lib = pcall(ffi.load, filename)
-if not success then error('File not found: ' .. filename) end
+if not success then return error(lib) end
 
 ffi.cdef[[
 typedef int16_t opus_int16;
@@ -72,7 +72,6 @@ end
 local int_ptr = ffi.typeof("int[1]")
 local opus_int32 = ffi.typeof("opus_int32")
 local opus_int32_ptr = ffi.typeof("opus_int32[1]")
-local opus_int16_size = ffi.sizeof("opus_int16")
 
 local Encoder = {}
 Encoder.__index = Encoder
@@ -135,4 +134,4 @@ return {
 	Encoder = ffi.metatype("OpusEncoder", Encoder),
 }
 
-end}
+end

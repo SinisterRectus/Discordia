@@ -1,19 +1,15 @@
 local API = require('./API')
 local Socket = require('./Socket')
+local ClientBase = require('./ClientBase')
 local Cache = require('../utils/Cache')
-local Emitter = require('../utils/Emitter')
 local Invite = require('../containers/Invite')
 local User = require('../containers/snowflakes/User')
 local Guild = require('../containers/snowflakes/Guild')
 local PrivateChannel = require('../containers/snowflakes/channels/PrivateChannel')
-local pp = require('pretty-print')
 
 local open = io.open
-local format = string.format
-local colorize = pp.colorize
-local traceback = debug.traceback
-local date, time, exit = os.date, os.time, os.exit
-local wrap, yield, running = coroutine.wrap, coroutine.yield, coroutine.running
+local time, exit = os.time, os.exit
+local wrap, yield = coroutine.wrap, coroutine.yield
 
 local defaultOptions = {
 	routeDelay = 300,
@@ -25,24 +21,11 @@ local defaultOptions = {
 	dateTime = '%c',
 }
 
-local Client, property, method, cache = class('Client', Emitter)
+local Client, property, method, cache = class('Client', ClientBase)
 Client.__description = "The main point of entry into a Discordia application."
 
 function Client:__init(customOptions)
-	Emitter.__init(self)
-	if customOptions then
-		local options = {}
-		for k, v in pairs(defaultOptions) do
-			if customOptions[k] ~= nil then
-				options[k] = customOptions[k]
-			else
-				options[k] = v
-			end
-		end
-		self._options = options
-	else
-		self._options = defaultOptions
-	end
+	ClientBase.__init(self, customOptions, defaultOptions)
 	self._api = API(self)
 	self._socket = Socket(self)
 	self._users = Cache({}, User, 'id', self)
@@ -56,21 +39,6 @@ function Client:__tostring()
 	else
 		return 'instance of Client'
 	end
-end
-
-local function log(self, message, color)
-	return print(colorize(color, format('%s - %s', date(self._options.dateTime), message)))
-end
-
-function Client:warning(message)
-	if self._listeners['warning'] then return self:emit('warning', message) end
-	return log(self, message, 'highlight')
-end
-
-function Client:error(message)
-	if self._listeners['error'] then return self:emit('error', message) end
-	log(self, traceback(running(), message, 2), 'failure')
-	return exit()
 end
 
 local function getToken(self, email, password)

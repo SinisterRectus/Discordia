@@ -1,16 +1,16 @@
 local opus = require('../opus')
 local sodium = require('../sodium')
 
-local timer = require('timer')
 local Buffer = require('../utils/Buffer')
-local Emitter = require('../utils/Emitter')
+local ClientBase = require('./ClientBase')
 local Stopwatch = require('../utils/Stopwatch')
 local VoiceSocket = require('./VoiceSocket')
+local timer = require('timer')
 
 local max = math.max
 local open = io.open
 local sleep = timer.sleep
-local unpack, rep, f = string.unpack, string.rep, string.format
+local unpack, rep, format = string.unpack, string.rep, string.format
 
 local CHANNELS = 2
 local SAMPLE_RATE = 48000
@@ -19,19 +19,25 @@ local FRAME_SIZE = SAMPLE_RATE * FRAME_DURATION / 1000
 local PCM_LEN = FRAME_SIZE * CHANNELS * 2
 local SILENCE = '\xF8\xFF\xFE'
 
-local VoiceClient = class('VoiceClient', Emitter)
+local defaultOptions = {
+	dateTime = '%c',
+}
+
+local VoiceClient = class('VoiceClient', ClientBase)
 
 function VoiceClient._loadOpus(filename)
-	opus = opus.load(filename)
+	opus = opus(filename)
 end
 
 function VoiceClient._loadSodium(filename)
-	sodium = sodium.load(filename)
+	sodium = sodium(filename)
 end
 
-function VoiceClient:__init(client)
-	Emitter.__init(self)
-	self._client = client
+function VoiceClient:__init(customOptions)
+	ClientBase.__init(self, customOptions, defaultOptions)
+	if type(opus) == 'function' or type(sodium) == 'function' then
+		return self:error('Cannot initialize a VoiceClient before loading voice libraries.')
+	end
 	self._encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
 	self._voice_socket = VoiceSocket(self)
 	self._seq = 0
@@ -49,10 +55,18 @@ function VoiceClient:_prepare(udp, ip, port, ssrc)
 end
 
 function VoiceClient:joinChannel(channel, selfMute, selfDeaf)
+	self._channel = channel
 	local client = channel.client
 	client._voice_client = self
-	self._client = client
 	return client._socket:joinVoiceChannel(channel._parent._id, channel._id, selfMute, selfDeaf)
+end
+
+function VoiceClient:disconnect()
+	local channel = self._channel
+	if not channel then return end
+	local client = channel.client
+	client._socket:joinVoiceChannel(channel._parent._id)
+	self._voice_socket:disconnect()
 end
 
 local function send(self, data)
@@ -87,11 +101,15 @@ end
 
 function VoiceClient:playWAV(filename)
 
-	self._voice_socket:setSpeaking(true)
+	local socket = self._voice_socket
+
+	if not socket._connected then
+		return self:warning(format('Cannot play %q. No voice connection found.', filename))
+	end
 
 	local wav = open(filename, 'rb')
 	if not wav then
-		return self._client:error('File not found: ' .. filename)
+		return self:warning(format('File not found: %q', filename))
 	end
 
 	local header = Buffer(wav:read(44))
@@ -104,18 +122,19 @@ function VoiceClient:playWAV(filename)
 	local bitsPerSample = header:readUInt16LE(34) -- 8, 16, etc
 
 	if chunkId ~= 'RIFF' or fileFormat ~= 'WAVE' or audioFormat ~= 1 then
-		local msg = f('Invalid file format for %s. Must be a 16-bit PCM WAVE.', filename)
-		return self._client:error(msg)
+		return self:warning(format('Invalid file format for %q. Must be a 16-bit PCM WAVE.', filename))
 	end
 
 	if channels ~= 2 or sampleRate ~= 48000 or bitsPerSample ~= 16 then
-		local msg = f('Invalid parameters for %s. Must be 16-bit, 2-channels, 48 kHz.', filename)
-		return self._client:error(msg)
+		return self:warning(format('Invalid parameters for %q. Must be 16-bit, 2-channels, 48 kHz.', filename))
 	end
+
+	socket:setSpeaking(true)
 
 	local elapsed = 0
 	local clock = Stopwatch()
 	local encoder = self._encoder
+
 	while true do
 		local pcm = wav:read(PCM_LEN)
 		if not pcm then break end
@@ -127,7 +146,7 @@ function VoiceClient:playWAV(filename)
 	end
 	send(self, SILENCE)
 
-	self._voice_socket:setSpeaking(false)
+	socket:setSpeaking(false)
 
 end
 

@@ -1,8 +1,8 @@
-return {load = function(filename)
+return function(filename)
 
 local ffi = require("ffi")
 local success, lib = pcall(ffi.load, filename)
-if not success then error('File not found: ' .. filename) end
+if not success then return error(lib) end
 
 local new, string = ffi.new, ffi.string
 
@@ -67,4 +67,4 @@ return {
 	decrypt = decrypt,
 }
 
-end}
+end

@@ -175,8 +175,8 @@ end
 
 function Socket:joinVoiceChannel(guild_id, channel_id, self_mute, self_deaf)
 	return send(self, 4, {
-		guild_id = guild_id,
-		channel_id = channel_id,
+		guild_id = guild_id or json.null,
+		channel_id = channel_id or json.null,
 		self_mute = self_mute or false,
 		self_deaf = self_deaf or false,
 	})

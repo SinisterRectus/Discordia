@@ -27,6 +27,14 @@ function VoiceSocket:connect(endpoint)
 	return self._connected
 end
 
+function VoiceSocket:disconnect()
+	if not self._connected then return end
+	self._connected = false
+	self:stopHeartbeat()
+	self._write()
+	self._res, self._read, self._write = nil, nil, nil
+end
+
 function VoiceSocket:handlePayloads()
 
 	for data in self._read do
