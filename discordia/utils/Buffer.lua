@@ -5,7 +5,7 @@ local ffi = require('ffi')
 
 local concat = table.concat
 local gc, cast, ffi_copy, ffi_string = ffi.gc, ffi.cast, ffi.copy, ffi.string
-local lshift, rshift, tohex = bit.lshift, bit.rshift, bit.tohex
+local lshift, rshift, tohex, tobit = bit.lshift, bit.rshift, bit.tohex, bit.tobit
 
 ffi.cdef[[
 	void *malloc(size_t size);
@@ -58,6 +58,14 @@ function Buffer:__newindex(k, v)
 	return rawnewindex(self, k, v)
 end
 
+local function complement8(value)
+	return value < 0x80 and value or value - 0x100
+end
+
+local function complement16(value)
+	return value < 0x8000 and value or value - 0x10000
+end
+
 local function readUInt8(self, k)
 	return self[k]
 end
@@ -76,6 +84,26 @@ end
 
 local function readUInt32BE(self, k)
 	return self[k] * 0x1000000 + lshift(self[k + 1], 16) + lshift(self[k + 2], 8) + self[k + 3]
+end
+
+local function readInt8(self, k)
+	return complement8(readUInt8(self, k))
+end
+
+local function readInt16LE(self, k)
+	return complement16(readUInt16LE(self, k))
+end
+
+local function readInt16BE(self, k)
+	return complement16(readUInt16BE(self, k))
+end
+
+local function readInt32LE(self, k)
+	tobit(readInt32LE(self, k))
+end
+
+local function readInt32BE(self, k)
+	tobit(readInt32BE(self, k))
 end
 
 local function readString(self, k, len)
@@ -147,6 +175,11 @@ method('readUInt16LE', readUInt16LE, 'offset', 'Reads an unsigned 16-bit little-
 method('readUInt16BE', readUInt16BE, 'offset', 'Reads an unsigned 16-bit big-endian integer from the buffer')
 method('readUInt32LE', readUInt32LE, 'offset', 'Reads an unsigned 32-bit little-endian integer from the buffer')
 method('readUInt32BE', readUInt32BE, 'offset', 'Reads an unsigned 32-bit big-endian integer from the buffer')
+method('readInt8', readInt8, 'offset', 'Reads a signed 8-bit integer from the buffer')
+method('readInt16LE', readInt16LE, 'offset', 'Reads a signed 16-bit little-endian integer from the buffer')
+method('readInt16BE', readInt16BE, 'offset', 'Reads a signed 16-bit big-endian integer from the buffer')
+method('readInt32LE', readInt32LE, 'offset', 'Reads a signed 32-bit little-endian integer from the buffer')
+method('readInt32BE', readInt32BE, 'offset', 'Reads a signed 32-bit big-endian integer from the buffer')
 method('readString', readString, '[offset, len]', 'Reads a Lua string from the buffer')
 
 method('writeUInt8', writeUInt8, 'offset', 'Writes an unsigned 8-bit integer to the buffer')
@@ -154,6 +187,11 @@ method('writeUInt16LE', writeUInt16LE, 'offset', 'Writes an unsigned 16-bit litt
 method('writeUInt16BE', writeUInt16BE, 'offset', 'Writes an unsigned 16-bit big-endian integer to the buffer')
 method('writeUInt32LE', writeUInt32LE, 'offset', 'Writes an unsigned 32-bit little-endian integer to the buffer')
 method('writeUInt32BE', writeUInt32BE, 'offset', 'Writes an unsigned 32-bit big-endian integer to the buffer')
+method('writeInt8', writeUInt8, 'offset', 'Writes an unsigned 8-bit integer to the buffer')
+method('writeInt16LE', writeUInt16LE, 'offset', 'Writes a signed 16-bit little-endian integer to the buffer')
+method('writeInt16BE', writeUInt16BE, 'offset', 'Writes a signed 16-bit big-endian integer to the buffer')
+method('writeInt32LE', writeUInt32LE, 'offset', 'Writes a signed 32-bit little-endian integer to the buffer')
+method('writeInt32BE', writeUInt32BE, 'offset', 'Writes a signed 32-bit big-endian integer to the buffer')
 method('writeString', writeString, 'offset, string[, len]', 'Writes a Lua string to the buffer')
 
 method('toString', toString, '[i, j]', 'Returns a slice of the buffer as a raw string')
