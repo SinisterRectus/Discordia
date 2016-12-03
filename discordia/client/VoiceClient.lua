@@ -16,7 +16,7 @@ local CHANNELS = 2
 local SAMPLE_RATE = 48000
 local FRAME_DURATION = 20 -- ms
 local FRAME_SIZE = SAMPLE_RATE * FRAME_DURATION / 1000
-local PCM_LEN = FRAME_SIZE * CHANNELS * 2
+local PCM_SIZE = FRAME_SIZE * CHANNELS * 2
 local SILENCE = '\xF8\xFF\xFE'
 
 local defaultOptions = {
@@ -95,7 +95,7 @@ local function send(self, data)
 end
 
 local function shorts(str)
-    local len = #str / 2 - 1
+    local len = #str / 2
     return {unpack(rep('<H', len), str)}
 end
 
@@ -136,9 +136,9 @@ function VoiceClient:playWAV(filename)
 	local encoder = self._encoder
 
 	while true do
-		local pcm = wav:read(PCM_LEN)
+		local pcm = wav:read(PCM_SIZE)
 		if not pcm then break end
-		local data = encoder:encode(shorts(pcm), FRAME_SIZE, PCM_LEN)
+		local data = encoder:encode(shorts(pcm), FRAME_SIZE, PCM_SIZE)
 		send(self, data)
 		local delay = FRAME_DURATION + (elapsed - clock.milliseconds)
 		elapsed = elapsed + FRAME_DURATION
