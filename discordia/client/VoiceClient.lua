@@ -61,14 +61,15 @@ end
 function VoiceClient:joinChannel(channel, selfMute, selfDeaf)
 	self._channel = channel
 	local client = channel.client
-	client._voice_client = self
+	client._voice_sockets[channel.guild.id] = self._voice_socket
 	return client._socket:joinVoiceChannel(channel._parent._id, channel._id, selfMute, selfDeaf)
 end
 
-function VoiceClient:disconnect()
+function VoiceClient:disconnect() -- need to fix for multi-voice
 	local channel = self._channel
 	if not channel then return end
 	local client = channel.client
+	client._voice_sockets[channel.guild.id] = nil
 	client._socket:joinVoiceChannel(channel._parent._id)
 	self._voice_socket:disconnect()
 end

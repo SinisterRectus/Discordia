@@ -31,6 +31,7 @@ function Client:__init(customOptions)
 	self._users = Cache({}, User, 'id', self)
 	self._guilds = Cache({}, Guild, 'id', self)
 	self._private_channels = Cache({}, PrivateChannel, 'id', self)
+	self._voice_sockets = {}
 end
 
 function Client:__tostring()
