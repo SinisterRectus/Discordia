@@ -7,6 +7,7 @@ local timer = require('timer')
 local sleep = timer.sleep
 local max, clamp = math.max, math.clamp
 local unpack, rep, format = string.unpack, string.rep, string.format
+local running, resume, yield = coroutine.running, coroutine.resume, coroutine.yield
 
 local CHANNELS = 2
 local SAMPLE_RATE = 48000
@@ -17,6 +18,7 @@ local SILENCE = '\xF8\xFF\xFE'
 
 local defaultOptions = {
 	dateTime = '%c',
+	bitrate = 64000,
 }
 
 local VoiceClient = class('VoiceClient', ClientBase)
@@ -42,7 +44,7 @@ function VoiceClient:__init(customOptions)
 		return self:error('Cannot initialize a VoiceClient before loading voice libraries.')
 	end
 	self._encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
-	self._encoder:set_bitrate(64000)
+	self._encoder:set_bitrate(self._options.bitrate)
 	self._voice_socket = VoiceSocket(self)
 	self._seq = 0
 	self._timestamp = 0
@@ -151,6 +153,12 @@ function VoiceClient:play(filename)
 		local delay = FRAME_DURATION + (elapsed - clock.milliseconds)
 		elapsed = elapsed + FRAME_DURATION
 		sleep(max(0, delay))
+		while self._paused do
+			self._paused = running()
+			yield()
+			elapsed = 0
+			clock:restart()
+		end
 	end
 	send(self, SILENCE)
 
@@ -159,10 +167,23 @@ function VoiceClient:play(filename)
 
 end
 
+function VoiceClient:pause()
+	self._paused = true
+end
+
+function VoiceClient:resume()
+	local paused = self._paused
+	self._paused = false
+	if type(paused) == 'thread' then
+		resume(paused)
+	end
+end
+
 function VoiceClient:stop()
 	local pipe = self._pipe
 	if not pipe then return end
 	pcall(pipe.close, pipe)
+	self:resume()
 end
 
 return VoiceClient
