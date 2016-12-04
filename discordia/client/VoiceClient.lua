@@ -4,8 +4,8 @@ local Stopwatch = require('../utils/Stopwatch')
 local VoiceSocket = require('./VoiceSocket')
 local timer = require('timer')
 
-local max = math.max
 local sleep = timer.sleep
+local max, clamp = math.max, math.clamp
 local unpack, rep, format = string.unpack, string.rep, string.format
 
 local CHANNELS = 2
@@ -42,6 +42,7 @@ function VoiceClient:__init(customOptions)
 		return self:error('Cannot initialize a VoiceClient before loading voice libraries.')
 	end
 	self._encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
+	self._encoder:set_bitrate(64000)
 	self._voice_socket = VoiceSocket(self)
 	self._seq = 0
 	self._timestamp = 0
@@ -70,6 +71,14 @@ function VoiceClient:disconnect()
 	local client = channel.client
 	client._socket:joinVoiceChannel(channel._parent._id)
 	self._voice_socket:disconnect()
+end
+
+function VoiceClient:getBitrate()
+	return self._encoder:get_bitrate()
+end
+
+function VoiceClient:setBitrate(bitrate)
+	return self._encoder:set_bitrate(clamp(bitrate, 8000, 128000))
 end
 
 local function send(self, data)
