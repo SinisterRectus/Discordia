@@ -59,18 +59,26 @@ function VoiceClient:_prepare(udp, ip, port, ssrc)
 end
 
 function VoiceClient:joinChannel(channel, selfMute, selfDeaf)
+	local current = self._channel
+	local id = channel._parent._id
+	if current and current._parent._id ~= id then
+		self:disconnect() -- guild switch
+	end
 	self._channel = channel
 	local client = channel.client
-	client._voice_sockets[channel.guild.id] = self._voice_socket
-	return client._socket:joinVoiceChannel(channel._parent._id, channel._id, selfMute, selfDeaf)
+	client._voice_sockets[id] = self._voice_socket
+	return client._socket:joinVoiceChannel(id, channel._id, selfMute, selfDeaf)
 end
 
-function VoiceClient:disconnect() -- need to fix for multi-voice
+function VoiceClient:disconnect()
 	local channel = self._channel
 	if not channel then return end
+	self:stop()
+	self._channel = nil
 	local client = channel.client
-	client._voice_sockets[channel.guild.id] = nil
-	client._socket:joinVoiceChannel(channel._parent._id)
+	local id = channel._parent._id
+	client._voice_sockets[id] = nil
+	client._socket:joinVoiceChannel(id)
 	self._voice_socket:disconnect()
 end
 
