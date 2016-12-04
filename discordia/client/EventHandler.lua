@@ -386,18 +386,21 @@ function EventHandler.VOICE_STATE_UPDATE(data, client)
 				local old = guild._voice_channels:get(state.channel_id)
 				local new = guild._voice_channels:get(data.channel_id)
 				guild._voice_states[id] = data
+				member._voice_channel = new
 				client:emit('voiceChannelLeave', member, old)
 				client:emit('voiceChannelJoin', member, new)
 			end
 		else
 			guild._voice_states[id] = nil
 			local old = guild._voice_channels:get(state.channel_id)
+			member._voice_channel = nil
 			client:emit('voiceChannelLeave', member, old)
 			client:emit('voiceDisconnect', member, mute, deaf)
 		end
 	else
 		guild._voice_states[id] = data
 		local new = guild._voice_channels:get(data.channel_id)
+		member._voice_channel = new
 		client:emit('voiceConnect', member, mute, deaf)
 		client:emit('voiceChannelJoin', member, new)
 	end

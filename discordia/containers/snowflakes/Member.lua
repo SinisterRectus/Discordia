@@ -69,6 +69,7 @@ end
 local function setVoiceChannel(self, channel)
 	local guild = self._parent
 	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {channel_id = channel._id})
+	if success then self._voice_channel = channel end
 	return success
 end
 
@@ -82,6 +83,10 @@ end
 
 local function getName(self)
 	return self._nick or self._user._username
+end
+
+local function getVoiceChannel(self)
+	return self._voice_channel
 end
 
 -- User-compatability methods --
@@ -208,6 +213,7 @@ property('nickname', '_nick', setNick, 'string', "The member's nickname for the 
 property('user', '_user', nil, 'User', "The base user associated with this member")
 property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
 property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
+property('voiceChannel', getVoiceChannel, setVoiceChannel, 'GuildVoiceChannel', "If connected, this is the member's voice channel.")
 
 method('setMute', setMute, '[boolean]', "Mutes or unmutes the member guild-wide (default: false).")
 method('setDeaf', setDeaf, '[boolean]', "Deafens or undeafens the member guild-wide (default: false).")
@@ -218,7 +224,6 @@ method('unban', unban, '[guild]', "Shortcut for `member.user:unban`. The member'
 method('kick', kick, '[guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
 method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
 method('removeRoles', removeRoles, 'roles[, ...]', "Removes a role or roles from the member.")
-method('setVoiceChannel', setVoiceChannel, 'channel', "Moves a member to a voice channel if they are already in one.")
 
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 
