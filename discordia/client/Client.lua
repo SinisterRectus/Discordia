@@ -64,7 +64,7 @@ local function run(self, a, b)
 	end)()
 end
 
-local function stop(self, shouldExit)
+local function stop(self, shouldExit) -- should probably rename to disconnect
 	if self._socket then self._socket:disconnect() end
 	if shouldExit then exit() end
 end

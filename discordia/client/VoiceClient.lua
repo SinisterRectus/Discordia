@@ -1,6 +1,3 @@
-local opus = require('../opus')
-local sodium = require('../sodium')
-
 local Buffer = require('../utils/Buffer')
 local ClientBase = require('./ClientBase')
 local Stopwatch = require('../utils/Stopwatch')
@@ -8,7 +5,6 @@ local VoiceSocket = require('./VoiceSocket')
 local timer = require('timer')
 
 local max = math.max
-local open = io.open
 local sleep = timer.sleep
 local unpack, rep, format = string.unpack, string.rep, string.format
 
@@ -25,12 +21,19 @@ local defaultOptions = {
 
 local VoiceClient = class('VoiceClient', ClientBase)
 
+local opus = require('../opus')
 function VoiceClient._loadOpus(filename)
 	opus = opus(filename)
 end
 
+local sodium = require('../sodium')
 function VoiceClient._loadSodium(filename)
 	sodium = sodium(filename)
+end
+
+local ffmpeg
+function VoiceClient._loadFFmpeg(filename)
+	ffmpeg = filename
 end
 
 function VoiceClient:__init(customOptions)
@@ -99,7 +102,11 @@ local function shorts(str)
     return {unpack(rep('<H', len), str)}
 end
 
-function VoiceClient:playWAV(filename)
+function VoiceClient:play(filename)
+
+	if not ffmpeg then
+		return self:warning('FFmpeg not loaded. Cannot play audio files.')
+	end
 
 	local socket = self._voice_socket
 
@@ -107,27 +114,10 @@ function VoiceClient:playWAV(filename)
 		return self:warning(format('Cannot play %q. No voice connection found.', filename))
 	end
 
-	local wav = open(filename, 'rb')
-	if not wav then
-		return self:warning(format('File not found: %q', filename))
-	end
+	if self._pipe then self._pipe:close() end
 
-	local header = Buffer(wav:read(44))
-
-	local chunkId = header:toString(0, 4) -- 'RIFF'
-	local fileFormat = header:toString(8, 12) -- 'WAVE'
-	local audioFormat = header:readUInt16LE(20) -- 1
-	local channels = header:readUInt16LE(22) -- 1, 2, etc
-	local sampleRate = header:readUInt32LE(24) -- 8000, 44100, etc
-	local bitsPerSample = header:readUInt16LE(34) -- 8, 16, etc
-
-	if chunkId ~= 'RIFF' or fileFormat ~= 'WAVE' or audioFormat ~= 1 then
-		return self:warning(format('Invalid file format for %q. Must be a 16-bit PCM WAVE.', filename))
-	end
-
-	if channels ~= 2 or sampleRate ~= 48000 or bitsPerSample ~= 16 then
-		return self:warning(format('Invalid parameters for %q. Must be 16-bit, 2-channels, 48 kHz.', filename))
-	end
+	local pipe = io.popen(format('%s -y -i %s -ar 48000 -ac 2 -f s16le pipe:1 -loglevel fatal', ffmpeg, filename))
+	self._pipe = pipe
 
 	socket:setSpeaking(true)
 
@@ -136,8 +126,8 @@ function VoiceClient:playWAV(filename)
 	local encoder = self._encoder
 
 	while true do
-		local pcm = wav:read(PCM_SIZE)
-		if not pcm then break end
+		local success, pcm = pcall(pipe.read, pipe, PCM_SIZE)
+		if not success or not pcm then break end
 		local data = encoder:encode(shorts(pcm), FRAME_SIZE, PCM_SIZE)
 		send(self, data)
 		local delay = FRAME_DURATION + (elapsed - clock.milliseconds)
@@ -146,8 +136,14 @@ function VoiceClient:playWAV(filename)
 	end
 	send(self, SILENCE)
 
+	pcall(pipe.close, pipe)
 	socket:setSpeaking(false)
 
+end
+
+function VoiceClient:stop()
+	if not self._pipe then return end
+	self._pipe:close()
 end
 
 return VoiceClient

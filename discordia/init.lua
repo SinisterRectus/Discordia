@@ -11,6 +11,10 @@ local function loadSodium(filename)
 	return VoiceClient._loadSodium(filename)
 end
 
+local function loadFFmpeg(filename)
+	return VoiceClient._loadFFmpeg(filename)
+end
+
 return {
 	Client = require('./client/Client'),
 	Buffer = require('./utils/Buffer'),
@@ -25,4 +29,5 @@ return {
 	VoiceClient = VoiceClient,
 	loadOpus = loadOpus,
 	loadSodium = loadSodium,
+	loadFFmpeg = loadFFmpeg,
 }
