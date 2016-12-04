@@ -114,7 +114,7 @@ function VoiceClient:play(filename)
 		return self:warning(format('Cannot play %q. No voice connection found.', filename))
 	end
 
-	if self._pipe then self._pipe:close() end
+	self:stop()
 
 	local pipe = io.popen(format('%s -y -i %s -ar 48000 -ac 2 -f s16le pipe:1 -loglevel fatal', ffmpeg, filename))
 	self._pipe = pipe
@@ -142,8 +142,9 @@ function VoiceClient:play(filename)
 end
 
 function VoiceClient:stop()
-	if not self._pipe then return end
-	self._pipe:close()
+	local pipe = self._pipe
+	if not pipe then return end
+	pcall(pipe.close, pipe)
 end
 
 return VoiceClient
