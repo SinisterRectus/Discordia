@@ -68,9 +68,7 @@ end
 
 local function setVoiceChannel(self, channel)
 	local guild = self._parent
-	local success = guild._parent._api:modifyGuildMember(guild._id, self._user._id, {channel_id = channel._id})
-	if success then self._voice_channel = channel end
-	return success
+	return (guild._parent._api:modifyGuildMember(guild._id, self._user._id, {channel_id = channel._id}))
 end
 
 local function getStatus(self)
@@ -86,7 +84,9 @@ local function getName(self)
 end
 
 local function getVoiceChannel(self)
-	return self._voice_channel
+	local guild = self._parent
+	local state = guild._voice_states[self._user._id]
+	return state and guild._voice_channels:get(state.channel_id)
 end
 
 -- User-compatability methods --
