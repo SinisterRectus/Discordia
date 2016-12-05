@@ -99,12 +99,11 @@ function VoiceSocket:stopHeartbeat()
 end
 
 local function send(self, op, d)
-	return self._write({
+	return wrap(self._write)({
 		opcode = 1,
 		payload = encode({op = op, d = d})
 	})
 end
-
 
 function VoiceSocket:identify(data)
 	return send(self, 0, data)
