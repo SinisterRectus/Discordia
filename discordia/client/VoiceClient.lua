@@ -155,9 +155,10 @@ function VoiceClient:play(filename)
 		sleep(max(0, delay))
 		while self._paused do
 			self._paused = running()
+			send(self, SILENCE)
+			clock:pause()
 			yield()
-			elapsed = 0
-			clock:restart()
+			clock:resume()
 		end
 	end
 	send(self, SILENCE)

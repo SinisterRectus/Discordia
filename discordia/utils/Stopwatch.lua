@@ -28,9 +28,26 @@ property('microseconds', function(self)
 end, nil, 'number', "Elapsed time in microseconds")
 
 property('nanoseconds', function(self)
-	return hrtime() - self._time
+	return (self._cache or hrtime()) - self._time
 end, nil, 'number', "Elapsed time in nanoseconds")
 
-method('restart', Stopwatch.__init, nil, "Sets the stopwatch's time to zero.")
+local function pause(self)
+	if self._cache then return end
+	self._cache = hrtime()
+end
+
+local function resume(self)
+	if not self._cache then return end
+	self._time = self._time + hrtime() - self._cache
+	self._cache = nil
+end
+
+local function restart(self)
+	self._time = self._cache or hrtime()
+end
+
+method('pause', pause, nil, "Effectively pauses the stopwatch until it is resumed.")
+method('resume', resume, nil, "Effectively resumes the stopwatch if it is paused.")
+method('restart', restart, nil, "Sets the stopwatch's time to zero.")
 
 return Stopwatch
