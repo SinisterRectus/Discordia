@@ -76,7 +76,7 @@ local opus_int32_ptr = ffi.typeof("opus_int32[1]")
 local Encoder = {}
 Encoder.__index = Encoder
 
-function Encoder:__new(sample_rate, channels, app)
+function Encoder:__new(sample_rate, channels, app) -- luacheck:ignore self
 
 	app = app or 2049
 

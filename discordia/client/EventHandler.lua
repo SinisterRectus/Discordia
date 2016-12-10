@@ -2,7 +2,6 @@ local timer = require('timer')
 local Stopwatch = require('../utils/Stopwatch')
 
 local format = string.format
-local wrap = coroutine.wrap
 local insert, concat, keys = table.insert, table.concat, table.keys
 
 local function warning(client, object, id, event)
@@ -388,6 +387,9 @@ function EventHandler.VOICE_STATE_UPDATE(data, client)
 				guild._voice_states[id] = data
 				client:emit('voiceChannelLeave', member, old)
 				client:emit('voiceChannelJoin', member, new)
+				if id == client._user._id then
+					client._voice:_resumeJoin(data.guild_id)
+				end
 			end
 		else
 			guild._voice_states[id] = nil
@@ -404,27 +406,12 @@ function EventHandler.VOICE_STATE_UPDATE(data, client)
 end
 
 function EventHandler.VOICE_SERVER_UPDATE(data, client)
-
-	local guild_id = data.guild_id
-	local user_id = client._user._id
-
-	local guild = client._guilds:get(guild_id)
-	if not guild then return warning(client, 'Guild', guild_id, 'VOICE_STATE_UPDATE') end
-	local state = guild._voice_states[user_id]
-
-	local socket = client._voice_sockets[guild_id]
-
-	wrap(function()
-		socket:connect(data.endpoint)
-		socket:identify({
-			server_id = guild_id,
-			user_id = user_id,
-			session_id = state.session_id,
-			token = data.token,
-		})
-		return socket:handlePayloads()
-	end)()
-
+	local guild = client._guilds:get(data.guild_id)
+	if not guild then return warning(client, 'Guild', data.guild_id, 'VOICE_SERVER_UPDATE') end
+	local state = guild._voice_states[client._user._id]
+	local channel = guild._voice_channels:get(state.channel_id)
+	if not channel then return warning(client, 'GuildVoiceChannel', state.guild_id, 'VOICE_SERVER_UPDATE') end
+	return client._voice:_createVoiceConnection(data, channel, state)
 end
 
 return EventHandler

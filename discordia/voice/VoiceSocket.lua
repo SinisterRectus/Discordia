@@ -13,8 +13,8 @@ local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 
 local VoiceSocket = class('VoiceSocket')
 
-function VoiceSocket:__init(client)
-	self._client = client
+function VoiceSocket:__init(voice)
+	self._voice = voice
 end
 
 function VoiceSocket:connect(endpoint)
@@ -35,30 +35,32 @@ function VoiceSocket:disconnect()
 	self._res, self._read, self._write = nil, nil, nil
 end
 
-function VoiceSocket:handlePayloads()
+function VoiceSocket:handlePayloads(id, connection)
+
+	local voice = self._voice
 
 	for data in self._read do
 
 		local payload = decode(data.payload)
-		local op = payload.op
+		local op, d = payload.op, payload.d
 
 		if op == 2 then
-			local d = payload.d
 			self:startHeartbeat(d.heartbeat_interval)
-			self:handshake(d.ip, d.port, d.ssrc)
+			self:handshake(connection, d.ip, d.port, d.ssrc)
 		elseif op == 4 then
-			local client = self._client
-			client._key = ffi.new('const unsigned char[32]', payload.d.secret_key)
-			client:emit('connect')
+			connection._key = ffi.new('const unsigned char[32]', d.secret_key)
+			voice:_resumeJoin(id)
 		end
 
 	end
 
-	p('voice disconnect') -- debug
+	connection._closed = true
+	connection._udp:close()
+	voice:_resumeLeave(id)
 
 end
 
-function VoiceSocket:handshake(ip, port, ssrc)
+function VoiceSocket:handshake(connection, ip, port, ssrc)
 
 	local udp = uv.new_udp()
 
@@ -73,7 +75,7 @@ function VoiceSocket:handshake(ip, port, ssrc)
 				port = a + b * 0x100,
 				mode = 'xsalsa20_poly1305',
 			})
-			self._client:_prepare(udp, ip, port, ssrc)
+			connection:_prepare(udp, ip, port, ssrc)
 		end
 	end)
 
@@ -86,9 +88,7 @@ end
 function VoiceSocket:startHeartbeat(interval)
 	if self._heartbeatInterval then clearInterval(self._heartbeatInterval) end
 	self._heartbeatInterval = setInterval(interval, wrap(function()
-		while true do
-			yield(self:heartbeat())
-		end
+		while true do yield(self:heartbeat()) end
 	end))
 end
 
