@@ -451,6 +451,7 @@ property('defaultRole', getDefaultRole, nil, 'Role', "The guild's '@everyone' ro
 property('defaultChannel', getDefaultChannel, nil, 'GuildTextChannel', "The guild's default text channel")
 property('bannedUsers', getBannedUsers, nil, 'function', "Iterator for the banned users in the guild")
 property('invites', getInvites, nil, 'function', "Iterator for the guild's invites (not cached)")
+property('connection', '_connection', nil, 'VoiceConnection', "The handle for this guild's voice connection, if one exists")
 
 method('leave', leave, nil, "Leaves the guild.")
 method('delete', delete, nil, "Deletes the guild.")

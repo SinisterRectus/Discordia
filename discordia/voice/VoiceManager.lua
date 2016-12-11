@@ -55,7 +55,7 @@ end
 
 function VoiceManager:_resumeJoin(id)
 	local connection = self._connections[id]
-	connection._channel._connection = connection
+	connection._channel._parent._connection = connection
 	local thread = self._joining[id]
 	self._joining[id] = nil
 	if thread then return assert(resume(thread, connection)) end
@@ -63,7 +63,7 @@ end
 
 function VoiceManager:_resumeLeave(id)
 	local connection = self._connections[id]
-	connection._channel._connection = nil
+	connection._channel._parent._connection = nil
 	self._connections[id] = nil
 	local thread = self._leaving[id]
 	self._leaving[id] = nil
