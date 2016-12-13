@@ -58,12 +58,12 @@ function Socket:disconnect()
 	self._res, self._read, self._write = nil, nil, nil
 end
 
-local function handleUnexpectedDisconnect(self, token)
+local function handleUnexpectedDisconnect(self, client, token)
 	self._client:warning(format('Attemping to reconnect after %i ms...', self._backoff))
 	sleep(self._backoff)
 	incrementReconnectTime(self)
 	if not pcall(self.reconnect, self, token) then
-		return handleUnexpectedDisconnect(self, token)
+		return handleUnexpectedDisconnect(self, client, token)
 	end
 end
 
@@ -117,7 +117,7 @@ function Socket:handlePayloads(token)
 		self:stopHeartbeat()
 		client:warning('Disconnected from gateway unexpectedly')
 		if client._options.autoReconnect then
-			return handleUnexpectedDisconnect(self, token)
+			return handleUnexpectedDisconnect(self, client, token)
 		end
 	end
 

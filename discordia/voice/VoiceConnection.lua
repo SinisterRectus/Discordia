@@ -1,20 +1,15 @@
 local AudioStream = require('./AudioStream')
 local Buffer = require('../utils/Buffer')
 local constants = require('./constants')
-local fs = require('fs')
+local FFmpegPipe = require('./FFmpegPipe')
 
 local PCM_LEN = constants.PCM_LEN
 local PCM_SIZE = constants.PCM_SIZE
 local FRAME_SIZE = constants.FRAME_SIZE
+local FFMPEG = constants.FFMPEG
 
-local exists = fs.existsSync
 local clamp = math.clamp
-local format, unpack, rep = string.format, string.unpack, string.rep
-local popen = io.popen
-
-local function shorts(str)
-    return {unpack(rep('<H', #str / 2), str)}
-end
+local format = string.format
 
 local VoiceConnection, property, method = class('VoiceConnection')
 VoiceConnection.__description = "Represents a connection to a Discord voice server."
@@ -82,19 +77,18 @@ end
 
 local function playFile(self, filename, duration)
 
-	if not exists(filename) then
-		return self._client:warning(format('Cannot open %q. File not found.', filename))
+	if not FFMPEG then
+		return self._client:warning(format('Cannot stream %q. FFmpeg not found.', filename))
 	end
 
-	local pipe = popen(format('ffmpeg -y -i %q -ar 48000 -ac 2 -f s16le pipe:1 -loglevel warning', filename))
+	local pipe = FFmpegPipe(filename, self._client)
 
 	local function source()
-		local success, bytes = pcall(pipe.read, pipe, PCM_SIZE)
-		return success and bytes and shorts(bytes)
+		return pipe:read(PCM_SIZE)
 	end
 
 	play(self, source, duration)
-	pcall(pipe.close, pipe)
+	pipe:close()
 
 end
 
