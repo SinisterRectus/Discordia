@@ -33,10 +33,10 @@ function VoiceManager:_createVoiceConnection(data, channel, state)
 
 	local socket = VoiceSocket(self)
 	local encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
-	encoder:set_bitrate(self._client._options.bitrate)
 
 	local connection = VoiceConnection(encoder, channel, socket, self)
 	self._connections[state.guild_id] = connection
+	connection:setBitrate(self._client._options.bitrate)
 
 	wrap(function()
 		if not socket:connect(data.endpoint) then

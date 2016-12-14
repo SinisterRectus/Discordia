@@ -7,6 +7,8 @@ local PCM_LEN = constants.PCM_LEN
 local PCM_SIZE = constants.PCM_SIZE
 local FRAME_SIZE = constants.FRAME_SIZE
 local FFMPEG = constants.FFMPEG
+local MIN_BITRATE = constants.MIN_BITRATE
+local MAX_BITRATE = constants.MAX_BITRATE
 
 local clamp = math.clamp
 local format = string.format
@@ -67,7 +69,7 @@ local function getBitrate(self)
 end
 
 local function setBitrate(self, bitrate)
-	return self._encoder:set_bitrate(clamp(bitrate, 8000, 128000))
+	return self._encoder:set_bitrate(clamp(bitrate, MIN_BITRATE, MAX_BITRATE))
 end
 
 local function play(self, source, duration)
