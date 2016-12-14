@@ -8,15 +8,20 @@ local function warning(client, object, id, event)
 	return client:warning(format('Uncached %s (%s) on %s', object, id, event))
 end
 
+local function makeReady(client)
+	client._loading = nil
+	client._stopwatch = nil
+	collectgarbage()
+	return client:emit('ready')
+end
+
 local function checkReady(client)
 	for _, v in pairs(client._loading) do
 		if next(v) then
 			return client._stopwatch:restart()
 		end
 	end
-	client._loading = nil
-	client._stopwatch = nil
-	return client:emit('ready')
+	return makeReady(client)
 end
 
 local EventHandler = {}
@@ -72,10 +77,8 @@ function EventHandler.READY(data, client)
 			local ids = concat(keys(loading.chunks), ', ')
 			client:warning('Client may lack offline member data for guild(s): ' .. ids)
 		end
-		client._loading = nil
-		client._stopwatch = nil
 		timer.clearInterval(interval)
-		return client:emit('ready')
+		return makeReady(client)
 	end)
 
 end

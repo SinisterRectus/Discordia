@@ -25,16 +25,16 @@ local Socket = class('Socket')
 
 function Socket:__init(client)
 	self._client = client
-	self._backoff = 1024
+	self._backoff = 1000
 	self._stopwatch = Stopwatch()
 end
 
 local function incrementReconnectTime(self)
-	self._backoff = min(self._backoff * 2, 65536)
+	self._backoff = min(self._backoff * 2, 64000)
 end
 
 local function decrementReconnectTime(self)
-	self._backoff = max(self._backoff / 2, 1024)
+	self._backoff = max(self._backoff / 2, 1000)
 end
 
 function Socket:connect(gateway)
@@ -58,12 +58,12 @@ function Socket:disconnect()
 	self._res, self._read, self._write = nil, nil, nil
 end
 
-local function handleUnexpectedDisconnect(self, client, token)
+local function handleUnexpectedDisconnect(self, token)
 	self._client:warning(format('Attemping to reconnect after %i ms...', self._backoff))
 	sleep(self._backoff)
 	incrementReconnectTime(self)
 	if not pcall(self.reconnect, self, token) then
-		return handleUnexpectedDisconnect(self, client, token)
+		return handleUnexpectedDisconnect(self, token)
 	end
 end
 
@@ -117,7 +117,7 @@ function Socket:handlePayloads(token)
 		self:stopHeartbeat()
 		client:warning('Disconnected from gateway unexpectedly')
 		if client._options.autoReconnect then
-			return handleUnexpectedDisconnect(self, client, token)
+			return handleUnexpectedDisconnect(self, token)
 		end
 	end
 

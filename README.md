@@ -43,31 +43,21 @@ Please visit this project's [Wiki](https://github.com/SinisterRectus/Discordia/w
 
 ### History
 
-The earliest version of Discordia, before it even had that name, was released as a [Just Cause 2 Multiplayer module](https://www.jc-mp.com/forums/index.php/topic,5936.0.html) on 7 March 2016. It utilized LuaSocket, LuaSec, and (eventually) Copas to provide basic REST functionality in a sandboxed Lua 5.2 environment. The goal was to bridge the game chat with a Discord client.
-
-Due to a lack of secure WebSocket support (at the time) and difficulties in developing a stable module, the Just Cause 2 Multiplayer project was put on hold in favor of a general-purpose Lua library for Discord. At the time, [discord.lua](https://github.com/VideahGams/discord.lua), was the only other Discord library of which I was aware. It ran on LuaJIT, was very incomplete, and abandoned by its author indefinitely. I decided to start my Luvit-powered library from scratch.
-
-During the development of Discordia, I discovered that a Luvit library had come before me: [luv-discord](https://github.com/sclark39/luv-discord). Like discord.lua, it was incomplete and had not been updated for months. Here is an honorable mention to [sclark39](https://github.com/sclark39) for doing it first, and for briefly contributing to Discordia.
+The earliest version of Discordia, before it even had that name, was released as a [Just Cause 2 Multiplayer module](https://www.jc-mp.com/forums/index.php/topic,5936.0.html) on 7 March 2016. It utilized LuaSocket, LuaSec, and (eventually) Copas to provide basic REST functionality in a sandboxed Lua 5.2 environment. The goal was to bridge the game chat with a Discord client. Due to a lack of secure WebSocket support (at the time) and difficulties in developing a stable module, the Just Cause 2 Multiplayer project was put on hold in favor of a general-purpose Lua library for Discord. After finishing a relatively stable version of Discordia, I re-designed the JC2MP bridge to interface with Discordia.
 
 ### FAQs
 
 Why Lua?
-- Lua is a scripting language that tends to be beginner-friendly, but powerful in the hands of an advanced user at the same time. Although Lua might not have the same popularity as that of other scripting languages such as Python or JavaScript, Lua's expandability makes it equally as capable as the others, while remaining easy-to-use and often more resource efficient.
+- Lua is a lightweight scripting language that tends to be beginner-friendly, but powerful in the hands of an advanced user at the same time. Although Lua might not have the same popularity as that of other scripting languages such as Python or JavaScript, Lua's expandability makes it equally as capable as the others, while remaining easy-to-use and often more resource efficient.
 
 Why Luvit?
-- Compared to classic Lua or LuaJIT, Luvit is easier to get up and running on all platforms. Luvit's [installation](https://luvit.io/install.html) process is (optionally) automated and uses pre-built [luvi cores](https://github.com/luvit/luvi/releases) when available. Luvit also comes with many libraries essential to async I/O programming and networking. Compared to Node.js, Luvit [advertises](https://luvit.io/blog/luvit-reborn.html) similar speed, but significantly reduced memory consumption. Compared to other Discord libraries, Discordia is expected to perform well due Luvit's use of LuaJIT, although it has not yet been benchmarked.
-
-Can I run Discordia as a stand-alone application?
-- The lit package manager can build stand-alone executables, but Discordia is not currently configured to allow this. It must be run using a luvit executable.
+- Luvit makes Lua web development an easy task on multiple platforms. Its [installation](https://luvit.io/install.html) process is (optionally) automated and uses pre-built [luvi cores](https://github.com/luvit/luvi/releases) when available. It also comes with many libraries essential to async I/O programming and networking. Compared to Node.js, Luvit [advertises](https://luvit.io/blog/luvit-reborn.html) similar speed, but reduced memory consumption. Compared to other Discord libraries, Discordia is expected to perform well due Luvit's use of LuaJIT, although it has not yet been benchmarked.
 
 Can I run this on a different Lua distribution?
-- The development and deployment of Discordia relies on the Luvit framework and its package manager. Porting Discordia and its dependencies to pure Lua or LuaJIT may be possible, but it is not currently a priority.
-
-Does Discordia support voice chat?
-- Voice states are cached in Discordia, but full voice support is not currently available.
+- The development and deployment of Discordia relies on the Luvit framework and its package manager. Porting Discordia and its dependencies to classic Lua or LuaJIT may be possible, but this is not a current project goal.
 
 How can I contribute?
-- Pull requests are welcomed, but please check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
+- Pull requests are welcomed, but please check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too. If you would like to make a monetary contribution, please contact the library author.
 
-Are there other Lua libraries?
-- Discordia was the first Lua library to be officially recognized by the Discord API community. There is a second recognized Lua library, [litcord](https://github.com/satom99/litcord), and at least two abanonded libraries (mentioned above). If you'd like to contribute Lua code to a Discord project, please consider contributing to the Lua libraries already recognized by the Discord API community.
+Are there other Discord libraries?
+- Absolutely. Check the official [libraries](https://discordapp.com/developers/docs/topics/libraries) page of the Discord API documentation or the unofficial Discord API server linked above.
