@@ -1,7 +1,7 @@
 local fs = require('fs')
 local pathjoin = require('pathjoin')
 
-local exists = fs.existsSync
+local stat = fs.statSync
 local pathJoin = pathjoin.pathJoin
 local isWindows = pathjoin.isWindows
 
@@ -9,6 +9,11 @@ local FFMPEG
 local pre = isWindows and '' or './'
 local exe = isWindows and 'ffmpeg.exe' or 'ffmpeg'
 local sep = isWindows and ';' or ':'
+
+local function exists(path)
+	local data = stat(path)
+	return data and data.type == 'file'
+end
 
 if exists(exe) then
 	FFMPEG = pre .. 'ffmpeg'

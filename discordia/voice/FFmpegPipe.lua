@@ -1,8 +1,7 @@
-local uv = require('uv')
+local spawn = require('coro-spawn')
 local constants = require('./constants')
 
-local spawn, new_pipe = uv.spawn, uv.new_pipe
-local running, yield, resume = coroutine.running, coroutine.yield, coroutine.resume
+local wrap = coroutine.wrap
 local unpack, rep = string.unpack, string.rep
 
 local FFMPEG = constants.FFMPEG
@@ -14,49 +13,41 @@ function FFmpegPipe:__init(filename, client)
 	self._eof = false
 	self._data = ''
 
-	local stdin = new_pipe(false)
-	local stdout = new_pipe(false)
-	local stderr = new_pipe(false)
-
-	self._handle = spawn(FFMPEG, {
+	local child = spawn(FFMPEG, {
 		args = {'-i', filename, '-ar', '48000', '-ac', '2', '-f', 's16le', 'pipe:1', '-loglevel', 'warning'},
-		stdio = {stdin, stdout, stderr}
-	}, function() end)
+	})
 
-	stderr:read_start(function(err, chunk)
-		assert(not err, err)
-		if chunk then return client:warning('[FFmpeg] ' .. chunk) end
-	end)
+	local stdin = child.stdin
+	local stdout = child.stdout
+	local stderr = child.stderr
 
-	self._stdin = stdin
-	self._stdout = stdout
-	self._stderr = stderr
+	wrap(function()
+		for chunk in stderr.read do
+			client:warning('[FFmpeg] ' .. chunk)
+		end
+		if not stderr.handle:is_closing() then
+			return stderr.handle:close()
+		end
+	end)()
+
+	self._read = stdout.read
+	self._write = stdin.write
+	self._handles = {child.handle, stdin.handle, stdout.handle}
 
 end
 
 function FFmpegPipe:read(size)
 
-	local eof = self._eof
 	local data = self._data
-	local stdout = self._stdout
+	local read = self._read
 
-	if not eof and #data < size then
-		local thread = running()
-		stdout:read_start(function(err, chunk)
-			assert(not err, err)
-			if chunk then
-				data = data .. chunk
-				if #data > size then
-					stdout:read_stop()
-					resume(thread)
-				end
-			else
-				self._eof = true
-				stdout:read_stop()
-				resume(thread)
-			end
-		end)
-		yield()
+	while not self._eof and #data < size do
+		local chunk = read()
+		if chunk then
+			data = data .. chunk
+		else
+			self._eof = true
+		end
 	end
 
 	local chunk = data:sub(1, size)
@@ -68,14 +59,13 @@ function FFmpegPipe:read(size)
 end
 
 function FFmpegPipe:write(data)
-	self._stdin:write(data)
+	return self._write(data)
 end
 
 function FFmpegPipe:close()
-	if not self._stdin:is_closing() then self._stdin:close() end
-	if not self._stdout:is_closing() then self._stdout:close() end
-	if not self._stderr:is_closing() then self._stderr:close() end
-	if not self._handle:is_closing() then self._handle:close() end
+	for _, handle in ipairs(self._handles) do
+		if not handle:is_closing() then handle:close() end
+	end
 end
 
 return FFmpegPipe
