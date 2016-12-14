@@ -1,5 +1,23 @@
 # Changelog
 
+### 1.2.0
+- Implemented voice-send features
+  - Streaming of PCM data from strings, tables, generators, or an FFmpeg process is now possible
+ - Implemented `VoiceManager`, `VoiceConnection`, `VoiceSocket`, `AudioStream`, and `FFmpegPipe` classes
+ - Implemented a re-written version of Luvit's `Buffer` class
+ - Implemented `libopus` and `libsodium` bindings via LuaJIT FFI
+ - `VOICE_SERVER_UPDATE` is now handled
+ - `Member.voiceChannel` is now an accessible and mutable property
+ - `Guild.connection` and `GuildVoiceChannel.connection` is now an accessible property
+ - Added `GuildVoiceChannel` `join` and `leave` methods
+ - Added `creationix/coro-spawn` dependency
+- Other
+ - Added optional patterns to string pad extensions
+ - Added `pause` and `resume` methods for `Stopwatch`
+ - Outgoing gateway payloads are now coroutine-wrapped
+ - Fixed gateway reconnection bug
+ 
+
 ### 1.1.0
 
 - Implemented emoji features
