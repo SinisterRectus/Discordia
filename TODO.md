@@ -6,6 +6,7 @@
 - Sharding
 - Commands module
 - Logging support
+- Argument checking
 - Group DMs
 - Webhooks
 - Twitch streaming URL

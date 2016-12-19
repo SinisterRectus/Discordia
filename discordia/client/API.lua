@@ -302,7 +302,7 @@ function API:createGuildChannel(guild_id, payload) -- Guild:create[Text|Voice]Ch
 	return self:request("POST", route, route, payload)
 end
 
-function API:modifyGuildChannelPosition(guild_id, payload) -- not exposed, see modifyChannel
+function API:modifyGuildChannelPositions(guild_id, payload) -- TODO
 	local route = format("/guilds/%s/channels", guild_id)
 	return self:request("PATCH", route, route, payload)
 end
@@ -357,7 +357,7 @@ function API:createGuildRole(guild_id, payload) -- Guild:createRole
 	return self:request("POST", route, route, payload)
 end
 
-function API:batchModifyGuildRole(guild_id, payload) -- not exposed, maybe in the future
+function API:modifyGuildRolePositions(guild_id, payload) -- TODO
 	local route = format("/guilds/%s/roles", guild_id)
 	return self:request("PATCH", route, route, payload)
 end
