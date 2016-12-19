@@ -1,5 +1,14 @@
 # Changelog
 
+### 1.2.1
+
+- Fixed issue where PermissionOverwrite tostring value was not properly formatted
+- Voice tweaks
+  - Moved encryption mode to constants module
+  - pcall'd FFmpeg handle closings to avoid rare nil error
+  - Some minor optimizations
+
+
 ### 1.2.0
 - Implemented voice-send features
   - Streaming of PCM data from strings, tables, generators, or an FFmpeg process is now possible
@@ -16,7 +25,7 @@
  - Added `pause` and `resume` methods for `Stopwatch`
  - Outgoing gateway payloads are now coroutine-wrapped
  - Fixed gateway reconnection bug
- 
+
 
 ### 1.1.0
 
