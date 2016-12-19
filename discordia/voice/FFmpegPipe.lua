@@ -17,18 +17,16 @@ function FFmpegPipe:__init(filename, client)
 		args = {'-i', filename, '-ar', '48000', '-ac', '2', '-f', 's16le', 'pipe:1', '-loglevel', 'warning'},
 	})
 
-	local stdin = child.stdin
-	local stdout = child.stdout
-	local stderr = child.stderr
-
 	wrap(function()
+		local stderr = child.stderr
 		for chunk in stderr.read do
 			client:warning('[FFmpeg] ' .. chunk)
 		end
-		if not stderr.handle:is_closing() then
-			return stderr.handle:close()
-		end
+		pcall(stderr.handle.close, stderr.handle)
 	end)()
+
+	local stdin = child.stdin
+	local stdout = child.stdout
 
 	self._read = stdout.read
 	self._write = stdin.write
@@ -64,7 +62,7 @@ end
 
 function FFmpegPipe:close()
 	for _, handle in ipairs(self._handles) do
-		if not handle:is_closing() then handle:close() end
+		pcall(handle.close, handle)
 	end
 end
 

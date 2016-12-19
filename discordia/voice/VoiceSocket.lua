@@ -4,12 +4,15 @@ local timer = require('timer')
 local websocket = require('coro-websocket')
 local Buffer = require('../utils/Buffer')
 local ffi = require('ffi')
+local constants = require('./constants')
 
 local time = os.time
 local encode, decode = json.encode, json.decode
 local wrap, yield = coroutine.wrap, coroutine.yield
 local connect = websocket.connect
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
+
+local MODE = constants.MODE
 
 local VoiceSocket = class('VoiceSocket')
 
@@ -73,7 +76,7 @@ function VoiceSocket:handshake(connection, ip, port, ssrc)
 			wrap(self.selectProtocol)(self, {
 				address = address,
 				port = a + b * 0x100,
-				mode = 'xsalsa20_poly1305',
+				mode = MODE,
 			})
 			connection:_prepare(udp, ip, port, ssrc)
 		end

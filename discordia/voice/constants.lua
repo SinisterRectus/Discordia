@@ -16,11 +16,11 @@ local function exists(path)
 end
 
 if exists(exe) then
-	FFMPEG = pre .. 'ffmpeg'
+	FFMPEG = pre .. exe
 else
 	for dir in (process.env.PATH .. sep):gmatch('(.-)' .. sep) do
 		if exists(pathJoin(dir, exe)) then
-			FFMPEG = 'ffmpeg'
+			FFMPEG = exe
 			break
 		end
 	end
@@ -44,4 +44,5 @@ return {
 	FFMPEG = FFMPEG,
 	MAX_BITRATE = 128000,
 	MIN_BITRATE = 8000,
+	MODE = 'xsalsa20_poly1305',
 }
