@@ -3,6 +3,7 @@ local Snowflake = require('../Snowflake')
 local Permissions = require('../../utils/Permissions')
 
 local band, bnot = bit.band, bit.bnot
+local format = string.format
 
 local PermissionOverwrite, property, method = class('PermissionOverwrite', Snowflake)
 PermissionOverwrite.__description = "Represents a Discord guild channel permission overwrite."
@@ -13,7 +14,7 @@ end
 
 function PermissionOverwrite:__tostring()
 	local obj = self.object
-	return obj and obj.name or self._id
+	return format('%s: %s', self.__name, obj and obj.name or self._id)
 end
 
 local function getGuild(self)
