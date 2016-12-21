@@ -12,4 +12,5 @@ return {
 	OrderedCache = require('./utils/OrderedCache'),
 	Permissions = require('./utils/Permissions'),
 	Stopwatch = require('./utils/Stopwatch'),
+	package = require('./package')
 }
