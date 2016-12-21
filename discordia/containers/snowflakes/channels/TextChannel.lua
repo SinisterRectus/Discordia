@@ -73,7 +73,7 @@ local function getPinnedMessages(self)
 	return _messageIterator(self, client._api:getPinnedMessages(self._id))
 end
 
-local function sendMessage(self, content, mentions, tts)
+local function sendMessage(self, content, mentions, tts, embed)
 	if type(mentions) == 'table' then
 		local strings = {}
 		if mentions.getMentionString then
@@ -96,7 +96,7 @@ local function sendMessage(self, content, mentions, tts)
 	end
 	local client = self._parent._parent or self._parent
 	local success, data = client._api:createMessage(self._id, {
-		content = content, tts = tts
+		content = content, tts = tts, embed = embed
 	})
 	if success then return self._messages:new(data) end
 end
