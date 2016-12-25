@@ -20,3 +20,23 @@
 - bulkDelete and/or getMessageHistory predicate
 - Exposed columns/rows cache accessors
 - Uptime indicator
+- new avatar/icon urls
+- commands extension
+- member hasrole(s)
+- add member addrole/removerole singular, add/remove role endpoint
+- adjust users/me "patch"
+- user.guilds
+- check for invalid client options
+- do not create members on presence update
+- add predicate/kv for cache counting
+- use http fallbacks for uncached event objects
+- add old message content to message update
+- expose rows/columns methods
+- fix uncached member on guild member remove issue (ban?) const user from payload
+- explicitly return nil where necessary
+- clarify in docs which properties may not exist
+- allow adjustable ffmpeg loglevel
+- unicode support
+- add members cache to voice channels
+- check for null sequence
+- find reactions 429 bug
