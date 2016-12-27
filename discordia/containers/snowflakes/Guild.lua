@@ -483,6 +483,7 @@ method('pruneMembers', pruneMembers, '[days]', "Removes members who have not bee
 method('createTextChannel', createTextChannel, 'name', "Creates a new text channel in the guild.")
 method('createVoiceChannel', createVoiceChannel, 'name', "Creates a new voice channel in the guild.")
 method('createRole', createRole, nil, "Creates a new role in the guild.")
+method('getWebhooks', getWebhooks, nil, "Iterator for the guild's Webhook(s) (not cached).")
 
 cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
 cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)
@@ -491,6 +492,5 @@ cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 cache('Emoji', getEmojiCount, getEmoji, getEmojis, findEmoji, findEmojis)
 cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
-cache('Webhook', getWebhooks)
 
 return Guild
