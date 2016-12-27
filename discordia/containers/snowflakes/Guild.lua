@@ -5,6 +5,7 @@ local Member = require('./Member')
 local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
 local Invite = require('../Invite')
+local Webhook = require('../Webhook')
 local Cache = require('../../utils/Cache')
 
 local hash = table.hash
@@ -430,6 +431,24 @@ local function findMessages(self, predicate)
 	end)
 end
 
+-- Webhook --
+
+local function getWebhooks(self)
+	local client = self._parent
+	local success, data = client._api:getGuildWebhooks(self._id)
+	if not success then return function() end end
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Webhook(v, client)
+		end
+	end
+end
+
+-- Webhook
+
 property('vip', '_vip', nil, 'boolean', "Whether the guild is featured by Discord")
 property('name', '_name', setName, 'string', "Name of the guild")
 property('icon', '_icon', setIcon, 'string', "Hash representing the guild's icon")
@@ -472,5 +491,6 @@ cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 cache('Emoji', getEmojiCount, getEmoji, getEmojis, findEmoji, findEmojis)
 cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
+cache('getWebhooks', getWebhooks)
 
 return Guild
