@@ -128,8 +128,8 @@ property('invites', getInvites, nil, 'function', "Returns an iterator for the ch
 
 method('createInvite', createInvite, 'maxAge, maxUses, temporary, unique', "Creates and returns an invite to the channel for users to join.")
 method('getPermissionOverwriteFor', getPermissionOverwriteFor, 'object', "Returns an overwrite for the provided Role or Member")
+method('getWebhooks', getWebhooks, nil, "Returns an iterator for the channel's Webhook(s) (not cached)")
 
 cache('PermissionOverwrite', getPermissionOverwriteCount, getPermissionOverwrite, getPermissionOverwrites, findPermissionOverwrite, findPermissionOverwrites)
-cache('Webhook', getWebhooks)
 
 return GuildChannel
