@@ -13,11 +13,7 @@ function Embed:__init(data, parent)
 end
 
 function Embed:__tostring()
-	return format('%s: %s', self.__name, self._token)
-end
-
-function Embed:__eq(other)
-	return self.__name == other.__name and self._token == other._token
+	return format('%s: %s', self.__name, self._channel_id or "") -- will not always have a channel id
 end
 
 
