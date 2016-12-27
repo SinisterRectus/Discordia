@@ -386,6 +386,36 @@ local function findMembers(self, predicate)
 	return self._members:findAll(predicate)
 end
 
+-- embed --
+
+local function getEmbed(self)
+	local client = self._parent
+	local success, data = client._api:getGuildEmbed(self._id)
+	if not success then return function() end end
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Embed(v, client)
+		end
+	end
+end
+
+local function modifyEmbed(self, payload)
+	local client = self._parent
+	local success, data = client._api:modifyGuildEmbed(self._id, payload)
+	if not success then return function() end end
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Embed(v, client)
+		end
+	end
+end
+
 -- messages --
 
 local function getMessageCount(self)
@@ -464,6 +494,8 @@ method('pruneMembers', pruneMembers, '[days]', "Removes members who have not bee
 method('createTextChannel', createTextChannel, 'name', "Creates a new text channel in the guild.")
 method('createVoiceChannel', createVoiceChannel, 'name', "Creates a new voice channel in the guild.")
 method('createRole', createRole, nil, "Creates a new role in the guild.")
+method('getEmbed', getEmbed, nil, "Iterator for the guild's Embed.")
+method('modifyEmbed', modifyEmbed, nil, "Modifies guild's Embed.")
 
 cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
 cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)
