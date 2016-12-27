@@ -3,6 +3,7 @@ local Socket = require('./Socket')
 local Cache = require('../utils/Cache')
 local Emitter = require('../utils/Emitter')
 local Invite = require('../containers/Invite')
+local Webhook = require('../containers/Webhook')
 local User = require('../containers/snowflakes/User')
 local Guild = require('../containers/snowflakes/Guild')
 local PrivateChannel = require('../containers/snowflakes/channels/PrivateChannel')
@@ -234,6 +235,76 @@ end
 local function getInvite(self, code)
 	local success, data = self._api:getInvite(code)
 	if success then return Invite(data, self) end
+end
+
+local function createWebhook(self, name, avatar)
+	local success, data = self._api:createWebhook({name = name, avatar = avatar})
+	if success then return Webhook(data, self) end
+end
+
+local function getChannelWebhooks(self, channel_id)
+	local success, data = self._api:getChannelWebhooks(channel_id)
+	if success then return Webhook(data, self) end
+end
+
+local function getGuildWebhooks(self, guild_id)
+	local success, data = self._api:getGuildWebhooks(guild_id)
+	if success then return Webhook(data, self) end
+end
+
+local function getWebhook(self, webhook_id)
+	local success, data = self._api:getWebhook(webhook_id)
+	if success then return Webhook(data, self) end
+end
+
+local function getWebhookwithToken(self, webhook_token)
+	local success, data = self._api:getWebhookwithToken(webhook_token)
+	if success then return Webhook(data, self) end
+end
+
+local function modifyWebhook(self, webhook_id, name, avatar)
+	local success, data = self._api:modifyWebhook(webhook_id, {
+		name = name,
+		avatar = avatar,
+	})
+	return success
+end
+
+local function modifyWebhookwithToken(self, webhook_id, webhook_token, name, avatar)
+	local success, data = self._api:modifyWebhookwithToken(webhook_id, webhook_token, {
+		name = name,
+		avatar = avatar,
+	})
+	return success
+end
+
+local function deleteWebhook(self, webhook_id)
+	local success, data = self._api:deleteWebhook(webhook_id)
+	return success
+end
+
+local function executeWebhook(self, webhook_id, webhook_token, payload) -- Not exposed yet, missing header.
+	local payload = payload or {}
+	local success, data = self._parent._api:executeWebhook(webhook_id, webhook_token, payload)
+	return success
+end
+
+local function executeSlackCompatibleWebhook(self, webhook_id, webhook_token, payload)
+	local payload = payload or {}
+	local success, data = self._parent._api:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload)
+	return success
+end
+
+local function executeSlackCompatibleWebhook(self, webhook_id, webhook_token, payload)
+	local payload = payload or {}
+	local success, data = self._parent._api:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload)
+	return success
+end
+
+local function executeGitHubCompatibleWebhook(self, webhook_id, webhook_token, payload)
+	local payload = payload or {}
+	local success, data = self._parent._api:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload)
+	return success
 end
 
 -- cache accessors --
@@ -740,6 +811,16 @@ method('listVoiceRegions', listVoiceRegions, nil, "Returns a table of voice regi
 method('createGuild', createGuild, 'name, region', "Creates a guild with the provided name and voice region.")
 method('acceptInvite', acceptInvite, 'code', "Accepts a guild invitation with the raw invite code.")
 method('getInvite', getInvite, 'code', "Returns an Invite object corresponding to a raw invite code, if it exists.")
+
+method('createWebhook', createWebhook, 'channel id, payload', "Creates a webhook with the provided name and avatar")
+method('getChannelWebhooks', getChannelWebhooks, 'channel id', "Returns webhooks in that channel.")
+method('getWebhook', getWebhook, 'webhook_id', "Returns the webhook depending on it's id.")
+method('getWebhookwithToken', getWebhookwithToken, 'webhook_token', "Returns the webhook depending on it's token.")
+method('modifyWebhook', modifyWebhook, 'webhook_id, name, avatar', "Modifies webhook.")
+method('modifyWebhookwithToken', modifyWebhookwithToken, 'webhook_id, webhook_token, name, avatar', "Modifies webhook with a given token.")
+method('deleteWebhook', deleteWebhook, 'webhook_id', "Deletes webhook.")
+method('executeSlackCompatibleWebhook', executeSlackCompatibleWebhook, 'webhook_id, webhook_token, payload', "Exectules Slack Webhook.")
+method('executeGitHubCompatibleWebhook', executeGitHubCompatibleWebhook, 'webhook_id, webhook_token, payload', "Exectules GitHub Webhook.")
 
 method('setUsername', setUsername, 'username', "Sets the user's username.")
 method('setNickname', setNick, 'guild, nickname', "Sets the user's nickname for the indicated guild.")
