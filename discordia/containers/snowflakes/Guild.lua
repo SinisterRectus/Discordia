@@ -491,6 +491,6 @@ cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 cache('Emoji', getEmojiCount, getEmoji, getEmojis, findEmoji, findEmojis)
 cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
-cache('getWebhooks', getWebhooks)
+cache('Webhook', getWebhooks)
 
 return Guild
