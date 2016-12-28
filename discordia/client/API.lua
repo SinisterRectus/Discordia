@@ -62,7 +62,7 @@ function API:setToken(token)
 	self._headers['Authorization'] = token
 end
 
-function API:request(method, route, endpoint, payload)
+function API:request(method, route, endpoint, payload, isMulti)
 
 	local url = "https://discordapp.com/api" .. endpoint
 
@@ -72,7 +72,12 @@ function API:request(method, route, endpoint, payload)
 	end
 
 	if method:find('P') then
-		payload = payload and encode(payload) or '{}'
+		if isMulti == true then
+			reqHeaders[3][2] = 'multipart/form-data; boundary=Discordia'
+			payload = payload or '{}'
+		else
+			payload = payload and encode(payload) or '{}'
+		end
 		insert(reqHeaders, {'Content-Length', #payload})
 	end
 
@@ -568,6 +573,11 @@ function API:getCurrentApplicationInformation() -- client.owner property
 end
 
 -- end of auto-generated methods --
+
+function API:uploadFile(channel_id, payload)
+	local route = format("/channels/%s/messages", channel_id)
+	return self:request("POST", route, route, payload, true)
+end
 
 function API:getToken(payload) -- Client:run (not recommended)
 	local route = "/auth/login"
