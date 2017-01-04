@@ -113,21 +113,21 @@ local function readString(self, k, len)
 end
 
 local function writeUInt8(self, k, v)
-	self[k] = v
+	self[k] = rshift(v, 0)
 end
 
 local function writeUInt16LE(self, k, v)
-	self[k] = v
+	self[k] = rshift(v, 0)
 	self[k + 1] = rshift(v, 8)
 end
 
 local function writeUInt16BE(self, k, v)
 	self[k] = rshift(v, 8)
-	self[k + 1] = v
+	self[k + 1] = rshift(v, 0)
 end
 
 local function writeUInt32LE(self, k, v)
-	self[k] = v
+	self[k] = rshift(v, 0)
 	self[k + 1] = rshift(v, 8)
 	self[k + 2] = rshift(v, 16)
 	self[k + 3] = rshift(v, 24)
@@ -137,7 +137,7 @@ local function writeUInt32BE(self, k, v)
 	self[k] = rshift(v, 24)
 	self[k + 1] = rshift(v, 16)
 	self[k + 2] = rshift(v, 8)
-	self[k + 3] = v
+	self[k + 3] = rshift(v, 0)
 end
 
 local function writeString(self, k, str, len)
