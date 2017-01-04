@@ -4,7 +4,7 @@ local ffi = require("ffi")
 local success, lib = pcall(ffi.load, filename)
 if not success then return error(lib) end
 
-local new, string = ffi.new, ffi.string
+local new = ffi.new
 
 ffi.cdef[[
 const char *sodium_version_string(void);
@@ -32,33 +32,31 @@ int crypto_secretbox_open_easy(
 );
 ]]
 
-local function encrypt(decrypted, nonce, key)
+local MACBYTES = lib.crypto_secretbox_macbytes()
 
-	local decrypted_len = #decrypted
-	local encrypted_len = decrypted_len + lib.crypto_secretbox_macbytes()
+local function encrypt(decrypted, decrypted_len, nonce, key)
 
+	local encrypted_len = decrypted_len + MACBYTES
 	local encrypted = new('unsigned char[?]', encrypted_len)
 
 	if lib.crypto_secretbox_easy(encrypted, decrypted, decrypted_len, nonce, key) < 0 then
 		return error('libsodium encryption failed')
 	end
 
-	return string(encrypted, encrypted_len)
+	return encrypted, encrypted_len
 
 end
 
 local function decrypt(encrypted, nonce, key)
 
-	local encrypted_len = #encrypted
-	local decrypted_len = encrypted_len - lib.crypto_secretbox_macbytes()
-
+	local decrypted_len = encrypted_len - MACBYTES
 	local decrypted = new('unsigned char[?]', decrypted_len)
 
 	if lib.crypto_secretbox_open_easy(decrypted, encrypted, encrypted_len, nonce, key) < 0 then
 		return error('libsodium decryption failed')
 	end
 
-	return string(decrypted, decrypted_len)
+	return decrypted, decrypted_len
 
 end
 

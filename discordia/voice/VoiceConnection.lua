@@ -24,41 +24,42 @@ function VoiceConnection:__init(encoder, channel, socket, voice)
 	self._encrypt = voice._sodium.encrypt
 	self._client = voice._client
 	self._seq = 0
-	self._timestamp = 0
-	local header = Buffer(12)
-	local nonce = Buffer(24)
-	header[0] = 0x80
-	header[1] = 0x78
-	self._header = header
-	self._nonce = nonce
+	self._timestamp = 0xFFFFFFFF - 2000
+	self._header = Buffer(12)
+	self._nonce = Buffer(24)
 end
 
 function VoiceConnection:_prepare(udp, ip, port, ssrc)
-	self._udp, self._ip, self._port, self._ssrc = udp, ip, port, ssrc
+	self._udp, self._ip, self._port = udp, ip, port
+	local header = self._header
+	header:writeInt8(0, 0x80)
+	header:writeInt8(1, 0x78)
+	header:writeUInt32BE(8, ssrc)
 end
 
-function VoiceConnection:_send(data)
+function VoiceConnection:_send(data, len)
 
 	if self._closed then return end
 
 	local header = self._header
 	local nonce = self._nonce
 
-	header:writeUInt16BE(2, self._seq)
-	header:writeUInt32BE(4, self._timestamp)
-	header:writeUInt32BE(8, self._ssrc)
+	local seq = self._seq
+	local timestamp = self._timestamp
+
+	header:writeUInt16BE(2, seq)
+	header:writeUInt32BE(4, timestamp)
 
 	header:copy(nonce)
 
-	self._seq = self._seq < 0xFFFF and self._seq + 1 or 0
-	self._timestamp = self._timestamp < 0xFFFFFFFF and self._timestamp + FRAME_SIZE or 0
+	self._seq = seq < 0xFFFF and seq + 1 or 0
+	self._timestamp = timestamp < 0xFFFFFFFF and timestamp + FRAME_SIZE or 0
 
-	local encrypted = self._encrypt(data, tostring(nonce), self._key)
+	local encrypted, encrypted_len = self._encrypt(data, len, nonce._cdata, self._key)
 
-	local len = #encrypted
-	local packet = Buffer(12 + len)
+	local packet = Buffer(12 + tonumber(encrypted_len))
 	header:copy(packet)
-	packet:writeString(12, encrypted, len)
+	packet:writeString(12, encrypted, encrypted_len)
 
 	return self._udp:send(tostring(packet), self._ip, self._port)
 

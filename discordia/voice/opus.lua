@@ -4,6 +4,8 @@ local ffi = require("ffi")
 local success, lib = pcall(ffi.load, filename)
 if not success then return error(lib) end
 
+local gc, new, typeof = ffi.gc, ffi.new, ffi.typeof
+
 ffi.cdef[[
 typedef int16_t opus_int16;
 typedef int32_t opus_int32;
@@ -69,9 +71,9 @@ local function throw(code)
 	return error(string.format("[%s] %s", version, message))
 end
 
-local int_ptr = ffi.typeof("int[1]")
-local opus_int32 = ffi.typeof("opus_int32")
-local opus_int32_ptr = ffi.typeof("opus_int32[1]")
+local int_ptr = typeof("int[1]")
+local opus_int32 = typeof("opus_int32")
+local opus_int32_ptr = typeof("opus_int32[1]")
 
 local Encoder = {}
 Encoder.__index = Encoder
@@ -87,7 +89,7 @@ function Encoder:__new(sample_rate, channels, app) -- luacheck:ignore self
 	err = lib.opus_encoder_init(state, sample_rate, channels, app)
 	if err < 0 then return throw(err) end
 
-	ffi.gc(state, lib.opus_encoder_destroy)
+	gc(state, lib.opus_encoder_destroy)
 
 	return state
 
@@ -95,13 +97,13 @@ end
 
 function Encoder:encode(input, frame_size, max_data_bytes)
 
-	local pcm = ffi.new("opus_int16[?]", #input, input)
-	local data = ffi.new("unsigned char[?]", max_data_bytes)
+	local pcm = new("opus_int16[?]", #input, input)
+	local data = new("unsigned char[?]", max_data_bytes)
 
 	local ret = lib.opus_encode(self, pcm, frame_size, data, max_data_bytes)
 	if ret < 0 then return throw(ret) end
 
-	return ffi.string(data, ret)
+	return data, ret
 
 end
 
