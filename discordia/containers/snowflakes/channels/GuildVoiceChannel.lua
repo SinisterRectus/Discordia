@@ -54,7 +54,7 @@ local function join(self)
 	end
 
 	voice._joining[guild_id] = running()
-	setTimeout(10000, function()
+	setTimeout(5000, function()
 		if voice._joining[guild_id] then
 			client:warning('Failed to join voice channel: ' .. self._id)
 			return voice:_resumeJoin(guild_id)
