@@ -1,7 +1,15 @@
 # Changelog
 
-### 1.2.1
+### 1.2.2
+- Added package metadata to main `discordia` module
+- Reduced timeout on voice channel join from 10 to 5 seconds
+- Fixed an overflow when writing the maximum least-significant byte to a buffer
+- Fixed an issue that caused a crash after failing to join a voice channel
+- Added a Clock utility class (not used by the library)
+- Voice optimizations
 
+
+### 1.2.1
 - Fixed issue where PermissionOverwrite tostring value was not properly formatted
 - Voice tweaks
   - Moved encryption mode to constants module
@@ -28,7 +36,6 @@
 
 
 ### 1.1.0
-
 - Implemented emoji features
 	- Added Emoji and Reaction classes
 	- Added message reaction methods
