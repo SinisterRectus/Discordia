@@ -104,7 +104,7 @@ end
 
 local function sendFile(self, data, name, field)
 	if not data or not name then return end
-	local success, data = client._api:uploadFile(self._id, Multipart:attach(data, name, field), true)
+	local success, data = client._api:uploadFile(self._id, Multipart:attach(data, name, field))
 	if success then return self._messages:new(data, self) end
 end
 
