@@ -62,10 +62,12 @@ function API:setToken(token)
 	self._headers['Authorization'] = token
 end
 
-function API:request(method, route, endpoint, payload)
+function API:request(method, route, endpoint, payload, contentType)
 
 	local url = "https://discordapp.com/api" .. endpoint
-
+	
+	self._headers['Content-Type'] = contentType or self._headers['Content-Type']
+	
 	local reqHeaders = {}
 	for k, v in pairs(self._headers) do
 		insert(reqHeaders, {k, v})
