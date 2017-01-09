@@ -101,15 +101,6 @@ local function sendMessage(self, content, mentions, tts)
 	if success then return self._messages:new(data) end
 end
 
-local function sendEmbed(self, embed, content)
-	if not embed then return end
-	local client = self._parent._parent or self._parent
-	local success, data = client._api:createMessage(self._id, {
-	    embed = embed, content = content
-	})
-	if success then return self._messages:new(data, self) end
-end
-
 local function broadcastTyping(self)
 	local client = self._parent._parent or self._parent
 	return (client._api:triggerTypingIndicator(self._id))
@@ -146,7 +137,6 @@ property('pinnedMessages', getPinnedMessages, nil, 'function', "Iterator for all
 method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.")
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.")
 method('sendMessage', sendMessage, 'content[, mentions, tts]', "Sends a message to the channel.")
-method('sendEmbed', sendEmbed, 'embed[, content]', "Sends an embedded message to the channel.")
 
 method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator for 1 to 100 (default: 50) of the most recent messages in the channel.')
 method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Get message history before a specific message.')
