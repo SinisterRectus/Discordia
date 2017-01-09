@@ -3,7 +3,7 @@ local Snowflake = require('./Snowflake')
 local format = string.format
 
 local Embed, property, method = class('Embed', Snowflake)
-Embed.__description = "Represents Discord Embed."
+Embed.__description = "Represents a Discord message embed."
 
 function Embed:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -13,7 +13,7 @@ function Embed:__init(data, parent)
 end
 
 function Embed:__tostring()
-	return format('%s: %s', self.__name, self._channel_id or "") -- will not always have a channel id
+	return format('%s: %s', self.__name, self._channel_id)
 end
 
 
