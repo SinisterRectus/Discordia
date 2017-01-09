@@ -62,17 +62,31 @@ function API:setToken(token)
 	self._headers['Authorization'] = token
 end
 
-function API:request(method, route, endpoint, payload)
+function API:request(method, route, endpoint, payload, isMulti)
 
 	local url = "https://discordapp.com/api" .. endpoint
 
 	local reqHeaders = {}
-	for k, v in pairs(self._headers) do
-		insert(reqHeaders, {k, v})
+	if isMulti then
+		for k, v in pairs(self._headers) do
+			if k == 'Content-Type' then
+				insert(reqHeaders, {k, 'multipart/form-data; boundary=Discordia'})
+			else
+				insert(reqHeaders, {k, v})
+			end
+		end
+	else
+		for k, v in pairs(self._headers) do
+			insert(reqHeaders, {k, v})
+		end
 	end
 
 	if method:find('P') then
-		payload = payload and encode(payload) or '{}'
+		if isMulti then
+			payload = payload or '{}'
+		else
+			payload = payload and encode(payload) or '{}'
+		end
 		insert(reqHeaders, {'Content-Length', #payload})
 	end
 
@@ -177,9 +191,9 @@ function API:getChannelMessage(channel_id, message_id) -- TextChannel:getMessage
 	return self:request("GET", route, format(route, message_id))
 end
 
-function API:createMessage(channel_id, payload) -- TextChannel:[create|send]Message
+function API:createMessage(channel_id, payload, isMulti) -- TextChannel:[create|send]Message
 	local route = format("/channels/%s/messages", channel_id)
-	return self:request("POST", route, route, payload)
+	return self:request("POST", route, route, payload, isMulti)
 end
 
 function API:createReaction(channel_id, message_id, emoji) -- Message:addReaction

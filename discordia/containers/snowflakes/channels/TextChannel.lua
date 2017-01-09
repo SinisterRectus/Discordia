@@ -19,6 +19,17 @@ function TextChannel:_update(data)
 	Channel._update(self, data)
 end
 
+local function multipart(data, name, field)
+	local boundary = "Discordia"
+	local str = "\r\n--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"" .. (field or "file") .."\""
+
+	str = str .. "; filename=\"" .. name .. "\"\r\nContent-Type: application/octet-stream"
+	
+	str = str .. "\r\n\r\n"..data.."\r\n--"..boundary.."--"
+
+	return str
+end
+
 local function _messageIterator(self, success, data)
 	if not success then return function() end end
 	local i = 1
