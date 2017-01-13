@@ -3,7 +3,7 @@ local Message = require('../Message')
 local OrderedCache = require('../../../utils/OrderedCache')
 
 local clamp = math.clamp
-local insert, concat = table.insert, table.concat
+local insert, concat, pack = table.insert, table.concat, table.pack
 
 local TextChannel, property, method, cache = class('TextChannel', Channel)
 TextChannel.__description = "Abstract base class for guild and private text channels."
@@ -24,7 +24,7 @@ local function multipart(data, name, field)
 	local str = "\r\n--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"" .. (field or "file") .."\""
 
 	str = str .. "; filename=\"" .. name .. "\"\r\nContent-Type: application/octet-stream"
-	
+
 	str = str .. "\r\n\r\n"..data.."\r\n--"..boundary.."--"
 
 	return str
@@ -84,7 +84,7 @@ local function getPinnedMessages(self)
 	return _messageIterator(self, client._api:getPinnedMessages(self._id))
 end
 
-local function sendMessage(self, content, mentions, tts)
+local function parseMentions(content, mentions)
 	if type(mentions) == 'table' then
 		local strings = {}
 		if mentions.getMentionString then
@@ -105,10 +105,27 @@ local function sendMessage(self, content, mentions, tts)
 		insert(strings, content)
 		content = concat(strings, ' ')
 	end
+	return content
+end
+
+local function sendMessage(self, ...) -- content, mentions, tts
 	local client = self._parent._parent or self._parent
-	local success, data = client._api:createMessage(self._id, {
-		content = content, tts = tts
-	})
+	local payload
+	if select('#', ...) > 1 then
+		client:warning('Multiple argument usage for TextChannel:sendMessage is deprecated. Use a table instead.')
+		payload = {content = parseMentions(select(1, ...), select(2, ...)), tts = select(3, ...)}
+	else
+		local arg = select(1, ...)
+		local t = type(arg)
+		if t == 'string' then
+			payload = {content = arg}
+		elseif t == 'table' then
+			payload = arg
+			payload.content = parseMentions(arg.content, arg.mentions)
+			payload.mentions = nil
+		end
+	end
+	local success, data = client._api:createMessage(self._id, payload)
 	if success then return self._messages:new(data) end
 end
 
