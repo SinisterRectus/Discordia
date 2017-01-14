@@ -49,6 +49,7 @@ function AudioStream:play(duration)
 		if not connection:_send(data, len) then break end
 		local delay = FRAME_DURATION + (elapsed - clock.milliseconds)
 		elapsed = elapsed + FRAME_DURATION
+		self._elapsed = elapsed
 		sleep(max(0, delay))
 		while self._paused do
 			self._paused = running()

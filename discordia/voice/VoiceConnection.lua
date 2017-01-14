@@ -162,8 +162,14 @@ local function getIsPlaying(self)
 	return stream and not stream._paused and not stream._stopped or false
 end
 
-property('channel', '_channel', nil, 'GuildVoiceChannel', "The channel for which the connection exists.")
-property('isPlaying', getIsPlaying, nil, 'boolean', "Whether audio is currently playing on the connection.")
+local function getPlayTime(self)
+	local stream = self._stream
+	return stream and stream._elapsed or 0
+end
+
+property('channel', '_channel', nil, 'GuildVoiceChannel', "The channel for which the connection exists")
+property('isPlaying', getIsPlaying, nil, 'boolean', "Whether audio is currently playing on the connection")
+property('playTime', getPlayTime, nil, 'number', "The elapsed play time of the audio stream in milliseconds")
 
 method('getBitrate', getBitrate, nil, "Returns the current bitrate for the connection in bits per second.")
 method('setBitrate', setBitrate, nil, "Sets the current bitrate for the connection (8000 to 128000 bps range).")
