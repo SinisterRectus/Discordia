@@ -1,7 +1,6 @@
 - Implicit permissions checking
 - Sanitized channel/role position setting
 - Option to disable event handler
-- Parse message attachments and embeds
 - Sharding
 - Logging support
 - Argument checking

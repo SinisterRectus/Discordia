@@ -46,9 +46,39 @@ function Message:_update(data)
 		self._reactions = reactions
 	end
 
-	self._embeds = data.embeds -- TODO: parse embeds
-	self._attachments = data.attachments -- TODO: parse attachments
+	self._embeds = data.embeds -- raw tables
+	self._attachments = data.attachments -- raw tables
 
+end
+
+local function getAttachment(self)
+	return self._attachments and self._attachments[1]
+end
+
+local function getAttachments(self)
+	local i, v = 1
+	local attachments = self._attachments
+	if not attachments then return function() end end
+	return function()
+		v = attachments[i]
+		i = i + 1
+		return v
+	end
+end
+
+local function getEmbed(self)
+	return self._embeds and self._embeds[1]
+end
+
+local function getEmbeds(self)
+	local i, v = 1
+	local embeds = self._embeds
+	if not embeds then return function() end end
+	return function()
+		v = embeds[i]
+		i = i + 1
+		return v
+	end
 end
 
 local httpAdded = {}
@@ -176,6 +206,14 @@ local function setContent(self, content)
 	local client = channel._parent._parent or channel._parent
 	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
 	if success then self._content = data.content end
+	return success
+end
+
+local function setEmbed(self, embed)
+	local channel = self._parent
+	local client = channel._parent._parent or channel._parent
+	local success, data = client._api:editMessage(channel._id, self._id, {embed = embed})
+	if success then self._embeds = data.embeds end
 	return success
 end
 
@@ -308,6 +346,10 @@ property('mentionedUsers', getMentionedUsers, nil, 'function', "An iterator for 
 property('mentionedRoles', getMentionedRoles, nil, 'function', "An iterator for known Roles that are mentioned in the message")
 property('mentionedChannels', getMentionedChannels, nil, 'function', "An iterator for known GuildTextChannels that are mentioned in the message")
 property('reactions', getReactions, nil, 'function', "An iterator for known Reactions that this message has")
+property('attachment', getAttachment, nil, 'table', "A shortcut to the first known attachment that this message has")
+property('attachments', getAttachments, nil, 'function', "An iterator for known attachments that this message has")
+property('embed', getEmbed, setEmbed, 'table', "A shortcut to the first known embed that this message has")
+property('embeds', getEmbeds, nil, 'function', "An iterator for known embeds that this message has")
 
 method('reply', reply, 'content[, mentions, tts, nonce]', "Shortcut for `message.channel:sendMessage`.")
 method('pin', pin, nil, "Adds the message to the channel's pinned messages.")
