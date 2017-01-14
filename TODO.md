@@ -26,7 +26,6 @@
 - do not create members on presence update
 - add predicate/kv for cache counting
 - use http fallbacks for uncached event objects
-- add old message content to message update
 - explicitly return nil where necessary
 - clarify in docs which properties may not exist
 - allow adjustable ffmpeg loglevel

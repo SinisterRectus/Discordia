@@ -197,7 +197,7 @@ function API:getChannelMessage(channel_id, message_id) -- TextChannel:getMessage
 	return self:request("GET", route, format(route, message_id))
 end
 
-function API:createMessage(channel_id, payload, file) -- TextChannel:[create|send]Message
+function API:createMessage(channel_id, payload, file) -- TextChannel:sendMessage
 	local route = format("/channels/%s/messages", channel_id)
 	return self:request("POST", route, route, payload, file)
 end

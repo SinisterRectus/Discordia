@@ -1,5 +1,29 @@
 # Changelog
 
+### 1.3.0
+- Message enhancements
+  - Deprecated `TextChannel:sendMessage(content, mentions, tts)` format
+  - `TextChannel:sendMessage(content)` is now the suggested format, where `content` is a string or table. Table properties are:
+    - `content`: raw content string
+	- `mentions`: mentionable object or table of mentionable objects
+	- `tts`: boolean indicating whether the message is TTS
+	- `nonce`: unique message identifier
+	- `file`: relative or absolute path to file for attachment
+	- `filename`: custom name to use for attachment (not required)
+	- `embed`: table of message embed data
+  - File attachments made possible by multipart/form-data implementation [@PurgePJ]
+  - Added `nonce` and `oldContent` properties to `Message` class
+  - Added `attachments`, `embeds`, `attachment`, and `embed` properties to `Message` class. All are exposed as raw Lua tables with original Discord formatting.
+  - Added `reactionAddUncached` and `reactionRemoveUncached` events for when reactions are added/removed to messages that are uncached. A raw data table is passed as the only argument.
+- Added support for larger avatars and animated Nitro avatars
+  - `User:getAvatar(size)` can be used for custom sizes
+  - `gif` files are automatically returned if the avatar is animated
+  - `png` is still used for static avatars
+- Other changes:
+  - Removed unnecessary fields from `PATCH /users/@me` request
+  - Added `isPlaying`, `isPaused`, and `playTime` properties to `VoiceConnection` class
+
+
 ### 1.2.2
 - Added package metadata to main `discordia` module
 - Reduced timeout on voice channel join from 10 to 5 seconds

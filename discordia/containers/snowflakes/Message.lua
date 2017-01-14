@@ -34,7 +34,7 @@ function Message:_update(data)
 		end
 		self._mentions = mentions
 	end
-	if data.mention_roles ~= nil then self._mention_roles = data.mention_roles end
+	if data.mention_roles then self._mention_roles = data.mention_roles end
 
 	if data.reactions then
 		local reactions = {}
@@ -46,8 +46,8 @@ function Message:_update(data)
 		self._reactions = reactions
 	end
 
-	self._embeds = data.embeds -- raw tables
-	self._attachments = data.attachments -- raw tables
+	if data.embeds then self._embeds = data.embeds end -- raw tables
+	if data.attachments then self._attachments = data.attachments end -- raw tables
 
 end
 

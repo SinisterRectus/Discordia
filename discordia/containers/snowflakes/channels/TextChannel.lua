@@ -178,7 +178,7 @@ property('pinnedMessages', getPinnedMessages, nil, 'function', "Iterator for all
 
 method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.")
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.")
-method('sendMessage', sendMessage, 'content[, mentions, tts]', "Sends a message to the channel.")
+method('sendMessage', sendMessage, 'content', "Sends a message to the channel. Content is a string or table.")
 
 method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator for 1 to 100 (default: 50) of the most recent messages in the channel.')
 method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Get message history before a specific message.')
