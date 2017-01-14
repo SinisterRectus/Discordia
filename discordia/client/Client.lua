@@ -172,8 +172,7 @@ end
 
 local function setUsername(self, username)
 	local success, data = self._api:modifyCurrentUser({
-		avatar = self._user._avatar,
-		username = username,
+		username = username
 	})
 	if success then self._user._username = data.username end
 	return success
@@ -190,7 +189,6 @@ end
 local function setAvatar(self, avatar)
 	local success, data = self._api:modifyCurrentUser({
 		avatar = avatar,
-		username = self._user._username,
 	})
 	if success then self._user._avatar = data.avatar end
 	return success

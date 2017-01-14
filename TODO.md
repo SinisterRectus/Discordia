@@ -22,7 +22,6 @@
 - commands extension
 - member hasrole(s)
 - add member addrole/removerole singular, add/remove role endpoint
-- adjust users/me "patch"
 - user.guilds
 - check for invalid client options
 - do not create members on presence update
