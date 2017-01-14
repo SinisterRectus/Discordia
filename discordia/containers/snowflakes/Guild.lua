@@ -133,7 +133,7 @@ end
 
 local function getIconUrl(self)
 	if not self._icon then return nil end
-	return format('https://discordapp.com/api/guilds/%s/icons/%s.jpg', self._id, self._icon)
+	return format('https://cdn.discordapp.com/icons/%s/%s.png', self._id, self._icon)
 end
 
 local function getMe(self)

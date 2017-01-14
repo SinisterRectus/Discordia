@@ -49,13 +49,15 @@ local multipart = format('multipart/form-data; boundary=%s', boundary)
 
 local function attachFile(payload, file)
 	return concat {
-		format('\r\n--%s\r\nContent-Disposition: form-data; name="file"; filename=%q', boundary, file[1]),
-		"\r\nContent-Type: application/octet-stream",
-		"\r\n\r\n", file[2],
-		format('\r\n--%s\r\nContent-Disposition: form-data; name="payload_json"', boundary),
-		"\r\nContent-Type: application/json",
-		"\r\n\r\n", payload,
-		"\r\n--", boundary, "--",
+		'\r\n--', boundary,
+		'\r\nContent-Disposition: form-data; name="file";', format('filename=%q', file[1]),
+		'\r\nContent-Type: application/octet-stream',
+		'\r\n\r\n', file[2],
+		'\r\n--', boundary,
+		'\r\nContent-Disposition: form-data; name="payload_json"',
+		'\r\nContent-Type: application/json',
+		'\r\n\r\n', payload,
+		'\r\n--', boundary, '--',
 	}
 end
 

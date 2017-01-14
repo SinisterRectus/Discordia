@@ -29,9 +29,12 @@ local function getDefaultAvatarUrl(self)
 	return format('https://discordapp.com/assets/%s.png', getDefaultAvatar(self))
 end
 
-local function getAvatarUrl(self)
-	if self._avatar then
-		return format('https://discordapp.com/api/users/%s/avatars/%s.jpg', self._id, self._avatar)
+local function getAvatarUrl(self, size)
+	local avatar = self._avatar
+	if avatar then
+		local ext = avatar:find('a_') == 1 and 'gif' or 'png'
+		local fmt = 'https://cdn.discordapp.com/avatars/%s/%s.%s?size=%i'
+		return format(fmt, self._id, avatar, ext, size or 1024)
 	else
 		return getDefaultAvatarUrl(self)
 	end

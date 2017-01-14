@@ -19,7 +19,6 @@
 - bulkDelete and/or getMessageHistory predicate
 - Exposed columns/rows cache accessors
 - Uptime indicator
-- new avatar/icon urls
 - commands extension
 - member hasrole(s)
 - add member addrole/removerole singular, add/remove role endpoint
