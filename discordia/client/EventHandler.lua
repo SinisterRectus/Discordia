@@ -299,6 +299,9 @@ function EventHandler.MESSAGE_UPDATE(data, client)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_UPDATE') end
 	local message = channel._messages:get(data.id)
 	if not message then return client:emit('messageUpdateUncached', channel, data.id) end
+	if message._content ~= data.content then
+		message._old_content = message._content
+	end
 	message:_update(data)
 	return client:emit('messageUpdate', message)
 end

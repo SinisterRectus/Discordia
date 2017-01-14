@@ -204,8 +204,12 @@ end
 local function setContent(self, content)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
+	local old = self._content
 	local success, data = client._api:editMessage(channel._id, self._id, {content = content})
-	if success then self._content = data.content end
+	if success then
+		self._old_content = old
+		self._content = data.content
+	end
 	return success
 end
 
@@ -332,6 +336,7 @@ local function delete(self)
 end
 
 property('content', '_content', setContent, 'string', "The raw message text")
+property('oldContent', '_old_content', nil, 'string', "The raw message text before the most recent edit")
 property('cleanContent', getCleanContent, nil, 'string', "The message text with sanitized mentions")
 property('tts', '_tts', nil, 'boolean', "Whether the message is a TTS one")
 property('pinned', '_pinned', nil, 'boolean', "Whether the message is pinned")
