@@ -44,6 +44,21 @@ local function attachQuery(endpoint, query)
 	return format('%s?%s', endpoint, concat(buffer, '&'))
 end
 
+local boundary = 'Discordia' .. time()
+local multipart = format('multipart/form-data; boundary=%s', boundary)
+
+local function attachFile(payload, file)
+	return concat {
+		format('\r\n--%s\r\nContent-Disposition: form-data; name="file"; filename=%q', boundary, file[1]),
+		"\r\nContent-Type: application/octet-stream",
+		"\r\n\r\n", file[2],
+		format('\r\n--%s\r\nContent-Disposition: form-data; name="payload_json"', boundary),
+		"\r\nContent-Type: application/json",
+		"\r\n\r\n", payload,
+		"\r\n--", boundary, "--",
+	}
+end
+
 local API = class('API')
 
 function API:__init(client)
@@ -52,40 +67,29 @@ function API:__init(client)
 	self._global_delay = client._options.globalDelay
 	self._global_mutex = Mutex()
 	self._route_mutexes = {}
-	self._headers = {
-		['Content-Type'] = 'application/json',
-		['User-Agent'] = format('DiscordBot (%s, %s)', package.homepage, package.version),
-	}
+	self._user_agent = format('DiscordBot (%s, %s)', package.homepage, package.version)
 end
 
 function API:setToken(token)
-	self._headers['Authorization'] = token
+	self._token = token
 end
 
-function API:request(method, route, endpoint, payload, isMulti)
+function API:request(method, route, endpoint, payload, file)
 
 	local url = "https://discordapp.com/api" .. endpoint
 
-	local reqHeaders = {}
-	if isMulti then
-		for k, v in pairs(self._headers) do
-			if k == 'Content-Type' then
-				insert(reqHeaders, {k, 'multipart/form-data; boundary=Discordia'})
-			else
-				insert(reqHeaders, {k, v})
-			end
-		end
-	else
-		for k, v in pairs(self._headers) do
-			insert(reqHeaders, {k, v})
-		end
-	end
+	local reqHeaders = {
+		{'Authorization', self._token},
+		{'User-Agent', self._user_agent},
+	}
 
 	if method:find('P') then
-		if isMulti then
-			payload = payload or '{}'
+		payload = payload and encode(payload) or '{}'
+		if file then
+			payload = attachFile(payload, file)
+			insert(reqHeaders, {'Content-Type', multipart})
 		else
-			payload = payload and encode(payload) or '{}'
+			insert(reqHeaders, {'Content-Type', 'application/json'})
 		end
 		insert(reqHeaders, {'Content-Length', #payload})
 	end
@@ -191,9 +195,9 @@ function API:getChannelMessage(channel_id, message_id) -- TextChannel:getMessage
 	return self:request("GET", route, format(route, message_id))
 end
 
-function API:createMessage(channel_id, payload, isMulti) -- TextChannel:[create|send]Message
+function API:createMessage(channel_id, payload, file) -- TextChannel:[create|send]Message
 	local route = format("/channels/%s/messages", channel_id)
-	return self:request("POST", route, route, payload, isMulti)
+	return self:request("POST", route, route, payload, file)
 end
 
 function API:createReaction(channel_id, message_id, emoji) -- Message:addReaction

@@ -28,6 +28,7 @@ return {
 		'creationix/coro-http@2.1.1',
 		'creationix/coro-websocket@1.0.0-1',
 		'creationix/coro-spawn@2.0.0',
+		'creationix/coro-fs@2.2.1',
 		'luvit/secure-socket@1.1.4',
 	},
 	tags = {'discord', 'api'},

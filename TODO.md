@@ -2,9 +2,7 @@
 - Sanitized channel/role position setting
 - Option to disable event handler
 - Parse message attachments and embeds
-- File uploading
 - Sharding
-- Commands module
 - Logging support
 - Argument checking
 - Group DMs
@@ -16,6 +14,7 @@
 - Guild integrations and features
 - Add client layer between the HTTP requests and OO methods
 - Class statics
+- More args on object creation (especially roles)
 - PermissionOverwrite caches per Client/Guild
 - bulkDelete and/or getMessageHistory predicate
 - Exposed columns/rows cache accessors
@@ -31,8 +30,6 @@
 - add predicate/kv for cache counting
 - use http fallbacks for uncached event objects
 - add old message content to message update
-- expose rows/columns methods
-- fix uncached member on guild member remove issue (ban?) const user from payload
 - explicitly return nil where necessary
 - clarify in docs which properties may not exist
 - allow adjustable ffmpeg loglevel

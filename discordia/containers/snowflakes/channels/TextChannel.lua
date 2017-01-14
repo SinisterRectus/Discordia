@@ -2,8 +2,13 @@ local Channel = require('../Channel')
 local Message = require('../Message')
 local OrderedCache = require('../../../utils/OrderedCache')
 
+local fs = require('coro-fs')
+local pathjoin = require('pathjoin')
+
 local clamp = math.clamp
-local insert, concat, pack = table.insert, table.concat, table.pack
+local readFile = fs.readFile
+local splitPath = pathjoin.splitPath
+local insert, remove, concat = table.insert, table.remove, table.concat
 
 local TextChannel, property, method, cache = class('TextChannel', Channel)
 TextChannel.__description = "Abstract base class for guild and private text channels."
@@ -17,17 +22,6 @@ end
 
 function TextChannel:_update(data)
 	Channel._update(self, data)
-end
-
-local function multipart(data, name, field)
-	local boundary = "Discordia"
-	local str = "\r\n--" .. boundary .. "\r\nContent-Disposition: form-data; name=\"" .. (field or "file") .."\""
-
-	str = str .. "; filename=\"" .. name .. "\"\r\nContent-Type: application/octet-stream"
-
-	str = str .. "\r\n\r\n"..data.."\r\n--"..boundary.."--"
-
-	return str
 end
 
 local function _messageIterator(self, success, data)
@@ -110,7 +104,7 @@ end
 
 local function sendMessage(self, ...) -- content, mentions, tts
 	local client = self._parent._parent or self._parent
-	local payload
+	local payload, file
 	if select('#', ...) > 1 then
 		client:warning('Multiple argument usage for TextChannel:sendMessage is deprecated. Use a table instead.')
 		payload = {content = parseMentions(select(1, ...), select(2, ...)), tts = select(3, ...)}
@@ -120,12 +114,23 @@ local function sendMessage(self, ...) -- content, mentions, tts
 		if t == 'string' then
 			payload = {content = arg}
 		elseif t == 'table' then
-			payload = arg
-			payload.content = parseMentions(arg.content, arg.mentions)
-			payload.mentions = nil
+			payload = {
+				content = parseMentions(arg.content, arg.mentions),
+				tts = arg.tts,
+				nonce = arg.nonce,
+				embed = arg.embed,
+			}
+			if arg.file then
+				local data, err = readFile(arg.file)
+				if err then
+					client:warning(err)
+				else
+					file = {remove(splitPath(arg.file)), data}
+				end
+			end
 		end
 	end
-	local success, data = client._api:createMessage(self._id, payload)
+	local success, data = client._api:createMessage(self._id, payload, file)
 	if success then return self._messages:new(data) end
 end
 
