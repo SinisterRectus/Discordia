@@ -3,10 +3,13 @@ local Message = require('../Message')
 local OrderedCache = require('../../../utils/OrderedCache')
 
 local fs = require('coro-fs')
+local http = require('coro-http')
 local pathjoin = require('pathjoin')
 
 local clamp = math.clamp
+local format = string.format
 local readFile = fs.readFile
+local request = http.request
 local splitPath = pathjoin.splitPath
 local insert, remove, concat = table.insert, table.remove, table.concat
 
@@ -121,11 +124,17 @@ local function sendMessage(self, ...) -- content, mentions, tts
 				embed = arg.embed,
 			}
 			if arg.file then
-				local data, err = readFile(arg.file)
+				local data, err
+				if arg.file:find('https?://') == 1 then
+					err, data = request('GET', arg.file)
+					err = err.code > 299 and format('%s / %s / %s', err.code, err.reason, arg.file)
+				else
+					data, err = readFile(arg.file)
+				end
 				if err then
 					client:warning(err)
 				else
-					file = {remove(splitPath(arg.file)), data}
+					file = {arg.filename or remove(splitPath(arg.file)), data}
 				end
 			end
 		end
