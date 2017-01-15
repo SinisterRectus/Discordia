@@ -5,6 +5,7 @@ local Member = require('./Member')
 local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
 local Invite = require('../Invite')
+local Webhook = require('../Webhook')
 local Cache = require('../../utils/Cache')
 
 local hash = table.hash
@@ -430,6 +431,24 @@ local function findMessages(self, predicate)
 	end)
 end
 
+-- Webhook --
+
+local function getWebhooks(self)
+	local client = self._parent
+	local success, data = client._api:getGuildWebhooks(self._id)
+	if not success then return function() end end
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Webhook(v, client)
+		end
+	end
+end
+
+-- Webhook
+
 property('vip', '_vip', nil, 'boolean', "Whether the guild is featured by Discord")
 property('name', '_name', setName, 'string', "Name of the guild")
 property('icon', '_icon', setIcon, 'string', "Hash representing the guild's icon")
@@ -464,6 +483,7 @@ method('pruneMembers', pruneMembers, '[days]', "Removes members who have not bee
 method('createTextChannel', createTextChannel, 'name', "Creates a new text channel in the guild.")
 method('createVoiceChannel', createVoiceChannel, 'name', "Creates a new voice channel in the guild.")
 method('createRole', createRole, nil, "Creates a new role in the guild.")
+method('getWebhooks', getWebhooks, nil, "Iterator for the guild's Webhook(s) (not cached).")
 
 cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
 cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)

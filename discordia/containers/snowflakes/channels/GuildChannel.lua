@@ -1,5 +1,6 @@
 local Cache = require('../../../utils/Cache')
 local Invite = require('../../Invite')
+local Webhook = require('../../Webhook')
 local Channel = require('../Channel')
 local PermissionOverwrite = require('../PermissionOverwrite')
 
@@ -71,6 +72,33 @@ local function createInvite(self, maxAge, maxUses, temporary, unique)
 	if success then return Invite(data, client) end
 end
 
+-- Webhook
+
+local function createWebhook(self, name, avatar)
+	local client = self._parent._parent
+	local success, data = client._api:createWebhook(self._id, {
+		name = name,
+		avatar = avatar
+	})
+	if success then return Webhook(data, client) end
+end
+
+local function getWebhooks(self)
+	local client = self._parent._parent
+	local success, data = client._api:getChannelWebhooks(self._id)
+	if not success then return function() end end
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Webhook(v, client)
+		end
+	end
+end
+
+-- Webhook
+
 -- permission overwrite --
 
 local function getPermissionOverwriteCount(self)
@@ -98,8 +126,10 @@ property('name', '_name', setName, 'string', "The name of the guild channel")
 property('position', '_position', setPosition, 'number', "The position of the channel in the guild's list of channels")
 property('invites', getInvites, nil, 'function', "Returns an iterator for the channel's invites (not cached)")
 
+method('createWebhook', createWebhook, 'name, avatar', "Creates and returns a webhook.")
 method('createInvite', createInvite, 'maxAge, maxUses, temporary, unique', "Creates and returns an invite to the channel for users to join.")
 method('getPermissionOverwriteFor', getPermissionOverwriteFor, 'object', "Returns an overwrite for the provided Role or Member")
+method('getWebhooks', getWebhooks, nil, "Returns an iterator for the channel's Webhook(s) (not cached)")
 
 cache('PermissionOverwrite', getPermissionOverwriteCount, getPermissionOverwrite, getPermissionOverwrites, findPermissionOverwrite, findPermissionOverwrites)
 
