@@ -13,6 +13,7 @@ function GuildTextChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)
 	TextChannel.__init(self, data, parent)
 	GuildTextChannel._update(self, data)
+	parent._parent._channel_map[self._id] = parent
 end
 
 function GuildTextChannel:_update(data)

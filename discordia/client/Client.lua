@@ -51,6 +51,7 @@ function Client:__init(customOptions)
 	self._guilds = Cache({}, Guild, 'id', self)
 	self._private_channels = Cache({}, PrivateChannel, 'id', self)
 	self._voice = VoiceManager(self)
+	self._channel_map = {}
 end
 
 function Client:__tostring()
@@ -232,6 +233,11 @@ end
 local function getInvite(self, code)
 	local success, data = self._api:getInvite(code)
 	if success then return Invite(data, self) end
+end
+
+function Client:_getTextChannelShortcut(id)
+	local guild = self._channel_map[id]
+	return guild and guild._text_channels:get(id) or self._private_channels:get(id)
 end
 
 -- cache accessors --

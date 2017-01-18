@@ -30,7 +30,7 @@ function EventHandler.READY(data, client)
 
 	client._loading = {guilds = {}, chunks = {}, syncs = {}}
 
-	client._socket._session_id = data.session_id -- TODO: maybe move out of EventHandler
+	client._socket._session_id = data.session_id
 
 	client:_loadUserData(data.user)
 	client._user = client._users:new(data.user)
@@ -38,7 +38,7 @@ function EventHandler.READY(data, client)
 	client._guilds:merge(data.guilds)
 	client._private_channels:merge(data.private_channels)
 
-	if client._user._bot then -- TODO: maybe move token parsing out of EventHandler
+	if client._user._bot then
 		client._api._token = 'Bot ' .. client._api._token
 		for guild in client._guilds:iter() do
 			client._loading.guilds[guild._id] = true
@@ -108,11 +108,9 @@ function EventHandler.CHANNEL_UPDATE(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'Guild', data.guild_id, 'CHANNEL_UPDATE') end
 	if data.type == 'text' then
-		channel = guild._text_channels:get(data.id)
-		if not channel then return warning(client, 'GuildTextChannel', data.id, 'CHANNEL_UPDATE') end
+		channel = guild._text_channels:get(data.id) or guild._text_channels:new(data)
 	elseif data.type == 'voice' then
-		channel = guild._voice_channels:get(data.id)
-		if not channel then return warning(client, 'GuildVoiceChannel', data.id, 'CHANNEL_UPDATE') end
+		channel = guild._voice_channels:get(data.id) or guild._voice_channels:new(data)
 	end
 	channel:_update(data)
 	return client:emit('channelUpdate', channel)
@@ -121,19 +119,16 @@ end
 function EventHandler.CHANNEL_DELETE(data, client)
 	local channel
 	if data.is_private then
-		channel = client._private_channels:get(data.id)
-		if not channel then return warning(client, 'PrivateChannel', data.id, 'CHANNEL_DELETE') end
+		channel = client._private_channels:get(data.id) or client._private_channels:new(data)
 		client._private_channels:remove(channel)
 	else
 		local guild = client._guilds:get(data.guild_id)
 		if not guild then return warning(client, 'Guild', data.guild_id, 'CHANNEL_DELETE') end
 		if data.type == 'text' then
-			channel = guild._text_channels:get(data.id)
-			if not channel then return warning(client, 'GuildTextChannel', data.id, 'CHANNEL_DELETE') end
+			channel = guild._text_channels:get(data.id) or guild._text_channels:new(data)
 			guild._text_channels:remove(channel)
 		elseif data.type == 'voice' then
-			channel = guild._voice_channels:get(data.id)
-			if not channel then return warning(client, 'GuildVoiceChannel', data.id, 'CHANNEL_DELETE') end
+			channel = guild._voice_channels:get(data.id) or guild._voice_channels:new(data)
 			guild._voice_channels:remove(channel)
 		end
 	end
@@ -171,15 +166,13 @@ function EventHandler.GUILD_CREATE(data, client)
 end
 
 function EventHandler.GUILD_UPDATE(data, client)
-	local guild = client._guilds:get(data.id)
-	if not guild then return warning(client, 'Guild', data.id, 'GUILD_UPDATE') end
+	local guild = client._guilds:get(data.id) or client._guilds:new(data)
 	guild:_update(data)
 	return client:emit('guildUpdate', guild)
 end
 
 function EventHandler.GUILD_DELETE(data, client)
-	local guild = client._guilds:get(data.id)
-	if not guild then return warning(client, 'Guild', data.id, 'GUILD_DELETE') end
+	local guild = client._guilds:get(data.id) or client._guilds:new(data)
 	if data.unavailable then
 		guild._unavailable = true
 		return client:emit('guildUnavailable', guild)
@@ -221,8 +214,7 @@ end
 function EventHandler.GUILD_MEMBER_REMOVE(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'Guild', data.guild_id, 'GUILD_MEMBER_REMOVE') end
-	local member = guild._members:get(data.user.id)
-	if not member then return warning(client, 'Member', data.user.id, 'GUILD_MEMBER_REMOVE') end
+	local member = guild._members:get(data.user.id) or guild._members:new(data)
 	guild._members:remove(member)
 	guild._member_count = guild._member_count - 1
 	return client:emit('memberLeave', member)
@@ -231,8 +223,7 @@ end
 function EventHandler.GUILD_MEMBER_UPDATE(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'Guild', data.guild_id, 'GUILD_MEMBER_UPDATE') end
-	local member = guild._members:get(data.user.id)
-	if not member then return warning(client, 'Member', data.user.id, 'GUILD_MEMBER_UPDATE') end
+	local member = guild._members:get(data.user.id) or guild._members:new(data)
 	member:_update(data)
 	return client:emit('memberUpdate', member)
 end
@@ -257,8 +248,7 @@ end
 function EventHandler.GUILD_ROLE_UPDATE(data, client)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'Guild', data.guild_id, 'GUILD_ROLE_UPDATE') end
-	local role = guild._roles:get(data.role.id)
-	if not role then return warning(client, 'Role', data.role.id, 'GUILD_ROLE_UPDATE') end
+	local role = guild._roles:get(data.role.id) or guild._roles:new(data.role)
 	role:_update(data.role)
 	return client:emit('roleUpdate', role)
 end
@@ -288,14 +278,14 @@ function EventHandler.GUILD_SYNC(data, client)
 end
 
 function EventHandler.MESSAGE_CREATE(data, client)
-	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_CREATE') end
 	local message = channel._messages:new(data)
 	return client:emit('messageCreate', message)
 end
 
 function EventHandler.MESSAGE_UPDATE(data, client)
-	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_UPDATE') end
 	local message = channel._messages:get(data.id)
 	if not message then return client:emit('messageUpdateUncached', channel, data.id) end
@@ -307,7 +297,7 @@ function EventHandler.MESSAGE_UPDATE(data, client)
 end
 
 function EventHandler.MESSAGE_DELETE(data, client)
-	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_DELETE') end
 	local message = channel._messages:get(data.id)
 	if not message then return client:emit('messageDeleteUncached', channel, data.id) end
@@ -316,7 +306,7 @@ function EventHandler.MESSAGE_DELETE(data, client)
 end
 
 function EventHandler.MESSAGE_DELETE_BULK(data, client)
-	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_DELETE_BULK') end
 	for _, id in ipairs(data.ids) do
 		local message = channel._messages:get(id)
@@ -329,7 +319,7 @@ function EventHandler.MESSAGE_DELETE_BULK(data, client)
 end
 
 function EventHandler.MESSAGE_REACTION_ADD(data, client)
-	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_REACTION_ADD') end
 	local message = channel._messages:get(data.message_id)
 	if message then
@@ -343,7 +333,7 @@ function EventHandler.MESSAGE_REACTION_ADD(data, client)
 end
 
 function EventHandler.MESSAGE_REACTION_REMOVE(data, client)
-	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_REACTION_REMOVE') end
 	local message = channel._messages:get(data.message_id)
 	if message then
@@ -366,7 +356,7 @@ function EventHandler.PRESENCE_UPDATE(data, client)
 end
 
 function EventHandler.TYPING_START(data, client)
-	local channel = client:getTextChannel(data.channel_id) -- shortcut required
+	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'TYPING_START') end
 	local user = client._users:get(data.user_id)
 	if not user then return warning(client, 'User', data.user_id, 'TYPING_START') end

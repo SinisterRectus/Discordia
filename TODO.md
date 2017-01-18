@@ -1,6 +1,5 @@
 - Implicit permissions checking
 - Sanitized channel/role position setting
-- Option to disable event handler
 - Sharding
 - Logging support
 - Argument checking
@@ -23,9 +22,7 @@
 - add member addrole/removerole singular, add/remove role endpoint
 - user.guilds
 - check for invalid client options
-- do not create members on presence update
 - add predicate/kv for cache counting
-- use http fallbacks for uncached event objects
 - explicitly return nil where necessary
 - clarify in docs which properties may not exist
 - allow adjustable ffmpeg loglevel
