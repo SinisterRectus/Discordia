@@ -39,7 +39,6 @@ function EventHandler.READY(data, client)
 	client._private_channels:merge(data.private_channels)
 
 	if client._user._bot then
-		client._api._token = 'Bot ' .. client._api._token
 		for guild in client._guilds:iter() do
 			client._loading.guilds[guild._id] = true
 		end

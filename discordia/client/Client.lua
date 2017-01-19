@@ -73,7 +73,7 @@ end
 
 function Client:error(message)
 	if self._listeners['error'] then return self:emit('error', message) end
-	log(traceback(running(), message, 2), 'failure')
+	log(self, traceback(running(), message, 2), 'failure')
 	return exit()
 end
 
@@ -91,11 +91,16 @@ local function getToken(self, email, password)
 	end
 end
 
-local function run(self, a, b)
+local function run(self, token, other)
 	return wrap(function()
-		local token = not b and a or getToken(self, a, b)
-		if not token then return end
-		self._api:setToken(token)
+		if not other then
+			token = self._api:setToken(token)
+			if not token then
+				return self:error('Invalid token provided')
+			end
+		else
+			token = getToken(self, token, other)
+		end
 		return self:_connectToGateway(token)
 	end)()
 end

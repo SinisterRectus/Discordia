@@ -72,8 +72,21 @@ function API:__init(client)
 	self._user_agent = format('DiscordBot (%s, %s)', package.homepage, package.version)
 end
 
+local function checkToken(self, token)
+	local res = request('GET', "https://discordapp.com/api/users/@me", {
+		{'Authorization', token},
+		{'User-Agent', self._user_agent},
+	})
+	return res.code == 200 and token or nil
+end
+
+-- this will adapt a token with or without a Bot prefix
+-- future versions may require explicit prefixing
 function API:setToken(token)
-	self._token = token
+	local usr = token:gsub('Bot ', '')
+	local bot = 'Bot ' .. usr
+	self._token = checkToken(self, bot) or checkToken(self, usr)
+	return self._token
 end
 
 function API:request(method, route, endpoint, payload, file)
