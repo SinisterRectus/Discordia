@@ -1,5 +1,18 @@
 # Changelog
 
+### 1.3.1
+- Event handler optimizations
+  - If an uncached guild, channel, member, or role is encountered on their respective `UPDATE` or `DELETE` events, an object is now created and cached from the event payload instead of throwing a warning.
+  - Events that parse a text channel ID are now more performant; the channel is found by using an channel map instead of by iterating over guilds.
+- Token parsing on login was improved
+  - Tokens are no longer prepended with `Bot ` on `READY`. Tokens are tested against a REST endpoint (`/users/@me`), and are prepended with `Bot ` only if necessary.
+  - If an invalid token is provided, the library will throw an error instead of entering a connect/disconnect loop.
+- Opus encoder fix
+  - The encode method now expects an explicitly defined PCM length instead of one implicitly defined from the input table.
+  - This should fix a segmentation fault issue which apparently was a result of passing a size that is too small.
+  - Fixed an oversight where the positional return value of `string.unpack` was passed to the opus encoder for FFmpeg streams.
+
+
 ### 1.3.0
 - Message enhancements
   - Deprecated `TextChannel:sendMessage(content, mentions, tts)` format
