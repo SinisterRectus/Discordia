@@ -2,6 +2,7 @@ local spawn = require('coro-spawn')
 local constants = require('./constants')
 
 local wrap = coroutine.wrap
+local remove = table.remove
 local unpack, rep = string.unpack, string.rep
 
 local FFMPEG = constants.FFMPEG
@@ -52,7 +53,11 @@ function FFmpegPipe:read(size)
 	self._data = data:sub(size + 1)
 
 	local len = #chunk
-	return len > 0 and {unpack(rep('<H', len / 2), chunk)} or nil
+	if len > 0 then
+		chunk = {unpack(rep('<H', len / 2), chunk)}
+		remove(chunk) -- remove position value
+		return chunk
+	end
 
 end
 

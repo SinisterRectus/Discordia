@@ -7,6 +7,7 @@ local sleep = timer.sleep
 local running, resume, yield = coroutine.running, coroutine.resume, coroutine.yield
 
 local SILENCE = constants.SILENCE
+local PCM_LEN = constants.PCM_LEN
 local PCM_SIZE = constants.PCM_SIZE
 local FRAME_SIZE = constants.FRAME_SIZE
 local MAX_DURATION = constants.MAX_DURATION
@@ -45,7 +46,7 @@ function AudioStream:play(duration)
 	while elapsed < duration do
 		local pcm = source()
 		if not pcm or self._stopped then break end
-		local data, len = encoder:encode(pcm, PCM_SIZE, FRAME_SIZE, PCM_SIZE)
+		local data, len = encoder:encode(pcm, PCM_LEN, FRAME_SIZE, PCM_SIZE)
 		if not connection:_send(data, len) then break end
 		local delay = FRAME_DURATION + (elapsed - clock.milliseconds)
 		elapsed = elapsed + FRAME_DURATION
