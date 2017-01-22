@@ -95,9 +95,9 @@ function Encoder:__new(sample_rate, channels, app) -- luacheck:ignore self
 
 end
 
-function Encoder:encode(input, frame_size, max_data_bytes)
+function Encoder:encode(input, input_len, frame_size, max_data_bytes)
 
-	local pcm = new("opus_int16[?]", #input, input)
+	local pcm = new("opus_int16[?]", input_len, input)
 	local data = new("unsigned char[?]", max_data_bytes)
 
 	local ret = lib.opus_encode(self, pcm, frame_size, data, max_data_bytes)

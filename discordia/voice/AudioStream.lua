@@ -45,7 +45,7 @@ function AudioStream:play(duration)
 	while elapsed < duration do
 		local pcm = source()
 		if not pcm or self._stopped then break end
-		local data, len = encoder:encode(pcm, FRAME_SIZE, PCM_SIZE)
+		local data, len = encoder:encode(pcm, PCM_SIZE, FRAME_SIZE, PCM_SIZE)
 		if not connection:_send(data, len) then break end
 		local delay = FRAME_DURATION + (elapsed - clock.milliseconds)
 		elapsed = elapsed + FRAME_DURATION
