@@ -2,10 +2,11 @@ local GuildChannel = require('./GuildChannel')
 local timer = require('timer')
 
 local clamp = math.clamp
+local count = table.count
 local setTimeout = timer.setTimeout
-local running, yield = coroutine.running, coroutine.yield
+local running, yield, wrap = coroutine.running, coroutine.yield, coroutine.wrap
 
-local GuildVoiceChannel, property, method = class('GuildVoiceChannel', GuildChannel)
+local GuildVoiceChannel, property, method, cache = class('GuildVoiceChannel', GuildChannel)
 GuildVoiceChannel.__description = "Represents a Discord guild voice channel."
 
 function GuildVoiceChannel:__init(data, parent)
@@ -93,11 +94,79 @@ local function getConnection(self)
 	return self._parent._connection
 end
 
+local function getMemberCount(self)
+	return count(self._parent._voice_states)
+end
+
+local function getMember(self, key, value)
+	local members = self._parent._members
+	if key == nil and value == nil then return end
+	if value == nil then
+		value = key
+		key = members._key
+	end
+	local id = self._id
+	local guild = self._parent
+	for _, state in pairs(guild._voice_states) do
+		if state.channel_id == id then
+			local member = guild:getMember(state.user_id)
+			if member and member[key] == value then
+				return member
+			end
+		end
+	end
+end
+
+local function getMembers(self, key, value)
+	local id = self._id
+	local guild = self._parent
+	return wrap(function()
+		for _, state in pairs(guild._voice_states) do
+			if state.channel_id == id then
+				local member = guild:getMember(state.user_id)
+				if member and member[key] == value then
+					yield(member)
+				end
+			end
+		end
+	end)
+end
+
+local function findMember(self, predicate)
+	local id = self._id
+	local guild = self._parent
+	for _, state in pairs(guild._voice_states) do
+		if state.channel_id == id then
+			local member = guild:getMember(state.user_id)
+			if member and predicate(member) then
+				return member
+			end
+		end
+	end
+end
+
+local function findMembers(self, predicate)
+	local id = self._id
+	local guild = self._parent
+	return wrap(function()
+		for _, state in pairs(guild._voice_states) do
+			if state.channel_id == id then
+				local member = guild:getMember(state.user_id)
+				if member and predicate(member) then
+					yield(member)
+				end
+			end
+		end
+	end)
+end
+
 property('bitrate', '_bitrate', setBitrate, '[number]', "Channel bitrate in bits per seconds (8000 to 96000 or 128000 for VIP guilds, default: 64000)")
 property('userLimit', '_user_limit', setUserLimit, '[number]', "Limit to the number of users allowed in the channel (use 0 for infinite, default: 0)")
 property('connection', getConnection, nil, 'VoiceConnection', "The handle for this channel's voice connection, if one exists")
 
 method('join', join, nil, "Joins the voice channel. A connection, either a new or old one, is returned if successful.")
 method('leave', leave, nil, "Leaves the voice channel. A boolean is returned to indicate success.")
+
+cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
 
 return GuildVoiceChannel

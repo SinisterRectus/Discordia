@@ -26,6 +26,5 @@
 - clarify in docs which properties may not exist
 - allow adjustable ffmpeg loglevel
 - unicode support
-- add members cache to voice channels
 - check for null sequence
 - find reactions 429 bug
