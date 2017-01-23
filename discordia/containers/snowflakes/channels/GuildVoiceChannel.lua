@@ -95,7 +95,15 @@ local function getConnection(self)
 end
 
 local function getMemberCount(self)
-	return count(self._parent._voice_states)
+	local n = 0
+	local id = self._id
+	local guild = self._parent
+	for _, state in pairs(guild._voice_states) do
+		if state.channel_id == id then
+			n = n + 1
+		end
+	end
+	return n
 end
 
 local function getMember(self, key, value)
