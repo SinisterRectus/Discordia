@@ -18,7 +18,6 @@
 - Exposed columns/rows cache accessors
 - Uptime indicator
 - commands extension
-- member hasrole(s)
 - add member addrole/removerole singular, add/remove role endpoint
 - user.guilds
 - check for invalid client options

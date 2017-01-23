@@ -149,6 +149,20 @@ local function removeRoles(self, ...)
 	return _applyRoles(self, role_ids)
 end
 
+local function hasRoles(self, ...)
+	local role_ids = {[self._parent._id] = true}
+	for _, id in ipairs(self._roles) do
+		role_ids[id] = true
+	end
+	for i = 1, select('#', ...) do
+		local role = select(i, ...)
+		if not role_ids[role._id] then
+			return false
+		end
+	end
+	return true
+end
+
 local function getRoleCount(self)
 	return #self._roles
 end
@@ -224,6 +238,7 @@ method('unban', unban, '[guild]', "Shortcut for `member.user:unban`. The member'
 method('kick', kick, '[guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
 method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
 method('removeRoles', removeRoles, 'roles[, ...]', "Removes a role or roles from the member.")
+method('hasRoles', hasRoles, 'roles[, ...]', "Returns whether the member has a role or roles.")
 
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
 
