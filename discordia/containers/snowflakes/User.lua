@@ -1,6 +1,7 @@
 local Snowflake = require('../Snowflake')
 
 local format = string.format
+local wrap, yield = coroutine.wrap, coroutine.yield
 
 local User, property, method = class('User', Snowflake)
 User.__description = "Represents a Discord user."
@@ -71,6 +72,17 @@ local function kick(self, guild)
 	return guild:kickUser(self)
 end
 
+local function getMutualGuilds(self)
+	local id = self._id
+	return wrap(function()
+		for guild in self._parent._guilds:iter() do
+			if guild._members:get(id) then
+				yield(guild)
+			end
+		end
+	end)
+end
+
 property('avatar', '_avatar', nil, 'string', "Hash representing the user's avatar")
 property('avatarUrl', getAvatarUrl, nil, 'string', "URL that points to the user's avatar")
 property('defaultAvatar', getDefaultAvatar, nil, 'string', "Hash representing the user's default avatar")
@@ -80,6 +92,7 @@ property('name', '_username', nil, 'string', "The user's name (alias of username
 property('username', '_username', nil, 'string', "The user's name (alias of name)")
 property('discriminator', '_discriminator', nil, 'string', "The user's 4-digit discriminator")
 property('bot', '_bot', function(self) return self._bot or false end, 'boolean', "Whether the user is a bot account")
+property('mutualGuilds', getMutualGuilds, nil, 'function', "Iterator for guilds in which both the user and client user share membership")
 
 method('ban', ban, 'guild[, days]', "Bans the user from a guild and optionally deletes their messages from 1-7 days.")
 method('unban', unban, 'guild', "Unbans the user from the provided guild.")

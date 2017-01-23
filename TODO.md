@@ -19,7 +19,6 @@
 - Uptime indicator
 - commands extension
 - add member addrole/removerole singular, add/remove role endpoint
-- user.guilds
 - check for invalid client options
 - add predicate/kv for cache counting
 - explicitly return nil where necessary
