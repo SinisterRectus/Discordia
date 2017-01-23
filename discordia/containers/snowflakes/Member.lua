@@ -1,7 +1,8 @@
 local Snowflake = require('../Snowflake')
+local Color = require('../../utils/Color')
 
-local insert = table.insert
 local format = string.format
+local insert, sort = table.insert, table.sort
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Member, property, method, cache = class('Member', Snowflake)
@@ -89,7 +90,22 @@ local function getVoiceChannel(self)
 	return state and guild._voice_channels:get(state.channel_id)
 end
 
--- User-compatability methods --
+local function sorter(a, b)
+	if a._position == b._position then -- TODO: needs testing
+		return tonumber(a._id) < tonumber(b._id)
+	else
+		return a._position > b._position
+	end
+end
+
+local function getColor(self)
+	local roles = {}
+	for role in self.roles do
+		insert(roles, role)
+	end
+	sort(roles, sorter)
+	return roles[1] and roles[1].color or Color()
+end
 
 local function getMembership(self, guild)
 	return self._user:getMembership(guild or self._parent)
@@ -228,6 +244,7 @@ property('user', '_user', nil, 'User', "The base user associated with this membe
 property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
 property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
 property('voiceChannel', getVoiceChannel, setVoiceChannel, 'GuildVoiceChannel', "If connected, this is the member's voice channel.")
+property('color', getColor, nil, 'Color', "The member's displayed name color")
 
 method('setMute', setMute, '[boolean]', "Mutes or unmutes the member guild-wide (default: false).")
 method('setDeaf', setDeaf, '[boolean]', "Deafens or undeafens the member guild-wide (default: false).")

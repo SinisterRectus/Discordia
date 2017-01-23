@@ -73,8 +73,8 @@ local function kick(self, guild)
 end
 
 local function getMutualGuilds(self)
-	local id = self._id
 	return wrap(function()
+		local id = self._id
 		for guild in self._parent._guilds:iter() do
 			if guild._members:get(id) then
 				yield(guild)
