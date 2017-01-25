@@ -19,13 +19,13 @@ end
 
 local opus
 local function loadOpus(self, filename)
-	opus = opus or require('./opus')(filename)
+	opus = opus or require('./opus')(filename or 'opus')
 	self._opus = opus
 end
 
 local sodium
 local function loadSodium(self, filename)
-	sodium = sodium or require('./sodium')(filename)
+	sodium = sodium or require('./sodium')(filename or 'sodium')
 	self._sodium = sodium
 end
 
