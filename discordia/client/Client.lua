@@ -81,26 +81,25 @@ local function getToken(self, email, password)
 	self:warning('Email login is discouraged, use token login instead')
 	local success, data = self._api:getToken({email = email, password = password})
 	if success then
-		if data.token then
-			return data.token
-		elseif data.mfa then
-			self:error('MFA login is not supported')
-		end
+		return data.mfa and self:error('MFA login is not supported') or data.token
 	else
 		self:error(data.email and data.email[1] or data.password and data.password[1])
 	end
 end
 
+-- this will adapt a token with or without a Bot prefix
+-- future versions may require explicit prefixing
+local function parseToken(self, token)
+	local api = self._api
+	token = token:gsub('Bot ', '')
+	return api:checkToken('Bot ' .. token) or api:checkToken(token)
+end
+
 local function run(self, token, other)
 	return wrap(function()
-		if not other then
-			token = self._api:setToken(token)
-			if not token then
-				return self:error('Invalid token provided')
-			end
-		else
-			token = getToken(self, token, other)
-		end
+		token = other and getToken(self, token, other) or parseToken(self, token)
+		if not token then return self:error('Invalid token provided') end
+		self._api:setToken(token)
 		return self:_connectToGateway(token)
 	end)()
 end
