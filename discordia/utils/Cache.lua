@@ -108,7 +108,7 @@ end
 
 local function get(self, key, value)
 	if value == nil then
-			return self._objects[key]
+		return self._objects[key]
 	elseif key == self._key then
 		return self._objects[value]
 	elseif key ~= nil then
@@ -118,6 +118,7 @@ local function get(self, key, value)
 			end
 		end
 	end
+	return nil
 end
 
 local function getAll(self, key, value)
@@ -137,6 +138,7 @@ local function find(self, predicate)
 			return obj
 		end
 	end
+	return nil
 end
 
 local function findAll(self, predicate)

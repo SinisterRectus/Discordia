@@ -68,7 +68,7 @@ local function createInvite(self, maxAge, maxUses, temporary, unique)
 		temporary = temporary,
 		unique = unique
 	})
-	if success then return Invite(data, client) end
+	return success and Invite(data, client) or nil
 end
 
 -- permission overwrite --

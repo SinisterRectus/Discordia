@@ -157,7 +157,7 @@ end
 
 local function listVoiceRegions(self)
 	local success, data = self._parent._api:getGuildVoiceRegions(self._id)
-	if success then return data end
+	return success and data or nil
 end
 
 local function leave(self)
@@ -212,28 +212,28 @@ end
 local function getPruneCount(self, days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
 	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
-	if success then return data.pruned end
+	return success and data.pruned or nil
 end
 
 local function pruneMembers(self, days)
 	local query = days and {days = clamp(days, 1, 30)} or nil
 	local success, data = self._parent._api:getGuildPruneCount(self._id, query)
-	if success then return data.pruned end
+	return success and data.pruned or nil
 end
 
 local function createTextChannel(self, name)
 	local success, data = self._parent._api:createGuildChannel(self._id, {name = name, type = 'text'})
-	if success then return self._text_channels:new(data) end
+	return success and self._text_channels:new(data) or nil
 end
 
 local function createVoiceChannel(self, name)
 	local success, data = self._parent._api:createGuildChannel(self._id, {name = name, type = 'voice'})
-	if success then return self._voice_channels:new(data) end
+	return success and self._voice_channels:new(data) or nil
 end
 
 local function createRole(self)
 	local success, data = self._parent._api:createGuildRole(self._id)
-	if success then return self._roles:new(data) end
+	return success and self._roles:new(data) or nil
 end
 
 -- channels --
@@ -374,7 +374,7 @@ local function getMember(self, key, value)
 	local member = self._members:get(key, value)
 	if member or value then return member end
 	local success, data = self._parent._api:getGuildMember(self._id, key)
-	if success then return self._members:new(data) end
+	return success and self._members:new(data) or nil
 end
 
 local function findMember(self, predicate)
@@ -410,6 +410,7 @@ local function getMessage(self, key, value)
 		local message = channel._messages:get(key, value)
 		if message then return message end
 	end
+	return nil
 end
 
 local function findMessage(self, predicate)
@@ -417,6 +418,7 @@ local function findMessage(self, predicate)
 		local message = channel._messages:find(predicate)
 		if message then return message end
 	end
+	return nil
 end
 
 local function findMessages(self, predicate)

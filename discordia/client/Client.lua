@@ -168,7 +168,7 @@ end
 
 local function listVoiceRegions(self)
 	local success, data = self._api:listVoiceRegions()
-	if success then return data end
+	return success and data or nil
 end
 
 local function createGuild(self, name, region) -- limited use
@@ -231,12 +231,12 @@ end
 
 local function acceptInvite(self, code)
 	local success, data = self._api:acceptInvite(code)
-	if success then return Invite(data, self) end
+	return success and Invite(data, self) or nil
 end
 
 local function getInvite(self, code)
 	local success, data = self._api:getInvite(code)
-	if success then return Invite(data, self) end
+	return success and Invite(data, self) or nil
 end
 
 function Client:_getTextChannelShortcut(id)
@@ -260,7 +260,7 @@ local function getUser(self, key, value)
 	local user = self._users:get(key, value)
 	if user or value then return user end
 	local success, data = self._api:getUser(key)
-	if success then return self._users:new(data) end
+	return success and self._users:new(data) or nil
 end
 
 local function findUser(self, predicate)
@@ -326,6 +326,7 @@ local function getChannel(self, key, value)
 		channel = guild._text_channels:get(key, value) or guild._voice_channels:get(key, value)
 		if channel then return channel end
 	end
+	return nil
 end
 
 local function findChannel(self, predicate)
@@ -335,6 +336,7 @@ local function findChannel(self, predicate)
 		channel = guild._text_channels:find(predicate) or guild._voice_channels:find(predicate)
 		if channel then return channel end
 	end
+	return nil
 end
 
 local function findChannels(self, predicate)
@@ -367,7 +369,7 @@ local function getPrivateChannel(self, key, value)
 	local channel = self._private_channels:get(key, value)
 	if channel or value then return channel end
 	local success, data = self._api:getChannel(key)
-	if success then return self._private_channels:new(data) end
+	return success and self._private_channels:new(data) or nil
 end
 
 local function findPrivateChannel(self, predicate)
@@ -460,6 +462,7 @@ local function getGuildChannel(self, key, value)
 		local channel = guild._text_channels:get(key, value) or guild._voice_channels:get(key, value)
 		if channel then return channel end
 	end
+	return nil
 end
 
 local function findGuildChannel(self, predicate)
@@ -467,6 +470,7 @@ local function findGuildChannel(self, predicate)
 		local channel = guild._text_channels:find(predicate) or guild._voice_channels:find(predicate)
 		if channel then return channel end
 	end
+	return nil
 end
 
 local function findGuildChannels(self, predicate)
@@ -507,6 +511,7 @@ local function getGuildTextChannel(self, key, value)
 		local channel = guild._text_channels:get(key, value)
 		if channel then return channel end
 	end
+	return nil
 end
 
 local function findGuildTextChannel(self, predicate)
@@ -514,6 +519,7 @@ local function findGuildTextChannel(self, predicate)
 		local channel = guild._text_channels:find(predicate)
 		if channel then return channel end
 	end
+	return nil
 end
 
 local function findGuildTextChannels(self, predicate)
@@ -551,6 +557,7 @@ local function getGuildVoiceChannel(self, key, value)
 		local channel = guild._voice_channels:get(key, value)
 		if channel then return channel end
 	end
+	return nil
 end
 
 local function findGuildVoiceChannel(self, predicate)
@@ -558,6 +565,7 @@ local function findGuildVoiceChannel(self, predicate)
 		local channel = guild._voice_channels:find(predicate)
 		if channel then return channel end
 	end
+	return nil
 end
 
 local function findGuildVoiceChannels(self, predicate)
@@ -595,6 +603,7 @@ local function getRole(self, key, value)
 		local role = guild._roles:get(key, value)
 		if role then return role end
 	end
+	return nil
 end
 
 local function findRole(self, predicate)
@@ -602,6 +611,7 @@ local function findRole(self, predicate)
 		local role = guild._roles:find(predicate)
 		if role then return role end
 	end
+	return nil
 end
 
 local function findRoles(self, predicate)
@@ -639,6 +649,7 @@ local function getMember(self, key, value)
 		local member = guild._members:get(key, value)
 		if member then return member end
 	end
+	return nil
 end
 
 local function findMember(self, predicate)
@@ -646,6 +657,7 @@ local function findMember(self, predicate)
 		local member = guild._members:find(predicate)
 		if member then return member end
 	end
+	return nil
 end
 
 local function findMembers(self, predicate)
@@ -701,6 +713,7 @@ local function getMessage(self, key, value)
 			if message then return message end
 		end
 	end
+	return nil
 end
 
 local function findMessage(self, predicate)
@@ -714,6 +727,7 @@ local function findMessage(self, predicate)
 			if message then return message end
 		end
 	end
+	return nil
 end
 
 local function findMessages(self, predicate)

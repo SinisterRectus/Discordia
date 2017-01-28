@@ -21,7 +21,6 @@
 - add member addrole/removerole singular, add/remove role endpoint
 - check for invalid client options
 - add predicate/kv for cache counting
-- explicitly return nil where necessary
 - clarify in docs which properties may not exist
 - allow adjustable ffmpeg loglevel
 - unicode support

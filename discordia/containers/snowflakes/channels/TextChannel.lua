@@ -140,7 +140,7 @@ local function sendMessage(self, content, ...) -- mentions, tts
 		end
 	end
 	local success, data = client._api:createMessage(self._id, payload, file)
-	if success then return self._messages:new(data) end
+	return success and self._messages:new(data) or nil
 end
 
 local function broadcastTyping(self)
@@ -163,7 +163,7 @@ local function getMessage(self, key, value)
 	if message or value then return message end
 	local client = self._parent._parent or self._parent
 	local success, data = client._api:getChannelMessage(self.id, key)
-	if success then return Message(data, self) end
+	return success and Message(data, self) or nil
 end
 
 local function findMessage(self, predicate)
