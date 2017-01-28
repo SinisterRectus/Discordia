@@ -105,14 +105,14 @@ local function parseMentions(content, mentions)
 	return content
 end
 
-local function sendMessage(self, ...) -- content, mentions, tts
+local function sendMessage(self, content, ...) -- mentions, tts
 	local client = self._parent._parent or self._parent
 	local payload, file
-	if select('#', ...) > 1 then
+	if select('#', ...) > 0 then
 		client:warning('Multiple argument usage for TextChannel:sendMessage is deprecated. Use a table instead.')
-		payload = {content = parseMentions(select(1, ...), select(2, ...)), tts = select(3, ...)}
+		payload = {content = parseMentions(content, select(1, ...)), tts = select(2, ...)}
 	else
-		local arg = select(1, ...)
+		local arg = content
 		local t = type(arg)
 		if t == 'string' then
 			payload = {content = arg}
