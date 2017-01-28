@@ -101,7 +101,9 @@ end
 local function getColor(self)
 	local roles = {}
 	for role in self.roles do
-		insert(roles, role)
+		if role.color.value ~= 0 then
+			insert(roles, role)
+		end
 	end
 	sort(roles, sorter)
 	return roles[1] and roles[1].color or Color()
