@@ -765,6 +765,7 @@ property('email', '_email', nil, 'string', "The client's email address (non-bot 
 property('mobile', '_mobile', nil, 'boolean', "Whether the client has used a Discord mobile app (non-bot only)")
 property('verified', '_verified', nil, 'boolean', "Whether the client account is verified by Discord")
 property('mfaEnabled', '_mfa_enabled', nil, 'boolean', "Whether the client has MFA enabled")
+property('shardCount', '_shard_count', nil, 'number', "The number of gateway shards on which the client is operating")
 
 method('run', run, 'token', "Connects to a Discord gateway using a valid Discord token and starts the main program loop(s).")
 method('stop', stop, 'shouldExit', "Disconnects from the Discord gateway and optionally exits the process.")
