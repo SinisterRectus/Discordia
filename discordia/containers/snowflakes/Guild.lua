@@ -8,8 +8,8 @@ local Invite = require('../Invite')
 local Cache = require('../../utils/Cache')
 
 local hash = table.hash
-local clamp = math.clamp
 local format = string.format
+local floor, clamp = math.floor, math.clamp
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Guild, property, method, cache = class('Guild', Snowflake)
@@ -70,7 +70,7 @@ function Guild:_makeAvailable(data)
 end
 
 function Guild:_requestMembers()
-	self._parent._socket:requestGuildMembers(self._id)
+	self._parent._sockets[self.shardId]:requestGuildMembers(self._id)
 	if self._parent._loading then
 		self._parent._loading.chunks[self._id] = true
 	end
@@ -133,6 +133,10 @@ end
 local function getIconUrl(self)
 	if not self._icon then return nil end
 	return format('https://cdn.discordapp.com/icons/%s/%s.png', self._id, self._icon)
+end
+
+local function getShardId(self)
+	return floor(self._id / 2^22) % self._parent._shard_count
 end
 
 local function getMe(self)
@@ -445,6 +449,7 @@ property('unavailable', '_unavailable', nil, 'boolean', "Whether the guild data 
 property('totalMemberCount', '_member_count', nil, 'number', "How many members exist in the guild (can be different from cached memberCount)")
 property('verificationLevel', '_verification_level', nil, 'number', "Guild verification level")
 property('notificationsSetting', '_default_message_notifications', nil, 'number', "Default message notifications setting for members")
+property('shardId', getShardId, nil, 'number', "The ID of the shard on which this guild's events will be transmitted")
 property('me', getMe, nil, 'Member', "The client's member object for this guild")
 property('owner', getOwner, setOwner, 'Member', "The member that owns the server")
 property('afkChannel', getAfkChannel, setAfkChannel, 'GuildVoiceChannel', "Voice channel to where members are moved when they are AFK")

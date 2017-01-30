@@ -1,6 +1,5 @@
 - Implicit permissions checking
 - Sanitized channel/role position setting
-- Sharding
 - Logging support
 - Argument checking
 - Group DMs
@@ -26,3 +25,4 @@
 - unicode support
 - check for null sequence
 - find reactions 429 bug
+- other statuses (invisible, dnd)

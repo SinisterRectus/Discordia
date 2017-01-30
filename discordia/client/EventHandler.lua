@@ -1,36 +1,31 @@
-local timer = require('timer')
-local Stopwatch = require('../utils/Stopwatch')
-
 local format = string.format
-local insert, concat, keys = table.insert, table.concat, table.keys
+local insert = table.insert
 
 local function warning(client, object, id, event)
 	return client:warning(format('Uncached %s (%s) on %s', object, id, event))
 end
 
-local function makeReady(client)
-	client._loading = nil
-	client._stopwatch = nil
+local function checkReady(socket)
+	local client = socket._client
+	for _, v in pairs(socket._loading) do
+		if next(v) then return end
+	end
+	socket._loading = nil
+	client:emit('shardReady', socket._id)
+	for _, other in pairs(client._sockets) do
+		if other._loading then return end
+	end
 	collectgarbage()
 	return client:emit('ready')
 end
 
-local function checkReady(client)
-	for _, v in pairs(client._loading) do
-		if next(v) then
-			return client._stopwatch:restart()
-		end
-	end
-	return makeReady(client)
-end
-
 local EventHandler = {}
 
-function EventHandler.READY(data, client)
+function EventHandler.READY(data, client, socket)
 
-	client._loading = {guilds = {}, chunks = {}, syncs = {}}
+	client._stopwatch:restart()
 
-	client._socket._session_id = data.session_id
+	socket._session_id = data.session_id
 
 	client:_loadUserData(data.user)
 	client._user = client._users:new(data.user)
@@ -39,51 +34,27 @@ function EventHandler.READY(data, client)
 	client._private_channels:merge(data.private_channels)
 
 	if client._user._bot then
-		for guild in client._guilds:iter() do
-			client._loading.guilds[guild._id] = true
+		for _, guild in ipairs(data.guilds) do
+			socket._loading.guilds[guild.id] = true
 		end
 	else
 		local guild_ids = {}
-		for guild in client._guilds:iter() do
+		for _, guild in ipairs(data.guilds) do
 			if not guild.unavailable then
-				local id = guild._id
-				client._loading.syncs[id] = true
+				local id = guild.id
+				socket._loading.syncs[id] = true
 				insert(guild_ids, id)
 			end
 		end
-		client._socket:syncGuilds(guild_ids)
+		socket:syncGuilds(guild_ids)
 	end
 
-	client._stopwatch = Stopwatch()
-	checkReady(client)
-
-	if not client._loading then return end
-
-	local interval
-	interval = timer.setInterval(1000, function()
-		local loading = client._loading
-		if not loading then return timer.clearInterval(interval) end
-		if client._stopwatch:getSeconds() < 10 then return end
-		if next(loading.syncs) then
-			local ids = concat(keys(loading.syncs), ', ')
-			client:error('Client failed to sync guild(s): ' .. ids)
-		end
-		if next(loading.guilds) then
-			local ids = concat(keys(loading.guilds), ', ')
-			client:warning('Client initiated with unavailable guild(s): ' .. ids)
-		end
-		if next(loading.chunks) then
-			local ids = concat(keys(loading.chunks), ', ')
-			client:warning('Client may lack offline member data for guild(s): ' .. ids)
-		end
-		timer.clearInterval(interval)
-		return makeReady(client)
-	end)
+	return checkReady(socket)
 
 end
 
-function EventHandler.RESUMED(_, client)
-	return client:emit('resumed')
+function EventHandler.RESUMED(_, client, socket)
+	return client:emit('resumed', socket._id)
 end
 
 function EventHandler.CHANNEL_CREATE(data, client)
@@ -134,13 +105,13 @@ function EventHandler.CHANNEL_DELETE(data, client)
 	return client:emit('channelDelete', channel)
 end
 
-function EventHandler.GUILD_CREATE(data, client)
+function EventHandler.GUILD_CREATE(data, client, socket)
 	local id = data.id
 	if not data.unavailable and not client._user._bot then
-		if client._loading then
-			client._loading.syncs[id] = true
+		if socket._loading then
+			socket._loading.syncs[id] = true
 		end
-		client._socket:syncGuilds({id})
+		socket:syncGuilds({id})
 	end
 	local guild = client._guilds:get(id)
 	if guild then
@@ -150,9 +121,9 @@ function EventHandler.GUILD_CREATE(data, client)
 		else
 			client:warning('Erroneous guild availability on GUILD_CREATE')
 		end
-		if client._loading then
-			client._loading.guilds[guild._id] = nil
-			checkReady(client)
+		if socket._loading then
+			socket._loading.guilds[guild._id] = nil
+			checkReady(socket)
 		end
 	else
 		guild = client._guilds:new(data)
@@ -227,13 +198,13 @@ function EventHandler.GUILD_MEMBER_UPDATE(data, client)
 	return client:emit('memberUpdate', member)
 end
 
-function EventHandler.GUILD_MEMBERS_CHUNK(data, client)
+function EventHandler.GUILD_MEMBERS_CHUNK(data, client, socket)
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'Guild', data.guild_id, 'GUILD_MEMBER_CHUNK') end
 	guild._members:merge(data.members)
-	if client._loading and guild._member_count == guild._members.count then
-		client._loading.chunks[guild._id] = nil
-		checkReady(client)
+	if socket._loading and guild._member_count == guild._members.count then
+		socket._loading.chunks[guild._id] = nil
+		checkReady(socket)
 	end
 end
 
@@ -261,7 +232,7 @@ function EventHandler.GUILD_ROLE_DELETE(data, client)
 	return client:emit('roleDelete', role)
 end
 
-function EventHandler.GUILD_SYNC(data, client)
+function EventHandler.GUILD_SYNC(data, client, socket)
 	local guild = client._guilds:get(data.id)
 	if not guild then return warning(client, 'Guild', data.guild_id, 'GUILD_SYNC') end
 	guild._members:merge(data.members)
@@ -270,17 +241,17 @@ function EventHandler.GUILD_SYNC(data, client)
 	if guild._large and client._options.fetchMembers then
 		guild:_requestMembers()
 	end
-	if client._loading then
-		client._loading.syncs[guild._id] = nil
-		checkReady(client)
+	if socket._loading then
+		socket._loading.syncs[guild._id] = nil
+		checkReady(socket)
 	end
 end
 
-function EventHandler.MESSAGE_CREATE(data, client)
+function EventHandler.MESSAGE_CREATE(data, client, socket)
 	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_CREATE') end
 	local message = channel._messages:new(data)
-	return client:emit('messageCreate', message)
+	return client:emit('messageCreate', message, socket)
 end
 
 function EventHandler.MESSAGE_UPDATE(data, client)

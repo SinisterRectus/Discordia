@@ -2,17 +2,19 @@ local API = require('./API')
 local Socket = require('./Socket')
 local Cache = require('../utils/Cache')
 local Emitter = require('../utils/Emitter')
+local Stopwatch = require('../utils/Stopwatch')
 local Invite = require('../containers/Invite')
 local User = require('../containers/snowflakes/User')
 local Guild = require('../containers/snowflakes/Guild')
 local PrivateChannel = require('../containers/snowflakes/channels/PrivateChannel')
 local VoiceManager = require('../voice/VoiceManager')
 local pp = require('pretty-print')
+local timer = require('timer')
 
-local open = io.open
 local format = string.format
 local colorize = pp.colorize
 local traceback = debug.traceback
+local sleep = timer.sleep
 local date, time, exit = os.date, os.time, os.exit
 local wrap, yield, running = coroutine.wrap, coroutine.yield, coroutine.running
 
@@ -46,7 +48,7 @@ function Client:__init(customOptions)
 		self._options = defaultOptions
 	end
 	self._api = API(self)
-	self._socket = Socket(self)
+	self._sockets = {}
 	self._users = Cache({}, User, 'id', self)
 	self._guilds = Cache({}, Guild, 'id', self)
 	self._private_channels = Cache({}, PrivateChannel, 'id', self)
@@ -92,52 +94,55 @@ end
 local function parseToken(self, token)
 	local api = self._api
 	token = token:gsub('Bot ', '')
-	return api:checkToken('Bot ' .. token) or api:checkToken(token)
+	local bot = 'Bot ' .. token
+	if api:checkToken(bot) then
+		return bot, true
+	elseif api:checkToken(token) then
+		return token, false
+	end
 end
 
 local function run(self, token, other)
 	return wrap(function()
-		token = other and getToken(self, token, other) or parseToken(self, token)
+		local isBot
+		if other then
+			token, isBot = getToken(self, token, other)
+		else
+			token, isBot = parseToken(self, token)
+		end
 		if not token then return self:error('Invalid token provided') end
 		self._api:setToken(token)
-		return self:_connectToGateway(token)
+		return self:_connectToGateway(token, isBot)
 	end)()
 end
 
 local function stop(self, shouldExit) -- should probably rename to disconnect
-	if self._socket then self._socket:disconnect() end
+	for _, socket in pairs(self._sockets) do
+		socket:disconnect()
+	end
 	if shouldExit then exit() end
 end
 
-function Client:_connectToGateway(token)
+function Client:_connectToGateway(token, isBot)
 
-	local gateway, connected
-	local filename = 'gateway.cache'
-	local file = open(filename, 'r')
+	local success, data = self._api:getGateway(isBot)
 
-	if file then
-		gateway = file:read()
-		connected = self._socket:connect(gateway)
-		file:close()
-	end
-
-	if not connected then
-		local success1, success2, data = pcall(self._api.getGateway, self._api)
-		if success1 and success2 then
-			gateway = data.url
-			connected = self._socket:connect(gateway)
+	if success then
+		self._shard_count = data.shards or 1
+		for id = 0, self._shard_count - 1 do
+			self._sockets[id] = Socket(id, data.url, self)
 		end
-		file = nil
-	end
-
-	if connected then
-		if not file then
-			file = open(filename, 'w')
-			if file then file:write(gateway):close() end
+		self._stopwatch = Stopwatch()
+		for _, socket in pairs(self._sockets) do
+			socket:connect()
+			self._stopwatch:restart()
+			wrap(socket.handlePayloads)(socket, token)
+			while self._stopwatch.milliseconds < 5000 do
+				sleep(1000)
+			end
 		end
-		return self._socket:handlePayloads(token)
 	else
-		self:error('Cannot connect to gateway: ' .. (gateway and gateway or 'nil'))
+		self:error(format('Cannot get gateway URL: %s', data.message))
 	end
 
 end
@@ -206,7 +211,9 @@ local function setStatusIdle(self)
 		local me = guild._members:get(id)
 		if me then me._status = 'idle' end
 	end
-	return self._socket:statusUpdate(self._idle_since, self._game_name)
+	for _, socket in pairs(self._sockets) do
+		socket:statusUpdate(self._idle_since, self._game_name)
+	end
 end
 
 local function setStatusOnline(self)
@@ -216,7 +223,9 @@ local function setStatusOnline(self)
 		local me = guild._members:get(id)
 		if me then me._status = 'online' end
 	end
-	return self._socket:statusUpdate(self._idle_since, self._game_name)
+	for _, socket in pairs(self._sockets) do
+		socket:statusUpdate(self._idle_since, self._game_name)
+	end
 end
 
 local function setGameName(self, gameName)
@@ -226,7 +235,9 @@ local function setGameName(self, gameName)
 		local me = guild._members:get(id)
 		if me then me._game = gameName and {name = gameName} end
 	end
-	return self._socket:statusUpdate(self._idle_since, self._game_name)
+	for _, socket in pairs(self._sockets) do
+		socket:statusUpdate(self._idle_since, self._game_name)
+	end
 end
 
 local function acceptInvite(self, code)

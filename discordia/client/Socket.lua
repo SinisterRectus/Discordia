@@ -23,10 +23,17 @@ local ignore = {
 
 local Socket = class('Socket')
 
-function Socket:__init(client)
+function Socket:__init(id, gateway, client)
+	self._id = id
+	self._gateway = gateway
 	self._client = client
 	self._backoff = 1000
 	self._stopwatch = Stopwatch()
+	self._loading = {guilds = {}, chunks = {}, syncs = {}}
+end
+
+function Socket:__tostring()
+	return format('Socket: %i', self._id)
 end
 
 local function incrementReconnectTime(self)
@@ -37,17 +44,17 @@ local function decrementReconnectTime(self)
 	self._backoff = max(self._backoff / 2, 1000)
 end
 
-function Socket:connect(gateway)
-	local options = parseUrl(gateway .. '/')
+function Socket:connect()
+	local options = parseUrl(self._gateway .. '/')
 	options.pathname = options.pathname .. '?v=5'
 	self._res, self._read, self._write = connect(options)
 	self._connected = self._res and self._res.code == 101
 	return self._connected
 end
 
-function Socket:reconnect(token)
+function Socket:reconnect()
 	if self._connected then self:disconnect() end
-	return self._client:_connectToGateway(token)
+	return self:connect()
 end
 
 function Socket:disconnect()
@@ -62,9 +69,10 @@ local function handleUnexpectedDisconnect(self, token)
 	self._client:warning(format('Attemping to reconnect after %i ms...', self._backoff))
 	sleep(self._backoff)
 	incrementReconnectTime(self)
-	if not pcall(self.reconnect, self, token) then
+	if not self:reconnect() then
 		return handleUnexpectedDisconnect(self, token)
 	end
+	return self:handlePayloads(token)
 end
 
 function Socket:handlePayloads(token)
@@ -85,7 +93,7 @@ function Socket:handlePayloads(token)
 			if not ignore[payload.t] then
 				local handler = EventHandler[payload.t]
 				if handler then
-					handler(payload.d, client)
+					handler(payload.d, client, self)
 				else
 					client:warning('Unhandled event: ' .. payload.t)
 				end
@@ -93,7 +101,7 @@ function Socket:handlePayloads(token)
 		elseif op == 1 then
 			self:heartbeat()
 		elseif op == 7 then
-			self:reconnect(token)
+			self:reconnect()
 		elseif op == 9 then
 			client:warning('Invalid session, attempting to re-identify...')
 			self:identify(token)
@@ -115,7 +123,7 @@ function Socket:handlePayloads(token)
 	if self._connected then
 		self._connected = false
 		self:stopHeartbeat()
-		client:warning('Disconnected from gateway unexpectedly')
+		client:warning(format('Shard %i disconnected unexpectedly', self._id))
 		if client._options.autoReconnect then
 			return handleUnexpectedDisconnect(self, token)
 		end
@@ -163,6 +171,7 @@ function Socket:identify(token)
 		},
 		large_threshold = self._client._options.largeThreshold,
 		compress = false,
+		shard = {self._id, self._client._shard_count},
 	})
 end
 

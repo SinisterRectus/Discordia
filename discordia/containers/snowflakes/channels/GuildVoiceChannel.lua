@@ -2,7 +2,6 @@ local GuildChannel = require('./GuildChannel')
 local timer = require('timer')
 
 local clamp = math.clamp
-local count = table.count
 local setTimeout = timer.setTimeout
 local running, yield, wrap = coroutine.running, coroutine.yield, coroutine.wrap
 
@@ -62,7 +61,7 @@ local function join(self)
 		end
 	end)
 
-	return yield(client._socket:joinVoiceChannel(guild_id, self._id))
+	return yield(client._sockets[guild.shardId]:joinVoiceChannel(guild_id, self._id))
 
 end
 
@@ -85,7 +84,7 @@ local function leave(self)
 		end
 	end)
 
-	client._socket:joinVoiceChannel(guild_id)
+	client._sockets[guild.shardId]:joinVoiceChannel(guild_id)
 	return yield(connection._socket:disconnect())
 
 end

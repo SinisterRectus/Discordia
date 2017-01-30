@@ -77,7 +77,7 @@ function API:checkToken(token)
 		{'Authorization', token},
 		{'User-Agent', self._user_agent},
 	})
-	return res.code == 200 and token or nil
+	return res.code == 200
 end
 
 function API:setToken(token)
@@ -580,13 +580,8 @@ function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload) 
 	return self:request("POST", route, format(route, webhook_id, webhook_token), payload)
 end
 
-function API:getGateway() -- Client:_connectToGateway (cached)
-	local route = "/gateway"
-	return self:request("GET", route, route)
-end
-
-function API:getGatewayBot() -- not exposed, maybe in the future
-	local route = "/gateway/bot"
+function API:getGateway(isBot) -- Client:_connectToGateway
+	local route = isBot and "/gateway/bot" or "/gateway"
 	return self:request("GET", route, route)
 end
 
