@@ -7,7 +7,6 @@
 - Twitch streaming URL
 - Game class
 - Handle unhandled gateway events
-- Helper functions, like getMembersWithRole, ...
 - Guild integrations and features
 - Add client layer between the HTTP requests and OO methods
 - Class statics
@@ -17,7 +16,6 @@
 - Exposed columns/rows cache accessors
 - Uptime indicator
 - commands extension
-- add member addrole/removerole singular, add/remove role endpoint
 - check for invalid client options
 - add predicate/kv for cache counting
 - clarify in docs which properties may not exist

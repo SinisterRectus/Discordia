@@ -355,6 +355,16 @@ function API:modifyGuildMember(guild_id, user_id, payload) -- various member met
 	return self:request("PATCH", route, format(route, user_id), payload)
 end
 
+function API:addGuildMemberRole(guild_id, user_id, role_id) -- Member:addRole
+	local route =  format("/guilds/%s/members/%%s/roles/%%s", guild_id)
+	return self:request("PUT", route, format(route, user_id, role_id))
+end
+
+function API:deleteGuildMemberRole(guild_id, user_id, role_id) -- Member:removeRole
+	local route =  format("/guilds/%s/members/%%s/roles/%%s", guild_id)
+	return self:request("DELETE", route, format(route, user_id, role_id))
+end
+
 function API:removeGuildMember(guild_id, user_id) -- Guild:kickUser, User:kick, Member:kick
 	local route = format("/guilds/%s/members/%%s", guild_id)
 	return self:request("DELETE", route, format(route, user_id))

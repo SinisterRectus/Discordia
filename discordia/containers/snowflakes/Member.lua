@@ -2,7 +2,7 @@ local Snowflake = require('../Snowflake')
 local Color = require('../../utils/Color')
 
 local format = string.format
-local insert, sort = table.insert, table.sort
+local insert, remove, sort = table.insert, table.remove, table.sort
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Member, property, method, cache = class('Member', Snowflake)
@@ -139,6 +139,25 @@ local function _applyRoles(self, roles)
 	return success
 end
 
+local function addRole(self, role)
+	local id = role._id
+	local guild = self._parent
+	local success = guild._parent._api:addGuildMemberRole(guild._id, self._user._id, id)
+	if success then
+		local found
+		for _, v in ipairs(self._roles) do
+			if v == id then
+				found = true
+				break
+			end
+		end
+		if not found then
+			insert(self._roles, id)
+		end
+	end
+	return success
+end
+
 local function addRoles(self, ...)
 	local role_ids = self._roles
 	local guild_id = self._parent._id
@@ -150,6 +169,21 @@ local function addRoles(self, ...)
 		end
 	end
 	return _applyRoles(self, role_ids)
+end
+
+local function removeRole(self, role)
+	local id = role._id
+	local guild = self._parent
+	local success = guild._parent._api:deleteGuildMemberRole(guild._id, self._user._id, id)
+	if success then
+		for i, v in ipairs(self._roles) do
+			if v == id then
+				remove(self._roles, i)
+				break
+			end
+		end
+	end
+	return success
 end
 
 local function removeRoles(self, ...)
@@ -255,7 +289,9 @@ method('sendMessage', sendMessage, 'content[, mentions, tts, nonce]', "Shortcut 
 method('ban', ban, '[guild][, days]', "Shortcut for `member.user:ban`. The member's guild is used if none is provided.")
 method('unban', unban, '[guild]', "Shortcut for `member.user:unban`. The member's guild is used if none is provided.")
 method('kick', kick, '[guild]', "Shortcut for `member.user:kick`. The member's guild is used if none is provided.")
+method('addRole', addRole, 'role', "Adds a role to the member.")
 method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
+method('removeRole', removeRole, 'role', "Removes a role from the member.")
 method('removeRoles', removeRoles, 'roles[, ...]', "Removes a role or roles from the member.")
 method('hasRoles', hasRoles, 'roles[, ...]', "Returns whether the member has a role or roles.")
 
