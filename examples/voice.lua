@@ -1,6 +1,11 @@
 local discordia = require('discordia')
 local client = discordia.Client()
 
+-- load the proper voice libraries
+-- see the voice docs for more information
+client.voice:loadOpus('libopus')
+client.voice:loadSodium('libsodium')
+
 client:on('ready', function()
 	-- print to the console on a successful login
 	-- p is luvit's global pretty-print function
@@ -15,14 +20,15 @@ client:on('messageCreate', function(message)
 	local cmd, _, arg = message.content:match('(%S+)(%s+)(.*)')
 	cmd = cmd or message.content
 
-	-- respond to the user if they type '!hello'
-	if cmd == '!hello' then
-		message.channel:sendMessage(string.format('Hello, %s', message.author.username))
-	end
-
-	-- send a direct message to the message author
-	if cmd == '!dm' then
-		message.author:sendMessage(string.format("Hey, %s, how are you?", message.author.username))
+	-- have the bot join your voice channel and play a music file
+	if cmd == '!play' then -- example: "!play music.mp3"
+		if message.member and message.member.voiceChannel then
+			local connection = message.member.voiceChannel:join()
+			if connection then
+				return connection:playFile(arg)
+			end
+		end
+		return message:reply('Could not join voice channel!')
 	end
 
 end)
