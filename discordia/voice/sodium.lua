@@ -47,7 +47,7 @@ local function encrypt(decrypted, decrypted_len, nonce, key)
 
 end
 
-local function decrypt(encrypted, nonce, key)
+local function decrypt(encrypted, encrypted_len, nonce, key)
 
 	local decrypted_len = encrypted_len - MACBYTES
 	local decrypted = new('unsigned char[?]', decrypted_len)
