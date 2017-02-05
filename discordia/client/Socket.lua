@@ -113,7 +113,7 @@ function Socket:handlePayloads(token)
 				self:identify(token)
 			end
 		elseif op == 11 then
-			client:emit('heartbeat', self._seq, self._stopwatch.milliseconds)
+			client:emit('heartbeat', self._seq, self._stopwatch.milliseconds, self._id)
 		else
 			client:warning('Unhandled payload: ' .. op)
 		end

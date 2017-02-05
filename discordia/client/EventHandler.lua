@@ -54,7 +54,7 @@ function EventHandler.READY(data, client, socket)
 end
 
 function EventHandler.RESUMED(_, client, socket)
-	return client:emit('resumed', socket._id)
+	return client:emit('resumed', socket._id) -- maybe change to shardResumed in future
 end
 
 function EventHandler.CHANNEL_CREATE(data, client)
