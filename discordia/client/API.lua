@@ -242,7 +242,7 @@ end
 
 function API:deleteMessage(channel_id, message_id) -- Message:delete
 	local route = format("/channels/%s/messages/%%s", channel_id)
-	return self:request("DELETE", route, format(route, message_id))
+	return self:request("DELETE", "DELETE" .. route, format(route, message_id)) -- special case
 end
 
 function API:bulkDeleteMessages(channel_id, payload) -- TextChannel:bulkDelete[Before|After|Around]
