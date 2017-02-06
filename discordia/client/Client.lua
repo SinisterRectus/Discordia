@@ -124,9 +124,7 @@ local function stop(self, shouldExit) -- should probably rename to disconnect
 end
 
 function Client:_connectToGateway(token, isBot)
-
 	local success, data = self._api:getGateway(isBot)
-
 	if success then
 		self._shard_count = data.shards or 1
 		for id = 0, self._shard_count - 1 do
@@ -144,7 +142,6 @@ function Client:_connectToGateway(token, isBot)
 	else
 		self:error(format('Cannot get gateway URL: %s', data.message))
 	end
-
 end
 
 function Client:_loadUserData(data)

@@ -247,11 +247,11 @@ function EventHandler.GUILD_SYNC(data, client, socket)
 	end
 end
 
-function EventHandler.MESSAGE_CREATE(data, client, socket)
+function EventHandler.MESSAGE_CREATE(data, client)
 	local channel = client:_getTextChannelShortcut(data.channel_id)
 	if not channel then return warning(client, 'TextChannel', data.channel_id, 'MESSAGE_CREATE') end
 	local message = channel._messages:new(data)
-	return client:emit('messageCreate', message, socket)
+	return client:emit('messageCreate', message)
 end
 
 function EventHandler.MESSAGE_UPDATE(data, client)

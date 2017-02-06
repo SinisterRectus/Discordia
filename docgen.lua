@@ -15,15 +15,15 @@ local padright, padcenter = string.padright, string.padcenter
 local tmp = io.tmpfile()
 local mt = getmetatable(tmp)
 
-function mt.writef(self, ...)
+function mt:writef(...)
 	return self:write(f(...))
 end
 
-function mt.writeln(self, str)
+function mt:writeln(str)
 	return self:write(str, '\n')
 end
 
-function mt.writefln(self, ...)
+function mt:writefln(...)
 	return self:write(f(...), '\n')
 end
 
@@ -31,7 +31,7 @@ tmp:close()
 
 local function actualClass(type, class, name)
 	for _, base in ipairs(class.__bases) do
-		if base[type][name] then
+		if base.__info[type][name] then
 			return actualClass(type, base, name)
 		end
 	end
@@ -40,7 +40,7 @@ end
 
 local writers = {}
 
-function writers.__properties(file, properties)
+function writers.properties(file, properties)
 
 	local longestName = 0
 	local longestType = 0
@@ -77,7 +77,7 @@ function writers.__properties(file, properties)
 
 end
 
-function writers.__methods(file, methods)
+function writers.methods(file, methods)
 
 	local longestName = 0
 	local longestDesc = 0
@@ -115,11 +115,11 @@ local function writeDocs(file, class, type)
 	local names = {}
 	local inherited = {}
 
-	for k, v in pairs(class[type]) do
+	for k, v in pairs(class.__info[type]) do
 		local entry
-		if type == '__properties' then
-			entry = {k, v[1], class.__setters[k], v[2]}
-		elseif type == '__methods' then
+		if type == 'properties' then
+			entry = {k, v[1], class.__info.setters[k], v[2]}
+		elseif type == 'methods' then
 			entry = {k, v[1], v[2]}
 		end
 		local actual = actualClass(type, class, k)
@@ -165,9 +165,9 @@ for name, class in pairs(classes) do
 		file:writefln('#### %s', class.__description)
 		file:writeln('')
 
-		if next(class.__caches) then
+		if next(class.__info.caches) then
 			local caches = {}
-			for k in pairs(class.__caches) do
+			for k in pairs(class.__info.caches) do
 				insert(caches, k)
 			end
 			sort(caches)
@@ -178,12 +178,12 @@ for name, class in pairs(classes) do
 			file:writeln('')
 		end
 
-		if next(class.__properties) then
-			writeDocs(file, class, '__properties')
+		if next(class.__info.properties) then
+			writeDocs(file, class, 'properties')
 		end
 
-		if next(class.__methods) then
-			writeDocs(file, class, '__methods')
+		if next(class.__info.methods) then
+			writeDocs(file, class, 'methods')
 		end
 
 		file:close()

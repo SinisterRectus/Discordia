@@ -1,4 +1,5 @@
 - Implicit permissions checking
+- Manual sharding (automatic is completed)
 - Sanitized channel/role position setting
 - Logging support
 - Argument checking
