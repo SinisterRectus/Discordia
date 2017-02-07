@@ -201,6 +201,16 @@ local function removeRoles(self, ...)
 	return _applyRoles(self, role_ids)
 end
 
+local function hasRole(self, role)
+	local id1 = role._id
+	for _, id2 in ipairs(self._roles) do
+		if id1 == id2 then
+			return true
+		end
+	end
+	return false
+end
+
 local function hasRoles(self, ...)
 	local role_ids = {[self._parent._id] = true}
 	for _, id in ipairs(self._roles) do
@@ -293,6 +303,7 @@ method('addRole', addRole, 'role', "Adds a role to the member.")
 method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
 method('removeRole', removeRole, 'role', "Removes a role from the member.")
 method('removeRoles', removeRoles, 'roles[, ...]', "Removes a role or roles from the member.")
+method('hasRole', hasRole, 'roles', "Returns whether the member has a role.")
 method('hasRoles', hasRoles, 'roles[, ...]', "Returns whether the member has a role or roles.")
 
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)
