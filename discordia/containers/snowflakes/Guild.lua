@@ -70,10 +70,11 @@ function Guild:_makeAvailable(data)
 end
 
 function Guild:_requestMembers()
-	self._parent._sockets[self.shardId]:requestGuildMembers(self._id)
-	if self._parent._loading then
-		self._parent._loading.chunks[self._id] = true
+	local socket = self._parent._sockets[self.shardId]
+	if socket._loading then
+		socket._loading.chunks[self._id] = true
 	end
+	socket:requestGuildMembers(self._id)
 end
 
 function Guild:_loadMemberPresences(data)
