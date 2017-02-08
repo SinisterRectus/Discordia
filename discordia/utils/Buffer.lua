@@ -35,27 +35,18 @@ function Buffer:__len()
 	return self._len
 end
 
-local rawindex = Buffer.__index
-function Buffer:__index(k)
-	if type(k) == 'number' then
-		if k < 0 or k > self._len then
-			return error('buffer index out of bounds')
-		end
-		return self._cdata[k]
+local function get(self, k)
+	if k < 0 or k > self._len then
+		return error('buffer index out of bounds')
 	end
-	return rawindex(self, k)
+	return self._cdata[k]
 end
 
-local rawnewindex = Buffer.__newindex
-function Buffer:__newindex(k, v)
-	if type(k) == 'number' then
-		if k < 0 or k > self._len then
-			return error('buffer index out of bounds')
-		end
-		self._cdata[k] = v
-		return
+local function set(self, k, v)
+	if k < 0 or k > self._len then
+		return error('buffer index out of bounds')
 	end
-	return rawnewindex(self, k, v)
+	self._cdata[k] = v
 end
 
 local function complement8(value)
@@ -67,23 +58,23 @@ local function complement16(value)
 end
 
 local function readUInt8(self, k)
-	return self[k]
+	return get(self, k)
 end
 
 local function readUInt16LE(self, k)
-	return self[k] + lshift(self[k + 1], 8)
+	return get(self, k) + lshift(get(self, k + 1), 8)
 end
 
 local function readUInt16BE(self, k)
-	return lshift(self[k], 8) + self[k + 1]
+	return lshift(get(self, k), 8) + get(self, k + 1)
 end
 
 local function readUInt32LE(self, k)
-	return self[k] + lshift(self[k + 1], 8) + lshift(self[k + 2], 16) + self[k + 3] * 0x1000000
+	return get(self, k) + lshift(get(self, k + 1), 8) + lshift(get(self, k + 2), 16) + get(self, k + 3) * 0x1000000
 end
 
 local function readUInt32BE(self, k)
-	return self[k] * 0x1000000 + lshift(self[k + 1], 16) + lshift(self[k + 2], 8) + self[k + 3]
+	return get(self, k) * 0x1000000 + lshift(get(self, k + 1), 16) + lshift(get(self, k + 2), 8) + get(self, k + 3)
 end
 
 local function readInt8(self, k)
@@ -113,31 +104,31 @@ local function readString(self, k, len)
 end
 
 local function writeUInt8(self, k, v)
-	self[k] = rshift(v, 0)
+	set(self, k, rshift(v, 0))
 end
 
 local function writeUInt16LE(self, k, v)
-	self[k] = rshift(v, 0)
-	self[k + 1] = rshift(v, 8)
+	set(self, k, rshift(v, 0))
+	set(self, k + 1, rshift(v, 8))
 end
 
 local function writeUInt16BE(self, k, v)
-	self[k] = rshift(v, 8)
-	self[k + 1] = rshift(v, 0)
+	set(self, k, rshift(v, 8))
+	set(self, k + 1, rshift(v, 0))
 end
 
 local function writeUInt32LE(self, k, v)
-	self[k] = rshift(v, 0)
-	self[k + 1] = rshift(v, 8)
-	self[k + 2] = rshift(v, 16)
-	self[k + 3] = rshift(v, 24)
+	set(self, k, rshift(v, 0))
+	set(self, k + 1, rshift(v, 8))
+	set(self, k + 2, rshift(v, 16))
+	set(self, k + 3, rshift(v, 24))
 end
 
 local function writeUInt32BE(self, k, v)
-	self[k] = rshift(v, 24)
-	self[k + 1] = rshift(v, 16)
-	self[k + 2] = rshift(v, 8)
-	self[k + 3] = rshift(v, 0)
+	set(self, k, rshift(v, 24))
+	set(self, k + 1, rshift(v, 16))
+	set(self, k + 2, rshift(v, 8))
+	set(self, k + 3, rshift(v, 0))
 end
 
 local function writeString(self, k, str, len)
@@ -157,7 +148,7 @@ local function toHex(self, i, j)
 	i = i or 0
 	j = j or self._len
 	for n = i, j - 1 do
-		str[n + 1] = tohex(self[n], 2)
+		str[n + 1] = tohex(get(self, n), 2)
 	end
 	return concat(str, ' ')
 end

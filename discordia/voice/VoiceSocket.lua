@@ -66,6 +66,7 @@ end
 function VoiceSocket:handshake(connection, ip, port, ssrc)
 
 	local udp = uv.new_udp()
+	connection:_prepare(udp, ip, port, ssrc)
 
 	udp:recv_start(function(err, msg)
 		assert(not err, err)
@@ -73,12 +74,11 @@ function VoiceSocket:handshake(connection, ip, port, ssrc)
 			udp:recv_stop()
 			local address = msg:match('%d.*%d')
 			local a, b = msg:sub(-2):byte(1, 2)
-			wrap(self.selectProtocol)(self, {
+			self:selectProtocol({
 				address = address,
 				port = a + b * 0x100,
 				mode = MODE,
 			})
-			connection:_prepare(udp, ip, port, ssrc)
 		end
 	end)
 

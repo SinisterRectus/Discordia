@@ -50,9 +50,12 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 	class.__bases = bases
 	class.__description = nil
 
+	local pool = {}
+	local n = 1
+
 	function class:__index(k)
 		local getter = getters[k]
-		return getter and getter(self) or class[k]
+		return getter and getter(self) or rawget(self, pool[k]) or class[k]
 	end
 
 	function class:__newindex(k, v)
@@ -62,7 +65,11 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 		elseif class[k] or properties[k] then
 			return error(f('Cannot overwrite protected property: %s.%s', name, k))
 		else
-			return rawset(self, k, v)
+			if not pool[k] then
+				pool[k] = n
+				n = n + 1
+			end
+			return rawset(self, pool[k], v)
 		end
 	end
 
