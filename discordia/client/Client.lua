@@ -25,6 +25,7 @@ local defaultOptions = {
 	largeThreshold = 100,
 	fetchMembers = false,
 	autoReconnect = true,
+	compress = true,
 	bitrate = 64000,
 	dateTime = '%c',
 }

@@ -1,11 +1,13 @@
 local jit = require('jit')
 local json = require('json')
 local timer = require('timer')
+local miniz = require('miniz')
 local websocket = require('coro-websocket')
 local EventHandler = require('./EventHandler')
 local Stopwatch = require('../utils/Stopwatch')
 
 local format = string.format
+local inflate = miniz.inflate
 local min, max = math.min, math.max
 local encode, decode = json.encode, json.decode
 local wrap, yield = coroutine.wrap, coroutine.yield
@@ -81,7 +83,7 @@ function Socket:handlePayloads(token)
 
 	for data in self._read do
 
-		local str = data.payload
+		local str = data.opcode == 2 and inflate(data.payload, 15) or data.payload
 		local payload = decode(str)
 
 		client:emit('raw', payload, str)
@@ -160,6 +162,7 @@ function Socket:heartbeat()
 end
 
 function Socket:identify(token)
+	local client = self._client
 	return send(self, 2, {
 		token = token,
 		properties = {
@@ -169,9 +172,9 @@ function Socket:identify(token)
 			['$referrer'] = '',
 			['$referring_domain'] = ''
 		},
-		large_threshold = self._client._options.largeThreshold,
-		compress = false,
-		shard = {self._id, self._client._shard_count},
+		large_threshold = client._options.largeThreshold,
+		compress = client._options.compress,
+		shard = {self._id, client._shard_count},
 	})
 end
 
