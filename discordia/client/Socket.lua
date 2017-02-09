@@ -162,6 +162,7 @@ function Socket:heartbeat()
 end
 
 function Socket:identify(token)
+	self._ready = false
 	local client = self._client
 	return send(self, 2, {
 		token = token,

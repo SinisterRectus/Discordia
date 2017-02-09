@@ -10,10 +10,10 @@ local function checkReady(socket)
 	for _, v in pairs(socket._loading) do
 		if next(v) then return end
 	end
-	socket._loading = nil
+	socket._ready = true
 	client:emit('shardReady', socket._id)
 	for _, other in pairs(client._sockets) do
-		if other._loading then return end
+		if not other._ready then return end
 	end
 	collectgarbage()
 	return client:emit('ready')
