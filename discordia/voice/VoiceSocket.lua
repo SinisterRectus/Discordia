@@ -41,6 +41,7 @@ end
 function VoiceSocket:handlePayloads(id, connection)
 
 	local voice = self._voice
+	local udp = uv.new_udp()
 
 	for data in self._read do
 
@@ -49,7 +50,7 @@ function VoiceSocket:handlePayloads(id, connection)
 
 		if op == 2 then
 			self:startHeartbeat(d.heartbeat_interval)
-			self:handshake(connection, d.ip, d.port, d.ssrc)
+			self:handshake(connection, udp, d.ip, d.port, d.ssrc)
 		elseif op == 4 then
 			connection._key = ffi.new('const unsigned char[32]', d.secret_key)
 			voice:_resumeJoin(id)
@@ -58,14 +59,13 @@ function VoiceSocket:handlePayloads(id, connection)
 	end
 
 	connection._closed = true
-	connection._udp:close()
+	udp:close()
 	voice:_resumeLeave(id)
 
 end
 
-function VoiceSocket:handshake(connection, ip, port, ssrc)
+function VoiceSocket:handshake(connection, udp, ip, port, ssrc)
 
-	local udp = uv.new_udp()
 	connection:_prepare(udp, ip, port, ssrc)
 
 	udp:recv_start(function(err, msg)
