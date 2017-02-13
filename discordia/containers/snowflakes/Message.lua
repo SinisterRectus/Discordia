@@ -334,7 +334,7 @@ property('attachments', '_attachments', nil, 'table', "Known attachments that th
 property('embed', getEmbed, setEmbed, 'table', "A shortcut to the first known embed that this message has")
 property('embeds', '_embeds', nil, 'table', "Known embeds that this message has")
 
-method('reply', reply, 'content[, mentions, tts, nonce]', "Shortcut for `message.channel:sendMessage`.")
+method('reply', reply, 'content', "Shortcut for `message.channel:sendMessage`.")
 method('pin', pin, nil, "Adds the message to the channel's pinned messages.")
 method('unpin', unpin, nil, "Removes the message from the channel's pinned messages.")
 method('delete', delete, nil, "Permanently deletes the message from the channel.")
