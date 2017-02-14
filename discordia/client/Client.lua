@@ -10,13 +10,16 @@ local PrivateChannel = require('../containers/snowflakes/channels/PrivateChannel
 local VoiceManager = require('../voice/VoiceManager')
 local pp = require('pretty-print')
 local timer = require('timer')
+local json = require('json')
 
 local format = string.format
 local colorize = pp.colorize
 local traceback = debug.traceback
 local sleep = timer.sleep
-local date, time, exit = os.date, os.time, os.exit
+local date, time, exit, difftime = os.date, os.time, os.exit, os.difftime
 local wrap, yield, running = coroutine.wrap, coroutine.yield, coroutine.running
+local encode, decode = json.encode, json.decode
+local open = io.open
 
 local defaultOptions = {
 	routeDelay = 300,
@@ -125,7 +128,28 @@ local function stop(self, shouldExit) -- should probably rename to disconnect
 end
 
 function Client:_connectToGateway(token, isBot)
-	local success, data = self._api:getGateway(isBot)
+
+	local data, success
+	local _, file = pcall(open, 'gateway.json')
+
+	if file then
+		data = decode(file:read('*all'))
+		success = difftime(time(), data.timestamp) < 86400 -- 1 day
+		file:close()
+	end
+
+	if not success then
+		success, data = self._api:getGateway(isBot)
+		if success then
+			data.timestamp = time()
+			_, file = pcall(open, 'gateway.json', 'w')
+			if file then
+				file:write(encode(data))
+				file:close()
+			end
+		end
+	end
+
 	if success then
 		self._shard_count = data.shards or 1
 		for id = 0, self._shard_count - 1 do
@@ -143,6 +167,7 @@ function Client:_connectToGateway(token, isBot)
 	else
 		self:error(format('Cannot get gateway URL: %s', data.message))
 	end
+	
 end
 
 function Client:_loadUserData(data)
