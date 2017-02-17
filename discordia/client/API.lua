@@ -27,12 +27,7 @@ local function parseDate(str)
 	}
 	local clientDate = date('!*t')
 	clientDate.isdst = date('*t').isdst
-	local serverTime = difftime(time(serverDate), time(clientDate)) + time()
-	local calculated = date('!%a, %d %b %Y %H:%M:%S GMT', serverTime)
-	if calculated ~= str then -- hopefully this never happens
-		error(format('Incorrectly parsed date header: %s / %s', str, calculated))
-	end
-	return serverTime
+	return difftime(time(serverDate), time(clientDate)) + time()
 end
 
 local function attachQuery(endpoint, query)
