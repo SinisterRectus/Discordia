@@ -107,7 +107,7 @@ end
 
 local function getMember(self, key, value)
 	local members = self._parent._members
-	if key == nil and value == nil then return end
+	if key == nil and value == nil then return nil end
 	if value == nil then
 		value = key
 		key = members._key

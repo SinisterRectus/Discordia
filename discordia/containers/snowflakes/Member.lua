@@ -243,7 +243,7 @@ end
 
 local function getRole(self, key, value)
 	local roles = self._parent._roles
-	if key == nil and value == nil then return end
+	if key == nil and value == nil then return nil end
 	if value == nil then
 		value = key
 		key = roles._key

@@ -220,7 +220,7 @@ end
 
 local function getMember(self)
 	local channel = self._parent
-	if channel._is_private then return end
+	if channel._is_private then return nil end
 	return self._author:getMembership(channel._parent)
 end
 
