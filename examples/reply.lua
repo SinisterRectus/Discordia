@@ -12,7 +12,7 @@ client:on('messageCreate', function(message)
 	if message.author == client.user then return end
 
 	-- split the message content into a command and everything else
-	local cmd, _, arg = message.content:match('(%S+)(%s+)(.*)')
+	local cmd, arg = message.content:match('(%S+)%s+(.*)')
 	cmd = cmd or message.content
 
 	-- respond to the user if they type '!hello'

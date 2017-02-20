@@ -40,17 +40,17 @@ local function attachQuery(endpoint, query)
 end
 
 local boundary = 'Discordia' .. time()
-local multipart = format('multipart/form-data; boundary=%s', boundary)
+local multipart = format('multipart/form-data;boundary=%s', boundary)
 
 local function attachFile(payload, file)
 	return concat {
 		'\r\n--', boundary,
-		'\r\nContent-Disposition: form-data; name="file";', format('filename=%q', file[1]),
-		'\r\nContent-Type: application/octet-stream',
+		'\r\nContent-Disposition:form-data;name="file";', format('filename=%q', file[1]),
+		'\r\nContent-Type:application/octet-stream',
 		'\r\n\r\n', file[2],
 		'\r\n--', boundary,
-		'\r\nContent-Disposition: form-data; name="payload_json"',
-		'\r\nContent-Type: application/json',
+		'\r\nContent-Disposition:form-data;name="payload_json"',
+		'\r\nContent-Type:application/json',
 		'\r\n\r\n', payload,
 		'\r\n--', boundary, '--',
 	}
@@ -126,10 +126,10 @@ function API:commit(method, url, reqHeaders, payload, routeMutex, attempts)
 		res[i] = nil
 	end
 
-	local reset = tonumber(resHeaders['X-RateLimit-Reset'])
-	local remaining = tonumber(resHeaders['X-RateLimit-Remaining'])
+	local reset = resHeaders['X-RateLimit-Reset']
+	local remaining = resHeaders['X-RateLimit-Remaining']
 
-	if reset and remaining == 0 then
+	if reset and remaining == '0' then
 		local dt = difftime(reset, parseDate(resHeaders['Date']))
 		routeDelay = max(1000 * dt, routeDelay)
 	end
