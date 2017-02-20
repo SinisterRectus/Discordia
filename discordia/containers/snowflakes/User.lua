@@ -46,7 +46,13 @@ local function getMentionString(self)
 end
 
 local function getMembership(self, guild)
-	return guild:getMember(self._id)
+	if self._discriminator == '0000' then
+		return nil
+	elseif guild._member_count == guild._members.count then
+		return guild:getMember('id', self._id) -- cache only
+	else
+		return guild:getMember(self._id) -- uses HTTP fallback
+	end
 end
 
 local function sendMessage(self, ...)
