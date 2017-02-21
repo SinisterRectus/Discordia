@@ -1,5 +1,35 @@
 # Changelog
 
+### 1.4.0
+- Implemented automatic gateway sharding
+  - Multiple shards are automatically spawned on startup according to the Discord-recommended amount
+  - Added a `shardReady` event that fires as each shard finishes loading with a shard ID as its argument
+  - Shard ID is also now an argument for the `resumed` and `heartbeat` events
+  - `Client.shardCount` and `Guild.shardId` are accessible properties
+- Overhauled token parsing and login handling:
+  - Tokens can now optionally be prefixed with `Bot `
+  - Tokens are validated before establishing a gateway connection; invalid tokens are rejected with an error
+  - Attempts to connect or reconnect to the gateway are no longer pcall'd
+  - To simplify `READY` handling, failed loading of guild chunk or sync payloads will result in `ready` never firing instead of timing out
+  - Added support for compressed gateway payloads (enabled by default)
+  - Replaced `gateway.cache` with `gateway.json`
+- Member conveniences:
+  - Added `User.mutualGuilds` iterator
+  - Added `Member.color` property
+  - Added `Member:hasRole` and `Member:hasRoles` methods
+  - Added `Member:addRole` and `Member:removeRole` methods
+  - Added member cache accessors to `GuildVoiceChannel` class
+  - Improved `User:getMembership` by reducing unnecessary HTTP requests
+- Other changes:
+  - Optimized classes to be more memory efficient
+  - Minor optimizations in `TextChannel:sendMessage`
+  - Minor HTTP request optimizations
+  - Removed member check from `PRESENCE_UPDATE` handler
+  - Fixed functions not explicitly returning `nil` in some cases
+  - Added default audio library names which can allow for automatic loading of libopus.so and libsodium.so on POSIX systems or opus.dll and sodium.dll on Windows. (Call `loadOpus` or `loadSodium` without arguments to use the defaults)
+  - Fixed a missing parameter in the sodium decrypt function (not currently used by Discordia)
+
+
 ### 1.3.1
 - Event handler optimizations
   - If an uncached guild, channel, member, or role is encountered on their respective `UPDATE` or `DELETE` events, an object is now created and cached from the event payload instead of throwing a warning.
