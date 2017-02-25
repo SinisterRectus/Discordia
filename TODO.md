@@ -1,27 +1,31 @@
-- Implicit permissions checking
-- Manual sharding (automatic is completed)
-- Sanitized channel/role position setting
-- Logging support
-- Argument checking
-- Group DMs
-- Webhooks
-- Twitch streaming URL
-- Game class
-- Handle unhandled gateway events
-- Guild integrations and features
-- Add client layer between the HTTP requests and OO methods
-- Class statics
-- More args on object creation (especially roles)
-- PermissionOverwrite caches per Client/Guild
-- bulkDelete and/or getMessageHistory predicate
-- Exposed columns/rows cache accessors
-- Uptime indicator
-- commands extension
-- check for invalid client options
-- add predicate/kv for cache counting
-- clarify in docs which properties may not exist
-- allow adjustable ffmpeg loglevel
-- unicode support
-- check for null sequence
-- find reactions 429 bug
-- other statuses (invisible, dnd)
+- major
+  - Gateway v6
+  - Improved status support (streaming, dnd, invisible)
+  - Client layer between the HTTP requests and OO methods
+  - Argument checking
+  - ETF support
+- minor
+  - Sanitized channel/role position setting
+  - Logging support
+  - Group DMs
+  - Webhooks
+  - Handle unhandled gateway events
+  - Guild integrations and features
+  - Class statics
+  - More args on object creation (especially roles)
+  - Exposed columns/rows cache accessors
+  - Uptime indicator
+  - Commands extension
+  - Allow custom ffmpeg args
+  - Unicode support
+  - Manual sharding (automatic is completed)
+  - Implicit permissions checking
+  - PermissionOverwrite caches per Client/Guild
+  - Add predicate/kv for cache counting
+  - bulkDelete and/or getMessageHistory predicate
+- patch
+  - Filter two-week old messages from bulk delete
+  - Check for invalid client options
+  - Check for null sequence
+  - Find reactions 429 bug
+  - Clarify in docs which properties may not exist

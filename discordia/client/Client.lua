@@ -167,7 +167,7 @@ function Client:_connectToGateway(token, isBot)
 	else
 		self:error(format('Cannot get gateway URL: %s', data.message))
 	end
-	
+
 end
 
 function Client:_loadUserData(data)
@@ -211,7 +211,7 @@ local function setUsername(self, username)
 	return success
 end
 
-local function setNick(self, guild, nick)
+local function setNickname(self, guild, nick)
 	local success, data = self._api:modifyCurrentUserNickname(guild._id, {
 		nick = nick or ''
 	})
@@ -799,7 +799,7 @@ method('acceptInvite', acceptInvite, 'code', "Accepts a guild invitation with th
 method('getInvite', getInvite, 'code', "Returns an Invite object corresponding to a raw invite code, if it exists.")
 
 method('setUsername', setUsername, 'username', "Sets the user's username.")
-method('setNickname', setNick, 'guild, nickname', "Sets the user's nickname for the indicated guild.")
+method('setNickname', setNickname, 'guild, nickname', "Sets the user's nickname for the indicated guild.")
 method('setAvatar', setAvatar, 'avatar', "Sets the user's avatar. Must be a base64-encoded JPEG.")
 method('setStatusIdle', setStatusIdle, nil, "Sets the user status to idle. Warning: This can silently fail!")
 method('setStatusOnline', setStatusOnline, nil, "Sets the user status to idle. Warning: This can silently fail!")
