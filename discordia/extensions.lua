@@ -1,6 +1,6 @@
 local random = math.random
-local insert, remove, sort = table.insert, table.remove, table.sort
-local gmatch, match, byte = string.gmatch, string.match, string.byte
+local insert, remove, sort, concat = table.insert, table.remove, table.sort, table.concat
+local gmatch, match, byte, char = string.gmatch, string.match, string.byte, string.char
 local format, rep, find = string.format, string.rep, string.find
 local min, max = math.min, math.max
 local ceil, floor = math.ceil, math.floor
@@ -211,6 +211,16 @@ function string.levenshtein(str1, str2)
 
 	return matrix[len1][len2]
 
+end
+
+function string.random(len, minValue, maxValue)
+	local ret = {}
+	minValue = minValue or 0
+	maxValue = maxValue or 255
+	for _ = 1, len do
+		insert(ret, char(random(minValue, maxValue)))
+	end
+	return concat(ret)
 end
 
 -- math --
