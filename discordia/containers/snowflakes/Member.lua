@@ -303,7 +303,7 @@ method('addRole', addRole, 'role', "Adds a role to the member.")
 method('addRoles', addRoles, 'roles[, ...]', "Adds a role or roles to the member.")
 method('removeRole', removeRole, 'role', "Removes a role from the member.")
 method('removeRoles', removeRoles, 'roles[, ...]', "Removes a role or roles from the member.")
-method('hasRole', hasRole, 'roles', "Returns whether the member has a role.")
+method('hasRole', hasRole, 'role', "Returns whether the member has a role.")
 method('hasRoles', hasRoles, 'roles[, ...]', "Returns whether the member has a role or roles.")
 
 cache('Role', getRoleCount, getRole, getRoles, findRole, findRoles)

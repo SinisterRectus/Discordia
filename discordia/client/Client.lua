@@ -95,7 +95,7 @@ end
 
 -- this will adapt a token with or without a Bot prefix
 -- future versions may require explicit prefixing
-local function parseToken(self, token)
+function Client:_parseToken(token)
 	local api = self._api
 	token = token:gsub('Bot ', '')
 	local bot = 'Bot ' .. token
@@ -103,6 +103,8 @@ local function parseToken(self, token)
 		return bot, true
 	elseif api:checkToken(token) then
 		return token, false
+	else
+		return self:error('Invalid token provided')
 	end
 end
 
@@ -112,9 +114,8 @@ local function run(self, token, other)
 		if other then
 			token, isBot = getToken(self, token, other)
 		else
-			token, isBot = parseToken(self, token)
+			token, isBot = self:_parseToken(token)
 		end
-		if not token then return self:error('Invalid token provided') end
 		self._api:setToken(token)
 		return self:_connectToGateway(token, isBot)
 	end)()

@@ -74,6 +74,7 @@ local function handleUnexpectedDisconnect(self, token)
 	if not self:reconnect() then
 		return handleUnexpectedDisconnect(self, token)
 	end
+	self._client:_parseToken(token)
 	return self:handlePayloads(token)
 end
 
