@@ -137,9 +137,7 @@ end
 
 function string.split(str, delim)
 	if delim and delim ~= '' then
-		if find(str, delim) == nil then
-			return { str }
-		end
+		if not find(str, delim) then return { str } end
 		local words = {}
 		local pattern = '(.-)' .. delim
 		local lastPos = 1
