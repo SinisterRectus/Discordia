@@ -438,10 +438,10 @@ end
 
 property('vip', '_vip', nil, 'boolean', "Whether the guild is featured by Discord")
 property('name', '_name', setName, 'string', "Name of the guild")
-property('icon', '_icon', setIcon, 'string', "Hash representing the guild's icon")
-property('iconUrl', getIconUrl, nil, 'string', "URL that points to the guild's icon")
+property('icon', '_icon', setIcon, 'string?', "Hash representing the guild's icon")
+property('iconUrl', getIconUrl, nil, 'string?', "URL that points to the guild's icon")
 property('large', '_large', nil, 'boolean', "Whether the guild has a lot of members")
-property('splash', '_splash', nil, 'string', "Hash representing the guild's custom splash")
+property('splash', '_splash', nil, 'string?', "Hash representing the guild's custom splash")
 property('region', '_region', setRegion, 'string', "String representing the guild's voice region")
 property('mfaLevel', '_mfa_level', nil, 'number', "Guild required MFA level")
 property('joinedAt', '_joined_at', nil, 'string', "Date and time at which the client joined the guild")
@@ -458,7 +458,7 @@ property('defaultRole', getDefaultRole, nil, 'Role', "The guild's '@everyone' ro
 property('defaultChannel', getDefaultChannel, nil, 'GuildTextChannel', "The guild's default text channel")
 property('bannedUsers', getBannedUsers, nil, 'function', "Iterator for the banned users in the guild")
 property('invites', getInvites, nil, 'function', "Iterator for the guild's invites (not cached)")
-property('connection', '_connection', nil, 'VoiceConnection', "The handle for this guild's voice connection, if one exists")
+property('connection', '_connection', nil, 'VoiceConnection?', "The handle for this guild's voice connection, if one exists")
 
 method('leave', leave, nil, "Leaves the guild.")
 method('delete', delete, nil, "Deletes the guild.")

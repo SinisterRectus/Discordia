@@ -44,14 +44,14 @@ property('revoked', '_revoked', getRevoked, 'boolean', "Whether the invite is re
 property('maxUses', '_max_uses', nil, 'number', "How many times the invite can be used")
 property('temporary', '_temporary', nil, 'boolean', "Whether the invite grants temporary guild membership")
 property('createdAt', '_created_at', nil, 'string', "When the invite was created")
-property('inviter', '_inviter', nil, 'User', "The user that created the invite (nil for widget invites)")
+property('inviter', '_inviter', nil, 'User?', "The user that created the invite")
 property('guildId', '_guild_id', nil, 'string', "Snowflake ID of the guild for which the invite exists")
 property('channelId', '_channel_id', nil, 'string', "Snowflake ID of the channel for which the invite exists")
 property('guildName', '_guild_name', nil, 'string', "Name of the guild for which the invite exists")
 property('channelName', '_channel_name', nil, 'string', "Name of the channel for which the invite exists")
 property('channelType', '_channel_type', nil, 'string', "Type of the channel for which the invite exists")
 
-method('accept', accept, nil, "Joins the guild and channel for which the invite exists (non-bots only).")
+method('accept', accept, nil, "Joins the guild and channel for which the invite exists.")
 method('delete', delete, nil, "Revokes and deletes the invite.")
 
 return Invite

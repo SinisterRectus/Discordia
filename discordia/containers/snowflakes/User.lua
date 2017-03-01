@@ -89,7 +89,7 @@ local function getMutualGuilds(self)
 	end)
 end
 
-property('avatar', '_avatar', nil, 'string', "Hash representing the user's avatar")
+property('avatar', '_avatar', nil, 'string?', "Hash representing the user's avatar")
 property('avatarUrl', getAvatarUrl, nil, 'string', "URL that points to the user's avatar")
 property('defaultAvatar', getDefaultAvatar, nil, 'string', "Hash representing the user's default avatar")
 property('defaultAvatarUrl', getDefaultAvatarUrl, nil, 'string', "URL that points to the user's default avatar")

@@ -9,6 +9,13 @@ local function load(self, data)
 			self['_' .. k] = v
 		end
 	end
+	pcall(function()
+		for k in pairs(self.__class.__info.properties) do
+			if self[k] == nil then
+				print(k)
+			end
+		end
+	end)
 end
 
 function Container:__init(data, parent)

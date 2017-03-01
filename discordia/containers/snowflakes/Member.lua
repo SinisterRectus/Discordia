@@ -283,13 +283,13 @@ property('username', function(self) return self._user._username end, nil, 'strin
 property('discriminator', function(self) return self._user._discriminator end, nil, 'string', "Shortcut for member.user.discriminator")
 
 property('status', getStatus, nil, 'string', "Whether the member is online, offline, or idle")
-property('gameName', getGameName, nil, 'string', "Name of the game set in the member's status (can be nil if not set)")
+property('gameName', getGameName, nil, 'string?', "Name of the game set in the member's status")
 property('name', getName, nil, 'string', "The member's nickname if one is set. Otherwise, its username.")
-property('nickname', '_nick', setNickname, 'string', "The member's nickname for the guild in which it exists (can be nil if not set)")
+property('nickname', '_nick', setNickname, 'string?', "The member's nickname for the guild in which it exists")
 property('user', '_user', nil, 'User', "The base user associated with this member")
 property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
-property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
-property('voiceChannel', getVoiceChannel, setVoiceChannel, 'GuildVoiceChannel', "If connected, this is the member's voice channel.")
+property('joinedAt', '_joined_at', nil, 'string?', "Date and time when the member joined the guild")
+property('voiceChannel', getVoiceChannel, setVoiceChannel, 'GuildVoiceChannel?', "If connected, this is the member's voice channel.")
 property('color', getColor, nil, 'Color', "The member's displayed name color")
 
 method('setMute', setMute, '[boolean]', "Mutes or unmutes the member guild-wide (default: false).")
