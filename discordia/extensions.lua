@@ -1,6 +1,6 @@
 local random = math.random
 local insert, remove, sort, concat = table.insert, table.remove, table.sort, table.concat
-local gmatch, match, byte, char = string.gmatch, string.match, string.byte, string.char
+local gmatch, match, byte, char, find, sub = string.gmatch, string.match, string.byte, string.char, string.find, string.sub
 local format, rep, find = string.format, string.rep, string.find
 local min, max = math.min, math.max
 local ceil, floor = math.ceil, math.floor
@@ -137,9 +137,21 @@ end
 
 function string.split(str, delim)
 	if delim and delim ~= '' then
+		if find(str, delim) == nil then
+			return { str }
+		end
 		local words = {}
-		for word in gmatch(str .. delim, '(.-)' .. delim) do
+		local pattern = '(.-)' .. delim
+		local lastPos = 1
+		while true do
+			local _, pos, word = find(str, pattern, lastPos)
+			if not word then break end
 			insert(words, word)
+			lastPos = pos + 1
+		end
+		print(lastPos, #str)
+		if lastPos <= #str then
+			insert(words, sub(str, lastPos))
 		end
 		return words
 	else
