@@ -1,7 +1,7 @@
 local random = math.random
 local insert, remove, sort, concat = table.insert, table.remove, table.sort, table.concat
-local gmatch, match, byte, char, find, sub = string.gmatch, string.match, string.byte, string.char, string.find, string.sub
-local format, rep, find = string.format, string.rep, string.find
+local gmatch, match, byte, char = string.gmatch, string.match, string.byte, string.char
+local format, rep, find, sub = string.format, string.rep, string.find, string.sub
 local min, max = math.min, math.max
 local ceil, floor = math.ceil, math.floor
 
