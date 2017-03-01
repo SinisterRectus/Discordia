@@ -36,8 +36,7 @@ local defaultOptions = {
 local Client, property, method, cache = class('Client', Emitter)
 Client.__description = "The main point of entry into a Discordia application."
 
-function Client:__init(customOptions)
-	Emitter.__init(self)
+local function parseOptions(self, customOptions)
 	if customOptions then
 		local options = {}
 		for k, v in pairs(defaultOptions) do
@@ -48,9 +47,21 @@ function Client:__init(customOptions)
 			end
 		end
 		self._options = options
+		for k, v in pairs(customOptions) do
+			local a = type(v)
+			local b = type(defaultOptions[k])
+			if a ~= b then
+				return self:error(format('Invalid client option type for %q: got %q, expected %q', k, a, b))
+			end
+		end
 	else
 		self._options = defaultOptions
 	end
+end
+
+function Client:__init(customOptions)
+	Emitter.__init(self)
+	parseOptions(self, customOptions)
 	self._api = API(self)
 	self._sockets = {}
 	self._users = Cache({}, User, 'id', self)
