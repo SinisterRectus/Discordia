@@ -149,7 +149,6 @@ function string.split(str, delim)
 			insert(words, word)
 			lastPos = pos + 1
 		end
-		print(lastPos, #str)
 		if lastPos <= #str then
 			insert(words, sub(str, lastPos))
 		end
