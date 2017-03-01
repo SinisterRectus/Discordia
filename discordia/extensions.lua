@@ -1,7 +1,7 @@
 local random = math.random
 local insert, remove, sort, concat = table.insert, table.remove, table.sort, table.concat
 local gmatch, match, byte, char = string.gmatch, string.match, string.byte, string.char
-local format, rep, find = string.format, string.rep, string.find
+local format, rep, find, sub = string.format, string.rep, string.find, string.sub
 local min, max = math.min, math.max
 local ceil, floor = math.ceil, math.floor
 
@@ -148,6 +148,26 @@ function string.split(str, delim)
 			insert(chars, char)
 		end
 		return chars
+	end
+end
+
+function string.split2(str, delim)
+	if (not str) or (not delim) or str == "" or delim == "" then
+		return {}
+	else
+		local current = 1
+		local result = { }
+		while true do
+			local start, finish = find(str, delim, current)
+			if start and finish then
+				insert(result, sub(str, current, start-1))
+				current = finish + 1
+			else
+				break
+			end
+		end
+		insert(result, sub(str, current))
+		return result
 	end
 end
 
