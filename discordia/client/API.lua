@@ -134,7 +134,7 @@ function API:commit(method, url, reqHeaders, payload, routeMutex, attempts)
 		routeDelay = max(1000 * dt, routeDelay)
 	end
 
-	local success, data = res.code < 300, decode(str) or {}
+	local success, data = res.code < 300, decode(str) or {message = str}
 	local shouldRetry = false
 
 	if not success then
