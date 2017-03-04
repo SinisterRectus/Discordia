@@ -55,7 +55,11 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 
 	function class:__index(k)
 		local getter = getters[k]
-		return getter and getter(self) or rawget(self, pool[k]) or class[k]
+		if getter then -- don't use ternary operator
+			return getter(self)
+		else
+			return rawget(self, pool[k]) or class[k]
+		end
 	end
 
 	function class:__newindex(k, v)
