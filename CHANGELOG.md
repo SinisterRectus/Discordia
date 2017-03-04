@@ -1,5 +1,16 @@
 # Changelog
 
+### 1.4.1
+- Added token check to socket reconnection
+- Fixed bug when setting client nickname via Member
+- Added default JSON table for non-JSON HTTP responses
+- Added checks for invalid client options
+- Restored fixed creationix/coro dependency versions
+- Extensions added:
+  - `string.random` for generating random string
+  - `string.split2` for splitting strings by pattern [@FiniteReality]
+
+
 ### 1.4.0
 - Implemented automatic gateway sharding
   - Multiple shards are automatically spawned on startup according to the Discord-recommended amount

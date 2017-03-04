@@ -25,7 +25,4 @@
   - bulkDelete and/or getMessageHistory predicate
 - patch
   - Filter two-week old messages from bulk delete
-  - Check for invalid client options
-  - Check for null sequence
   - Find reactions 429 bug
-  - Clarify in docs which properties may not exist
