@@ -98,7 +98,7 @@ property('name', '_name', setName, 'string', "The name of the guild channel")
 property('position', '_position', setPosition, 'number', "The position of the channel in the guild's list of channels")
 property('invites', getInvites, nil, 'function', "Returns an iterator for the channel's invites (not cached)")
 
-method('createInvite', createInvite, 'maxAge, maxUses, temporary, unique', "Creates and returns an invite to the channel for users to join.")
+method('createInvite', createInvite, 'maxAge, maxUses, temporary, unique', "Creates and returns an invite to the channel for users to join.", 'HTTP')
 method('getPermissionOverwriteFor', getPermissionOverwriteFor, 'object', "Returns an overwrite for the provided Role or Member")
 
 cache('PermissionOverwrite', getPermissionOverwriteCount, getPermissionOverwrite, getPermissionOverwrites, findPermissionOverwrite, findPermissionOverwrites)

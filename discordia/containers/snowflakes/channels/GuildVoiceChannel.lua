@@ -171,8 +171,8 @@ property('bitrate', '_bitrate', setBitrate, '[number]', "Channel bitrate in bits
 property('userLimit', '_user_limit', setUserLimit, '[number]', "Limit to the number of users allowed in the channel (use 0 for infinite, default: 0)")
 property('connection', getConnection, nil, 'VoiceConnection?', "The handle for this channel's voice connection, if one exists")
 
-method('join', join, nil, "Joins the voice channel. A connection, either a new or old one, is returned if successful.")
-method('leave', leave, nil, "Leaves the voice channel. A boolean is returned to indicate success.")
+method('join', join, nil, "Joins the voice channel. A connection, either a new or old one, is returned if successful.", 'WS')
+method('leave', leave, nil, "Leaves the voice channel. A boolean is returned to indicate success.", 'WS')
 
 cache('Member', getMemberCount, getMember, getMembers, findMember, findMembers)
 

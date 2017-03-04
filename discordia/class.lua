@@ -107,12 +107,12 @@ local class = setmetatable({__classes = classes}, {__call = function(_, name, ..
 
 	end
 
-	local function method(k, fn, params, desc)
+	local function method(k, fn, params, desc, interface)
 		assert(type(k) == 'string')
 		assert(type(fn) == 'function')
 		assert(type(desc) == 'string' and #desc < 120)
 		class[k] = fn
-		methods[k] = {params or '', desc}
+		methods[k] = {params or '', desc, interface or 'Local'}
 	end
 
 	local function cache(k, count, get, getAll, find, findAll)

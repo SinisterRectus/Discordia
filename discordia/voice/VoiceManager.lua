@@ -112,8 +112,8 @@ property('connections', getConnections, nil, 'function', "An iterator for the cl
 
 method('loadOpus', loadOpus, 'path', "Loads a dynamic libopus file (.dll, .so).")
 method('loadSodium', loadSodium, 'path', "Loads a dynamic libsodium file (.dll, .so).")
-method('pauseStreams', pauseStreams, nil, "Pauses active audio streams for all existing connections.")
-method('resumeStreams', resumeStreams, nil, "Resumes active audio streams for all existing connections.")
-method('stopStreams', stopStreams, nil, "Stops active audio streams for all existing connections.")
+method('pauseStreams', pauseStreams, nil, "Pauses active audio streams for all existing connections.", 'WS')
+method('resumeStreams', resumeStreams, nil, "Resumes active audio streams for all existing connections.", 'WS')
+method('stopStreams', stopStreams, nil, "Stops active audio streams for all existing connections.", 'WS')
 
 return VoiceManager

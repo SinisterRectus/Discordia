@@ -20,6 +20,6 @@ end
 property('type', '_type', nil, 'string', "The channel type (text or voice)")
 property('isPrivate', '_is_private', nil, 'boolean', "Whether the channel is private")
 
-method('delete', delete, nil, "Deletes the channel. This cannot be undone for guild channels!")
+method('delete', delete, nil, "Deletes the channel. This cannot be undone for guild channels!", 'HTTP')
 
 return Channel

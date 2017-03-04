@@ -127,12 +127,12 @@ property('name', getName, nil, 'string', "Equivalent to the role or member to wh
 property('allowedPermissions', getAllowedPermissions, setAllowedPermissions, 'Permissions', "Object representing permissions that are allowed by the overwrite.")
 property('deniedPermissions', getDeniedPermissions, setDeniedPermissions, 'Permissions', "Object representing permissions that are denied by the overwrite.")
 
-method('allowPermissions', allowPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to allowed.")
-method('denyPermissions', denyPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to denied.")
-method('clearPermissions', clearPermissions, 'flag[, ...]', "Clears permissions settings for the overwrite by flag.")
-method('allowAllPermissions', allowAllPermissions, nil, "Sets all permissions to allowed.")
-method('denyAllPermissions', denyAllPermissions, nil, "Sets all permissions to denied.")
-method('clearAllPermissions', clearAllPermissions, nil, "Clears the setting of all permissions.")
-method('delete', delete, nil, "Deletes the permission overwrite.")
+method('allowPermissions', allowPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to allowed.", 'HTTP')
+method('denyPermissions', denyPermissions, 'flag[, ...]', "Sets permissions for the overwrite by flag to denied.", 'HTTP')
+method('clearPermissions', clearPermissions, 'flag[, ...]', "Clears permissions settings for the overwrite by flag.", 'HTTP')
+method('allowAllPermissions', allowAllPermissions, nil, "Sets all permissions to allowed.", 'HTTP')
+method('denyAllPermissions', denyAllPermissions, nil, "Sets all permissions to denied.", 'HTTP')
+method('clearAllPermissions', clearAllPermissions, nil, "Clears the setting of all permissions.", 'HTTP')
+method('delete', delete, nil, "Deletes the permission overwrite.", 'HTTP')
 
 return PermissionOverwrite

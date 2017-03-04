@@ -334,14 +334,14 @@ property('attachments', '_attachments', nil, 'table', "Known attachments that th
 property('embed', getEmbed, setEmbed, 'table?', "A shortcut to the first known embed that this message has")
 property('embeds', '_embeds', nil, 'table', "Known embeds that this message has")
 
-method('reply', reply, 'content', "Shortcut for `message.channel:sendMessage`.")
-method('pin', pin, nil, "Adds the message to the channel's pinned messages.")
-method('unpin', unpin, nil, "Removes the message from the channel's pinned messages.")
-method('delete', delete, nil, "Permanently deletes the message from the channel.")
+method('reply', reply, 'content', "Shortcut for `message.channel:sendMessage`.", 'HTTP')
+method('pin', pin, nil, "Adds the message to the channel's pinned messages.", 'HTTP')
+method('unpin', unpin, nil, "Removes the message from the channel's pinned messages.", 'HTTP')
+method('delete', delete, nil, "Permanently deletes the message from the channel.", 'HTTP')
 method('mentionsObject', mentionsObject, 'obj', "Returns a boolean indicating whether the provided object was mentioned in the message.")
-method('addReaction', addReaction, 'emoji', "Adds an emoji (object or string) reaction to the message.")
-method('removeReaction', removeReaction, 'emoji[, member]', "Removes an emoji (object or string) reaction from the message.")
-method('clearReactions', clearReactions, nil, "Removes all emoji reactions from the message.")
-method('getReactionUsers', getReactionUsers, 'Emoji or string', "Returns an iterator for the Users that have reacted with a specific emoji.")
+method('addReaction', addReaction, 'emoji', "Adds an emoji (object or string) reaction to the message.", 'HTTP')
+method('removeReaction', removeReaction, 'emoji[, member]', "Removes an emoji (object or string) reaction from the message.", 'HTTP')
+method('clearReactions', clearReactions, nil, "Removes all emoji reactions from the message.", 'HTTP')
+method('getReactionUsers', getReactionUsers, 'Emoji or string', "Returns an iterator for the Users that have reacted with a specific emoji.", 'HTTP')
 
 return Message

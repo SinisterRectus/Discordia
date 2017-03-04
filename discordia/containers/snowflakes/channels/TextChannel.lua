@@ -176,14 +176,14 @@ end
 
 property('pinnedMessages', getPinnedMessages, nil, 'function', "Iterator for all of the pinned messages in the channel")
 
-method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.")
-method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.")
-method('sendMessage', sendMessage, 'content', "Sends a message to the channel. Content is a string or table.")
+method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.", 'HTTP')
+method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.", 'HTTP')
+method('sendMessage', sendMessage, 'content', "Sends a message to the channel. Content is a string or table.", 'HTTP')
 
-method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator for 1 to 100 (default: 50) of the most recent messages in the channel.')
-method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Get message history before a specific message.')
-method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit]', 'Get message history after a specific message.')
-method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit]', 'Get message history around a specific message.')
+method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator for 1 to 100 (default: 50) of the most recent messages in the channel.', 'HTTP')
+method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Get message history before a specific message.', 'HTTP')
+method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit]', 'Get message history after a specific message.', 'HTTP')
+method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit]', 'Get message history around a specific message.', 'HTTP')
 
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
 

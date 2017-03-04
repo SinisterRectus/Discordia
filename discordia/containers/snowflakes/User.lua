@@ -100,10 +100,10 @@ property('discriminator', '_discriminator', nil, 'string', "The user's 4-digit d
 property('bot', function(self) return self._bot or false end, nil, 'boolean', "Whether the user is a bot account")
 property('mutualGuilds', getMutualGuilds, nil, 'function', "Iterator for guilds in which both the user and client user share membership")
 
-method('ban', ban, 'guild[, days]', "Bans the user from a guild and optionally deletes their messages from 1-7 days.")
-method('unban', unban, 'guild', "Unbans the user from the provided guild.")
-method('kick', kick, 'guild', "Kicks the user from the provided guild.")
-method('sendMessage', sendMessage, 'content', "Sends a private message to the user.")
-method('getMembership', getMembership, 'guild', "Returns the user's Member object for the provided guild.")
+method('ban', ban, 'guild[, days]', "Bans the user from a guild and optionally deletes their messages from 1-7 days.", 'HTTP')
+method('unban', unban, 'guild', "Unbans the user from the provided guild.", 'HTTP')
+method('kick', kick, 'guild', "Kicks the user from the provided guild.", 'HTTP')
+method('sendMessage', sendMessage, 'content', "Sends a private message to the user.", 'HTTP')
+method('getMembership', getMembership, 'guild', "Returns the user's Member object for the provided guild.", 'Local or HTTP')
 
 return User

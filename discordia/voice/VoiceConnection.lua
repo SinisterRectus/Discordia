@@ -179,12 +179,12 @@ property('playTime', getPlayTime, nil, 'number', "The elapsed play time of the a
 
 method('getBitrate', getBitrate, nil, "Returns the current bitrate for the connection in bits per second.")
 method('setBitrate', setBitrate, nil, "Sets the current bitrate for the connection (8000 to 128000 bps range).")
-method('playFile', playFile, 'filename[, duration]', "Streams an audio file via FFmpeg.")
-method('playBytes', playBytes, 'string[, duration]', "Interprets a Lua string as a byte array and streams it.")
-method('playPCM', playPCM, 'table[, duration]', "Interprets a Lua table as a PCM array and streams it.")
-method('playWaveform', playWaveform, 'generator[, duration]', "Streams PCM data returned from a generator function.")
-method('pauseStream', pauseStream, nil, "Pauses the current audio stream, if one exists and is playing.")
-method('resumeStream', resumeStream, nil, "Resumes the current audio stream, if one exists and is paused.")
-method('stopStream', stopStream, nil, "Stops the current audio stream, if one exists.")
+method('playFile', playFile, 'filename[, duration]', "Streams an audio file via FFmpeg.", 'WS')
+method('playBytes', playBytes, 'string[, duration]', "Interprets a Lua string as a byte array and streams it.", 'WS')
+method('playPCM', playPCM, 'table[, duration]', "Interprets a Lua table as a PCM array and streams it.", 'WS')
+method('playWaveform', playWaveform, 'generator[, duration]', "Streams PCM data returned from a generator function.", 'WS')
+method('pauseStream', pauseStream, nil, "Pauses the current audio stream, if one exists and is playing.", 'WS')
+method('resumeStream', resumeStream, nil, "Resumes the current audio stream, if one exists and is paused.", 'WS')
+method('stopStream', stopStream, nil, "Stops the current audio stream, if one exists.", 'WS')
 
 return VoiceConnection

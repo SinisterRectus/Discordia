@@ -101,10 +101,10 @@ property('color', getColor, setColor, 'Color', "Object representing the role col
 property('permissions', getPermissions, setPermissions, 'Permissions', "Object representing the role's permissions")
 property('mentionString', getMentionString, nil, 'string', "Raw string that is parsed by Discord into a role mention")
 
-method('enablePermissions', enablePermissions, 'flag[, ...]', "Enables permissions for the role by flag.")
-method('disablePermissions', disablePermissions, 'flag[, ...]', "Disables permissions for the role by flag.")
-method('enableAllPermissions', enableAllPermissions, nil, "Enables all permissions for the role.")
-method('disableAllPermissions', disableAllPermissions, nil, "Disables all permissions for the role.")
-method('delete', delete, nil, "Permanently deletes the role.")
+method('enablePermissions', enablePermissions, 'flag[, ...]', "Enables permissions for the role by flag.", 'HTTP')
+method('disablePermissions', disablePermissions, 'flag[, ...]', "Disables permissions for the role by flag.", 'HTTP')
+method('enableAllPermissions', enableAllPermissions, nil, "Enables all permissions for the role.", 'HTTP')
+method('disableAllPermissions', disableAllPermissions, nil, "Disables all permissions for the role.", 'HTTP')
+method('delete', delete, nil, "Permanently deletes the role.", 'HTTP')
 
 return Role

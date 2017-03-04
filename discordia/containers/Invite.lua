@@ -51,7 +51,7 @@ property('guildName', '_guild_name', nil, 'string', "Name of the guild for which
 property('channelName', '_channel_name', nil, 'string', "Name of the channel for which the invite exists")
 property('channelType', '_channel_type', nil, 'string', "Type of the channel for which the invite exists")
 
-method('accept', accept, nil, "Joins the guild and channel for which the invite exists.")
-method('delete', delete, nil, "Revokes and deletes the invite.")
+method('accept', accept, nil, "Joins the guild and channel for which the invite exists.", 'HTTP')
+method('delete', delete, nil, "Revokes and deletes the invite.", 'HTTP')
 
 return Invite

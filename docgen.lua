@@ -79,6 +79,7 @@ end
 
 function writers.methods(file, methods)
 
+	local longestInt = 0
 	local longestName = 0
 	local longestDesc = 0
 
@@ -86,21 +87,25 @@ function writers.methods(file, methods)
 		method[1] = f('%s(%s)', method[1], method[2])
 		longestName = max(longestName, #method[1])
 		longestDesc = max(longestDesc, #method[3])
+		longestInt = max(longestInt, #method[4])
 	end
 
-	file:writefln('| %s | %s |',
+	file:writefln('| %s | %s | %s |',
 		padright('Prototype', longestName),
+		padright('Interface', longestInt),
 		padright('Description', longestDesc)
 	)
 
-	file:writefln('| %s | %s |',
+	file:writefln('| %s | %s | %s |',
 		rep('-', longestName),
+		rep('-', longestInt),
 		rep('-', longestDesc)
 	)
 
 	for _, method in ipairs(methods) do
-		file:writefln('| %s | %s |',
+		file:writefln('| %s | %s | %s |',
 			padright(method[1], longestName),
+			padright(method[4], longestInt),
 			padright(method[3], longestDesc)
 		)
 	end
@@ -120,7 +125,7 @@ local function writeDocs(file, class, type)
 		if type == 'properties' then
 			entry = {k, v[1], class.__info.setters[k], v[2]}
 		elseif type == 'methods' then
-			entry = {k, v[1], v[2]}
+			entry = {k, v[1], v[2], v[3]}
 		end
 		local actual = actualClass(type, class, k)
 		if actual ~= class then
