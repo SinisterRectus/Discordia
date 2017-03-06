@@ -114,7 +114,7 @@ local function setIcon(self, icon)
 end
 
 local function setOwner(self, member)
-	local success, data = self._parent._api:modifyGuild(self._user._id, {owner_id = member._id})
+	local success, data = self._parent._api:modifyGuild(self._id, {owner_id = member._id})
 	if success then self._owner_id = data.owner_id end
 	return success
 end
