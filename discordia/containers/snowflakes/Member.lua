@@ -27,6 +27,7 @@ end
 function Member:_update(data)
 	Snowflake._update(self, data)
 	self._roles = data.roles -- raw table of IDs
+	self._nick = data.nick -- because data.nick can be nil
 end
 
 function Member:_createPresence(data)
