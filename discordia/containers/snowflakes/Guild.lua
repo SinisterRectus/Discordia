@@ -2,6 +2,7 @@ local Snowflake = require('../Snowflake')
 local Role = require('./Role')
 local Emoji = require('./Emoji')
 local Member = require('./Member')
+local Webhook = require('./Webhook')
 local GuildTextChannel = require('./channels/GuildTextChannel')
 local GuildVoiceChannel = require('./channels/GuildVoiceChannel')
 local Invite = require('../Invite')
@@ -197,6 +198,20 @@ local function getInvites(self)
 		if v then
 			i = i + 1
 			return Invite(v, parent)
+		end
+	end
+end
+
+local function getWebhooks(self)
+	local success, data = self._parent._api:getGuildWebhooks(self._id)
+	local parent = self._parent
+	if not success then return function() end end
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Webhook(v, parent)
 		end
 	end
 end
@@ -458,6 +473,7 @@ property('defaultRole', getDefaultRole, nil, 'Role', "The guild's '@everyone' ro
 property('defaultChannel', getDefaultChannel, nil, 'GuildTextChannel', "The guild's default text channel")
 property('bannedUsers', getBannedUsers, nil, 'function', "Iterator for the banned users in the guild")
 property('invites', getInvites, nil, 'function', "Iterator for the guild's invites (not cached)")
+property('webhooks', getWebhooks, nil, 'function', "Iterator for the guild's webhooks (not cached)")
 property('connection', '_connection', nil, 'VoiceConnection?', "The handle for this guild's voice connection, if one exists")
 
 method('leave', leave, nil, "Leaves the guild.", 'HTTP')

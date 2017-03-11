@@ -4,6 +4,7 @@ local Cache = require('../utils/Cache')
 local Emitter = require('../utils/Emitter')
 local Stopwatch = require('../utils/Stopwatch')
 local Invite = require('../containers/Invite')
+local Webhook = require('../containers/snowflakes/Webhook')
 local User = require('../containers/snowflakes/User')
 local Guild = require('../containers/snowflakes/Guild')
 local PrivateChannel = require('../containers/snowflakes/channels/PrivateChannel')
@@ -283,6 +284,11 @@ end
 local function getInvite(self, code)
 	local success, data = self._api:getInvite(code)
 	return success and Invite(data, self) or nil
+end
+
+local function getWebhook(self, id)
+	local success, data = self._api:getWebhook(id)
+	return success and Webhook(data, self) or nil
 end
 
 function Client:_getTextChannelShortcut(id)
@@ -809,6 +815,7 @@ method('listVoiceRegions', listVoiceRegions, nil, "Returns a table of voice regi
 method('createGuild', createGuild, 'name, region', "Creates a guild with the provided name and voice region.", 'HTTP')
 method('acceptInvite', acceptInvite, 'code', "Accepts a guild invitation with the raw invite code.", 'HTTP')
 method('getInvite', getInvite, 'code', "Returns an Invite object corresponding to a raw invite code, if it exists.", 'HTTP')
+method('getWebhook', getWebhook, 'id', "Returns a Webhook object corresponding to a raw webhook ID, if it exists.", 'HTTP')
 
 method('setUsername', setUsername, 'username', "Sets the user's username.", 'HTTP')
 method('setNickname', setNickname, 'guild, nickname', "Sets the user's nickname for the indicated guild.", 'HTTP')

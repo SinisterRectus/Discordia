@@ -525,22 +525,22 @@ function API:listVoiceRegions() -- Client:listVoiceRegions
 	return self:request("GET", route, route)
 end
 
-function API:createWebhook(channel_id, payload) -- not exposed, maybe in the future
+function API:createWebhook(channel_id, payload) -- GuildTextChannel:createWebhook
 	local route = format("/channels/%s/webhooks", channel_id)
 	return self:request("POST", route, route, payload)
 end
 
-function API:getChannelWebhooks(channel_id) -- not exposed, maybe in the future
+function API:getChannelWebhooks(channel_id) -- GuildTextChannel:getWebhooks / GuildTextChannel.webhooks
 	local route = format("/channels/%s/webhooks", channel_id)
 	return self:request("GET", route, route)
 end
 
-function API:getGuildWebhooks(guild_id) -- not exposed, maybe in the future
+function API:getGuildWebhooks(guild_id) -- Guild:getWebhooks / Guild.webhooks
 	local route = format("/guilds/%s/webhooks", guild_id)
 	return self:request("GET", route, route)
 end
 
-function API:getWebhook(webhook_id) -- not exposed, maybe in the future
+function API:getWebhook(webhook_id) -- Client:getWebhook
 	local route = "/webhooks/%s"
 	return self:request("GET", route, format(route, webhook_id))
 end
@@ -550,7 +550,7 @@ function API:getWebhookwithToken(webhook_id, webhook_token) -- not exposed, mayb
 	return self:request("GET", route, format(route, webhook_id, webhook_token))
 end
 
-function API:modifyWebhook(webhook_id, payload) -- not exposed, maybe in the future
+function API:modifyWebhook(webhook_id, payload) --Webhook:setName, Webhook:setAvatar
 	local route = "/webhooks/%s"
 	return self:request("PATCH", route, format(route, webhook_id), payload)
 end
@@ -560,7 +560,7 @@ function API:modifyWebhookwithToken(webhook_id, webhook_token, payload) -- not e
 	return self:request("PATCH", route, format(route, webhook_id, webhook_token), payload)
 end
 
-function API:deleteWebhook(webhook_id) -- not exposed, maybe in the future
+function API:deleteWebhook(webhook_id) -- Webhook:delete
 	local route = "/webhooks/%s"
 	return self:request("DELETE", route, format(route, webhook_id))
 end

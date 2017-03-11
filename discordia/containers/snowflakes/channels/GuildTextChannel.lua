@@ -1,6 +1,7 @@
 local Message = require('../Message')
 local GuildChannel = require('./GuildChannel')
 local TextChannel = require('./TextChannel')
+local Webhook = require('../Webhook')
 
 local clamp = math.clamp
 local insert = table.insert
@@ -81,12 +82,34 @@ local function bulkDeleteAround(self, message, limit)
 	return _bulkDelete(self, query)
 end
 
+local function createWebhook(self, name)
+	local client = self._parent._parent
+	local success, data = client._api:createWebhook(self._id, {name = name})
+	return success and Webhook(data, client) or nil
+end
+
+local function getWebhooks(self)
+	local client = self._parent._parent
+	local success, data = client._api:getChannelWebhooks(self._id)
+	if not success then return function() end end
+	local i = 1
+	return function()
+		local v = data[i]
+		if v then
+			i = i + 1
+			return Webhook(v, client)
+		end
+	end
+end
+
 property('mentionString', getMentionString, nil, 'string', "Raw string that is parsed by Discord into a user mention")
 property('topic', '_topic', setTopic, 'string', "The channel topic (at the top of the channel in the Discord client)")
+property('webhooks', getWebhooks, nil, 'function', "Returns an iterator for the channel's webhooks (not cached)")
 
 method('bulkDelete', bulkDelete, '[limit]', 'Deletes 1 to 100 (default: 50) of the most recent messages from the channel and returns an iterator for them.', 'HTTP')
 method('bulkDeleteAfter', bulkDeleteAfter, 'message[, limit]', 'Bulk delete after a specific message.', 'HTTP')
 method('bulkDeleteBefore', bulkDeleteBefore, 'message[, limit]', 'Bulk delete before a specific message.', 'HTTP')
 method('bulkDeleteAround', bulkDeleteAround, 'message[, limit]', 'Bulk delete around a specific message.', 'HTTP')
+method('createWebhook', createWebhook, 'name', 'Creates a new webhook for the channel.', 'HTTP')
 
 return GuildTextChannel
