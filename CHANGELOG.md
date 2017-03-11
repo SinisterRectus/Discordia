@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.4.2
+- Fixed bug in Guild:setOwner
+- Fixed nickname not being cleared from member objects
+- Minor optimization in `printf`
+
+
 ### 1.4.1
 - Added token check to socket reconnection
 - Fixed bug when setting client nickname via Member

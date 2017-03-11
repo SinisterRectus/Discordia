@@ -7,8 +7,8 @@ local ceil, floor = math.ceil, math.floor
 
 -- globals --
 
-function _G.printf(...)
-	return print(format(...))
+function _G.printf(fmt, ...)
+	return print(format(fmt, ...))
 end
 
 -- table --

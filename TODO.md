@@ -1,6 +1,5 @@
 - major
   - Gateway v6
-  - Improved status support (streaming, dnd, invisible)
   - Client layer between the HTTP requests and OO methods
   - Argument checking
   - ETF support
@@ -23,6 +22,4 @@
   - PermissionOverwrite caches per Client/Guild
   - Add predicate/kv for cache counting
   - bulkDelete and/or getMessageHistory predicate
-- patch
   - Filter two-week old messages from bulk delete
-  - Find reactions 429 bug
