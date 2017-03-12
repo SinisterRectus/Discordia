@@ -123,7 +123,7 @@ local function sendMessage(self, content, ...) -- mentions, tts
 				nonce = arg.nonce,
 				embed = arg.embed,
 			}
-			if arg.file then
+			if type(arg.file) == 'string' then
 				local data, err
 				if arg.file:find('https?://') == 1 then
 					err, data = request('GET', arg.file)
@@ -136,6 +136,8 @@ local function sendMessage(self, content, ...) -- mentions, tts
 				else
 					file = {arg.filename or remove(splitPath(arg.file)), data}
 				end
+			elseif type(arg.file) == 'table' then
+				file = arg.file
 			end
 		end
 	end
