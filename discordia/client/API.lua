@@ -42,18 +42,24 @@ end
 local boundary = 'Discordia' .. time()
 local multipart = format('multipart/form-data;boundary=%s', boundary)
 
-local function attachFile(payload, file)
-	return concat {
-		'\r\n--', boundary,
-		'\r\nContent-Disposition:form-data;name="file";', format('filename=%q', file[1]),
-		'\r\nContent-Type:application/octet-stream',
-		'\r\n\r\n', file[2],
+local function attachFiles(payload, files)
+	local ret = {
 		'\r\n--', boundary,
 		'\r\nContent-Disposition:form-data;name="payload_json"',
 		'\r\nContent-Type:application/json',
 		'\r\n\r\n', payload,
-		'\r\n--', boundary, '--',
+		'\r\n--', boundary,
 	}
+	for i, v in ipairs(files) do
+		insert(ret, concat {
+			format('\r\nContent-Disposition:form-data;name="file%i";filename=%q', i, v[1]),
+			'\r\nContent-Type:application/octet-stream',
+			'\r\n\r\n', v[2],
+			'\r\n--', boundary,
+		})
+	end
+	insert(ret, '--')
+	return concat(ret)
 end
 
 local API = class('API')
@@ -79,7 +85,7 @@ function API:setToken(token)
 	self._token = token
 end
 
-function API:request(method, route, endpoint, payload, file)
+function API:request(method, route, endpoint, payload, files)
 
 	local url = "https://discordapp.com/api" .. endpoint
 
@@ -90,8 +96,8 @@ function API:request(method, route, endpoint, payload, file)
 
 	if method:find('P') then
 		payload = payload and encode(payload) or '{}'
-		if file then
-			payload = attachFile(payload, file)
+		if files then
+			payload = attachFiles(payload, files)
 			insert(reqHeaders, {'Content-Type', multipart})
 		else
 			insert(reqHeaders, {'Content-Type', 'application/json'})
@@ -200,9 +206,9 @@ function API:getChannelMessage(channel_id, message_id) -- TextChannel:getMessage
 	return self:request("GET", route, format(route, message_id))
 end
 
-function API:createMessage(channel_id, payload, file) -- TextChannel:sendMessage
+function API:createMessage(channel_id, payload, files) -- TextChannel:sendMessage
 	local route = format("/channels/%s/messages", channel_id)
-	return self:request("POST", route, route, payload, file)
+	return self:request("POST", route, route, payload, files)
 end
 
 function API:createReaction(channel_id, message_id, emoji) -- Message:addReaction

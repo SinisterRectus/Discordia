@@ -105,10 +105,10 @@ property('mentionString', getMentionString, nil, 'string', "Raw string that is p
 property('topic', '_topic', setTopic, 'string', "The channel topic (at the top of the channel in the Discord client)")
 property('webhooks', getWebhooks, nil, 'function', "Returns an iterator for the channel's webhooks (not cached)")
 
-method('bulkDelete', bulkDelete, '[limit]', 'Deletes 1 to 100 (default: 50) of the most recent messages from the channel and returns an iterator for them.', 'HTTP')
-method('bulkDeleteAfter', bulkDeleteAfter, 'message[, limit]', 'Bulk delete after a specific message.', 'HTTP')
-method('bulkDeleteBefore', bulkDeleteBefore, 'message[, limit]', 'Bulk delete before a specific message.', 'HTTP')
-method('bulkDeleteAround', bulkDeleteAround, 'message[, limit]', 'Bulk delete around a specific message.', 'HTTP')
+method('bulkDelete', bulkDelete, '[limit[, predicate]]', 'Deletes 1 to 100 (default: 50) of the most recent messages from the channel and returns an iterator for them.', 'HTTP')
+method('bulkDeleteAfter', bulkDeleteAfter, 'message[, limit[, predicate]]', 'Bulk delete after a specific message.', 'HTTP')
+method('bulkDeleteBefore', bulkDeleteBefore, 'message[, limit[, predicate]]', 'Bulk delete before a specific message.', 'HTTP')
+method('bulkDeleteAround', bulkDeleteAround, 'message[, limit[, predicate]]', 'Bulk delete around a specific message.', 'HTTP')
 method('createWebhook', createWebhook, 'name', 'Creates a new webhook for the channel.', 'HTTP')
 
 return GuildTextChannel

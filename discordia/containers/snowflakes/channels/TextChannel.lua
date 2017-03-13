@@ -84,6 +84,10 @@ local function getPinnedMessages(self)
 	return _messageIterator(self, client._api:getPinnedMessages(self._id))
 end
 
+-- begin send message --
+
+-- overhaul planned for 2.0
+
 local function parseMentions(content, mentions)
 	if type(mentions) == 'table' then
 		local strings = {}
@@ -108,9 +112,41 @@ local function parseMentions(content, mentions)
 	return content
 end
 
+local function parseFile(filename, file, client)
+	if type(file) == 'string' then
+		local data, err
+		if file:find('https?://') == 1 then
+			err, data = request('GET', file)
+			err = err.code > 299 and format('%s / %s / %s', err.code, err.reason, file)
+		else
+			data, err = readFile(file)
+		end
+		if err then
+			client:warning(err)
+		else
+			return {type(filename) == 'string' and filename or remove(splitPath(file)), data}
+		end
+	elseif type(file) == 'table' and type(file[1]) == 'string' and type(file[2]) == 'string' then
+		return file
+	end
+end
+
+local function parseFiles(filename, file, files, client)
+	local f1 = parseFile(filename, file, client)
+	local ret = f1 and {f1} or nil
+	if type(files) == 'table' then
+		ret = ret or {}
+		for _, v in ipairs(files) do
+			local f = parseFile(nil, v, client)
+			if f then insert(ret, f) end
+		end
+	end
+	return ret
+end
+
 local function sendMessage(self, content, ...) -- mentions, tts
 	local client = self._parent._parent or self._parent
-	local payload, file
+	local payload, files
 	if select('#', ...) > 0 then
 		client:warning('Multiple argument usage for TextChannel:sendMessage is deprecated. Use a table instead.')
 		payload = {content = parseMentions(content, select(1, ...)), tts = select(2, ...)}
@@ -126,27 +162,14 @@ local function sendMessage(self, content, ...) -- mentions, tts
 				nonce = arg.nonce,
 				embed = arg.embed,
 			}
-			if type(arg.file) == 'string' then
-				local data, err
-				if arg.file:find('https?://') == 1 then
-					err, data = request('GET', arg.file)
-					err = err.code > 299 and format('%s / %s / %s', err.code, err.reason, arg.file)
-				else
-					data, err = readFile(arg.file)
-				end
-				if err then
-					client:warning(err)
-				else
-					file = {arg.filename or remove(splitPath(arg.file)), data}
-				end
-			elseif type(arg.file) == 'table' then
-				file = arg.file
-			end
+			files = parseFiles(arg.filename, arg.file, arg.files, client)
 		end
 	end
-	local success, data = client._api:createMessage(self._id, payload, file)
+	local success, data = client._api:createMessage(self._id, payload, files)
 	return success and self._messages:new(data) or nil
 end
+
+-- end send message --
 
 local function broadcastTyping(self)
 	local client = self._parent._parent or self._parent
