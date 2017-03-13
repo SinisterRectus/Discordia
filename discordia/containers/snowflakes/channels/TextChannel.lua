@@ -65,17 +65,23 @@ local function getMessageHistory(self, limit, predicate)
 end
 
 local function getMessageHistoryBefore(self, message, limit, predicate)
-	local query = {before = message._id, limit = limit and clamp(limit, 1, 100) or nil}
+	local t = type(message)
+	local id = t == 'table' and message._id or t == 'string' and message or nil
+	local query = {before = id, limit = limit and clamp(limit, 1, 100) or nil}
 	return _getMessageHistory(self, query, predicate)
 end
 
 local function getMessageHistoryAfter(self, message, limit, predicate)
-	local query = {after = message._id, limit = limit and clamp(limit, 1, 100) or nil}
+	local t = type(message)
+	local id = t == 'table' and message._id or t == 'string' and message or nil
+	local query = {after = id, limit = limit and clamp(limit, 1, 100) or nil}
 	return _getMessageHistory(self, query, predicate)
 end
 
 local function getMessageHistoryAround(self, message, limit, predicate)
-	local query = {around = message._id, limit = limit and clamp(limit, 2, 100) or nil}
+	local t = type(message)
+	local id = t == 'table' and message._id or t == 'string' and message or nil
+	local query = {around = id, limit = limit and clamp(limit, 2, 100) or nil}
 	return _getMessageHistory(self, query, predicate)
 end
 
@@ -209,9 +215,9 @@ method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50
 method('sendMessage', sendMessage, 'content', "Sends a message to the channel. Content is a string or table.", 'HTTP')
 
 method('getMessageHistory', getMessageHistory, '[limit[, predicate]', 'Returns an iterator for up to 1 to 100 (default: 50) of the most recent messages in the channel.', 'HTTP')
-method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit[, predicate]]', 'Get message history before a specific message.', 'HTTP')
-method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit[, predicate]]', 'Get message history after a specific message.', 'HTTP')
-method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit[, predicate]]', 'Get message history around a specific message.', 'HTTP')
+method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit[, predicate]]', 'Get message history before a specific message or ID.', 'HTTP')
+method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit[, predicate]]', 'Get message history after a specific message or ID.', 'HTTP')
+method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit[, predicate]]', 'Get message history around a specific message or ID.', 'HTTP')
 
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
 
