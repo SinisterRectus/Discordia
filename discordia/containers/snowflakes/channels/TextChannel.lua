@@ -11,6 +11,7 @@ local format = string.format
 local readFile = fs.readFile
 local request = http.request
 local splitPath = pathjoin.splitPath
+local wrap, yield = coroutine.wrap, coroutine.yield
 local insert, remove, concat = table.insert, table.remove, table.concat
 
 local TextChannel, property, method, cache = class('TextChannel', Channel)
@@ -27,16 +28,17 @@ function TextChannel:_update(data)
 	Channel._update(self, data)
 end
 
-local function _messageIterator(self, success, data)
+local function _messageIterator(self, success, data, predicate)
 	if not success then return function() end end
-	local i = 1
-	return function()
-		local v = data[i]
-		if v then
-			i = i + 1
-			return Message(v, self)
+	predicate = type(predicate) == 'function' and predicate
+	return wrap(function()
+		for _, v in ipairs(data) do
+			local m = Message(v, self)
+			if not predicate or predicate(m) then
+				yield(m)
+			end
 		end
-	end
+	end)
 end
 
 local function loadMessages(self, limit)
@@ -51,29 +53,30 @@ local function loadMessages(self, limit)
 	return success
 end
 
-local function _getMessageHistory(self, query)
+local function _getMessageHistory(self, query, predicate)
 	local client = self._parent._parent or self._parent
-	return _messageIterator(self, client._api:getChannelMessages(self._id, query))
+	local success, data = client._api:getChannelMessages(self._id, query)
+	return _messageIterator(self, success, data, predicate)
 end
 
-local function getMessageHistory(self, limit)
+local function getMessageHistory(self, limit, predicate)
 	local query = limit and {limit = clamp(limit, 1, 100)}
-	return _getMessageHistory(self, query)
+	return _getMessageHistory(self, query, predicate)
 end
 
-local function getMessageHistoryBefore(self, message, limit)
+local function getMessageHistoryBefore(self, message, limit, predicate)
 	local query = {before = message._id, limit = limit and clamp(limit, 1, 100) or nil}
-	return _getMessageHistory(self, query)
+	return _getMessageHistory(self, query, predicate)
 end
 
-local function getMessageHistoryAfter(self, message, limit)
+local function getMessageHistoryAfter(self, message, limit, predicate)
 	local query = {after = message._id, limit = limit and clamp(limit, 1, 100) or nil}
-	return _getMessageHistory(self, query)
+	return _getMessageHistory(self, query, predicate)
 end
 
-local function getMessageHistoryAround(self, message, limit)
+local function getMessageHistoryAround(self, message, limit, predicate)
 	local query = {around = message._id, limit = limit and clamp(limit, 2, 100) or nil}
-	return _getMessageHistory(self, query)
+	return _getMessageHistory(self, query, predicate)
 end
 
 local function getPinnedMessages(self)
@@ -182,10 +185,10 @@ method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' 
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.", 'HTTP')
 method('sendMessage', sendMessage, 'content', "Sends a message to the channel. Content is a string or table.", 'HTTP')
 
-method('getMessageHistory', getMessageHistory, '[limit]', 'Returns an iterator for 1 to 100 (default: 50) of the most recent messages in the channel.', 'HTTP')
-method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit]', 'Get message history before a specific message.', 'HTTP')
-method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit]', 'Get message history after a specific message.', 'HTTP')
-method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit]', 'Get message history around a specific message.', 'HTTP')
+method('getMessageHistory', getMessageHistory, '[limit[, predicate]', 'Returns an iterator for up to 1 to 100 (default: 50) of the most recent messages in the channel.', 'HTTP')
+method('getMessageHistoryBefore', getMessageHistoryBefore, 'message[, limit[, predicate]]', 'Get message history before a specific message.', 'HTTP')
+method('getMessageHistoryAfter', getMessageHistoryAfter, 'message[, limit[, predicate]]', 'Get message history after a specific message.', 'HTTP')
+method('getMessageHistoryAround', getMessageHistoryAround, 'message[, limit[, predicate]]', 'Get message history around a specific message.', 'HTTP')
 
 cache('Message', getMessageCount, getMessage, getMessages, findMessage, findMessages)
 

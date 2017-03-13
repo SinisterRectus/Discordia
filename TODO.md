@@ -3,11 +3,11 @@
   - Client layer between the HTTP requests and OO methods
   - Argument checking
   - ETF support
+  - remove payload table from raw event
 - minor
   - Sanitized channel/role position setting
   - Logging support
   - Group DMs
-  - Webhooks
   - Handle unhandled gateway events
   - Guild integrations and features
   - Class statics
@@ -21,5 +21,4 @@
   - Implicit permissions checking
   - PermissionOverwrite caches per Client/Guild
   - Add predicate/kv for cache counting
-  - bulkDelete and/or getMessageHistory predicate
-  - Filter two-week old messages from bulk delete
+  - voice receive
