@@ -251,8 +251,8 @@ local function createVoiceChannel(self, name)
 	return success and self._voice_channels:new(data) or nil
 end
 
-local function createRole(self)
-	local success, data = self._parent._api:createGuildRole(self._id)
+local function createRole(self, name)
+	local success, data = self._parent._api:createGuildRole(self._id, {name = name})
 	return success and self._roles:new(data) or nil
 end
 
@@ -486,7 +486,7 @@ method('getPruneCount', getPruneCount, '[days]', "Returns how many members would
 method('pruneMembers', pruneMembers, '[days]', "Removes members who have not been seen in 1-30 days (default: 1 day). Returns the number of pruned members.", 'HTTP')
 method('createTextChannel', createTextChannel, 'name', "Creates a new text channel in the guild.", 'HTTP')
 method('createVoiceChannel', createVoiceChannel, 'name', "Creates a new voice channel in the guild.", 'HTTP')
-method('createRole', createRole, nil, "Creates a new role in the guild.", 'HTTP')
+method('createRole', createRole, 'name', "Creates a new role in the guild.", 'HTTP')
 
 cache('Channel', getChannelCount, getChannel, getChannels, findChannel, findChannels)
 cache('TextChannel', getTextChannelCount, getTextChannel, getTextChannels, findTextChannel, findTextChannels)
