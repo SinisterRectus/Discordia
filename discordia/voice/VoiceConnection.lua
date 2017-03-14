@@ -10,6 +10,7 @@ local FFMPEG = constants.FFMPEG
 local MIN_BITRATE = constants.MIN_BITRATE
 local MAX_BITRATE = constants.MAX_BITRATE
 
+local band = bit.band
 local clamp = math.clamp
 local format = string.format
 
@@ -24,7 +25,7 @@ function VoiceConnection:__init(encoder, channel, socket, voice)
 	self._encrypt = voice._sodium.encrypt
 	self._client = voice._client
 	self._seq = 0
-	self._timestamp = 0xFFFFFFFF - 2000
+	self._timestamp = 0
 	self._header = Buffer(12)
 	self._nonce = Buffer(24)
 end
@@ -52,8 +53,8 @@ function VoiceConnection:_send(data, len)
 
 	header:copy(nonce)
 
-	self._seq = seq < 0xFFFF and seq + 1 or 0
-	self._timestamp = timestamp < 0xFFFFFFFF and timestamp + FRAME_SIZE or 0
+	self._seq = band(seq + 1, 0xFFFF)
+	self._timestamp = band(timestamp + FRAME_SIZE, 0xFFFFFFFF)
 
 	local encrypted, encrypted_len = self._encrypt(data, len, nonce._cdata, self._key)
 
