@@ -52,7 +52,7 @@ local function emit(self, name, ...)
 	while i <= n do
 		wrap(listeners[i])(...)
 		if #listeners ~= n then
-		  n = #listeners
+			n = #listeners
 		end
 		i = i + 1
 	end
