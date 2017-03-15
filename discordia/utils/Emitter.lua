@@ -54,7 +54,7 @@ local function emit(self, name, ...)
 		if #listeners ~= n then
 		  n = #listeners
 		end
-                i = i + 1
+		i = i + 1
 	end
 end
 
