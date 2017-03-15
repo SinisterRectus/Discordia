@@ -51,11 +51,10 @@ local function emit(self, name, ...)
 	local i, n = 1, #listeners
 	while i <= n do
 		wrap(listeners[i])(...)
-		if #listeners == n then
-			i = i + 1
-		else
-			n = #listeners
+		if #listeners ~= n then
+		  n = #listeners
 		end
+                i = i + 1
 	end
 end
 
