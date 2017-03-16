@@ -6,11 +6,13 @@ local fs = require('coro-fs')
 local http = require('coro-http')
 local pathjoin = require('pathjoin')
 
+local time = os.time
 local clamp = math.clamp
-local format = string.format
+local lshift = bit.lshift
 local readFile = fs.readFile
 local request = http.request
 local splitPath = pathjoin.splitPath
+local format, match = string.format, string.match
 local wrap, yield = coroutine.wrap, coroutine.yield
 local insert, remove, concat = table.insert, table.remove, table.concat
 
@@ -88,6 +90,15 @@ end
 local function getPinnedMessages(self)
 	local client = self._parent._parent or self._parent
 	return _messageIterator(self, client._api:getPinnedMessages(self._id))
+end
+
+local function getFirstMessage(self)
+	return _getMessageHistory(self, {after = '0', limit = 1})() or nil
+end
+
+local function getLastMessage(self)
+	local int = lshift(1000 * time() - 1420070400000LL, 22) + 2^22 - 1
+	return _getMessageHistory(self, {before = match(tostring(int), '%d*'), limit = 1})() or nil
 end
 
 -- begin send message --
@@ -209,6 +220,8 @@ local function findMessages(self, predicate)
 end
 
 property('pinnedMessages', getPinnedMessages, nil, 'function', "Iterator for all of the pinned messages in the channel")
+property('firstMessage', getFirstMessage, nil, 'Message', "The first message found in the channel.")
+property('lastMessage', getLastMessage, nil, 'Message', "The last message found in the channel.")
 
 method('broadcastTyping', broadcastTyping, nil, "Causes the 'User is typing...' indicator to show in the channel.", 'HTTP')
 method('loadMessages', loadMessages, '[limit]', "Downloads 1 to 100 (default: 50) of the channel's most recent messages into the channel cache.", 'HTTP')

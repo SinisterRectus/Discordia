@@ -4,6 +4,7 @@
   - Argument checking
   - ETF support
   - remove payload table from raw event
+  - cleanup sendMessage
 - minor
   - Sanitized channel/role position setting
   - Logging support
@@ -11,7 +12,6 @@
   - Handle unhandled gateway events
   - Guild integrations and features
   - Class statics
-  - More args on object creation (especially roles)
   - Exposed columns/rows cache accessors
   - Uptime indicator
   - Commands extension
@@ -19,6 +19,5 @@
   - Unicode support
   - Manual sharding (automatic is completed)
   - Implicit permissions checking
-  - PermissionOverwrite caches per Client/Guild
   - Add predicate/kv for cache counting
   - voice receive
