@@ -55,7 +55,7 @@ local function getMembership(self, guild)
 	end
 end
 
-local function sendMessage(self, ...)
+local function getPrivateChannel(self)
 	local id = self._id
 	local client = self._parent
 	local channel = client._private_channels:find(function(v) return v._recipient._id == id end)
@@ -63,7 +63,12 @@ local function sendMessage(self, ...)
 		local success, data = client._api:createDM({recipient_id = id})
 		if success then channel = client._private_channels:new(data) end
 	end
-	if channel then return channel:sendMessage(...) end
+	return channel
+end
+
+local function sendMessage(self, ...)
+	local channel = getPrivateChannel(self)
+	return channel and channel:sendMessage(...) or nil
 end
 
 local function ban(self, guild, days)
@@ -99,6 +104,7 @@ property('username', '_username', nil, 'string', "The user's name (alias of name
 property('discriminator', '_discriminator', nil, 'string', "The user's 4-digit discriminator")
 property('bot', function(self) return self._bot or false end, nil, 'boolean', "Whether the user is a bot account")
 property('mutualGuilds', getMutualGuilds, nil, 'function', "Iterator for guilds in which both the user and client user share membership")
+property('privateChannel', getPrivateChannel, nil, 'PrivateChannel', "A private channel between the client user and the target user")
 
 method('ban', ban, 'guild[, days]', "Bans the user from a guild and optionally deletes their messages from 1-7 days.", 'HTTP')
 method('unban', unban, 'guild', "Unbans the user from the provided guild.", 'HTTP')

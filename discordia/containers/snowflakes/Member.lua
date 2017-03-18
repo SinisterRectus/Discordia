@@ -282,6 +282,7 @@ property('avatar', function(self) return self._user._avatar end, nil, 'string', 
 property('defaultAvatar', function(self) return self._user.defaultAvatar end, nil, 'string', "Shortcut for member.user.defaultAvatar")
 property('username', function(self) return self._user._username end, nil, 'string', "Shortcut for member.user.username")
 property('discriminator', function(self) return self._user._discriminator end, nil, 'string', "Shortcut for member.user.discriminator")
+property('privateChannel', function(self) return self._user._privateChannel end, nil, 'string', "Shortcut for member.user.privateChannel")
 
 property('status', getStatus, nil, 'string', "Whether the member is online, offline, or idle")
 property('gameName', getGameName, nil, 'string?', "Name of the game set in the member's status")
