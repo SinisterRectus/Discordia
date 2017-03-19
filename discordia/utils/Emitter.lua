@@ -2,7 +2,7 @@
 -- not 100% compatable, though it can be made to be
 -- event callbacks are made coroutines by default
 
-local wrap = coroutine.wrap
+local wrap, yield = coroutine.wrap, coroutine.yield
 local insert, remove = table.insert, table.remove
 local process = process -- luacheck: ignore process
 
@@ -18,7 +18,7 @@ local function missingHandlerType(self, name, ...)
 	if self == process then return end
 	local handlers = rawget(process, 'handlers')
 	if handlers and handlers['error'] then
-		process:emit('error', ..., self)
+		return process:emit('error', ..., self)
 	end
 end
 
@@ -30,17 +30,26 @@ local function once(self, name, listener)
 		return listener(...)
 	end
 	insert(listeners, wrapper)
+	return listener
 end
 
 local function on(self, name, listener)
 	local listeners = self._listeners[name] or {}
 	self._listeners[name] = listeners
 	insert(listeners, listener)
+	return listener
 end
 
 local function getListenerCount(self, name)
 	local listeners = self._listeners[name]
-	return listeners and #listeners or 0
+	if not listeners then return 0 end
+	local n = 0
+	for _, listener in ipairs(listeners) do
+		if listener then
+			n = n + 1
+		end
+	end
+	return n
 end
 
 local function emit(self, name, ...)
@@ -48,22 +57,31 @@ local function emit(self, name, ...)
 	if not listeners then
 		return missingHandlerType(self, name, ...)
 	end
-	local i, n = 1, #listeners
-	while i <= n do
-		wrap(listeners[i])(...)
-		if #listeners ~= n then
-			n = #listeners
+	for _, listener in ipairs(listeners) do
+		if listener then
+			wrap(listener)(...)
 		end
-		i = i + 1
+	end
+	if self._flagged then
+		for i = #listeners, 1, -1 do
+			if not listeners[i] then
+				remove(listeners, i)
+			end
+		end
+		if #listeners == 0 then
+			self._listeners[name] = nil
+		end
+		self._flagged = nil
 	end
 end
 
 local function removeListener(self, name, listener)
 	local listeners = self._listeners[name]
 	if not listeners then return end
-	for i = 1, #listeners do
-		if listeners[i] == listener then
-			remove(listeners, i)
+	for i, v in ipairs(listeners) do
+		if v == listener then
+			listeners[i] = false
+			self._flagged = true
 			break
 		end
 	end
@@ -76,12 +94,13 @@ end
 local function getListeners(self, name)
 	local listeners = self._listeners[name]
 	if not listeners then return function() end end
-	local i, v = 1
-	return function()
-		v = listeners[i]
-		i = i + 1
-		return v
-	end
+	return wrap(function()
+		for _, listener in ipairs(listeners) do
+			if listener then
+				yield(listener)
+			end
+		end
+	end)
 end
 
 local function propagate(self, name, target)
