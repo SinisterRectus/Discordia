@@ -81,7 +81,9 @@ end
 function Guild:_loadMemberPresences(data)
 	for _, presence in ipairs(data) do
 		local member = self._members:get(presence.user.id)
-		member:_createPresence(presence)
+		if member then
+			member:_createPresence(presence)
+		end
 	end
 end
 
