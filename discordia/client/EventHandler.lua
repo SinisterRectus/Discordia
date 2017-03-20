@@ -326,10 +326,12 @@ end
 
 function EventHandler.TYPING_START(data, client)
 	local channel = client:_getTextChannelShortcut(data.channel_id)
-	if not channel then return warning(client, 'TextChannel', data.channel_id, 'TYPING_START') end
 	local user = client._users:get(data.user_id)
-	if not user then return warning(client, 'User', data.user_id, 'TYPING_START') end
-	return client:emit('typingStart', user, channel, data.timestamp)
+	if channel and user then
+		return client:emit('typingStart', user, channel, data.timestamp)
+	else 
+		return client:emit('typingStartUncached', data)
+	end
 end
 
 function EventHandler.USER_UPDATE(data, client)
