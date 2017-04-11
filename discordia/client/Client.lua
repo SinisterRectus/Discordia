@@ -821,7 +821,7 @@ method('setUsername', setUsername, 'username', "Sets the user's username.", 'HTT
 method('setNickname', setNickname, 'guild, nickname', "Sets the user's nickname for the indicated guild.", 'HTTP')
 method('setAvatar', setAvatar, 'avatar', "Sets the user's avatar. Must be a base64-encoded JPEG.", 'HTTP')
 method('setStatusIdle', setStatusIdle, nil, "Sets the user status to idle. Warning: This can silently fail!", 'WS')
-method('setStatusOnline', setStatusOnline, nil, "Sets the user status to idle. Warning: This can silently fail!", 'WS')
+method('setStatusOnline', setStatusOnline, nil, "Sets the user status to online. Warning: This can silently fail!", 'WS')
 method('setGameName', setGameName, 'gameName', "Sets the user's 'now playing' game title. Warning: This can silently fail!", 'WS')
 
 cache('Guild', getGuildCount, getGuild, getGuilds, findGuild, findGuilds)
