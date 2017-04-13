@@ -180,10 +180,10 @@ function Socket:identify(token)
 	})
 end
 
-function Socket:statusUpdate(idleSince, gameName)
+function Socket:statusUpdate(idleSince, gameTab)
 	return send(self, 3, {
 		idle_since = idleSince or json.null,
-		game = {name = gameName or json.null},
+		game = gameTab,
 	})
 end
 
