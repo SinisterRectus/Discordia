@@ -13,7 +13,7 @@ local pp = require('pretty-print')
 local timer = require('timer')
 local json = require('json')
 
-local emojis = require("../utils/Emojis.json")
+local emojis = require("../utils/Emojis")
 
 local format = string.format
 local colorize = pp.colorize
