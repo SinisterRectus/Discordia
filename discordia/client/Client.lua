@@ -13,6 +13,8 @@ local pp = require('pretty-print')
 local timer = require('timer')
 local json = require('json')
 
+local emojis = require("../utils/Emojis.json")
+
 local format = string.format
 local colorize = pp.colorize
 local traceback = debug.traceback
@@ -60,7 +62,7 @@ local function parseOptions(self, customOptions)
 	end
 end
 
-function Client:__init(customOptions, Emojis)
+function Client:__init(customOptions)
 	Emitter.__init(self)
 	parseOptions(self, customOptions)
 	self._api = API(self)
@@ -70,7 +72,7 @@ function Client:__init(customOptions, Emojis)
 	self._private_channels = Cache({}, PrivateChannel, 'id', self)
 	self._voice = VoiceManager(self)
 	self._channel_map = {}
-	self._Emojis = (Emojis and Emojis or {})
+	self._emojis = emojis
 end
 
 function Client:__tostring()
