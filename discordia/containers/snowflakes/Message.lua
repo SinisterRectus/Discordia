@@ -118,7 +118,14 @@ end
 local function addReaction(self, emoji)
 	local channel = self._parent
 	local client = channel._parent._parent or channel._parent
-	local str = type(emoji) == 'table' and format('%s:%s', emoji._name, emoji._id) or emoji
+	local str = type(emoji) == 'table' and format('%s:%s', emoji._name, emoji._id) or (function()
+		local emoji = emoji:gsub(":", "")
+		if client._emojis[emoji] then
+			return client._emojis[emoji]
+		else
+			return emoji
+		end
+	end)()
 	local success = client._api:createReaction(channel._id, self._id, str)
 	if success then
 		self:_addReaction({emoji = {id = emoji._id, name = emoji._name or emoji}}, self.client.user, true)
