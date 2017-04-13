@@ -60,7 +60,7 @@ local function parseOptions(self, customOptions)
 	end
 end
 
-function Client:__init(customOptions)
+function Client:__init(customOptions, Emojis)
 	Emitter.__init(self)
 	parseOptions(self, customOptions)
 	self._api = API(self)
@@ -70,6 +70,7 @@ function Client:__init(customOptions)
 	self._private_channels = Cache({}, PrivateChannel, 'id', self)
 	self._voice = VoiceManager(self)
 	self._channel_map = {}
+	self._Emojis = (Emojis and Emojis or {})
 end
 
 function Client:__tostring()
@@ -248,7 +249,11 @@ local function setStatusIdle(self)
 		if me then me._status = 'idle' end
 	end
 	for _, socket in pairs(self._sockets) do
-		socket:statusUpdate(self._idle_since, self._game_name)
+		socket:statusUpdate(self._idle_since, {
+			name = self._game_name or json.null,
+			url = self._game_url or nil,
+			type = (self._game_type == "streaming" and 1 or nil)
+		})
 	end
 end
 
@@ -260,19 +265,34 @@ local function setStatusOnline(self)
 		if me then me._status = 'online' end
 	end
 	for _, socket in pairs(self._sockets) do
-		socket:statusUpdate(self._idle_since, self._game_name)
+		socket:statusUpdate(self._idle_since, {
+			name = self._game_name or json.null,
+			url = self._game_url or nil,
+			type = (self._game_type == "streaming" and 1 or nil)
+		})
 	end
 end
 
-local function setGameName(self, gameName)
+local function setGameName(self, gameName, twitchURL)
 	self._game_name = gameName
 	local id = self._user._id
 	for guild in self._guilds:iter() do
 		local me = guild._members:get(id)
 		if me then me._game = gameName and {name = gameName} end
 	end
+	if gameName and twitchURL then
+		self._game_url = twitchURL
+		self._game_type = "streaming"
+	elseif gameName and not twitchURL then
+		self._game_url = nil
+		self._game_type = "playing"
+	end
 	for _, socket in pairs(self._sockets) do
-		socket:statusUpdate(self._idle_since, self._game_name)
+		socket:statusUpdate(self._idle_since, {
+			name = self._game_name or json.null,
+			url = self._game_url or nil,
+			type = (self._game_type == "streaming" and 1 or nil)
+		})
 	end
 end
 
@@ -799,6 +819,11 @@ local function findMessages(self, predicate)
 	end)
 end
 
+
+---
+
+---
+
 property('user', '_user', nil, 'User', "The User object for the client")
 property('voice', '_voice', nil, 'VoiceManager', "The VoiceManager handle for the main client")
 property('owner', getOwner, nil, 'User', "The User object for the account's owner")
@@ -822,7 +847,7 @@ method('setNickname', setNickname, 'guild, nickname', "Sets the user's nickname 
 method('setAvatar', setAvatar, 'avatar', "Sets the user's avatar. Must be a base64-encoded JPEG.", 'HTTP')
 method('setStatusIdle', setStatusIdle, nil, "Sets the user status to idle. Warning: This can silently fail!", 'WS')
 method('setStatusOnline', setStatusOnline, nil, "Sets the user status to online. Warning: This can silently fail!", 'WS')
-method('setGameName', setGameName, 'gameName', "Sets the user's 'now playing' game title. Warning: This can silently fail!", 'WS')
+method('setGameName', setGameName, 'gameName [, TwitchURL]', "Sets the user's 'now playing' or 'streaming' game title. Warning: This can silently fail!", 'WS')
 
 cache('Guild', getGuildCount, getGuild, getGuilds, findGuild, findGuilds)
 cache('User', getUserCount, getUser, getUsers, findUser, findUsers)
