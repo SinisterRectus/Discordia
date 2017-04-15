@@ -47,11 +47,10 @@ end
 
 local function iter(self)
 	local t = self._objects
-	local i, n = self._first, self._last
+	local i = self._first - 1
 	return function()
-		if i > n then return end
-		local v = t[i]; i = i + 1
-		return v
+		i = i + 1
+		return t[i]
 	end
 end
 

@@ -75,11 +75,10 @@ function VoiceManager:_resumeLeave(id)
 end
 
 local function getConnections(self)
-	local i, v = 1
+	local k, v
 	local connections = self._connections
 	return function()
-		v = connections[i]
-		i = i + 1
+		k, v = next(connections, k)
 		return v
 	end
 end
