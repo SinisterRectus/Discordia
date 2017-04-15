@@ -320,7 +320,9 @@ function EventHandler.PRESENCE_UPDATE(data, client)
 	if not data.guild_id then return end -- friend update
 	local guild = client._guilds:get(data.guild_id)
 	if not guild then return warning(client, 'Guild', data.guild_id, 'PRESENCE_UPDATE') end
-	local member = guild:_updateMemberPresence(data)
+	local member = guild._members:get(data.user.id)
+	if not member then return end
+	member:_updatePresence(data)
 	return client:emit('presenceUpdate', member)
 end
 

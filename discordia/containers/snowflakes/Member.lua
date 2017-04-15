@@ -37,7 +37,7 @@ end
 
 function Member:_updatePresence(data)
 	self:_createPresence(data)
-	self._user:_update(data.user)
+	return self._user:_update(data.user)
 end
 
 local function setNickname(self, nick)
@@ -290,7 +290,7 @@ property('name', getName, nil, 'string', "The member's nickname if one is set. O
 property('nickname', '_nick', setNickname, 'string?', "The member's nickname for the guild in which it exists")
 property('user', '_user', nil, 'User', "The base user associated with this member")
 property('guild', '_parent', nil, 'Guild', "The guild in which this member exists")
-property('joinedAt', '_joined_at', nil, 'string?', "Date and time when the member joined the guild")
+property('joinedAt', '_joined_at', nil, 'string', "Date and time when the member joined the guild")
 property('voiceChannel', getVoiceChannel, setVoiceChannel, 'GuildVoiceChannel?', "If connected, this is the member's voice channel.")
 property('color', getColor, nil, 'Color', "The member's displayed name color")
 

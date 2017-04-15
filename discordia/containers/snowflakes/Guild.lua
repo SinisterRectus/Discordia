@@ -87,17 +87,6 @@ function Guild:_loadMemberPresences(data)
 	end
 end
 
-function Guild:_updateMemberPresence(data)
-	local member = self._members:get(data.user.id)
-	if member then
-		member:_updatePresence(data)
-	else
-		member = self._members:new(data)
-		member:_createPresence(data)
-	end
-	return member
-end
-
 local function setName(self, name)
 	local success, data = self._parent._api:modifyGuild(self._id, {name = name})
 	if success then self._name = data.name end
