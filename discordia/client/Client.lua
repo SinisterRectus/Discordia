@@ -17,7 +17,7 @@ local format = string.format
 local colorize = pp.colorize
 local traceback = debug.traceback
 local sleep = timer.sleep
-local date, time, exit, difftime = os.date, os.time, os.exit, os.difftime
+local date, time, difftime = os.date, os.time, os.difftime
 local wrap, yield, running = coroutine.wrap, coroutine.yield, coroutine.running
 local encode, decode = json.encode, json.decode
 local open = io.open
@@ -81,7 +81,7 @@ function Client:__tostring()
 end
 
 local function log(self, message, color)
-	return print(colorize(color, format('%s - %s', date(self._options.dateTime), message)))
+	return process.stdout:write(colorize(color, format('%s - %s\n', date(self._options.dateTime), message)))
 end
 
 function Client:warning(message)
@@ -92,7 +92,7 @@ end
 function Client:error(message)
 	if self._listeners['error'] then return self:emit('error', message) end
 	log(self, traceback(running(), message, 2), 'failure')
-	return exit()
+	return process:exit()
 end
 
 local function getToken(self, email, password)
@@ -137,7 +137,7 @@ local function stop(self, shouldExit) -- should probably rename to disconnect
 	for _, socket in pairs(self._sockets) do
 		socket:disconnect()
 	end
-	if shouldExit then exit() end
+	if shouldExit then process:exit() end
 end
 
 function Client:_connectToGateway(token, isBot)
