@@ -1,5 +1,33 @@
 # Changelog
 
+### 1.5.0
+- Implemented webhook features
+  - Added `Webhook` class
+  - Added `Guild.webhooks` and `GuildTextChannel.webhooks` iterators  (both use an HTTP request)
+  - Added `GuildTextChannel:createWebhook` method
+- Text channel and message improvements
+  - `bulkDelete` and `getMessageHistory` improvements
+    - Added optional predicates to filter specific messages
+    - `After|Before|Around` methods now optionally accept a Snowflake ID instead of a `Message` object
+  - Added `firstMessage` and `lastMessage` properties to `TextChannel` (both use an HTTP request)
+  - Added support for raw data file attachments
+  - Added support for multiple file attachments per message
+- Added `User.privatechannel` property (uses an HTTP request)
+- `Guild:createRole` now accepts an initial `name` argument
+- Replaced `TYPING_START` warnings with `typingStartUncached` event
+- Disabled member object creation on `PRESENCE_UPDATE`
+  - Fixes lingering member objects after guild leave
+  - Fixes missing `joinedAt` property
+  - May provide a performance improvement
+  - To compensate for missing members, enable `fetchMembers` on client initialization
+- Other changes
+  - Fixed voice sequence and timestamp incrementing
+  - Fixed `Emitter` listener addition/removal
+  - Fixed crash on guild creation due to rogue member presences
+  - Changed `os.exit` in `client:stop` to `process:exit`
+  - Changed `print` call in console logging function to `process.stdout:write`
+
+
 ### 1.4.2
 - Fixed bug in Guild:setOwner
 - Fixed nickname not being cleared from member objects
