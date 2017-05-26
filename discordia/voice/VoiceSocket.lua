@@ -21,13 +21,18 @@ function VoiceSocket:__init(voice)
 end
 
 function VoiceSocket:connect(endpoint)
-	self._res, self._read, self._write = connect({
-		host = endpoint:gsub(':.*', ''),
+	local res, read, write = connect({
+		host = endpoint and endpoint:gsub(':.*', ''),
 		port = 443,
 		tls = true,
 	})
-	self._connected = self._res and self._res.code == 101
-	return self._connected
+	if res and res.code == 101 then
+		self._connected = true
+		self._res, self._read, self._write = res, read, write
+		return true
+	else
+		return false, read
+	end
 end
 
 function VoiceSocket:disconnect()

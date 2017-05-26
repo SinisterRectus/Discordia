@@ -331,7 +331,7 @@ function EventHandler.TYPING_START(data, client)
 	local user = client._users:get(data.user_id)
 	if channel and user then
 		return client:emit('typingStart', user, channel, data.timestamp)
-	else 
+	else
 		return client:emit('typingStartUncached', data)
 	end
 end

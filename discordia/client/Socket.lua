@@ -49,9 +49,14 @@ end
 function Socket:connect()
 	local options = parseUrl(self._gateway .. '/')
 	options.pathname = options.pathname .. '?v=5'
-	self._res, self._read, self._write = connect(options)
-	self._connected = self._res and self._res.code == 101
-	return self._connected
+	local res, read, write = connect(options)
+	if res and res.code == 101 then
+		self._connected = true
+		self._res, self._read, self._write = res, read, write
+		return true
+	else
+		return false, read
+	end
 end
 
 function Socket:reconnect()

@@ -5,6 +5,7 @@ local constants = require('./constants')
 local CHANNELS = constants.CHANNELS
 local SAMPLE_RATE = constants.SAMPLE_RATE
 
+local format = string.format
 local wrap, resume = coroutine.wrap, coroutine.resume
 
 local VoiceManager, property, method = class('VoiceManager')
@@ -39,31 +40,39 @@ function VoiceManager:_createVoiceConnection(data, channel, state)
 	connection:setBitrate(self._client._options.bitrate)
 
 	wrap(function()
-		if not socket:connect(data.endpoint) then
-			return self._client:warning('Could not connect to voice server: ' .. data.endpoint)
+		local connected, err = socket:connect(data.endpoint)
+		if connected then
+			socket:identify({
+				server_id = state.guild_id,
+				user_id = state.user_id,
+				session_id = state.session_id,
+				token = data.token,
+			})
+			return socket:handlePayloads(state.guild_id, connection)
+		else
+			self._client:warning(format('Could not connect to voice gateway (%s)', err))
 		end
-		socket:identify({
-			server_id = state.guild_id,
-			user_id = state.user_id,
-			session_id = state.session_id,
-			token = data.token,
-		})
-		return socket:handlePayloads(state.guild_id, connection)
 	end)()
 
 end
 
-function VoiceManager:_resumeJoin(id)
+function VoiceManager:_resumeJoin(id, timeout)
 	local connection = self._connections[id]
 	if connection then
 		connection._channel._parent._connection = connection
 	end
 	local thread = self._joining[id]
 	self._joining[id] = nil
-	if thread then return assert(resume(thread, connection)) end
+	if thread then
+		if timeout then
+			return assert(resume(thread, nil))
+		else
+			return assert(resume(thread, connection))
+		end
+	end
 end
 
-function VoiceManager:_resumeLeave(id)
+function VoiceManager:_resumeLeave(id, timeout)
 	local connection = self._connections[id]
 	if connection then
 		connection._channel._parent._connection = nil
@@ -71,7 +80,13 @@ function VoiceManager:_resumeLeave(id)
 	end
 	local thread = self._leaving[id]
 	self._leaving[id] = nil
-	if thread then return assert(resume(thread, true)) end
+	if thread then
+		if timeout then
+			return assert(resume(thread, false))
+		else
+			return assert(resume(thread, true))
+		end
+	end
 end
 
 local function getConnections(self)

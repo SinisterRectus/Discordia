@@ -56,8 +56,8 @@ local function join(self)
 	voice._joining[guild_id] = running()
 	setTimeout(5000, function()
 		if voice._joining[guild_id] then
-			client:warning('Failed to join voice channel: ' .. self._id)
-			return voice:_resumeJoin(guild_id)
+			client:warning('Issue joining voice channel: ' .. self._id)
+			return voice:_resumeJoin(guild_id, true)
 		end
 	end)
 
@@ -77,10 +77,10 @@ local function leave(self)
 	if not connection then return true end
 
 	voice._leaving[guild_id] = running()
-	setTimeout(10000, function()
+	setTimeout(5000, function()
 		if voice._leaving[guild_id] then
-			client:warning('Failed to leave voice channel: ' .. self._id)
-			return voice:_resumeLeave(guild_id, false)
+			client:warning('Issue leaving voice channel: ' .. self._id)
+			return voice:_resumeLeave(guild_id, true)
 		end
 	end)
 

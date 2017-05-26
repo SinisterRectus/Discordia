@@ -170,11 +170,15 @@ function Client:_connectToGateway(token, isBot)
 		end
 		self._stopwatch = Stopwatch()
 		for _, socket in pairs(self._sockets) do
-			socket:connect()
-			self._stopwatch:restart()
-			wrap(socket.handlePayloads)(socket, token)
-			while self._stopwatch.milliseconds < 5000 do
-				sleep(1000)
+			local connected, err = socket:connect()
+			if connected then
+				self._stopwatch:restart()
+				wrap(socket.handlePayloads)(socket, token)
+				while self._stopwatch.milliseconds < 5000 do
+					sleep(1000)
+				end
+			else
+				self:error(format('Cannot connect to gateway (%s)', err))
 			end
 		end
 	else
