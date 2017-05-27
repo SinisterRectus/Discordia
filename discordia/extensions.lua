@@ -135,6 +135,10 @@ end
 
 -- string --
 
+function string.startsWith(str, pat)
+	return ((str:sub(1, pat:len()) ==pat and true) or false)
+end
+
 function string.split(str, delim)
 	if delim and delim ~= '' then
 		local words = {}
