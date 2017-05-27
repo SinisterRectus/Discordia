@@ -137,9 +137,18 @@ end
 
 function string.split(str, delim)
 	if delim and delim ~= '' then
+		if not find(str, delim) then return { str } end
 		local words = {}
-		for word in gmatch(str .. delim, '(.-)' .. delim) do
+		local pattern = '(.-)' .. delim
+		local lastPos = 1
+		while true do
+			local _, pos, word = find(str, pattern, lastPos)
+			if not word then break end
 			insert(words, word)
+			lastPos = pos + 1
+		end
+		if lastPos <= #str then
+			insert(words, sub(str, lastPos))
 		end
 		return words
 	else
