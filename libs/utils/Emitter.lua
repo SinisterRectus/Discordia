@@ -28,13 +28,13 @@ function Emitter:once(name, fn)
 	return fn
 end
 
-function Emitter:onWrap(name, fn)
-	insert(self._listeners[name], {fn = fn, wrap = true})
+function Emitter:onSync(name, fn)
+	insert(self._listeners[name], {fn = fn, sync = true})
 	return fn
 end
 
-function Emitter:onceWrap(name, fn)
-	insert(self._listeners[name], {fn = fn, once = true, wrap = true})
+function Emitter:onceSync(name, fn)
+	insert(self._listeners[name], {fn = fn, once = true, sync = true})
 	return fn
 end
 
@@ -47,10 +47,10 @@ function Emitter:emit(name, ...)
 			if listener.once then
 				self:removeListener(name, fn)
 			end
-			if listener.wrap then
-				wrap(fn)(...)
-			else
+			if listener.sync then
 				fn(...)
+			else
+				wrap(fn)(...)
 			end
 		end
 	end
@@ -98,7 +98,7 @@ end
 
 function Emitter:waitFor(name, timeout)
 	local thread = running()
-	local fn = self:once(name, function(...)
+	local fn = self:onceSync(name, function(...)
 		if timeout then
 			clearTimeout(timeout)
 		end
