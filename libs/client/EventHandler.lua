@@ -246,7 +246,11 @@ function EventHandler.GUILD_BAN_REMOVE(d, client)
 	return client:emit('userUnban', user, guild)
 end
 
-function EventHandler.GUILD_EMOJIS_UPDATE() -- TODO
+function EventHandler.GUILD_EMOJIS_UPDATE(d, client)
+	local guild = client._guilds:get(d.guild_id)
+	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_EMOJIS_UPDATE') end
+	guild._emojis:merge(d.emojis, true)
+	return client:emit('guildEmojisUpdate', guild)
 end
 
 function EventHandler.GUILD_INTEGRATIONS_UPDATE() -- TODO

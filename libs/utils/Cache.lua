@@ -100,9 +100,26 @@ function Cache:remove(data, update)
 
 end
 
-function Cache:merge(array)
-	for _, data in ipairs(array) do
-		self:insert(data)
+function Cache:merge(array, update)
+	if update then
+		local updated = {}
+		for _, data in ipairs(array) do
+			local id = parseData(data)
+			if id then
+				updated[id] = true
+				self:insert(data, true)
+			end
+		end
+		for obj in self:iter() do
+			local id = obj.id
+			if not updated[id] then
+				self:delete(id)
+			end
+		end
+	else
+		for _, data in ipairs(array) do
+			self:insert(data)
+		end
 	end
 end
 

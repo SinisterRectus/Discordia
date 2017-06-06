@@ -1,9 +1,9 @@
-local Channel = require('containers/abstract/Channel')
+local GuildChannel = require('containers/abstract/GuildChannel')
 
-local GuildVoiceChannel = require('class')('GuildVoiceChannel', Channel)
+local GuildVoiceChannel = require('class')('GuildVoiceChannel', GuildChannel)
 
 function GuildVoiceChannel:__init(data, parent)
-	Channel.__init(self, data, parent)
+	GuildChannel.__init(self, data, parent)
 end
 
 return GuildVoiceChannel
