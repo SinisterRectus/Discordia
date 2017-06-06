@@ -14,7 +14,7 @@ local function checkReady(shard)
 	shard._ready = true
 	shard._loading = nil
 	local client = shard._client
-	client:emit('shardReady', shard._id) -- TODO: expose shard?
+	client:emit('shardReady', shard._id)
 	for _, other in pairs(client._shards) do
 		if not other._ready then return end
 	end

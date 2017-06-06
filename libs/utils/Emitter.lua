@@ -5,7 +5,7 @@ local resume, running = coroutine.resume, coroutine.running
 local insert, remove = table.insert, table.remove
 local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
 
-local mutexMeta = {
+local listenersMeta = {
 	__index = function(self, k)
 		self[k] = {}
 		return self[k]
@@ -15,7 +15,7 @@ local mutexMeta = {
 local Emitter = require('class')('Emitter')
 
 function Emitter:__init()
-	self._listeners = setmetatable({}, mutexMeta)
+	self._listeners = setmetatable({}, listenersMeta)
 end
 
 function Emitter:on(name, fn)

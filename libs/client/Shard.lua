@@ -132,27 +132,27 @@ function Shard:handlePayloads(token)
 		local opcode = message.opcode
 		local payload = message.payload
 
-		if opcode == TEXT then
+		if opcode == BINARY then
 
-			payload = decode(payload)
-
-		elseif opcode == BINARY then
-
-			payload = decode(inflate(payload, 15))
+			payload = inflate(payload, 15)
 
 		elseif opcode == CLOSE then -- TODO: coro-websocket PR
 
 			local code, i = ('>H'):unpack(payload)
 			self:warning('%i - %s', code, payload:sub(i))
+			break
 
 		end
+
+		client:emit('raw', payload)
+		payload = decode(payload)
 
 		local s = payload.s
 		local t = payload.t
 		local d = payload.d
 		local op = payload.op
 
-		if op == DISPATCH then
+		if t then
 			self:debug('WebSocket OP %s : %s : %s', op, t, s)
 		else
 			self:debug('WebSocket OP %s', op)
@@ -175,9 +175,8 @@ function Shard:handlePayloads(token)
 
 		elseif op == INVALID_SESSION then
 
-			if payload.d then
+			if payload.d and self._session_id then
 				self:info('Session invalidated, resuming...')
-				sleep(random(1000, 2000))
 				self:resume(token)
 			else
 				self:info('Session invalidated, re-identifying...')
@@ -253,9 +252,10 @@ function Shard:identify(token)
 
 	local client = self._client
 	local mutex = client._mutex
+	local options = client._options
 
 	mutex:lock()
-	wrap(function() -- TODO: check what happens if this isn't a coroutine
+	wrap(function()
 		self:identifyWait()
 		mutex:unlock()
 	end)()
@@ -274,8 +274,8 @@ function Shard:identify(token)
 			['$referrer'] = '',
 			['$referring_domain'] = '',
 		},
-		large_threshold = client._options.largeThreshold,
-		compress = client._options.compress,
+		compress = options.compress,
+		large_threshold = options.largeThreshold,
 		shard = {self._id, client._shard_count},
 	})
 
