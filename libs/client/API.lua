@@ -31,27 +31,21 @@ local function parseDate(str)
 	return difftime(time(serverDate), time(clientDate)) + time()
 end
 
-local function parseErrors(msg, errors, key)
+local function parseErrors(ret, errors, key)
 	for k, v in pairs(errors) do
-		local where
-		if key then
-			if type(k) == 'string' and k:find("^[%a_][%a%d_]*$") then -- luvit/pretty-print
-				where = format('%s.%s', key, k)
+		if k == '_errors' then
+			for _, err in ipairs(v) do
+				insert(ret, format('%s in %s : %s', err.code, key or 'payload', err.message))
+			end
+		else
+			if key then
+				parseErrors(ret, v, format(k:find("^[%a_][%a%d_]*$") and '%s.%s' or '%s[%q]', key, k))
 			else
-				where = format("%s[%q]", key, k)
+				parseErrors(ret, v, k)
 			end
-		else
-			where = k
-		end
-		if v._errors then
-			for _, err in ipairs(v._errors) do
-				insert(msg, format('%s in %s : %s', err.code, where, err.message))
-			end
-		else
-			parseErrors(msg, v, where)
 		end
 	end
-	return concat(msg, '\n\t')
+	return concat(ret, '\n\t')
 end
 
 local mutexMeta = {
@@ -127,9 +121,9 @@ function API:commit(method, url, req, payload, mutex, retries)
 		delay = max(1000 * dt, delay)
 	end
 
-	local success, data = res.code < 300, decode(msg)
+	local success, data = res.code < 300, decode(msg) or msg
 
-	if not success or not data then
+	if not success then
 
 		if type(data) == 'table' then
 
