@@ -51,6 +51,7 @@ end
 
 function Message:_addReaction(emoji, user)
 	local reactions = self._reactions or {}
+	self._reactions = reactions
 	local key = emoji.id or emoji.name
 	local reaction = reactions[key]
 	if reaction then
@@ -66,17 +67,19 @@ function Message:_addReaction(emoji, user)
 		}, self)
 		reactions[key] = reaction
 	end
-	self._reactions = reactions
 	return reaction
 end
 
---TODO: remove object when count = 0?
 function Message:_removeReaction(emoji, user)
 	local reactions = self._reactions or {}
+	self._reactions = reactions
 	local key = emoji.id or emoji.name
 	local reaction = reactions[key]
 	if reaction then
 		reaction._count = reaction._count - 1
+		if reaction._count == 0 then
+			reactions[key] = nil
+		end
 		if user == self.client._user then
 			reaction._me = false
 		end
@@ -86,9 +89,7 @@ function Message:_removeReaction(emoji, user)
 			emoji = emoji,
 			count = 0,
 		}, self)
-		reactions[key] = reaction -- adding a reaction with count = 0?
 	end
-	self._reactions = reactions
 	return reaction
 end
 
