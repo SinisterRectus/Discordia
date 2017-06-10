@@ -15,8 +15,8 @@ function OrderedCache:_add(obj)
 		self._first = obj
 		self._last = obj
 	else
-		self._next[self._last.id] = obj
-		self._prev[obj.id] = self._last
+		self._next[self._last:__hash()] = obj
+		self._prev[obj:__hash()] = self._last
 		self._last = obj
 	end
 	return Cache._add(self, obj)
@@ -27,17 +27,17 @@ function OrderedCache:_remove(obj)
 		self._first = nil
 		self._last = nil
 	else
-		local prev = self._prev[obj.id]
-		local next = self._next[obj.id]
+		local prev = self._prev[obj:__hash()]
+		local next = self._next[obj:__hash()]
 		if obj == self._last then
 			self._last = prev
-			self._next[prev.id] = nil
+			self._next[prev:__hash()] = nil
 		elseif obj == self._first then
 			self._first = next
-			self._prev[next.id] = nil
+			self._prev[next:__hash()] = nil
 		else
-			self._next[prev.id] = next
-			self._prev[next.id] = prev
+			self._next[prev:__hash()] = next
+			self._prev[next:__hash()] = prev
 		end
 	end
 	return Cache._remove(self, obj)
@@ -48,14 +48,14 @@ function OrderedCache:iter(reverse)
 		local obj = self._last
 		return function()
 			local ret = obj
-			obj = obj and self._prev[obj.id] or nil
+			obj = obj and self._prev[obj:__hash()] or nil
 			return ret
 		end
 	else
 		local obj = self._first
 		return function()
 			local ret = obj
-			obj = obj and self._next[obj.id] or nil
+			obj = obj and self._next[obj:__hash()] or nil
 			return ret
 		end
 	end

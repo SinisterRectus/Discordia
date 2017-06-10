@@ -4,10 +4,10 @@ local wrap, yield = coroutine.wrap, coroutine.yield
 local Cache = require('class')('Cache')
 
 function Cache:__init(constructor, parent)
-	self._count = 0
-	self._parent = parent
 	self._constructor = constructor
+	self._parent = parent
 	self._objects = {}
+	self._count = 0
 end
 
 function Cache:__tostring()
@@ -15,27 +15,27 @@ function Cache:__tostring()
 end
 
 function Cache:_add(obj)
-	self._objects[obj.id] = obj
+	self._objects[obj:__hash()] = obj
 	self._count = self._count + 1
 	return obj
 end
 
 function Cache:_remove(obj)
-	self._objects[obj.id] = nil
+	self._objects[obj:__hash()] = nil
 	self._count = self._count - 1
 	return obj
 end
 
-function Cache:get(id)
-	return self._objects[id]
+function Cache:get(k)
+	return self._objects[k]
 end
 
-function Cache:has(id)
-	return self._objects[id] ~= nil
+function Cache:has(k)
+	return self._objects[k] ~= nil
 end
 
 function Cache:add(obj)
-	local old = self._objects[obj.id]
+	local old = self._objects[obj:__hash()]
 	if old then
 		return nil
 	else
@@ -43,8 +43,8 @@ function Cache:add(obj)
 	end
 end
 
-function Cache:delete(id)
-	local old = self._objects[id]
+function Cache:delete(k)
+	local old = self._objects[k]
 	if old then
 		return self:_remove(old)
 	else
@@ -52,23 +52,28 @@ function Cache:delete(id)
 	end
 end
 
-local function parseData(data) -- TODO: maybe change error calls to return nil, err
-	if data.__class then
-		return error('data already has a class', 2)
+local function hash(data)
+	local meta = getmetatable(data)
+	if not meta or meta.__jsontype ~= 'object' then
+		return nil, 'data must be a json object'
 	end
-	local id = data.id or data.user and data.user.id
-	if not id then
-		return error('data does not have an id', 2)
+	if data.id then -- snowflakes
+		return data.id
+	elseif data.code then -- invites
+		return data.code
+	elseif data.user then -- members
+		return data.user.id
+	elseif data.emoji then -- reactions
+		return data.emoji.id or data.emoji.name
+	else
+		return nil, 'json data could not be hashed'
 	end
-	return id
 end
 
 function Cache:insert(data, update)
 
-	local id = parseData(data)
-	if not id then return end
-
-	local old = self._objects[id]
+	local k = assert(hash(data))
+	local old = self._objects[k]
 
 	if old then
 		if update then
@@ -84,10 +89,8 @@ end
 
 function Cache:remove(data, update)
 
-	local id = parseData(data)
-	if not id then return end
-
-	local old = self._objects[id]
+	local k = assert(hash(data))
+	local old = self._objects[k]
 
 	if old then
 		if update then
@@ -104,16 +107,16 @@ function Cache:merge(array, update)
 	if update then
 		local updated = {}
 		for _, data in ipairs(array) do
-			local id = parseData(data)
+			local id = hash(data)
 			if id then
 				updated[id] = true
 				self:insert(data, true)
 			end
 		end
 		for obj in self:iter() do
-			local id = obj.id
-			if not updated[id] then
-				self:delete(id)
+			local k = obj:__hash()
+			if not updated[k] then
+				self:delete(k)
 			end
 		end
 	else
@@ -143,9 +146,9 @@ function Cache:findAll(predicate)
 end
 
 function Cache:iter()
-	local objects, id, obj = self._objects
+	local objects, k, obj = self._objects
 	return function()
-		id, obj = next(objects, id)
+		k, obj = next(objects, k)
 		return obj
 	end
 end

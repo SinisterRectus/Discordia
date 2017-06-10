@@ -1,16 +1,19 @@
-local Snowflake = require('containers/abstract/Snowflake')
+local Container = require('utils/Container')
 
-local Member = require('class')('Member', Snowflake)
+local Member = require('class')('Member', Container)
 
 function Member:__init(data, parent)
-	Snowflake.__init(self, data, parent)
-	self._id = data.user.id -- hacks
+	Container.__init(self, data, parent)
 	self._user = self.client._users:insert(data.user)
 	return self:_loadMore(data)
 end
 
+function Member:__hash()
+	return self._user._id
+end
+
 function Member:_load(data)
-	Snowflake._load(self, data)
+	Container._load(self, data)
 	return self:_loadMore(data)
 end
 

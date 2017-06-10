@@ -1,3 +1,5 @@
+local format = string.format
+
 local Container, get = require('class')('Container')
 
 local types = {['string'] = true, ['number'] = true, ['boolean'] = true}
@@ -12,10 +14,17 @@ local function load(self, data)
 end
 
 function Container:__init(data, parent)
-	assert(type(data) == 'table') -- debug
 	assert(type(parent) == 'table') -- debug
 	self._parent = parent
 	return load(self, data)
+end
+
+function Container:__eq(other)
+	return self.__class == other.__class and self:__hash() == other:__hash()
+end
+
+function Container:__tostring()
+	return format('%s: %s', self.__name, self:__hash())
 end
 
 Container._load = load
