@@ -4,23 +4,25 @@ local hrtime = uv.hrtime
 
 local Stopwatch, get = require('class')('Stopwatch')
 
-function Stopwatch:__init()
-	self._time = hrtime()
+function Stopwatch:__init(stopped)
+	local t = hrtime()
+	self._initial = t
+	self._final = stopped and t or nil
 end
 
-function Stopwatch:pause()
-	if self._cache then return end
-	self._cache = hrtime()
+function Stopwatch:stop()
+	if self._final then return end
+	self._final = hrtime()
 end
 
-function Stopwatch:resume()
-	if not self._cache then return end
-	self._time = self._time + hrtime() - self._cache
-	self._cache = nil
+function Stopwatch:start()
+	if not self._final then return end
+	self._initial = self._initial + hrtime() - self._final
+	self._final = nil
 end
 
-function Stopwatch:restart()
-	self._time = self._cache or hrtime()
+function Stopwatch:reset()
+	self._initial = self._final or hrtime()
 end
 
 function get.hours(self)
@@ -44,7 +46,7 @@ function get.microseconds(self)
 end
 
 function get.nanoseconds(self)
-	return (self._cache or hrtime()) - self._time
+	return (self._final or hrtime()) - self._initial
 end
 
 return Stopwatch

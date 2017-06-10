@@ -244,7 +244,7 @@ local function send(self, op, d)
 end
 
 function Shard:heartbeat()
-	self._sw:restart()
+	self._sw:reset()
 	return send(self, HEARTBEAT, self._seq)
 end
 
