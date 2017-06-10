@@ -104,7 +104,9 @@ function API:commit(method, url, req, payload, mutex, retries)
 
 	mutex:lock(retries > 0)
 
-	local res, msg = request(method, url, req, payload) -- TODO: pcall?
+	local success, res, msg = pcall(request, method, url, req, payload)
+	if not success then return nil, res end
+
 	client:debug('HTTP : %i - %s : %s %s', res.code, res.reason, method, url)
 
 	for i, v in ipairs(res) do
@@ -121,9 +123,9 @@ function API:commit(method, url, req, payload, mutex, retries)
 		delay = max(1000 * dt, delay)
 	end
 
-	local success, data = res.code < 300, decode(msg) or msg
+	local data = decode(msg) or msg
 
-	if not success then
+	if res.code > 299 then
 
 		if type(data) == 'table' then
 
