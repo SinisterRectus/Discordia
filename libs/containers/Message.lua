@@ -1,3 +1,4 @@
+local Cache = require('utils/Cache')
 local Snowflake = require('containers/abstract/Snowflake')
 local Reaction = require('containers/Reaction')
 
@@ -6,6 +7,10 @@ local Message = require('class')('Message', Snowflake)
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._author = self.client._users:insert(data.author)
+	if data.reactions then
+		self._reactions = Cache(Reaction, self)
+		self._reactions:merge(data.reactions)
+	end
 	return self:_loadMore(data)
 end
 
@@ -17,80 +22,69 @@ end
 function Message:_loadMore(data)
 
 	if data.mentions then
-		local users = self.client._users
-		local mentions = data.mentions
-		for i, mention in ipairs(data.mentions) do
-			mentions[i] = users:insert(mention)
-		end
-		self._mentions = mentions
+		self._mentions = data.mentions
 	end
 
 	if data.mention_roles then
-		self._mention_roles = data.mention_roles -- raw table
-	end
-
-	if data.reactions then
-		local reactions = data.reactions
-		for i, reaction in ipairs(reactions) do
-			local emoji = reaction.emoji
-			reactions[emoji.id or emoji.name] = Reaction(reaction, self)
-			reactions[i] = nil
-		end
-		self._reactions = reactions
+		self._mention_roles = data.mention_roles
 	end
 
 	if data.embeds then
-		self._embeds = data.embeds -- raw table
+		self._embeds = data.embeds
 	end
 
 	if data.attachments then
-		self._attachments = data.attachments -- raw table
+		self._attachments = data.attachments
 	end
 
 end
 
-function Message:_addReaction(emoji, user)
-	local reactions = self._reactions or {}
-	self._reactions = reactions
-	local key = emoji.id or emoji.name
-	local reaction = reactions[key]
+function Message:_addReaction(data, user)
+
+	local reactions = self._reactions
+
+	if not reactions then
+		reactions = Cache(Reaction, self)
+		self._reactions = reactions
+	end
+
+	local emoji = data.emoji
+	local k = emoji.id or emoji.name
+	local reaction = reactions:get(k)
+
 	if reaction then
 		reaction._count = reaction._count + 1
 		if user == self.client._user then
 			reaction._me = true
 		end
 	else
-		reaction = Reaction({
-			me = user == self.client._user,
-			emoji = emoji,
-			count = 1,
-		}, self)
-		reactions[key] = reaction
+		data.me = user == self.client._user
+		data.count = 1
+		reaction = reactions:insert(data)
 	end
 	return reaction
+
 end
 
-function Message:_removeReaction(emoji, user)
-	local reactions = self._reactions or {}
-	self._reactions = reactions
-	local key = emoji.id or emoji.name
-	local reaction = reactions[key]
-	if reaction then
-		reaction._count = reaction._count - 1
-		if reaction._count == 0 then
-			reactions[key] = nil
-		end
-		if user == self.client._user then
-			reaction._me = false
-		end
-	else -- is this even possible?
-		reaction = Reaction({
-			me = user == self.client._user,
-			emoji = emoji,
-			count = 0,
-		}, self)
+function Message:_removeReaction(data, user)
+
+	local reactions = self._reactions
+
+	local emoji = data.emoji
+	local k = emoji.id or emoji.name
+	local reaction = reactions:get(k)
+
+	reaction._count = reaction._count - 1
+	if user == self.client._user then
+		reaction._me = false
 	end
+
+	if reaction._count == 0 then
+		reactions:delete(k)
+	end
+
 	return reaction
+
 end
 
 return Message

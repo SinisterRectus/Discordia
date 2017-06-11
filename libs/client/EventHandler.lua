@@ -350,7 +350,7 @@ function EventHandler.MESSAGE_REACTION_ADD(d, client)
 	if not user then return warning(client, 'User', d.user_id, 'MESSAGE_REACTION_ADD') end
 	local message = channel._messages:get(d.message_id)
 	if message then
-		local reaction = message:_addReaction(d.emoji, user)
+		local reaction = message:_addReaction(d, user)
 		return client:emit('reactionAdd', reaction, user)
 	else
 		return client:emit('reactionAddUncached', channel, d.message_id, user)
@@ -364,7 +364,7 @@ function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
 	if not user then return warning(client, 'User', d.user_id, 'MESSAGE_REACTION_REMOVE') end
 	local message = channel._messages:get(d.message_id)
 	if message then
-		local reaction = message:_removeReaction(d.emoji, user)
+		local reaction = message:_removeReaction(d, user)
 		return client:emit('reactionRemove', reaction, user)
 	else
 		return client:emit('reactionRemoveUncached', channel, d.message_id, user)

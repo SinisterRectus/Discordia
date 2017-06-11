@@ -59,12 +59,12 @@ local function hash(data)
 	end
 	if data.id then -- snowflakes
 		return data.id
-	elseif data.code then -- invites
-		return data.code
 	elseif data.user then -- members
 		return data.user.id
 	elseif data.emoji then -- reactions
 		return data.emoji.id or data.emoji.name
+	elseif data.code then -- invites
+		return data.code
 	else
 		return nil, 'json data could not be hashed'
 	end
