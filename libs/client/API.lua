@@ -106,8 +106,6 @@ function API:commit(method, url, req, payload, mutex, retries)
 	local success, res, msg = pcall(request, method, url, req, payload)
 	if not success then return nil, res end
 
-	client:debug('HTTP : %i - %s : %s %s', res.code, res.reason, method, url)
-
 	for i, v in ipairs(res) do
 		res[v[1]] = v[2]
 		res[i] = nil
@@ -160,6 +158,7 @@ function API:commit(method, url, req, payload, mutex, retries)
 
 	end
 
+	client:debug('%i - %s : %s %s', res.code, res.reason, method, url)
 	mutex:unlockAfter(delay)
 	return data
 
