@@ -198,23 +198,23 @@ function API:createMessage(channel_id, payload)
 end
 
 function API:createReaction(channel_id, message_id, emoji, payload)
-	local route = format("/channels/%s/messages/%%s/reactions/%%s/@me", channel_id)
-	return self:request("PUT", route, format(route, message_id, emoji), payload)
+	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
+	return self:request("PUT", route, format(route .. "/%s/@me", message_id, emoji), payload) -- special case
 end
 
 function API:deleteOwnReaction(channel_id, message_id, emoji)
-	local route = format("/channels/%s/messages/%%s/reactions/%%s/@me", channel_id)
-	return self:request("DELETE", route, format(route, message_id, emoji))
+	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
+	return self:request("DELETE", route, format(route .. "/%s/@me", message_id, emoji)) -- special case
 end
 
 function API:deleteUserReaction(channel_id, message_id, emoji, user_id)
-	local route = format("/channels/%s/messages/%%s/reactions/%%s/%%s", channel_id)
-	return self:request("DELETE", route, format(route, message_id, emoji, user_id))
+	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
+	return self:request("DELETE", route, format(route .. "/%s/%s", message_id, emoji, user_id)) -- special case
 end
 
 function API:getReactions(channel_id, message_id, emoji)
-	local route = format("/channels/%s/messages/%%s/reactions/%%s", channel_id)
-	return self:request("GET", route, format(route, message_id, emoji))
+	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
+	return self:request("GET", route, format(route .. "/%s", message_id, emoji)) -- special case
 end
 
 function API:deleteAllReactions(channel_id, message_id)
@@ -229,7 +229,7 @@ end
 
 function API:deleteMessage(channel_id, message_id)
 	local route = format("/channels/%s/messages/%%s", channel_id)
-	return self:request("DELETE", route, format(route, message_id))
+	return self:request("DELETE", "DELETE" .. route, format(route, message_id)) -- special case
 end
 
 function API:bulkDeleteMessages(channel_id, payload)
