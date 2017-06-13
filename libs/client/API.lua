@@ -24,10 +24,9 @@ local function parseDate(str)
 	)
 	local serverDate = {
 		day = day, month = months[month], year = year,
-		hour = hour, min = min, sec = sec,
+		hour = hour, min = min, sec = sec, isdst = false,
 	}
 	local clientDate = date('!*t')
-	clientDate.isdst = date('*t').isdst
 	return difftime(time(serverDate), time(clientDate)) + time()
 end
 
