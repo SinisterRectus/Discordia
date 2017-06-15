@@ -1,6 +1,11 @@
-local uv = require('uv')
+local hrtime = require('uv').hrtime
+local constants = require('constants')
 
-local hrtime = uv.hrtime
+local NS_PER_US = constants.NS_PER_US
+local NS_PER_MS = NS_PER_US * constants.US_PER_MS
+local NS_PER_S = NS_PER_MS * constants.MS_PER_S
+local NS_PER_MIN = NS_PER_S * constants.S_PER_MIN
+local NS_PER_HOUR = NS_PER_MIN * constants.MIN_PER_HOUR
 
 local Stopwatch, get = require('class')('Stopwatch')
 
@@ -26,23 +31,23 @@ function Stopwatch:reset()
 end
 
 function get.hours(self)
-	return self.nanoseconds / 3.6E12
+	return self.nanoseconds / NS_PER_HOUR
 end
 
 function get.minutes(self)
-	return self.nanoseconds / 6.0E10
+	return self.nanoseconds / NS_PER_MIN
 end
 
 function get.seconds(self)
-	return self.nanoseconds * 1E-9
+	return self.nanoseconds / NS_PER_S
 end
 
 function get.milliseconds(self)
-	return self.nanoseconds * 1E-6
+	return self.nanoseconds / NS_PER_MS
 end
 
 function get.microseconds(self)
-	return self.nanoseconds * 1E-3
+	return self.nanoseconds / NS_PER_US
 end
 
 function get.nanoseconds(self)
