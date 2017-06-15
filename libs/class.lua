@@ -1,13 +1,13 @@
 local format = string.format
 
 local meta = {}
+local names = {}
 local classes = {}
-
--- TODO: instanceof, typeof, subclassof
--- TODO: isObject, isClass
+local objects = setmetatable({}, {__mode = 'k'})
 
 function meta:__call(...)
 	local obj = setmetatable({}, self)
+	objects[obj] = true
 	obj:__init(...)
 	return obj
 end
@@ -22,13 +22,54 @@ function default:__tostring()
 	return 'instance of class ' .. self.__name
 end
 
+local function isClass(cls)
+	return classes[cls]
+end
+
+local function isObject(obj)
+	return objects[obj]
+end
+
+local function isSubclass(sub, cls)
+	if isClass(sub) and isClass(cls) then
+		if sub == cls then
+			return true
+		else
+			for _, base in ipairs(sub.__bases) do
+				if isSubclass(base, cls) then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+local function isInstance(obj, cls)
+	return isObject(obj) and isSubclass(obj.__class, cls)
+end
+
+local rawtype = type
+local function type(obj)
+	return isObject(obj) and obj.__name or rawtype(obj)
+end
+
 -- TODO: method to serialize objs
 
-return setmetatable({__classes = classes}, {__call = function(_, name, ...)
+return setmetatable({
 
-	if classes[name] then return error(format('Class %q already defined', name)) end
+	isClass = isClass,
+	isObject = isObject,
+	isSubclass = isSubclass,
+	isInstance = isInstance,
+	type = type,
 
-	local class = setmetatable({__type = 'class'}, meta)
+}, {__call = function(_, name, ...)
+
+	if names[name] then return error(format('Class %q already defined', name)) end
+
+	local class = setmetatable({}, meta)
+	classes[class] = true
 
 	for k, v in pairs(default) do
 		class[k] = v
@@ -94,7 +135,7 @@ return setmetatable({__classes = classes}, {__call = function(_, name, ...)
 		end
 	end
 
-	classes[name] = class
+	names[name] = class
 
 	return class, getters
 
