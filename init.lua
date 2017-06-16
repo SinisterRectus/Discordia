@@ -4,6 +4,7 @@ return {
 	package = require('./package.lua'),
 	Client = require('client/Client'),
 	Cache = require('utils/Cache'),
+	Date = require('utils/Date'),
 	Deque = require('utils/Deque'),
 	Emitter = require('utils/Emitter'),
 	Mutex = require('utils/Mutex'),

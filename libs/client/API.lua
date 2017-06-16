@@ -1,6 +1,7 @@
 local json = require('json')
 local http = require('coro-http')
 local package = require('../../package.lua')
+local Date = require('utils/Date')
 local Mutex = require('utils/Mutex')
 local constants = require('constants')
 
@@ -9,26 +10,11 @@ local format = string.format
 local max, random = math.max, math.random
 local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
-local date, time, difftime = os.date, os.time, os.difftime
+local difftime = os.difftime
 
 local BASE_URL = constants.BASE_URL
 
-local months = {
-	Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
-	Jul = 7, Aug = 8, Sep = 9, Oct = 10, Nov = 11, Dec = 12
-}
-
-local function parseDate(str)
-	local day, month, year, hour, min, sec = str:match(
-		'%a+, (%d+) (%a+) (%d+) (%d+):(%d+):(%d+) GMT'
-	)
-	local serverDate = {
-		day = day, month = months[month], year = year,
-		hour = hour, min = min, sec = sec, isdst = false,
-	}
-	local clientDate = date('!*t')
-	return difftime(time(serverDate), time(clientDate)) + time()
-end
+local parseDate = Date.parseHeader
 
 local function parseErrors(ret, errors, key)
 	for k, v in pairs(errors) do
