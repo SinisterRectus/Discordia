@@ -96,7 +96,7 @@ function Shard:connect(url, token)
 		self:handlePayloads(token)
 		self:info('Disconnected')
 	else
-		self:error('Could not connect to %s (%s)', url, read)
+		self:error('Could not connect to %s (%s)', url, read) -- TODO: get new url?
 	end
 
 	if self._reconnect then
@@ -112,7 +112,7 @@ function Shard:connect(url, token)
 
 end
 
-function Shard:disconnect(reconnect) -- TODO: coro-websocket PR
+function Shard:disconnect(reconnect)
 	if not self._write then return end
 	self._reconnect = not not reconnect
 	self:stopHeartbeat()
@@ -136,7 +136,7 @@ function Shard:handlePayloads(token)
 
 			payload = inflate(payload, 15)
 
-		elseif opcode == CLOSE then -- TODO: coro-websocket PR
+		elseif opcode == CLOSE then
 
 			local code, i = ('>H'):unpack(payload)
 			self:warning('%i - %s', code, payload:sub(i))
