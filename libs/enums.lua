@@ -1,17 +1,18 @@
 local function enum(tbl)
-	local index = {}
+	local copy = {}
 	local call = {}
 	for k, v in pairs(tbl) do
-		if index[k] then
-			return error(string.format('enum clash for %q and %q', k, index[k]))
+		if call[v] then
+			return error(string.format('enum clash for %q and %q', k, call[v]))
 		end
-		index[k] = v
+		copy[k] = v
 		call[v] = k
 		tbl[k] = nil
 	end
 	return setmetatable(tbl, {
 		__call = function(_, k) return call[k] end,
-		__index = function(_, k) return index[k] end,
+		__index = function(_, k) return copy[k]	end,
+		__pairs = function() return next, copy end,
 		__newindex = function() return error('cannot overwrite enumeration') end,
 	})
 end
@@ -32,8 +33,8 @@ enums.messageType = enum {
     call              = 3,
     channelNameChange = 4,
 	channelIconchange = 5,
-	pinsAdd           = 6,
-	join              = 7,
+	pinnedMessage     = 6,
+	memberJoin        = 7,
 }
 
 enums.verificationLevel = enum {

@@ -112,7 +112,6 @@ return setmetatable({
 	class.__setters = setters
 
 	-- TODO: property pool
-	-- TODO: maybe remove setters
 
 	function class:__index(k)
 		local getter = getters[k]
@@ -124,19 +123,19 @@ return setmetatable({
 	end
 
 	function class:__newindex(k, v)
-		assert(k:find('_') == 1) -- debug
 		local setter = setters[k]
 		if setter then
 			return setter(self, v)
 		elseif class[k] or getters[k] then
 			return error(format('Cannot overwrite protected property: %s.%s', name, k))
 		else
+			assert(k:find('_') == 1) -- debug
 			return rawset(self, k, v)
 		end
 	end
 
 	names[name] = class
 
-	return class, getters
+	return class, getters, setters
 
 end})
