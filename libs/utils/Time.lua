@@ -1,5 +1,6 @@
 local class = require('class')
 local constants = require('constants')
+local ffi = require('ffi')
 
 local MS_PER_S = constants.MS_PER_S
 local MS_PER_MIN = MS_PER_S * constants.S_PER_MIN
@@ -12,7 +13,6 @@ local HOUR_PER_DAY = constants.HOUR_PER_DAY
 local MIN_PER_HOUR = constants.MIN_PER_HOUR
 local S_PER_MIN = constants.S_PER_MIN
 
-local floor = math.floor
 local format = string.format
 local isInstance = class.isInstance
 
@@ -33,11 +33,12 @@ local function check(self, other)
     end
 end
 
--- TODO: negative values
 -- TODO: increase precision?
 
+local int = ffi.typeof('int64_t')
+
 function Time:__init(value)
-    self._value = tonumber(value) or 0
+    self._value = int(tonumber(value) or 0)
 end
 
 function Time:__tostring()
@@ -125,38 +126,38 @@ function Time.fromTable(t)
 end
 
 function Time:toWeeks()
-    return self._value / MS_PER_WEEK
+    return self:toMilliseconds() / MS_PER_WEEK
 end
 
 function Time:toDays()
-    return self._value / MS_PER_DAY
+    return self:toMilliseconds() / MS_PER_DAY
 end
 
 function Time:toHours()
-    return self._value / MS_PER_HOUR
+    return self:toMilliseconds() / MS_PER_HOUR
 end
 
 function Time:toMinutes()
-    return self._value / MS_PER_MIN
+    return self:toMilliseconds() / MS_PER_MIN
 end
 
 function Time:toSeconds()
-    return self._value / MS_PER_S
+    return self:toMilliseconds() / MS_PER_S
 end
 
 function Time:toMilliseconds()
-    return self._value
+    return tonumber(self._value)
 end
 
 function Time:toTable()
     local v = self._value
     return {
-        weeks = floor(v / MS_PER_WEEK),
-        days = floor(v / MS_PER_DAY % DAY_PER_WEEK),
-        hours = floor(v / MS_PER_HOUR % HOUR_PER_DAY),
-        minutes = floor(v / MS_PER_MIN % MIN_PER_HOUR),
-        seconds = floor(v / MS_PER_S % S_PER_MIN),
-        milliseconds = floor(v % MS_PER_S),
+        weeks = tonumber(v / MS_PER_WEEK),
+        days = tonumber(v / MS_PER_DAY % DAY_PER_WEEK),
+        hours = tonumber(v / MS_PER_HOUR % HOUR_PER_DAY),
+        minutes = tonumber(v / MS_PER_MIN % MIN_PER_HOUR),
+        seconds = tonumber(v / MS_PER_S % S_PER_MIN),
+        milliseconds = tonumber(v % MS_PER_S),
     }
 end
 

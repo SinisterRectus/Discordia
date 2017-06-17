@@ -1,4 +1,5 @@
 local class = require('class')
+local ffi = require('ffi')
 
 local format = string.format
 local min, max, abs, floor = math.min, math.max, math.abs, math.floor
@@ -19,9 +20,11 @@ local function clamp(n, mn, mx)
     return min(max(n, mn), mx)
 end
 
+local int = ffi.typeof('uint32_t')
+
 function Color:__init(value)
     value = tonumber(value)
-    self._value = value and band(value, 0xFFFFFF) or 0
+    self._value = int(value and band(value, 0xFFFFFF) or 0)
 end
 
 function Color:__tostring()
@@ -77,7 +80,8 @@ function Color:__div(other)
 end
 
 function Color.fromHex(hex)
-    return Color(tonumber(hex:match('#?(.*)'), 16))
+    hex = hex:match('#?(.*)')
+    return Color(tonumber(hex, 16))
 end
 
 function Color.fromRGB(r, g, b)
@@ -152,7 +156,7 @@ function Color.fromHSL(h, s, l)
 end
 
 function Color:toHex()
-    return format('#%06X', self._value)
+    return format('#%06X', self.value)
 end
 
 function Color:toRGB()
@@ -174,11 +178,11 @@ function Color:toHSL()
 end
 
 function get.value(self)
-    return self._value
+    return tonumber(self._value)
 end
 
 local function getByte(self, offset)
-    return band(rshift(self._value, offset), 0xFF)
+    return tonumber(band(rshift(self._value, offset), 0xFF))
 end
 
 function get.r(self)
@@ -196,7 +200,7 @@ end
 local function setByte(self, offset, new)
     local byte = lshift(0xFF, offset)
     local value = band(self._value, bnot(byte))
-    self._value = bor(value, band(lshift(new, offset), byte))
+    self._value = int(bor(value, band(lshift(new, offset), byte)))
 end
 
 function set.r(self, r)

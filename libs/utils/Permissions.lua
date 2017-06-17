@@ -1,5 +1,6 @@
 local class = require('class')
 local enums = require('enums')
+local ffi = require('ffi')
 
 local permission = enums.permission
 
@@ -13,6 +14,8 @@ for _, value in pairs(permission) do
 	ALL = bor(ALL, value)
 end
 
+local int = ffi.typeof('uint32_t')
+
 local Permissions, get = require('class')('Permissions')
 
 local function check(self, other)
@@ -22,7 +25,7 @@ local function check(self, other)
 end
 
 function Permissions:__init(value)
-    self._value = tonumber(value) or 0
+    self._value = int(tonumber(value) or 0)
 end
 
 function Permissions:__tostring()
@@ -31,7 +34,7 @@ function Permissions:__tostring()
     else
 		local a = self:toArray()
         sort(a)
-        return format('Permissions: %i (%s)', self._value, concat(a, ', '))
+        return format('Permissions: %i (%s)', self.value, concat(a, ', '))
     end
 end
 
@@ -54,7 +57,7 @@ function Permissions:enable(...)
         local perm = getPerm(i, ...)
         value = bor(value, perm)
     end
-    self._value = value
+    self._value = int(value)
 end
 
 function Permissions:disable(...)
@@ -63,7 +66,7 @@ function Permissions:disable(...)
         local perm = getPerm(i, ...)
         value = band(value, bnot(perm))
     end
-    self._value = value
+    self._value = int(value)
 end
 
 function Permissions:has(...)
@@ -78,11 +81,11 @@ function Permissions:has(...)
 end
 
 function Permissions:enableAll()
-    self._value = ALL
+    self._value = int(ALL)
 end
 
 function Permissions:disableAll()
-    self._value = 0
+    self._value = int()
 end
 
 function Permissions:toHex()
@@ -127,7 +130,7 @@ function Permissions:complement(other) -- in other not in self
 end
 
 function get.value(self)
-	return self._value
+	return tonumber(self._value)
 end
 
 return Permissions
