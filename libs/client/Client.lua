@@ -14,6 +14,7 @@ local PrivateChannel = require('containers/PrivateChannel')
 local User = require('containers/User')
 
 local Cache = require('utils/Cache')
+local WeakCache = require('utils/WeakCache')
 local Emitter = require('utils/Emitter')
 local Logger = require('utils/Logger')
 local Mutex = require('utils/Mutex')
@@ -81,7 +82,7 @@ function Client:__init(options)
 	self._shards = {}
 	self._api = API(self)
 	self._mutex = Mutex()
-	self._users = Cache(User, self) -- TODO: weak cache / update on all inserts?
+	self._users = WeakCache(User, self)
 	self._guilds = Cache(Guild, self)
 	self._group_channels = Cache(GroupChannel, self)
 	self._private_channels = Cache(PrivateChannel, self)
