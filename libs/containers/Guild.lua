@@ -9,8 +9,9 @@ local GuildVoiceChannel = require('containers/GuildVoiceChannel')
 
 local enums = require('enums')
 local channelType = enums.channelType
+local floor = math.floor
 
-local Guild = require('class')('Guild', Snowflake)
+local Guild, get = require('class')('Guild', Snowflake)
 
 function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -20,11 +21,12 @@ function Guild:__init(data, parent)
 	self._text_channels = Cache(GuildTextChannel, self)
 	self._voice_channels = Cache(GuildVoiceChannel, self)
 	self._voice_states = {}
+	if not data.unavailable then
+		return self:_loadMore(data)
+	end
 end
 
-function Guild:_makeAvailable(data, shard)
-
-	self:_load(data)
+function Guild:_loadMore(data)
 
 	self._roles:merge(data.roles)
 	self._emojis:merge(data.emojis)
@@ -46,28 +48,34 @@ function Guild:_makeAvailable(data, shard)
 
 	self._features = data.features -- raw table of strings
 
-	return self:_loadMembers(data, shard)
+	return self:_loadMembers(data)
 
 end
 
--- TODO: allow users to manually requestMembers after startup
-function Guild:_loadMembers(data, shard)
+function Guild:_loadMembers(data)
 	local members = self._members
 	members:merge(data.members)
 	for _, presence in ipairs(data.presences) do
 		local member = members:get(presence.user.id)
-		if member then -- rogue presence
+		if member then -- rogue presence check
 			member:_loadPresence(presence)
 		end
 	end
-	if self._large then
-		if self.client._options.fetchMembers then
-			if shard._loading then
-				shard._loading.chunks[self._id] = true
-			end
-			return shard:requestGuildMembers(self._id)
-		end
+	if self._large and self.client._options.fetchMembers then
+		return self:requestMembers()
 	end
+end
+
+function Guild:requestMembers()
+	local shard = self.client._shards[self.shardId]
+	if shard._loading then
+		shard._loading.chunks[self._id] = true
+	end
+	return shard:requestGuildMembers(self._id)
+end
+
+function get.shardId(self)
+	return floor(self._id / 2^22) % self.client._shard_count
 end
 
 return Guild

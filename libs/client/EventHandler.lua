@@ -40,8 +40,9 @@ local EventHandler = setmetatable({}, {__index = function(self, k)
 	return self[k]
 end})
 
-function EventHandler.READY(d, client, shard) -- TODO: account for new READY after already running
+function EventHandler.READY(d, client, shard)
 
+	-- TODO: account for new READY after already running (empty old caches or make new ones?)
 	-- TODO: user_settings, relationships (maybe)
 
 	shard:info('Received READY (%s)', concat(d._trace, ', '))
@@ -73,7 +74,7 @@ function EventHandler.READY(d, client, shard) -- TODO: account for new READY aft
 		local ids = {}
 		for _, guild in ipairs(d.guilds) do
 			if not guild.unavailable then -- if available
-				guilds:insert(guild):_makeAvailable(guild)
+				guilds:insert(guild)
 				loading.syncs[guild.id] = true
 				insert(ids, guild.id)
 			else
@@ -190,13 +191,14 @@ function EventHandler.CHANNEL_RECIPIENT_REMOVE(d, client)
 end
 
 function EventHandler.GUILD_CREATE(d, client, shard)
+	if not d.unavailable and not client._user._bot then
+		shard:syncGuilds({d.id})
+	end
 	local guild = client._guilds:get(d.id)
 	if guild then
 		if guild._unavailable and not d.unavailable then
-			guild:_makeAvailable(d, shard)
-			if not client._user._bot then
-				shard:syncGuilds({d.id})
-			end
+			guild:_load(d) -- do guilds mutate while unavailable?
+			guild:_loadMore(d)
 			client:emit('guildAvailable', guild)
 		end
 		if shard._loading then
@@ -205,12 +207,6 @@ function EventHandler.GUILD_CREATE(d, client, shard)
 		end
 	else
 		guild = client._guilds:insert(d)
-		if not d.unavailable then
-			guild:_makeAvailable(d, shard)
-			if not client._user._bot then
-				shard:syncGuilds({d.id})
-			end
-		end
 		return client:emit('guildCreate', guild)
 	end
 end
