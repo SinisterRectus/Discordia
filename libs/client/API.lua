@@ -4,9 +4,10 @@ local package = require('../../package.lua')
 local Date = require('utils/Date')
 local Mutex = require('utils/Mutex')
 local constants = require('constants')
+local endpoints = require('endpoints')
 
 local request = http.request
-local format = string.format
+local f = string.format
 local max, random = math.max, math.random
 local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
@@ -20,17 +21,52 @@ local function parseErrors(ret, errors, key)
 	for k, v in pairs(errors) do
 		if k == '_errors' then
 			for _, err in ipairs(v) do
-				insert(ret, format('%s in %s : %s', err.code, key or 'payload', err.message))
+				insert(ret, f('%s in %s : %s', err.code, key or 'payload', err.message))
 			end
 		else
 			if key then
-				parseErrors(ret, v, format(k:find("^[%a_][%a%d_]*$") and '%s.%s' or '%s[%q]', key, k))
+				parseErrors(ret, v, f(k:find("^[%a_][%a%d_]*$") and '%s.%s' or '%s[%q]', key, k))
 			else
 				parseErrors(ret, v, k)
 			end
 		end
 	end
 	return concat(ret, '\n\t')
+end
+
+local majors = {guilds = true, channels = true}
+
+local function buildRoute(method, endpoint)
+
+	if endpoint:find('reactions') then -- special case for reactions
+		endpoint = endpoint:gsub('reactions.*', 'reactions')
+	end
+
+	endpoint = endpoint:gsub('(%a+)/%d+', function(path)
+		return not majors[path] and path
+	end)
+
+	if method == 'DELETE' then -- special case for message deletions
+		local i, j = endpoint:find('/channels/%d+/messages')
+		if i == 1 and j == #endpoint then
+			endpoint = method .. endpoint
+		end
+	end
+
+	return endpoint
+
+end
+
+local function buildURL(endpoint, query)
+	if query and next(query) then
+		local buffer = {}
+		for k, v in pairs(query) do
+			insert(buffer, f('%s=%s', k, v))
+		end
+		return f('%s%s?%s', BASE_URL, endpoint, concat(buffer, '&'))
+	else
+		return f('%s%s', BASE_URL, endpoint)
+	end
 end
 
 local mutexMeta = {
@@ -50,22 +86,20 @@ end
 function API:authenticate(token)
 	self._headers = {
 		{'Authorization', token},
-		{'User-Agent', format('DiscordBot (%s, %s)', package.homepage, package.version)},
+		{'User-Agent', f('DiscordBot (%s, %s)', package.homepage, package.version)},
 	}
 	-- return self:getCurrentUser() -- TODO: active this on release
 	return decode(encode({id = '1234', bot = token:find('Bot')}))
 end
 
-function API:request(method, route, endpoint, payload)
+function API:request(method, endpoint, payload, query)
 
-	local url = BASE_URL .. endpoint
+	local url = buildURL(endpoint, query)
+	local route = buildRoute(method, endpoint)
 
 	local req
-
-	-- if method:find('P') == 1 then
-	if payload then -- TODO: test with all endpoints (some don't use payloads?)
-		-- payload = payload and encode(payload) or '{}'
-		payload = encode(payload)
+	if method:find('P') == 1 then -- TODO file attachments
+		payload = payload and encode(payload) or '{}'
 		req = {}
 		for i, v in ipairs(self._headers) do
 			req[i] = v
@@ -106,7 +140,10 @@ function API:commit(method, url, req, payload, mutex, retries)
 		delay = max(1000 * dt, delay)
 	end
 
-	local data = decode(msg) or msg
+	local data = msg
+	if res['Content-Type'] == 'application/json' then
+		data = decode(data)
+	end
 
 	if res.code > 299 then
 
@@ -128,7 +165,7 @@ function API:commit(method, url, req, payload, mutex, retries)
 			end
 
 			if data.code and data.message then
-				msg = format('HTTP Error %i : %s', data.code, data.message)
+				msg = f('HTTP Error %i : %s', data.code, data.message)
 			else
 				msg = 'HTTP Error'
 			end
@@ -153,433 +190,433 @@ end
 -- start of auto-generated methods --
 
 function API:getChannel(channel_id)
-	local route = format("/channels/%s", channel_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.CHANNEL, channel_id)
+	return self:request("GET", endpoint)
 end
 
 function API:modifyChannel(channel_id, payload)
-	local route = format("/channels/%s", channel_id)
-	return self:request("PUT/PATCH", route, route, payload)
+	local endpoint = f(endpoints.CHANNEL, channel_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:deleteChannel(channel_id)
-	local route = format("/channels/%s", channel_id)
-	return self:request("DELETE", route, route)
+	local endpoint = f(endpoints.CHANNEL, channel_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:getChannelMessages(channel_id)
-	local route = format("/channels/%s/messages", channel_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.CHANNEL_MESSAGES, channel_id)
+	return self:request("GET", endpoint)
 end
 
 function API:getChannelMessage(channel_id, message_id)
-	local route = format("/channels/%s/messages/%%s", channel_id)
-	return self:request("GET", route, format(route, message_id))
+	local endpoint = f(endpoints.CHANNEL_MESSAGE, channel_id, message_id)
+	return self:request("GET", endpoint)
 end
 
 function API:createMessage(channel_id, payload)
-	local route = format("/channels/%s/messages", channel_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.CHANNEL_MESSAGES, channel_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:createReaction(channel_id, message_id, emoji, payload)
-	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
-	return self:request("PUT", route, format(route .. "/%s/@me", message_id, emoji), payload) -- special case
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, emoji)
+	return self:request("PUT", endpoint, payload)
 end
 
 function API:deleteOwnReaction(channel_id, message_id, emoji)
-	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
-	return self:request("DELETE", route, format(route .. "/%s/@me", message_id, emoji)) -- special case
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, emoji)
+	return self:request("DELETE", endpoint)
 end
 
 function API:deleteUserReaction(channel_id, message_id, emoji, user_id)
-	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
-	return self:request("DELETE", route, format(route .. "/%s/%s", message_id, emoji, user_id)) -- special case
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_USER, channel_id, message_id, emoji, user_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:getReactions(channel_id, message_id, emoji)
-	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
-	return self:request("GET", route, format(route .. "/%s", message_id, emoji)) -- special case
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION, channel_id, message_id, emoji)
+	return self:request("GET", endpoint)
 end
 
 function API:deleteAllReactions(channel_id, message_id)
-	local route = format("/channels/%s/messages/%%s/reactions", channel_id)
-	return self:request("DELETE", route, format(route, message_id))
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTIONS, channel_id, message_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:editMessage(channel_id, message_id, payload)
-	local route = format("/channels/%s/messages/%%s", channel_id)
-	return self:request("PATCH", route, format(route, message_id), payload)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE, channel_id, message_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:deleteMessage(channel_id, message_id)
-	local route = format("/channels/%s/messages/%%s", channel_id)
-	return self:request("DELETE", "DELETE" .. route, format(route, message_id)) -- special case
+	local endpoint = f(endpoints.CHANNEL_MESSAGE, channel_id, message_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:bulkDeleteMessages(channel_id, payload)
-	local route = format("/channels/%s/messages/bulk-delete", channel_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.CHANNEL_MESSAGES_BULK_DELETE, channel_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:editChannelPermissions(channel_id, overwrite_id, payload)
-	local route = format("/channels/%s/permissions/%%s", channel_id)
-	return self:request("PUT", route, format(route, overwrite_id), payload)
+	local endpoint = f(endpoints.CHANNEL_PERMISSION, channel_id, overwrite_id)
+	return self:request("PUT", endpoint, payload)
 end
 
 function API:getChannelInvites(channel_id)
-	local route = format("/channels/%s/invites", channel_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.CHANNEL_INVITES, channel_id)
+	return self:request("GET", endpoint)
 end
 
 function API:createChannelInvite(channel_id, payload)
-	local route = format("/channels/%s/invites", channel_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.CHANNEL_INVITES, channel_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:deleteChannelPermission(channel_id, overwrite_id)
-	local route = format("/channels/%s/permissions/%%s", channel_id)
-	return self:request("DELETE", route, format(route, overwrite_id))
+	local endpoint = f(endpoints.CHANNEL_PERMISSION, channel_id, overwrite_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:triggerTypingIndicator(channel_id, payload)
-	local route = format("/channels/%s/typing", channel_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.CHANNEL_TYPING, channel_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:getPinnedMessages(channel_id)
-	local route = format("/channels/%s/pins", channel_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.CHANNEL_PINS, channel_id)
+	return self:request("GET", endpoint)
 end
 
 function API:addPinnedChannelMessage(channel_id, message_id, payload)
-	local route = format("/channels/%s/pins/%%s", channel_id)
-	return self:request("PUT", route, format(route, message_id), payload)
+	local endpoint = f(endpoints.CHANNEL_PIN, channel_id, message_id)
+	return self:request("PUT", endpoint, payload)
 end
 
 function API:deletePinnedChannelMessage(channel_id, message_id)
-	local route = format("/channels/%s/pins/%%s", channel_id)
-	return self:request("DELETE", route, format(route, message_id))
+	local endpoint = f(endpoints.CHANNEL_PIN, channel_id, message_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:groupDMAddRecipient(channel_id, user_id, payload)
-	local route = format("/channels/%s/recipients/%%s", channel_id)
-	return self:request("PUT", route, format(route, user_id), payload)
+	local endpoint = f(endpoints.CHANNEL_RECIPIENT, channel_id, user_id)
+	return self:request("PUT", endpoint, payload)
 end
 
 function API:groupDMRemoveRecipient(channel_id, user_id)
-	local route = format("/channels/%s/recipients/%%s", channel_id)
-	return self:request("DELETE", route, format(route, user_id))
+	local endpoint = f(endpoints.CHANNEL_RECIPIENT, channel_id, user_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:createGuild(payload)
-	local route = "/guilds"
-	return self:request("POST", route, route, payload)
+	local endpoint = endpoints.GUILDS
+	return self:request("POST", endpoint, payload)
 end
 
 function API:getGuild(guild_id)
-	local route = format("/guilds/%s", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:modifyGuild(guild_id, payload)
-	local route = format("/guilds/%s", guild_id)
-	return self:request("PATCH", route, route, payload)
+	local endpoint = f(endpoints.GUILD, guild_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:deleteGuild(guild_id)
-	local route = format("/guilds/%s", guild_id)
-	return self:request("DELETE", route, route)
+	local endpoint = f(endpoints.GUILD, guild_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:getGuildChannels(guild_id)
-	local route = format("/guilds/%s/channels", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_CHANNELS, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:createGuildChannel(guild_id, payload)
-	local route = format("/guilds/%s/channels", guild_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.GUILD_CHANNELS, guild_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:modifyGuildChannelPositions(guild_id, payload)
-	local route = format("/guilds/%s/channels", guild_id)
-	return self:request("PATCH", route, route, payload)
+	local endpoint = f(endpoints.GUILD_CHANNELS, guild_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:getGuildMember(guild_id, user_id)
-	local route = format("/guilds/%s/members/%%s", guild_id)
-	return self:request("GET", route, format(route, user_id))
+	local endpoint = f(endpoints.GUILD_MEMBER, guild_id, user_id)
+	return self:request("GET", endpoint)
 end
 
 function API:listGuildMembers(guild_id)
-	local route = format("/guilds/%s/members", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_MEMBERS, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:addGuildMember(guild_id, user_id, payload)
-	local route = format("/guilds/%s/members/%%s", guild_id)
-	return self:request("PUT", route, format(route, user_id), payload)
+	local endpoint = f(endpoints.GUILD_MEMBER, guild_id, user_id)
+	return self:request("PUT", endpoint, payload)
 end
 
 function API:modifyGuildMember(guild_id, user_id, payload)
-	local route = format("/guilds/%s/members/%%s", guild_id)
-	return self:request("PATCH", route, format(route, user_id), payload)
+	local endpoint = f(endpoints.GUILD_MEMBER, guild_id, user_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:modifyCurrentUsersNick(guild_id, payload)
-	local route = format("/guilds/%s/members/@me/nick", guild_id)
-	return self:request("PATCH", route, route, payload)
+	local endpoint = f(endpoints.GUILD_MEMBERS_ME_NICK, guild_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:addGuildMemberRole(guild_id, user_id, role_id, payload)
-	local route = format("/guilds/%s/members/%%s/roles/%%s", guild_id)
-	return self:request("PUT", route, format(route, user_id, role_id), payload)
+	local endpoint = f(endpoints.GUILD_MEMBER_ROLE, guild_id, user_id, role_id)
+	return self:request("PUT", endpoint, payload)
 end
 
 function API:removeGuildMemberRole(guild_id, user_id, role_id)
-	local route = format("/guilds/%s/members/%%s/roles/%%s", guild_id)
-	return self:request("DELETE", route, format(route, user_id, role_id))
+	local endpoint = f(endpoints.GUILD_MEMBER_ROLE, guild_id, user_id, role_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:removeGuildMember(guild_id, user_id)
-	local route = format("/guilds/%s/members/%%s", guild_id)
-	return self:request("DELETE", route, format(route, user_id))
+	local endpoint = f(endpoints.GUILD_MEMBER, guild_id, user_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:getGuildBans(guild_id)
-	local route = format("/guilds/%s/bans", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_BANS, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:createGuildBan(guild_id, user_id, payload)
-	local route = format("/guilds/%s/bans/%%s", guild_id)
-	return self:request("PUT", route, format(route, user_id), payload)
+	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
+	return self:request("PUT", endpoint, payload)
 end
 
 function API:removeGuildBan(guild_id, user_id)
-	local route = format("/guilds/%s/bans/%%s", guild_id)
-	return self:request("DELETE", route, format(route, user_id))
+	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:getGuildRoles(guild_id)
-	local route = format("/guilds/%s/roles", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_ROLES, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:createGuildRole(guild_id, payload)
-	local route = format("/guilds/%s/roles", guild_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.GUILD_ROLES, guild_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:modifyGuildRolePositions(guild_id, payload)
-	local route = format("/guilds/%s/roles", guild_id)
-	return self:request("PATCH", route, route, payload)
+	local endpoint = f(endpoints.GUILD_ROLES, guild_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:modifyGuildRole(guild_id, role_id, payload)
-	local route = format("/guilds/%s/roles/%%s", guild_id)
-	return self:request("PATCH", route, format(route, role_id), payload)
+	local endpoint = f(endpoints.GUILD_ROLE, guild_id, role_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:deleteGuildRole(guild_id, role_id)
-	local route = format("/guilds/%s/roles/%%s", guild_id)
-	return self:request("DELETE", route, format(route, role_id))
+	local endpoint = f(endpoints.GUILD_ROLE, guild_id, role_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:getGuildPruneCount(guild_id)
-	local route = format("/guilds/%s/prune", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_PRUNE, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:beginGuildPrune(guild_id, payload)
-	local route = format("/guilds/%s/prune", guild_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.GUILD_PRUNE, guild_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:getGuildVoiceRegions(guild_id)
-	local route = format("/guilds/%s/regions", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_REGIONS, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:getGuildInvites(guild_id)
-	local route = format("/guilds/%s/invites", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_INVITES, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:getGuildIntegrations(guild_id)
-	local route = format("/guilds/%s/integrations", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_INTEGRATIONS, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:createGuildIntegration(guild_id, payload)
-	local route = format("/guilds/%s/integrations", guild_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.GUILD_INTEGRATIONS, guild_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:modifyGuildIntegration(guild_id, integration_id, payload)
-	local route = format("/guilds/%s/integrations/%%s", guild_id)
-	return self:request("PATCH", route, format(route, integration_id), payload)
+	local endpoint = f(endpoints.GUILD_INTEGRATION, guild_id, integration_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:deleteGuildIntegration(guild_id, integration_id)
-	local route = format("/guilds/%s/integrations/%%s", guild_id)
-	return self:request("DELETE", route, format(route, integration_id))
+	local endpoint = f(endpoints.GUILD_INTEGRATION, guild_id, integration_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:syncGuildIntegration(guild_id, integration_id, payload)
-	local route = format("/guilds/%s/integrations/%%s/sync", guild_id)
-	return self:request("POST", route, format(route, integration_id), payload)
+	local endpoint = f(endpoints.GUILD_INTEGRATION_SYNC, guild_id, integration_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:getGuildEmbed(guild_id)
-	local route = format("/guilds/%s/embed", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_EMBED, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:modifyGuildEmbed(guild_id, payload)
-	local route = format("/guilds/%s/embed", guild_id)
-	return self:request("PATCH", route, route, payload)
+	local endpoint = f(endpoints.GUILD_EMBED, guild_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:getInvite(invite_code)
-	local route = "/invites/%s"
-	return self:request("GET", route, format(route, invite_code))
+	local endpoint = f(endpoints.INVITE, invite_code)
+	return self:request("GET", endpoint)
 end
 
 function API:deleteInvite(invite_code)
-	local route = "/invites/%s"
-	return self:request("DELETE", route, format(route, invite_code))
+	local endpoint = f(endpoints.INVITE, invite_code)
+	return self:request("DELETE", endpoint)
 end
 
 function API:acceptInvite(invite_code, payload)
-	local route = "/invites/%s"
-	return self:request("POST", route, format(route, invite_code), payload)
+	local endpoint = f(endpoints.INVITE, invite_code)
+	return self:request("POST", endpoint, payload)
 end
 
-function API:getCurrentUser() -- API:authenticate
-	local route = "/users/@me"
-	return self:request("GET", route, route)
+function API:getCurrentUser()
+	local endpoint = endpoints.USERS_ME
+	return self:request("GET", endpoint)
 end
 
-function API:getUser(user_id) --  Client:getUser
-	local route = "/users/%s"
-	return self:request("GET", route, format(route, user_id))
+function API:getUser(user_id)
+	local endpoint = f(endpoints.USER, user_id)
+	return self:request("GET", endpoint)
 end
 
 function API:modifyCurrentUser(payload)
-	local route = "/users/@me"
-	return self:request("PATCH", route, route, payload)
+	local endpoint = endpoints.USERS_ME
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:getCurrentUserGuilds()
-	local route = "/users/@me/guilds"
-	return self:request("GET", route, route)
+	local endpoint = endpoints.USERS_ME_GUILDS
+	return self:request("GET", endpoint)
 end
 
 function API:leaveGuild(guild_id)
-	local route = format("/users/@me/guilds/%s", guild_id)
-	return self:request("DELETE", route, route)
+	local endpoint = f(endpoints.USERS_ME_GUILD, guild_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:getUserDMs()
-	local route = "/users/@me/channels"
-	return self:request("GET", route, route)
+	local endpoint = endpoints.USERS_ME_CHANNELS
+	return self:request("GET", endpoint)
 end
 
 function API:createDM(payload)
-	local route = "/users/@me/channels"
-	return self:request("POST", route, route, payload)
+	local endpoint = endpoints.USERS_ME_CHANNELS
+	return self:request("POST", endpoint, payload)
 end
 
 function API:createGroupDM(payload)
-	local route = "/users/@me/channels"
-	return self:request("POST", route, route, payload)
+	local endpoint = endpoints.USERS_ME_CHANNELS
+	return self:request("POST", endpoint, payload)
 end
 
 function API:getUsersConnections()
-	local route = "/users/@me/connections"
-	return self:request("GET", route, route)
+	local endpoint = endpoints.USERS_ME_CONNECTIONS
+	return self:request("GET", endpoint)
 end
 
 function API:listVoiceRegions()
-	local route = "/voice/regions"
-	return self:request("GET", route, route)
+	local endpoint = endpoints.VOICE_REGIONS
+	return self:request("GET", endpoint)
 end
 
 function API:createWebhook(channel_id, payload)
-	local route = format("/channels/%s/webhooks", channel_id)
-	return self:request("POST", route, route, payload)
+	local endpoint = f(endpoints.CHANNEL_WEBHOOKS, channel_id)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:getChannelWebhooks(channel_id)
-	local route = format("/channels/%s/webhooks", channel_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.CHANNEL_WEBHOOKS, channel_id)
+	return self:request("GET", endpoint)
 end
 
 function API:getGuildWebhooks(guild_id)
-	local route = format("/guilds/%s/webhooks", guild_id)
-	return self:request("GET", route, route)
+	local endpoint = f(endpoints.GUILD_WEBHOOKS, guild_id)
+	return self:request("GET", endpoint)
 end
 
 function API:getWebhook(webhook_id)
-	local route = "/webhooks/%s"
-	return self:request("GET", route, format(route, webhook_id))
+	local endpoint = f(endpoints.WEBHOOK, webhook_id)
+	return self:request("GET", endpoint)
 end
 
 function API:getWebhookWithToken(webhook_id, webhook_token)
-	local route = "/webhooks/%s/%s"
-	return self:request("GET", route, format(route, webhook_id, webhook_token))
+	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
+	return self:request("GET", endpoint)
 end
 
 function API:modifyWebhook(webhook_id, payload)
-	local route = "/webhooks/%s"
-	return self:request("PATCH", route, format(route, webhook_id), payload)
+	local endpoint = f(endpoints.WEBHOOK, webhook_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:modifyWebhookWithToken(webhook_id, webhook_token, payload)
-	local route = "/webhooks/%s/%s"
-	return self:request("PATCH", route, format(route, webhook_id, webhook_token), payload)
+	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:deleteWebhook(webhook_id)
-	local route = "/webhooks/%s"
-	return self:request("DELETE", route, format(route, webhook_id))
+	local endpoint = f(endpoints.WEBHOOK, webhook_id)
+	return self:request("DELETE", endpoint)
 end
 
 function API:deleteWebhookWithToken(webhook_id, webhook_token)
-	local route = "/webhooks/%s/%s"
-	return self:request("DELETE", route, format(route, webhook_id, webhook_token))
+	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
+	return self:request("DELETE", endpoint)
 end
 
 function API:executeWebhook(webhook_id, webhook_token, payload)
-	local route = "/webhooks/%s/%s"
-	return self:request("POST", route, format(route, webhook_id, webhook_token), payload)
+	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload)
-	local route = "/webhooks/%s/%s/slack"
-	return self:request("POST", route, format(route, webhook_id, webhook_token), payload)
+	local endpoint = f(endpoints.WEBHOOK_TOKEN_SLACK, webhook_id, webhook_token)
+	return self:request("POST", endpoint, payload)
 end
 
 function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload)
-	local route = "/webhooks/%s/%s/github"
-	return self:request("POST", route, format(route, webhook_id, webhook_token), payload)
+	local endpoint = f(endpoints.WEBHOOK_TOKEN_GITHUB, webhook_id, webhook_token)
+	return self:request("POST", endpoint, payload)
 end
 
-function API:getGateway() -- Client:run
-	local route = "/gateway"
-	return self:request("GET", route, route)
+function API:getGateway()
+	local endpoint = endpoints.GATEWAY
+	return self:request("GET", endpoint)
 end
 
-function API:getGatewayBot() -- Client:run
-	local route = "/gateway/bot"
-	return self:request("GET", route, route)
+function API:getGatewayBot()
+	local endpoint = endpoints.GATEWAY_BOT
+	return self:request("GET", endpoint)
 end
 
 function API:getCurrentApplicationInformation()
-	local route = "/oauth2/applications/@me"
-	return self:request("GET", route, route)
+	local endpoint = endpoints.OAUTH2_APPLICATIONS_ME
+	return self:request("GET", endpoint)
 end
 
 -- end of auto-generated methods --
