@@ -65,7 +65,7 @@ local function buildURL(endpoint, query)
 		end
 		return f('%s%s?%s', BASE_URL, endpoint, concat(buffer, '&'))
 	else
-		return f('%s%s', BASE_URL, endpoint)
+		return BASE_URL .. endpoint
 	end
 end
 
@@ -365,7 +365,7 @@ function API:modifyGuildMember(guild_id, user_id, payload)
 end
 
 function API:modifyCurrentUsersNick(guild_id, payload)
-	local endpoint = f(endpoints.GUILD_MEMBERS_ME_NICK, guild_id)
+	local endpoint = f(endpoints.GUILD_MEMBER_ME_NICK, guild_id)
 	return self:request("PATCH", endpoint, payload)
 end
 
@@ -495,7 +495,7 @@ function API:acceptInvite(invite_code, payload)
 end
 
 function API:getCurrentUser()
-	local endpoint = endpoints.USERS_ME
+	local endpoint = endpoints.USER_ME
 	return self:request("GET", endpoint)
 end
 
@@ -505,37 +505,37 @@ function API:getUser(user_id)
 end
 
 function API:modifyCurrentUser(payload)
-	local endpoint = endpoints.USERS_ME
+	local endpoint = endpoints.USER_ME
 	return self:request("PATCH", endpoint, payload)
 end
 
 function API:getCurrentUserGuilds()
-	local endpoint = endpoints.USERS_ME_GUILDS
+	local endpoint = endpoints.USER_ME_GUILDS
 	return self:request("GET", endpoint)
 end
 
 function API:leaveGuild(guild_id)
-	local endpoint = f(endpoints.USERS_ME_GUILD, guild_id)
+	local endpoint = f(endpoints.USER_ME_GUILD, guild_id)
 	return self:request("DELETE", endpoint)
 end
 
 function API:getUserDMs()
-	local endpoint = endpoints.USERS_ME_CHANNELS
+	local endpoint = endpoints.USER_ME_CHANNELS
 	return self:request("GET", endpoint)
 end
 
 function API:createDM(payload)
-	local endpoint = endpoints.USERS_ME_CHANNELS
+	local endpoint = endpoints.USER_ME_CHANNELS
 	return self:request("POST", endpoint, payload)
 end
 
 function API:createGroupDM(payload)
-	local endpoint = endpoints.USERS_ME_CHANNELS
+	local endpoint = endpoints.USER_ME_CHANNELS
 	return self:request("POST", endpoint, payload)
 end
 
 function API:getUsersConnections()
-	local endpoint = endpoints.USERS_ME_CONNECTIONS
+	local endpoint = endpoints.USER_ME_CONNECTIONS
 	return self:request("GET", endpoint)
 end
 
@@ -615,7 +615,7 @@ function API:getGatewayBot()
 end
 
 function API:getCurrentApplicationInformation()
-	local endpoint = endpoints.OAUTH2_APPLICATIONS_ME
+	local endpoint = endpoints.OAUTH2_APPLICATION_ME
 	return self:request("GET", endpoint)
 end
 

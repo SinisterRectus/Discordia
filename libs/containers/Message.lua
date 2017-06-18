@@ -21,6 +21,9 @@ end
 
 function Message:_loadMore(data)
 
+	-- TODO: maybe parse these
+	-- TODO: if they are empty, maybe nil them on self
+
 	if data.mentions then
 		self._mentions = data.mentions
 	end

@@ -27,22 +27,30 @@ enums.channelType = enum {
 }
 
 enums.messageType = enum {
-    default           = 0,
-    recipientAdd      = 1,
-    recipientRemove   = 2,
-    call              = 3,
-    channelNameChange = 4,
+	default           = 0,
+	recipientAdd      = 1,
+	recipientRemove   = 2,
+	call              = 3,
+	channelNameChange = 4,
 	channelIconchange = 5,
 	pinnedMessage     = 6,
 	memberJoin        = 7,
 }
 
+enums.relationshipType = enum {
+	none            = 0,
+	friend          = 1,
+	blocked         = 2,
+	pendingIncoming = 3,
+	pendingOutgoing = 4,
+}
+
 enums.verificationLevel = enum {
-    none            = 0,
-    low             = 1,
-    medium          = 2,
-	tableFlip       = 3,
-	doubleTableFlip = 4,
+	none     = 0,
+	low      = 1,
+	medium   = 2,
+	high     = 3, -- (╯°□°）╯︵ ┻━┻
+	veryHigh = 4, -- ┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻
 }
 
 enums.permission = enum {
