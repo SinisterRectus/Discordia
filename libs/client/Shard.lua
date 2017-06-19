@@ -18,7 +18,7 @@ local format = string.format
 local sleep = timer.sleep
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 local concat = table.concat
-local wrap, yield = coroutine.wrap, coroutine.yield
+local wrap = coroutine.wrap
 
 local ID_DELAY = constants.ID_DELAY
 local GATEWAY_VERSION = constants.GATEWAY_VERSION
@@ -209,18 +209,15 @@ function Shard:handlePayloads(token)
 end
 
 local function loop(self)
-	while true do
-		decrementReconnectTime(self)
-		self:heartbeat()
-		yield()
-	end
+	decrementReconnectTime(self)
+	wrap(self.heartbeat)(self)
 end
 
 function Shard:startHeartbeat(interval)
 	if self._heartbeat then
 		clearInterval(self._heartbeat)
 	end
-	self._heartbeat = setInterval(interval, wrap(loop), self)
+	self._heartbeat = setInterval(interval, loop, self)
 end
 
 function Shard:stopHeartbeat()

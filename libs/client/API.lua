@@ -1,9 +1,9 @@
 local json = require('json')
+local timer = require('timer')
 local http = require('coro-http')
 local package = require('../../package.lua')
 local Date = require('utils/Date')
 local Mutex = require('utils/Mutex')
-local constants = require('constants')
 local endpoints = require('endpoints')
 
 local request = http.request
@@ -12,8 +12,9 @@ local max, random = math.max, math.random
 local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
 local difftime = os.difftime
+local sleep = timer.sleep
 
-local BASE_URL = constants.BASE_URL
+local BASE_URL = "https://discordapp.com/api/v7"
 
 local parseDate = Date.parseHeader
 
@@ -111,23 +112,28 @@ function API:request(method, endpoint, payload, query)
 
 	local mutex = self._mutexes[route(method, endpoint)]
 
-	return self:commit(method, url, req, payload, mutex, 0)
+	mutex:lock()
+	local data, err, delay = self:commit(method, url, req, payload, 0)
+	mutex:unlockAfter(delay)
+
+	if data then
+		return data
+	else
+		return nil, err
+	end
 
 end
 
-function API:commit(method, url, req, payload, mutex, retries)
+function API:commit(method, url, req, payload, retries)
 
 	local client = self._client
 	local options = client._options
 	local delay = options.routeDelay
 
-	mutex:lock(retries > 0)
-
 	local success, res, msg = pcall(request, method, url, req, payload)
 
 	if not success then
-		mutex:unlockAfter(delay)
-		return nil, res
+		return nil, res, delay
 	end
 
 	for i, v in ipairs(res) do
@@ -143,12 +149,17 @@ function API:commit(method, url, req, payload, mutex, retries)
 		delay = max(1000 * dt, delay)
 	end
 
-	local data = msg
+	local data
 	if res['Content-Type'] == 'application/json' then
-		data = decode(data)
+		data = decode(msg)
 	end
 
-	if res.code > 299 then
+	if res.code < 300 then
+
+		client:debug('%i - %s : %s %s', res.code, res.reason, method, url)
+		return data, msg, delay
+
+	else
 
 		if type(data) == 'table' then
 
@@ -163,8 +174,8 @@ function API:commit(method, url, req, payload, mutex, retries)
 
 			if retry then
 				client:warning('%i - %s : retrying after %i ms : %s %s', res.code, res.reason, delay, method, url)
-				mutex:unlockAfter(delay)
-				return self:commit(method, url, req, payload, mutex, retries + 1)
+				sleep(delay)
+				return self:commit(method, url, req, payload, retries + 1)
 			end
 
 			if data.code and data.message then
@@ -179,14 +190,9 @@ function API:commit(method, url, req, payload, mutex, retries)
 		end
 
 		client:error('%i - %s : %s %s', res.code, res.reason, method, url)
-		mutex:unlockAfter(delay)
-		return nil, msg
+		return nil, msg, delay
 
 	end
-
-	client:debug('%i - %s : %s %s', res.code, res.reason, method, url)
-	mutex:unlockAfter(delay)
-	return data
 
 end
 

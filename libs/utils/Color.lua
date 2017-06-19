@@ -181,38 +181,38 @@ function get.value(self)
     return tonumber(self._value)
 end
 
-local function getByte(self, offset)
-    return tonumber(band(rshift(self._value, offset), 0xFF))
+local function getByte(value, offset)
+    return tonumber(band(rshift(value, offset), 0xFF))
 end
 
 function get.r(self)
-    return getByte(self, 16)
+    return getByte(self._value, 16)
 end
 
 function get.g(self)
-    return getByte(self, 8)
+    return getByte(self._value, 8)
 end
 
 function get.b(self)
-    return getByte(self, 0)
+    return getByte(self._value, 0)
 end
 
-local function setByte(self, offset, new)
+local function setByte(value, offset, new)
     local byte = lshift(0xFF, offset)
-    local value = band(self._value, bnot(byte))
-    self._value = int(bor(value, band(lshift(new, offset), byte)))
+    value = band(value, bnot(byte))
+    return int(bor(value, band(lshift(new, offset), byte)))
 end
 
 function set.r(self, r)
-    return setByte(self, 16, r)
+    self._value = setByte(self._value, 16, r)
 end
 
 function set.g(self, g)
-    return setByte(self, 8, g)
+    self._value = setByte(self._value, 8, g)
 end
 
 function set.b(self, b)
-    return setByte(self, 0, b)
+    self._value = setByte(self._value, 0, b)
 end
 
 return Color
