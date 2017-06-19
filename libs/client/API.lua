@@ -36,17 +36,21 @@ end
 
 local majors = {guilds = true, channels = true}
 
-local function buildRoute(method, endpoint)
+local function route(method, endpoint)
 
-	if endpoint:find('reactions') then -- special case for reactions
-		endpoint = endpoint:gsub('reactions.*', 'reactions')
+	-- special case for reactions
+	local _, n = endpoint:find('reactions')
+	if n then
+		endpoint = endpoint:sub(1, n)
 	end
 
+	-- remove the ID for major routes
 	endpoint = endpoint:gsub('(%a+)/%d+', function(path)
 		return not majors[path] and path
 	end)
 
-	if method == 'DELETE' then -- special case for message deletions
+	-- special case for message deletions
+	if method == 'DELETE' then
 		local i, j = endpoint:find('/channels/%d+/messages')
 		if i == 1 and j == #endpoint then
 			endpoint = method .. endpoint
@@ -55,18 +59,6 @@ local function buildRoute(method, endpoint)
 
 	return endpoint
 
-end
-
-local function buildURL(endpoint, query)
-	if query and next(query) then
-		local buffer = {}
-		for k, v in pairs(query) do
-			insert(buffer, f('%s=%s', k, v))
-		end
-		return f('%s%s?%s', BASE_URL, endpoint, concat(buffer, '&'))
-	else
-		return BASE_URL .. endpoint
-	end
 end
 
 local mutexMeta = {
@@ -94,8 +86,15 @@ end
 
 function API:request(method, endpoint, payload, query)
 
-	local url = buildURL(endpoint, query)
-	local route = buildRoute(method, endpoint)
+	local url = BASE_URL .. endpoint
+
+	if query and next(query) then
+		local buffer = {}
+		for k, v in pairs(query) do
+			insert(buffer, f('%s=%s', k, v))
+		end
+		url = f('%s?%s', url, concat(buffer, '&'))
+	end
 
 	local req
 	if method:find('P') == 1 then -- TODO file attachments
@@ -110,7 +109,7 @@ function API:request(method, endpoint, payload, query)
 		req = self._headers
 	end
 
-	local mutex = self._mutexes[route]
+	local mutex = self._mutexes[route(method, endpoint)]
 
 	return self:commit(method, url, req, payload, mutex, 0)
 
@@ -120,18 +119,22 @@ function API:commit(method, url, req, payload, mutex, retries)
 
 	local client = self._client
 	local options = client._options
+	local delay = options.routeDelay
 
 	mutex:lock(retries > 0)
 
 	local success, res, msg = pcall(request, method, url, req, payload)
-	if not success then return nil, res end
+
+	if not success then
+		mutex:unlockAfter(delay)
+		return nil, res
+	end
 
 	for i, v in ipairs(res) do
 		res[v[1]] = v[2]
 		res[i] = nil
 	end
 
-	local delay = options.routeDelay
 	local reset = res['X-RateLimit-Reset']
 	local remaining = res['X-RateLimit-Remaining']
 
@@ -152,14 +155,14 @@ function API:commit(method, url, req, payload, mutex, retries)
 			local retry
 			if res.code == 429 then -- TODO: global ratelimiting
 				delay = data.retry_after
-				retry = retries < options.maxRetries and 'Ratelimited'
+				retry = retries < options.maxRetries
 			elseif res.code == 502 then
 				delay = delay + random(2000)
-				retry = retries < options.maxRetries and 'Bad Gateway'
+				retry = retries < options.maxRetries
 			end
 
 			if retry then
-				client:warning('%s, retrying request after %i ms : %s %s', retry, delay, method, url)
+				client:warning('%i - %s : retrying after %i ms : %s %s', res.code, res.reason, delay, method, url)
 				mutex:unlockAfter(delay)
 				return self:commit(method, url, req, payload, mutex, retries + 1)
 			end
