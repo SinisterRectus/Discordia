@@ -1,5 +1,4 @@
 local class = require('class')
-local ffi = require('ffi')
 
 local format = string.format
 local min, max, abs, floor = math.min, math.max, math.abs, math.floor
@@ -20,11 +19,9 @@ local function clamp(n, mn, mx)
     return min(max(n, mn), mx)
 end
 
-local int = ffi.typeof('uint32_t')
-
 function Color:__init(value)
     value = tonumber(value)
-    self._value = int(value and band(value, 0xFFFFFF) or 0)
+    self._value = value and band(value, 0xFFFFFF) or 0
 end
 
 function Color:__tostring()
@@ -80,8 +77,7 @@ function Color:__div(other)
 end
 
 function Color.fromHex(hex)
-    hex = hex:match('#?(.*)')
-    return Color(tonumber(hex, 16))
+    return Color(tonumber(hex:match('#?(.*)'), 16))
 end
 
 function Color.fromRGB(r, g, b)
@@ -156,7 +152,7 @@ function Color.fromHSL(h, s, l)
 end
 
 function Color:toHex()
-    return format('#%06X', self.value)
+    return format('#%06X', self._value)
 end
 
 function Color:toRGB()
@@ -178,41 +174,41 @@ function Color:toHSL()
 end
 
 function get.value(self)
-    return tonumber(self._value)
+    return self._value
 end
 
-local function getByte(value, offset)
-    return tonumber(band(rshift(value, offset), 0xFF))
+local function getByte(self, offset)
+    return band(rshift(self._value, offset), 0xFF)
 end
 
 function get.r(self)
-    return getByte(self._value, 16)
+    return getByte(self, 16)
 end
 
 function get.g(self)
-    return getByte(self._value, 8)
+    return getByte(self, 8)
 end
 
 function get.b(self)
-    return getByte(self._value, 0)
+    return getByte(self, 0)
 end
 
-local function setByte(value, offset, new)
+local function setByte(self, offset, new)
     local byte = lshift(0xFF, offset)
-    value = band(value, bnot(byte))
-    return int(bor(value, band(lshift(new, offset), byte)))
+    local value = band(self._value, bnot(byte))
+    self._value = bor(value, band(lshift(new, offset), byte))
 end
 
 function set.r(self, r)
-    self._value = setByte(self._value, 16, r)
+    return setByte(self, 16, r)
 end
 
 function set.g(self, g)
-    self._value = setByte(self._value, 8, g)
+    return setByte(self, 8, g)
 end
 
 function set.b(self, b)
-    self._value = setByte(self._value, 0, b)
+    return setByte(self, 0, b)
 end
 
 return Color

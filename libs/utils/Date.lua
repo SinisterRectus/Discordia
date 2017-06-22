@@ -1,7 +1,6 @@
 local class = require('class')
 local constants = require('constants')
 local Time = require('utils/Time')
-local ffi = require('ffi')
 
 local abs = math.abs
 local format = string.format
@@ -21,8 +20,6 @@ local function offset() -- difference between *t and !*t
     return difftime(time(), time(date('!*t')))
 end
 
-local int = ffi.typeof('uint32_t')
-
 local Date = class('Date')
 
 local function check(self, other)
@@ -32,11 +29,11 @@ local function check(self, other)
 end
 
 function Date:__init(value)
-    self._value = int(tonumber(value) or time())
+    self._value = tonumber(value) or time()
 end
 
 function Date:__tostring()
-    return date('%a %b %d %Y %T GMT%z (%Z)', self:toSeconds())
+    return date('%a %b %d %Y %T GMT%z (%Z)', self._value)
 end
 
 function Date:__eq(other) check(self, other)
@@ -126,28 +123,28 @@ function Date.fromMilliseconds(t)
 end
 
 function Date:toISO(sep, tz)
-	local ret = date('!%F%%s%T%%s', self:toSeconds())
+	local ret = date('!%F%%s%T%%s', self._seconds)
 	return format(ret, sep or 'T', tz or 'Z')
 end
 
 function Date:toHeader()
-    return date('!%a, %d %b %Y %T GMT', self:toSeconds())
+    return date('!%a, %d %b %Y %T GMT', self._value)
 end
 
 function Date:toTable()
-	return date('*t', self:toSeconds())
+	return date('*t', self._value)
 end
 
 function Date:toTableUTC()
-	return date('!*t', self:toSeconds())
+	return date('!*t', self._value)
 end
 
 function Date:toSeconds()
-    return tonumber(self._value)
+    return self._value
 end
 
 function Date:toMilliseconds()
-    return tonumber(self._value * MS_PER_S)
+    return self._value * MS_PER_S
 end
 
 return Date
