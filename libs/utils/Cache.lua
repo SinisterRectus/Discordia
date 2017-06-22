@@ -14,14 +14,14 @@ function Cache:__tostring()
 	return format('%s[%s]', self.__name, self._constructor.__name)
 end
 
-function Cache:_add(obj)
-	self._objects[obj:__hash()] = obj
+function Cache:_insert(k, obj)
+	self._objects[k] = obj
 	self._count = self._count + 1
 	return obj
 end
 
-function Cache:_remove(obj)
-	self._objects[obj:__hash()] = nil
+function Cache:_remove(k, obj)
+	self._objects[k] = nil
 	self._count = self._count - 1
 	return obj
 end
@@ -30,23 +30,20 @@ function Cache:get(k)
 	return self._objects[k]
 end
 
-function Cache:has(k)
-	return self._objects[k] ~= nil
-end
-
-function Cache:add(obj)
-	local old = self._objects[obj:__hash()]
-	if old then
-		return nil
-	else
-		return self:_add(obj)
-	end
-end
+-- function Cache:add(obj)
+-- 	local k = obj:__hash()
+-- 	local old = self._objects[k]
+-- 	if old then
+-- 		return nil
+-- 	else
+-- 		return self:_insert(k, obj)
+-- 	end
+-- end
 
 function Cache:delete(k)
 	local old = self._objects[k]
 	if old then
-		return self:_remove(old)
+		return self:_remove(k, old)
 	else
 		return nil
 	end
@@ -70,48 +67,35 @@ local function hash(data)
 	end
 end
 
-function Cache:insert(data, update)
-
+function Cache:insert(data)
 	local k = assert(hash(data))
 	local old = self._objects[k]
-
 	if old then
-		if update then
-			old:_load(data)
-		end
+		old:_load(data)
 		return old
 	else
 		local obj = self._constructor(data, self._parent)
-		return self:_add(obj)
+		return self:_insert(k, obj)
 	end
-
 end
 
-function Cache:remove(data, update)
-
+function Cache:remove(data)
 	local k = assert(hash(data))
 	local old = self._objects[k]
-
 	if old then
-		if update then
-			old:_load(data)
-		end
-		return self:_remove(old)
+		old:_load(data)
+		return self:_remove(k, old)
 	else
 		return self._constructor(data, self._parent)
 	end
-
 end
 
 function Cache:merge(array, update)
 	if update then
 		local updated = {}
 		for _, data in ipairs(array) do
-			local id = hash(data)
-			if id then
-				updated[id] = true
-				self:insert(data, true)
-			end
+			local obj = self:insert(data)
+			updated[obj:__hash()] = true
 		end
 		for obj in self:iter() do
 			local k = obj:__hash()

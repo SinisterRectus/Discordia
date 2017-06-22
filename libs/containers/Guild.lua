@@ -22,11 +22,11 @@ function Guild:__init(data, parent)
 	self._voice_channels = Cache(GuildVoiceChannel, self)
 	self._voice_states = {}
 	if not data.unavailable then
-		return self:_loadMore(data)
+		return self:_makeAvailable(data)
 	end
 end
 
-function Guild:_loadMore(data)
+function Guild:_makeAvailable(data)
 
 	self._roles:merge(data.roles)
 	self._emojis:merge(data.emojis)

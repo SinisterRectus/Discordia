@@ -42,14 +42,13 @@ end})
 
 function EventHandler.READY(d, client, shard)
 
-	-- TODO: account for new READY after already running (empty old caches or make new ones?)
 	-- TODO: user_settings, relationships (maybe)
 
 	shard:info('Received READY (%s)', concat(d._trace, ', '))
 	shard:emit('READY')
 
 	shard._session_id = d.session_id
-	client._user = client._users:insert(d.user, true)
+	client._user = client._users:insert(d.user)
 
 	local guilds = client._guilds
 	local group_channels = client._group_channels
@@ -139,15 +138,15 @@ function EventHandler.CHANNEL_UPDATE(d, client)
 	if d.type == channelType.text then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
-		channel = guild._text_channels:insert(d, true)
+		channel = guild._text_channels:insert(d)
 	elseif d.type == channelType.voice then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
-		channel = guild._voice_channels:insert(d, true)
+		channel = guild._voice_channels:insert(d)
 	-- elseif d.type == channelType.private then -- private channels should never update
-		-- channel = client._private_channels:insert(d, true)
+		-- channel = client._private_channels:insert(d)
 	elseif d.type == channelType.group then
-		channel = client._group_channels:insert(d, true)
+		channel = client._group_channels:insert(d)
 	else
 		return client:warning('Unhandled CHANNEL_UPDATE (type %s)', d.type)
 	end
@@ -198,7 +197,7 @@ function EventHandler.GUILD_CREATE(d, client, shard)
 	if guild then
 		if guild._unavailable and not d.unavailable then
 			guild:_load(d) -- do guilds mutate while unavailable?
-			guild:_loadMore(d)
+			guild:_makeAvailable(d)
 			client:emit('guildAvailable', guild)
 		end
 		if shard._loading then
@@ -212,18 +211,16 @@ function EventHandler.GUILD_CREATE(d, client, shard)
 end
 
 function EventHandler.GUILD_UPDATE(d, client)
-	local guild = client._guilds:insert(d, true)
+	local guild = client._guilds:insert(d)
 	return client:emit('guildUpdate', guild)
 end
 
 function EventHandler.GUILD_DELETE(d, client)
 	if d.unavailable then
 		local guild = client._guilds:insert(d)
-		guild._unavailable = d.unvailable
 		return client:emit('guildUnavailable', guild)
 	else
 		local guild = client._guilds:remove(d)
-		guild._unavailable = d.unvailable
 		return client:emit('guildDelete', guild)
 	end
 end
@@ -263,7 +260,7 @@ end
 function EventHandler.GUILD_MEMBER_UPDATE(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_MEMBER_UPDATE') end
-	local member = guild._members:insert(d, true)
+	local member = guild._members:insert(d)
 	return client:emit('memberUpdate', member)
 end
 
@@ -285,7 +282,7 @@ end
 function EventHandler.GUILD_ROLE_UPDATE(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_ROLE_UPDATE') end
-	local role = guild._roles:insert(d.role, true)
+	local role = guild._roles:insert(d.role)
 	return client:emit('roleUpdate', role)
 end
 
