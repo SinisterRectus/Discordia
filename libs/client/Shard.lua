@@ -13,7 +13,7 @@ local constants = require('constants')
 local inflate = miniz.inflate
 local min, max, random = math.min, math.max, math.random
 local encode, decode = json.encode, json.decode
-local parseUrl, connect = websocket.parseUrl, websocket.connect
+local ws_parseUrl, ws_connect = websocket.parseUrl, websocket.connect
 local format = string.format
 local sleep = timer.sleep
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
@@ -69,6 +69,12 @@ function Shard:__tostring()
 	return format('Shard: %i', self._id)
 end
 
+local function connect(url)
+	local options = assert(ws_parseUrl(url))
+	options.pathname = format('/?v=%i&encoding=json', GATEWAY_VERSION)
+	return assert(ws_connect(options))
+end
+
 local function getReconnectTime(self, n, m)
 	return self._backoff * (n + random() * (m - n))
 end
@@ -83,12 +89,9 @@ end
 
 function Shard:connect(url, token)
 
-	local options = parseUrl(url)
-	options.pathname = format('/?v=%i&encoding=json', GATEWAY_VERSION) -- TODO: etf
+	local success, res, read, write = pcall(connect, url)
 
-	local res, read, write = connect(options) -- TODO: pcall?
-
-	if res and res.code == 101 then
+	if success then
 		self._read = read
 		self._write = write
 		self._reconnect = nil
@@ -96,7 +99,7 @@ function Shard:connect(url, token)
 		self:handlePayloads(token)
 		self:info('Disconnected')
 	else
-		self:error('Could not connect to %s (%s)', url, read) -- TODO: get new url?
+		self:error('Could not connect to %s (%s)', url, res) -- TODO: get new url?
 	end
 
 	if self._reconnect then
@@ -116,7 +119,7 @@ function Shard:disconnect(reconnect)
 	if not self._write then return end
 	self._reconnect = not not reconnect
 	self:stopHeartbeat()
-	self._write() -- is there a better way to close?
+	self._write()
 	self._read = nil
 	self._write = nil
 end
@@ -234,7 +237,7 @@ function Shard:identifyWait()
 end
 
 local function send(self, op, d)
-	-- TODO: pcall / check for _write / wrap?
+	-- TODO: pcall / assert / check for _write / wrap?
 	self._mutex:lock()
 	self._write {opcode = TEXT, payload = encode {op = op, d = d}}
 	self._mutex:unlockAfter(GATEWAY_DELAY)
