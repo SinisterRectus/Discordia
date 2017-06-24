@@ -1,19 +1,19 @@
 local class = require('class')
 local constants = require('constants')
-local ffi = require('ffi')
 
-local MS_PER_S = constants.MS_PER_S
-local MS_PER_MIN = MS_PER_S * constants.S_PER_MIN
-local MS_PER_HOUR = MS_PER_MIN * constants.MIN_PER_HOUR
-local MS_PER_DAY = MS_PER_HOUR * constants.HOUR_PER_DAY
-local MS_PER_WEEK = MS_PER_DAY * constants.DAY_PER_WEEK
+local MS_PER_S    =               constants.MS_PER_S
+local MS_PER_MIN  = MS_PER_S    * constants.S_PER_MIN
+local MS_PER_HOUR = MS_PER_MIN  * constants.MIN_PER_HOUR
+local MS_PER_DAY  = MS_PER_HOUR * constants.HOUR_PER_DAY
+local MS_PER_WEEK = MS_PER_DAY  * constants.DAY_PER_WEEK
 
 local DAY_PER_WEEK = constants.DAY_PER_WEEK
 local HOUR_PER_DAY = constants.HOUR_PER_DAY
 local MIN_PER_HOUR = constants.MIN_PER_HOUR
-local S_PER_MIN = constants.S_PER_MIN
+local S_PER_MIN    = constants.S_PER_MIN
 
-local format = string.format
+local insert, concat = table.insert, table.concat
+local modf, fmod = math.modf, math.fmod
 local isInstance = class.isInstance
 
 local from = {
@@ -33,17 +33,20 @@ local function check(self, other)
     end
 end
 
--- TODO: increase precision?
-
-local int = ffi.typeof('int64_t')
-
 function Time:__init(value)
-    self._value = int(tonumber(value) or 0)
+    self._value = tonumber(value) or 0
 end
 
 function Time:__tostring()
     local tbl = self:toTable()
-    return format('Time: %02i:%02i:%02i.%03i', tbl.hours, tbl.minutes, tbl.seconds, tbl.milliseconds)
+    local ret = {}
+    if tbl.weeks ~= 0 then insert(ret, tbl.weeks .. ' weeks') end
+    if tbl.days ~= 0 then insert(ret, tbl.days .. ' days') end
+    if tbl.hours ~= 0 then insert(ret, tbl.hours .. ' hours') end
+    if tbl.minutes ~= 0 then insert(ret, tbl.minutes .. ' minutes') end
+    if tbl.seconds ~= 0 then insert(ret, tbl.seconds .. ' seconds') end
+    if tbl.milliseconds ~= 0 then insert(ret, tbl.milliseconds .. ' milliseconds') end
+    return 'Time: ' .. concat(ret, ', ')
 end
 
 function Time:__eq(other) check(self, other)
@@ -146,18 +149,18 @@ function Time:toSeconds()
 end
 
 function Time:toMilliseconds()
-    return tonumber(self._value)
+    return self._value
 end
 
 function Time:toTable()
     local v = self._value
     return {
-        weeks = tonumber(v / MS_PER_WEEK),
-        days = tonumber(v / MS_PER_DAY % DAY_PER_WEEK),
-        hours = tonumber(v / MS_PER_HOUR % HOUR_PER_DAY),
-        minutes = tonumber(v / MS_PER_MIN % MIN_PER_HOUR),
-        seconds = tonumber(v / MS_PER_S % S_PER_MIN),
-        milliseconds = tonumber(v % MS_PER_S),
+        weeks = modf(v / MS_PER_WEEK),
+        days = modf(fmod(v / MS_PER_DAY, DAY_PER_WEEK)),
+        hours = modf(fmod(v / MS_PER_HOUR, HOUR_PER_DAY)),
+        minutes = modf(fmod(v / MS_PER_MIN, MIN_PER_HOUR)),
+        seconds = modf(fmod(v / MS_PER_S, S_PER_MIN)),
+        milliseconds = modf(fmod(v, MS_PER_S)),
     }
 end
 

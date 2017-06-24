@@ -49,8 +49,11 @@ function Date:__le(other) check(self, other)
 end
 
 function Date:__add(other)
+	if not isInstance(self, Date) then
+		self, other = other, self
+	end
 	if not isInstance(other, Time) then
-		return error('Cannot perform operation with non-Time object', 2)
+		return error('Cannot perform operation with non-Time object')
 	end
 	return Date(self:toSeconds() + other:toSeconds())
 end
@@ -62,10 +65,10 @@ function Date:__sub(other)
 		elseif isInstance(other, Time) then
 			return Date(self:toSeconds() - other:toSeconds())
 		else
-			return error('Cannot perform operation with non-Date or non-Time object')
+			return error('Cannot perform operation with non-Date/Time object')
 		end
 	else
-		return error('Cannot perform operation with non-Date object', 2)
+		return error('Cannot perform operation with non-Date object')
 	end
 end
 
