@@ -1,7 +1,8 @@
-local format = string.format
-local wrap, yield = coroutine.wrap, coroutine.yield
+local Iterable = require('utils/Iterable')
 
-local Cache = require('class')('Cache')
+local format = string.format
+
+local Cache = require('class')('Cache', Iterable)
 
 function Cache:__init(constructor, parent)
 	self._constructor = constructor
@@ -12,6 +13,10 @@ end
 
 function Cache:__tostring()
 	return format('%s[%s]', self.__name, self._constructor.__name)
+end
+
+function Cache:__len()
+	return self._count
 end
 
 function Cache:_insert(k, obj)
@@ -110,36 +115,11 @@ function Cache:merge(array, update)
 	end
 end
 
-function Cache:find(predicate)
-	for obj in self:iter() do
-		if predicate(obj) then
-			return obj
-		end
-	end
-	return nil
-end
-
-function Cache:findAll(predicate)
-	return wrap(function()
-		for obj in self:iter() do
-			if predicate(obj) then
-				yield(obj)
-			end
-		end
-	end)
-end
-
 function Cache:iter()
 	local objects, k, obj = self._objects
 	return function()
 		k, obj = next(objects, k)
 		return obj
-	end
-end
-
-function Cache:forEach(fn)
-	for obj in self:iter() do
-		fn(obj)
 	end
 end
 

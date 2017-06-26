@@ -96,7 +96,7 @@ function EventHandler.GUILD_MEMBERS_CHUNK(d, client, shard)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_MEMBERS_CHUNK') end
 	guild._members:merge(d.members)
-	if shard._loading and guild._member_count == guild._members._count then
+	if shard._loading and guild._member_count == #guild._members then
 		shard._loading.chunks[d.guild_id] = nil
 		return checkReady(shard)
 	end
