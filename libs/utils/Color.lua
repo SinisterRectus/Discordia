@@ -7,7 +7,9 @@ local band, bor = bit.band, bit.bor
 local bnot = bit.bnot
 local isInstance = class.isInstance
 
-local Color, get, set = require('class')('Color')
+local Color = require('class')('Color')
+local get = Color.__getters
+local set = Color.__setters
 
 local function check(self, other)
     if not isInstance(self, Color) or not isInstance(other, Color) then

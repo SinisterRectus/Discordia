@@ -13,7 +13,8 @@ for _, value in pairs(permission) do
 	ALL = bor(ALL, value)
 end
 
-local Permissions, get = require('class')('Permissions')
+local Permissions = require('class')('Permissions')
+local get = Permissions.__getters
 
 local function check(self, other)
     if not isInstance(self, Permissions) or not isInstance(other, Permissions) then

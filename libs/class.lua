@@ -136,6 +136,6 @@ return setmetatable({
 
 	names[name] = class
 
-	return class, getters, setters
+	return class
 
 end})
