@@ -13,6 +13,7 @@ local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
 local difftime = os.difftime
 local sleep = timer.sleep
+local running = coroutine.running
 
 local BASE_URL = "https://discordapp.com/api/v7"
 
@@ -45,7 +46,7 @@ local function route(method, endpoint)
 		endpoint = endpoint:sub(1, n)
 	end
 
-	-- remove the ID for major routes
+	-- remove the ID from minor routes
 	endpoint = endpoint:gsub('(%a+)/%d+', function(path)
 		return not majors[path] and path
 	end)
@@ -86,6 +87,9 @@ function API:authenticate(token)
 end
 
 function API:request(method, endpoint, payload, query)
+
+	local _, main = running()
+	if main then return error('This function must be called in a coroutine') end
 
 	local url = BASE_URL .. endpoint
 
