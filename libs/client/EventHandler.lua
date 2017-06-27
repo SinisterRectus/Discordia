@@ -286,10 +286,11 @@ function EventHandler.GUILD_ROLE_UPDATE(d, client)
 	return client:emit('roleUpdate', role)
 end
 
-function EventHandler.GUILD_ROLE_DELETE(d, client)
+function EventHandler.GUILD_ROLE_DELETE(d, client) -- role object not provided
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_ROLE_DELETE') end
-	local role = guild._roles:remove(d.role)
+	local role = guild._roles:delete(d.role_id)
+	if not role then return warning(client, 'Role', d.role_id, 'GUILD_ROLE_DELETE') end
 	return client:emit('roleDelete', role)
 end
 
