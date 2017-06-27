@@ -40,7 +40,7 @@ end})
 
 function EventHandler.READY(d, client, shard)
 
-	-- TODO: user_settings, relationships (maybe)
+	-- TODO: relationships (maybe)
 
 	shard:info('Received READY (%s)', concat(d._trace, ', '))
 	shard:emit('READY')
@@ -175,14 +175,14 @@ function EventHandler.CHANNEL_RECIPIENT_ADD(d, client)
 	local channel = client._group_channels:get(d.channel_id)
 	if not channel then return warning(client, 'GroupChannel', d.channel_id, 'CHANNEL_RECIPIENT_ADD') end
 	local user = channel._recipients:_insert(d.user)
-	return client:emit('channelRecipientAdd', user)
+	return client:emit('recipientAdd', channel, user)
 end
 
 function EventHandler.CHANNEL_RECIPIENT_REMOVE(d, client)
 	local channel = client._group_channels:get(d.channel_id)
 	if not channel then return warning(client, 'GroupChannel', d.channel_id, 'CHANNEL_RECIPIENT_ADD') end
 	local user = channel._recipients:_remove(d.user)
-	return client:emit('channelRecipientRemove', user)
+	return client:emit('recipientRemove', channel, user)
 end
 
 function EventHandler.GUILD_CREATE(d, client, shard)
@@ -239,7 +239,7 @@ function EventHandler.GUILD_EMOJIS_UPDATE(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_EMOJIS_UPDATE') end
 	guild._emojis:_load(d.emojis, true)
-	return client:emit('guildEmojisUpdate', guild)
+	return client:emit('emojisUpdate', guild)
 end
 
 function EventHandler.GUILD_INTEGRATIONS_UPDATE() -- TODO
@@ -375,7 +375,7 @@ end
 function EventHandler.CHANNEL_PINS_UPDATE(d, client)
 	local channel = getChannel(client, d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'CHANNEL_PINS_UPDATE') end
-	return client:emit('channelPinsUpdate', channel)
+	return client:emit('pinsUpdate', channel)
 end
 
 function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
