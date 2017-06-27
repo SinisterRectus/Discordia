@@ -22,15 +22,13 @@ local function checkReady(shard)
 	return client:emit('ready')
 end
 
-local function getChannel(client, id) -- TODO: change to channel map
-	local channel = client._private_channels:get(id) or client._group_channels:get(id)
-	if not channel then
-		for guild in client._guilds:iter() do
-			channel = guild._text_channels:get(id)
-			if channel then break end
-		end
+local function getChannel(client, id)
+	local guild = client._channel_map[id]
+	if guild then
+		return guild._text_channels:get(id)
+	else
+		return client._private_channels:get(id) or client._group_channels:get(id)
 	end
-	return channel
 end
 
 local EventHandler = setmetatable({}, {__index = function(self, k)

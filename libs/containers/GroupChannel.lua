@@ -6,7 +6,7 @@ local get = GroupChannel.__getters
 
 function GroupChannel:__init(data, parent)
 	TextChannel.__init(self, data, parent)
-	self._recipient = SecondaryCache(data.recipients, self.client._users)
+	self._recipients = SecondaryCache(data.recipients, self.client._users)
 end
 
 function get.recipients(self)

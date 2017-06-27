@@ -25,6 +25,7 @@ function Message:_load(data)
 end
 
 local function parseUserMentions(mentions, users)
+	if #mentions == 0 then return end
 	for i, user in ipairs(mentions) do
 		mentions[i] =  users:_insert(user)
 	end
@@ -32,6 +33,7 @@ local function parseUserMentions(mentions, users)
 end
 
 local function parseChannelMentions(content)
+	if not content:find('<#') then return end
 	local ids = {}
 	for id in content:gmatch('<#(%d-)>') do
 		table.insert(ids, id)
@@ -42,22 +44,20 @@ end
 function Message:_loadMore(data)
 
 	if data.mentions then
+		local mentions = parseUserMentions(data.mentions, self.client._users)
 		if self._mentioned_users then
-			self._mentioned_users._array = parseUserMentions(data.mentions, self.client._users)
-		elseif #data.mentions > 0 then
-			self._mentioned_users_raw = parseUserMentions(data.mentions, self.client._users)
+			self._mentioned_users._array = mentions
 		else
-			self._mentioned_users_raw = nil
+			self._mention_users_raw = mentions
 		end
 	end
 
 	if data.mention_roles then
+		local mentions = #data.mention_roles > 0 and data.mention_roles or nil
 		if self._mentioned_roles then
-			self._mentioned_roles._array = data.mention_roles
-		elseif #data.mention_roles > 0 then
-			self._mentioned_roles_raw = data.mention_roles
+			self._mentioned_roles._array = mentions
 		else
-			self._mentioned_roles_raw = nil
+			self._mention_roles_raw = mentions
 		end
 	end
 
@@ -154,8 +154,14 @@ end
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then
 		local ids = parseChannelMentions(self._content)
-		self._mentioned_channels = ArrayIterable(ids, function()
-			-- TODO: get channel
+		local client = self.client
+		self._mentioned_channels = ArrayIterable(ids, function(id)
+			local guild = client._channel_map[id]
+			if guild then
+				return guild._text_channels:get(id) or guild._voice_channels:get(id)
+			else
+				return client._private_channels:get(id) or client._group_channels:get(id)
+			end
 		end)
 	end
 	return self._mentioned_channels

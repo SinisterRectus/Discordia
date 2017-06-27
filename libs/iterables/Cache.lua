@@ -34,7 +34,6 @@ end
 local function hash(data)
 	local meta = getmetatable(data)
 	if not meta or meta.__jsontype ~= 'object' then
-		p(data)
 		return nil, 'data must be a json object'
 	end
 	if data.id then -- snowflakes

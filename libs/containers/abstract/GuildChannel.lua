@@ -7,6 +7,7 @@ local get = GuildChannel.__getters
 
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
+	self.client._channel_map[self._id] = parent
 	self._permission_overwrites = Cache(PermissionOverwrite, self)
 	return self:_loadMore(data)
 end

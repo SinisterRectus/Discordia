@@ -3,17 +3,20 @@ local Iterable = require('iterables/Iterable')
 local ArrayIterable = require('class')('ArrayIterable', Iterable)
 
 function ArrayIterable:__init(array, map)
-	self._array = array or {}
+	self._array = array
 	self._map = map
 end
 
 function ArrayIterable:__len()
-	return #self._array
+	return self._array and #self._array or 0
 end
 
 function ArrayIterable:iter()
-	local map = self._map
 	local array = self._array
+	if not array then
+		return function() end
+	end
+	local map = self._map
 	if map then
 		return coroutine.wrap(function()
 			for _, v in ipairs(array) do
