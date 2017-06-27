@@ -9,4 +9,12 @@ end
 
 -- NOTE: _count is not accurate for weak caches
 
-return Cache
+function WeakCache:__len()
+	local n = 0
+	for _ in self:iter() do
+		n = n + 1
+	end
+	return n
+end
+
+return WeakCache

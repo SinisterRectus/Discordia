@@ -1,4 +1,4 @@
-local Iterable = require('utils/Iterable')
+local Iterable = require('iterables/Iterable')
 
 local format = string.format
 
@@ -19,44 +19,22 @@ function Cache:__len()
 	return self._count
 end
 
-function Cache:_insert(k, obj)
+local function insert(self, k, obj)
 	self._objects[k] = obj
 	self._count = self._count + 1
 	return obj
 end
 
-function Cache:_remove(k, obj)
+local function remove(self, k, obj)
 	self._objects[k] = nil
 	self._count = self._count - 1
 	return obj
 end
 
-function Cache:get(k)
-	return self._objects[k]
-end
-
--- function Cache:add(obj)
--- 	local k = obj:__hash()
--- 	local old = self._objects[k]
--- 	if old then
--- 		return nil
--- 	else
--- 		return self:_insert(k, obj)
--- 	end
--- end
-
-function Cache:delete(k)
-	local old = self._objects[k]
-	if old then
-		return self:_remove(k, old)
-	else
-		return nil
-	end
-end
-
 local function hash(data)
 	local meta = getmetatable(data)
 	if not meta or meta.__jsontype ~= 'object' then
+		p(data)
 		return nil, 'data must be a json object'
 	end
 	if data.id then -- snowflakes
@@ -72,7 +50,7 @@ local function hash(data)
 	end
 end
 
-function Cache:insert(data)
+function Cache:_insert(data)
 	local k = assert(hash(data))
 	local old = self._objects[k]
 	if old then
@@ -80,26 +58,26 @@ function Cache:insert(data)
 		return old
 	else
 		local obj = self._constructor(data, self._parent)
-		return self:_insert(k, obj)
+		return insert(self, k, obj)
 	end
 end
 
-function Cache:remove(data)
+function Cache:_remove(data)
 	local k = assert(hash(data))
 	local old = self._objects[k]
 	if old then
 		old:_load(data)
-		return self:_remove(k, old)
+		return remove(self, k, old)
 	else
 		return self._constructor(data, self._parent)
 	end
 end
 
-function Cache:merge(array, update)
+function Cache:_load(array, update)
 	if update then
 		local updated = {}
 		for _, data in ipairs(array) do
-			local obj = self:insert(data)
+			local obj = self:_insert(data)
 			updated[obj:__hash()] = true
 		end
 		for obj in self:iter() do
@@ -110,9 +88,13 @@ function Cache:merge(array, update)
 		end
 	else
 		for _, data in ipairs(array) do
-			self:insert(data)
+			self:_insert(data)
 		end
 	end
+end
+
+function Cache:get(k)
+	return self._objects[k]
 end
 
 function Cache:iter()
@@ -123,6 +105,13 @@ function Cache:iter()
 	end
 end
 
--- TODO: keys/values rows/columns methods
+function Cache:delete(k)
+	local old = self._objects[k]
+	if old then
+		return remove(self, k, old)
+	else
+		return nil
+	end
+end
 
 return Cache

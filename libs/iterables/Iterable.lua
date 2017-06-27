@@ -2,8 +2,8 @@ local Iterable = require('class')('Iterable')
 
 --[[ NOTE:
 - this is more of a mixin, without an initializer
-- default length method can be redefined in sub-classes
-- iter method must be defined in sub-classes
+- init and iter methods must be defined in each sub-class
+- len and get can be redefined in any sub-class
 ]]
 
 function Iterable:__len()
@@ -12,6 +12,15 @@ function Iterable:__len()
 		n = n + 1
 	end
 	return n
+end
+
+function Iterable:get(k) -- objects must be hashable
+	for obj in self:iter() do
+		if obj:__hash() == k then
+			return obj
+		end
+	end
+	return nil
 end
 
 function Iterable:find(predicate)

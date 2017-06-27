@@ -1,10 +1,12 @@
 local Container = require('utils/Container')
+local ArrayIterable = require('iterables/ArrayIterable')
 
 local Member = require('class')('Member', Container)
+local get = Member.__getters
 
 function Member:__init(data, parent)
 	Container.__init(self, data, parent)
-	self._user = self.client._users:insert(data.user)
+	self._user = self.client._users:_insert(data.user)
 	return self:_loadMore(data)
 end
 
@@ -18,13 +20,32 @@ function Member:_load(data)
 end
 
 function Member:_loadMore(data)
-	self._roles = data.roles -- raw table of IDs
 	self._nick = data.nick -- can be nil
+	if data.roles then
+		if self._roles then
+			self._roles._array = data.roles
+		elseif #data.roles > 0 then
+			self._roles_raw = data.roles
+		else
+			self._roles_raw = nil
+		end
+	end
 end
 
 function Member:_loadPresence(presence)
 	self._status = presence.status
 	self._game = presence.game
+end
+
+function get.roles(self)
+	if not self._roles then
+		local roles = self._parent._roles
+		self._roles = ArrayIterable(self._roles_raw, function(id)
+			return roles:get(id)
+		end)
+		self._roles_raw = nil
+	end
+	return self._roles
 end
 
 return Member

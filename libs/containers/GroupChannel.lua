@@ -1,16 +1,16 @@
 local TextChannel = require('containers/abstract/TextChannel')
+local SecondaryCache = require('iterables/SecondaryCache')
 
 local GroupChannel = require('class')('GroupChannel', TextChannel)
+local get = GroupChannel.__getters
 
 function GroupChannel:__init(data, parent)
 	TextChannel.__init(self, data, parent)
-	local users = self.client._users
-	local recipients = data.recipients
-	for i, recipient in ipairs(recipients) do
-		recipients[recipient.id] = users:insert(recipient)
-		recipients[i] = nil
-	end
-	self._recipients = recipients
+	self._recipient = SecondaryCache(data.recipients, self.client._users)
+end
+
+function get.recipients(self)
+	return self._recipients
 end
 
 return GroupChannel

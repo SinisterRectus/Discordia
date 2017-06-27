@@ -13,8 +13,8 @@ local Guild = require('containers/Guild')
 local PrivateChannel = require('containers/PrivateChannel')
 local User = require('containers/User')
 
-local Cache = require('utils/Cache')
-local WeakCache = require('utils/WeakCache')
+local Cache = require('iterables/Cache')
+local WeakCache = require('iterables/WeakCache')
 local Emitter = require('utils/Emitter')
 local Logger = require('utils/Logger')
 local Mutex = require('utils/Mutex')
@@ -74,6 +74,7 @@ local function parseOptions(customOptions)
 end
 
 local Client = require('class')('Client', Emitter)
+local get = Client.__getters
 
 function Client:__init(options)
 	Emitter.__init(self)
@@ -112,7 +113,7 @@ local function run(self, token)
 		return self:error(err)
 	end
 
-	self._user = self._users:insert(user)
+	self._user = self._users:_insert(user)
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
 
 	if not options.gateway then -- TODO: maybe remove until rest mode is sorted out
@@ -173,6 +174,22 @@ function Client:stop()
 	for _, shard in pairs(self._shards) do
 		shard:disconnect()
 	end
+end
+
+function get.guilds(self)
+	return self._guilds
+end
+
+function get.users(self)
+	return self._users
+end
+
+function get.privateChannels(self)
+	return self._private_channels
+end
+
+function get.groupChannels(self)
+	return self._group_channels
 end
 
 return Client
