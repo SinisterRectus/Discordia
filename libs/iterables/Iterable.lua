@@ -1,3 +1,5 @@
+local wrap, yield = coroutine.wrap, coroutine.yield
+
 local Iterable = require('class')('Iterable')
 
 --[[ NOTE:
@@ -33,10 +35,10 @@ function Iterable:find(predicate)
 end
 
 function Iterable:findAll(predicate)
-	return coroutine.wrap(function()
+	return wrap(function()
 		for obj in self:iter() do
 			if predicate(obj) then
-				coroutine.yield(obj)
+				yield(obj)
 			end
 		end
 	end)

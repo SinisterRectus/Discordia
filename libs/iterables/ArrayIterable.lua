@@ -1,3 +1,5 @@
+local wrap, yield = coroutine.wrap, coroutine.yield
+
 local Iterable = require('iterables/Iterable')
 
 local ArrayIterable = require('class')('ArrayIterable', Iterable)
@@ -11,18 +13,20 @@ function ArrayIterable:__len()
 	return self._array and #self._array or 0
 end
 
+local noop = function() return nil end
+
 function ArrayIterable:iter()
 	local array = self._array
 	if not array then
-		return function() end
+		return noop
 	end
 	local map = self._map
 	if map then
-		return coroutine.wrap(function()
+		return wrap(function()
 			for _, v in ipairs(array) do
 				local obj = map(v)
 				if obj then
-					coroutine.yield(obj)
+					yield(obj)
 				end
 			end
 		end)

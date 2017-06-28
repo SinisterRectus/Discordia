@@ -22,12 +22,11 @@ end
 function Member:_loadMore(data)
 	self._nick = data.nick -- can be nil
 	if data.roles then
+		local roles = #data.roles > 0 and data.roles or nil
 		if self._roles then
-			self._roles._array = data.roles
-		elseif #data.roles > 0 then
-			self._roles_raw = data.roles
+			self._roles._array = roles
 		else
-			self._roles_raw = nil
+			self._roles_raw = roles
 		end
 	end
 end

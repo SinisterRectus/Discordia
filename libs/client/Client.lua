@@ -88,6 +88,7 @@ function Client:__init(options)
 	self._group_channels = Cache(GroupChannel, self)
 	self._private_channels = Cache(PrivateChannel, self)
 	self._logger = Logger(options.logLevel, options.dateTime, options.logFile)
+	self._channel_map = {}
 end
 
 for _, name in ipairs({'error', 'warning', 'info', 'debug'}) do
@@ -110,8 +111,10 @@ local function run(self, token)
 
 	local user, err = api:authenticate(token)
 	if not user then
-		return self:error(err)
+		return self:error('Could not authenticate, check token: ' .. err)
 	end
+
+	-- TODO: maybe load client.owner here
 
 	self._user = self._users:_insert(user)
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
