@@ -3,9 +3,6 @@ local ArrayIterable = require('iterables/ArrayIterable')
 local Snowflake = require('containers/abstract/Snowflake')
 local Reaction = require('containers/Reaction')
 
-local enums = require('enums')
-local channelType = enums.channelType
-
 local Message = require('class')('Message', Snowflake)
 local get = Message.__getters
 
@@ -140,8 +137,7 @@ end
 
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
-		local channel = self._parent
-		local guild = channel._type == channelType.text and channel._parent
+		local guild = self._parent.guild
 		local roles = guild and guild._roles
 		self._mentioned_roles = ArrayIterable(self._mentioned_roles_raw, function(id)
 			return roles:get(id)
@@ -165,6 +161,54 @@ function get.mentionedChannels(self)
 		end)
 	end
 	return self._mentioned_channels
+end
+
+function get.pinned(self)
+	return self._pinned
+end
+
+function get.tts(self)
+	return self._tts
+end
+
+function get.nonce(self)
+	return self._nonce
+end
+
+function get.editedTimestamp(self)
+	return self._edited_timestamp
+end
+
+function get.content(self)
+	return self._content
+end
+
+function get.author(self)
+	return self._author
+end
+
+function get.channel(self)
+	return self._parent
+end
+
+function get.type(self)
+	return self._type
+end
+
+function get.embed(self)
+	return self._embeds and self._embeds[1]
+end
+
+function get.attachment(self)
+	return self._attachments and self._attachments[1]
+end
+
+function get.embeds(self)
+	return self._embeds
+end
+
+function get.attachments(self)
+	return self._attachments
 end
 
 return Message

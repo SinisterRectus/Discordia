@@ -25,4 +25,16 @@ function get.permissionOverwrites(self)
 	return self._permission_overwrites
 end
 
+function get.name(self)
+	return self._name
+end
+
+function get.position(self)
+	return self._position
+end
+
+function get.guild(self)
+	return self._parent
+end
+
 return GuildChannel

@@ -2,7 +2,9 @@ return {
 	CACHE_AGE = 86400, -- seconds
 	ID_DELAY = 5000, -- milliseconds
 	GATEWAY_DELAY = 500, -- milliseconds,
+	DISCORD_EPOCH = 1420070400000, -- milliseconds
 	GATEWAY_VERSION = 6,
+	DEFAULT_AVATARS = 5,
 	ZWSP = '\226\128\139',
 	NS_PER_US = 1000,
 	US_PER_MS = 1000,

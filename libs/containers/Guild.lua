@@ -9,6 +9,7 @@ local Snowflake = require('containers/abstract/Snowflake')
 local enums = require('enums')
 local channelType = enums.channelType
 local floor = math.floor
+local format = string.format
 
 local Guild = require('class')('Guild', Snowflake)
 local get = Guild.__getters
@@ -77,6 +78,84 @@ end
 
 function get.shardId(self)
 	return floor(self._id / 2^22) % self.client._shard_count
+end
+
+function get.name(self)
+	return self._name
+end
+
+function get.icon(self)
+	return self._icon
+end
+
+function get.iconURL(self)
+	local icon = self._icon
+	return icon and format('https://cdn.discordapp.com/icons/%s/%s.png', self._id, icon) or nil
+end
+
+function get.splash(self)
+	return self._splash
+end
+
+function get.splashURL(self)
+	local splash = self._splash
+	return splash and format('https://cdn.discordapp.com/splashs/%s/%s.png', self._id, splash) or nil
+end
+
+function get.large(self)
+	return self._large
+end
+
+function get.region(self)
+	return self._region
+end
+
+function get.mfaLevel(self)
+	return self._mfa_level
+end
+
+function get.joinedAt(self)
+	return self._joined_at
+end
+
+function get.afkTimeout(self)
+	return self._afk_timeout
+end
+
+function get.unavailable(self)
+	return self._unavailable
+end
+
+function get.totalMemberCount(self)
+	return self._member_count
+end
+
+function get.verificationLevel(self)
+	return self._verification_level
+end
+
+function get.notificationSetting(self)
+	return self._default_message_notifications
+end
+
+function get.me(self) -- TODO: check if always exists
+	return self._members:get(self.client._user._id)
+end
+
+function get.owner(self) -- TODO: check if always exists
+	return self._members:get(self._owner_id)
+end
+
+function get.afkChannel(self) -- TODO: check if always exists
+	return self._voice_channels:get(self._afk_channel_id)
+end
+
+function get.defaultRole(self) -- TODO: check if always exists
+	return self._roles:get(self._id)
+end
+
+function get.defaultChannel(self) -- TODO: check if always exists
+	return self._text_channels:get(self._id)
 end
 
 function get.roles(self)

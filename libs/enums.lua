@@ -19,6 +19,19 @@ end
 
 local enums = {enum = enum}
 
+enums.defaultAvatar = enum {
+	blurple = 0,
+	gray    = 1,
+	green   = 2,
+	orange  = 3,
+	red     = 4,
+}
+
+enums.notificationSetting = enum {
+	allMessages  = 0,
+	onlyMentions = 1,
+}
+
 enums.channelType = enum {
 	text    = 0,
 	private = 1,
