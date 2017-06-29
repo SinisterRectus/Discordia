@@ -7,7 +7,7 @@ local get = TextChannel.__getters
 
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
-    self._messages = WeakCache(Message, self)
+	self._messages = WeakCache(Message, self)
 end
 
 function get.messages(self)

@@ -17,73 +17,73 @@ local Permissions = require('class')('Permissions')
 local get = Permissions.__getters
 
 local function check(self, other)
-    if not isInstance(self, Permissions) or not isInstance(other, Permissions) then
-        return error('Cannot perform operation with non-Permissions object', 2)
-    end
+	if not isInstance(self, Permissions) or not isInstance(other, Permissions) then
+		return error('Cannot perform operation with non-Permissions object', 2)
+	end
 end
 
 function Permissions:__init(value)
-    self._value = tonumber(value) or 0
+	self._value = tonumber(value) or 0
 end
 
 function Permissions:__tostring()
 	if self._value == 0 then
-        return 'Permissions: 0 (none)'
-    else
+		return 'Permissions: 0 (none)'
+	else
 		local a = self:toArray()
-        sort(a)
-        return format('Permissions: %i (%s)', self._value, concat(a, ', '))
-    end
+		sort(a)
+		return format('Permissions: %i (%s)', self._value, concat(a, ', '))
+	end
 end
 
 function Permissions:__eq(other) check(self, other)
-    return self._value == other._value
+	return self._value == other._value
 end
 
 local function getPerm(i, ...)
-    local name = select(i, ...)
-    local perm = permission[name]
-    if not perm then
-        return error('Invalid permission: ' .. tostring(name), 2)
-    end
-    return perm
+	local name = select(i, ...)
+	local perm = permission[name]
+	if not perm then
+		return error('Invalid permission: ' .. tostring(name), 2)
+	end
+	return perm
 end
 
 function Permissions:enable(...)
-    local value = self._value
-    for i = 1, select('#', ...) do
-        local perm = getPerm(i, ...)
-        value = bor(value, perm)
-    end
-    self._value = value
+	local value = self._value
+	for i = 1, select('#', ...) do
+		local perm = getPerm(i, ...)
+		value = bor(value, perm)
+	end
+	self._value = value
 end
 
 function Permissions:disable(...)
-    local value = self._value
-    for i = 1, select('#', ...) do
-        local perm = getPerm(i, ...)
-        value = band(value, bnot(perm))
-    end
-    self._value = value
+	local value = self._value
+	for i = 1, select('#', ...) do
+		local perm = getPerm(i, ...)
+		value = band(value, bnot(perm))
+	end
+	self._value = value
 end
 
 function Permissions:has(...)
 	local value = self._value
 	for i = 1, select('#', ...) do
-        local perm = getPerm(i, ...)
+		local perm = getPerm(i, ...)
 		if band(value, perm) == 0 then
-            return false
-        end
+			return false
+		end
 	end
 	return true
 end
 
 function Permissions:enableAll()
-    self._value = ALL
+	self._value = ALL
 end
 
 function Permissions:disableAll()
-    self._value = 0
+	self._value = 0
 end
 
 function Permissions:toHex()
@@ -92,7 +92,7 @@ end
 
 function Permissions:toTable()
 	local ret = {}
-    local value = self._value
+	local value = self._value
 	for k, v in pairs(permission) do
 		ret[k] = band(value, v) > 0
 	end
@@ -101,7 +101,7 @@ end
 
 function Permissions:toArray()
 	local ret = {}
-    local value = self._value
+	local value = self._value
 	for k, v in pairs(permission) do
 		if band(value, v) > 0 then
 			insert(ret, k)
