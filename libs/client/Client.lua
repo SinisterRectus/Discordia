@@ -42,7 +42,7 @@ local defaultOptions = {
 	bitrate = 64000,
 	logFile = 'discordia.log',
 	logLevel = logLevel.info,
-	dateTime = '%Y-%m-%d %H:%M:%S',
+	dateTime = '%F %T',
 	gateway = true,
 }
 

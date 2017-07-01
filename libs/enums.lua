@@ -1,18 +1,15 @@
 local function enum(tbl)
-	local copy = {}
 	local call = {}
 	for k, v in pairs(tbl) do
 		if call[v] then
 			return error(string.format('enum clash for %q and %q', k, call[v]))
 		end
-		copy[k] = v
 		call[v] = k
-		tbl[k] = nil
 	end
-	return setmetatable(tbl, {
+	return setmetatable({}, {
 		__call = function(_, k) return call[k] end,
-		__index = function(_, k) return copy[k]	end,
-		__pairs = function() return next, copy end,
+		__index = function(_, k) return tbl[k]	end,
+		__pairs = function() return next, tbl end,
 		__newindex = function() return error('cannot overwrite enumeration') end,
 	})
 end

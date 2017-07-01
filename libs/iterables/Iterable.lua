@@ -25,19 +25,19 @@ function Iterable:get(k) -- objects must be hashable
 	return nil
 end
 
-function Iterable:find(predicate)
+function Iterable:find(fn)
 	for obj in self:iter() do
-		if predicate(obj) then
+		if fn(obj) then
 			return obj
 		end
 	end
 	return nil
 end
 
-function Iterable:findAll(predicate)
+function Iterable:findAll(fn)
 	return wrap(function()
 		for obj in self:iter() do
-			if predicate(obj) then
+			if fn(obj) then
 				yield(obj)
 			end
 		end

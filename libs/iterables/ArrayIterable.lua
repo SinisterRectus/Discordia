@@ -10,15 +10,24 @@ function ArrayIterable:__init(array, map)
 end
 
 function ArrayIterable:__len()
-	return self._array and #self._array or 0
+	local array = self._array
+	if not array then
+		return 0
+	end
+	local map = self._map
+	if map then -- map can return nil
+		return Iterable.__len(self)
+	else
+		return #array
+	end
 end
-
-local noop = function() return nil end
 
 function ArrayIterable:iter()
 	local array = self._array
 	if not array then
-		return noop
+		return function() -- new closure for consistency
+			return nil
+		end
 	end
 	local map = self._map
 	if map then

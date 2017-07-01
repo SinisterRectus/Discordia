@@ -1,4 +1,5 @@
-local Cache = require('./Cache')
+local Cache = require('iterables/Cache')
+local Iterable = require('iterables/Iterable')
 
 local WeakCache = require('class')('WeakCache', Cache)
 
@@ -10,11 +11,7 @@ end
 -- NOTE: _count is not accurate for weak caches
 
 function WeakCache:__len()
-	local n = 0
-	for _ in self:iter() do
-		n = n + 1
-	end
-	return n
+	return Iterable.__len(self)
 end
 
 return WeakCache

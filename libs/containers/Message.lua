@@ -9,6 +9,7 @@ local get = Message.__getters
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._author = self.client._users:_insert(data.author)
+	self._timestamp = nil -- waste of space; see Snowflake.timestamp
 	if data.reactions and #data.reactions > 0 then
 		self._reactions = Cache(Reaction, self)
 		self._reactions:_load(data.reactions)
@@ -45,7 +46,7 @@ function Message:_loadMore(data)
 		if self._mentioned_users then
 			self._mentioned_users._array = mentions
 		else
-			self._mention_users_raw = mentions
+			self._mentioned_users_raw = mentions
 		end
 	end
 
@@ -54,7 +55,7 @@ function Message:_loadMore(data)
 		if self._mentioned_roles then
 			self._mentioned_roles._array = mentions
 		else
-			self._mention_roles_raw = mentions
+			self._mentioned_roles_raw = mentions
 		end
 	end
 
