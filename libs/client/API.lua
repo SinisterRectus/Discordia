@@ -17,6 +17,13 @@ local running = coroutine.running
 
 local BASE_URL = "https://discordapp.com/api/v7"
 
+local BOUNDARY = 'Discordia' .. os.time()
+local BOUNDARY2 = '--' .. BOUNDARY
+local BOUNDARY3 = BOUNDARY2 .. '--'
+
+local JSON = 'application/json'
+local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY)
+
 local parseDate = Date.parseHeader
 
 local function parseErrors(ret, errors, key)
@@ -63,6 +70,23 @@ local function route(method, endpoint)
 
 end
 
+local function attachFiles(payload, files)
+	local ret = {
+		BOUNDARY2,
+		'Content-Disposition:form-data;name="payload_json"',
+		'Content-Type:application/json\r\n',
+		payload,
+	}
+	for i, v in ipairs(files) do
+		insert(ret, BOUNDARY2)
+		insert(ret, f('Content-Disposition:form-data;name="file%i";filename=%q', i, v[1]))
+		insert(ret, 'Content-Type:application/octet-stream\r\n')
+		insert(ret, v[2])
+	end
+	insert(ret, BOUNDARY3)
+	return concat(ret, '\r\n')
+end
+
 local mutexMeta = {
 	__index = function(self, k)
 		self[k] = Mutex()
@@ -86,7 +110,7 @@ function API:authenticate(token)
 	return decode(encode({id = '1234', bot = token:find('Bot')}))
 end
 
-function API:request(method, endpoint, payload, query)
+function API:request(method, endpoint, payload, query, files)
 
 	local _, main = running()
 	if main then return error('This function must be called in a coroutine') end
@@ -102,13 +126,18 @@ function API:request(method, endpoint, payload, query)
 	end
 
 	local req
-	if method:find('P') == 1 then -- TODO file attachments
+	if method:find('P') == 1 then
 		payload = payload and encode(payload) or '{}'
 		req = {}
 		for i, v in ipairs(self._headers) do
 			req[i] = v
 		end
-		insert(req, {'Content-Type', 'application/json'})
+		if files and next(files) then
+			payload = attachFiles(payload, files)
+			insert(req, {'Content-Type', MULTIPART})
+		else
+			insert(req, {'Content-Type', JSON})
+		end
 		insert(req, {'Content-Length', #payload})
 	else
 		req = self._headers
@@ -153,15 +182,12 @@ function API:commit(method, url, req, payload, retries)
 		delay = max(1000 * dt, delay)
 	end
 
-	local data
-	if res['Content-Type'] == 'application/json' then
-		data = decode(msg)
-	end
+	local data = res['Content-Type'] == JSON and decode(msg) or msg
 
 	if res.code < 300 then
 
 		client:debug('%i - %s : %s %s', res.code, res.reason, method, url)
-		return data, msg, delay
+		return data, nil, delay
 
 	else
 

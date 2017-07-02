@@ -71,7 +71,7 @@ function get.defaultAvatarURL(self)
 end
 
 function get.mentionString(self)
-	return format('<@%s', self._id)
+	return format('<@%s>', self._id)
 end
 
 return User
