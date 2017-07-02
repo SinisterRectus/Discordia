@@ -70,12 +70,10 @@ function EventHandler.READY(d, client, shard)
 	else
 		local ids = {}
 		for _, guild in ipairs(d.guilds) do
+			guilds:_insert(guild)
 			if not guild.unavailable then -- if available
-				guilds:_insert(guild)
 				loading.syncs[guild.id] = true
 				insert(ids, guild.id)
-			else
-				guilds:_insert(guild)
 			end
 		end
 		shard:syncGuilds(ids)

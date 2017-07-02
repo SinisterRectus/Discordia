@@ -23,6 +23,15 @@ function Invite:__hash()
 	return self._code
 end
 
+function Invite:delete()
+	local data, err = self.client._api:deleteInvite(self._code)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
 function get.code(self)
 	return self._code
 end

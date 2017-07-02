@@ -1,3 +1,5 @@
+local json = require('json')
+
 local Snowflake = require('containers/abstract/Snowflake')
 
 local Color = require('utils/Color')
@@ -14,6 +16,51 @@ end
 
 function Role:__tostring()
 	return format('%s: %s', self.__name, self._name)
+end
+
+function Role:_modify(payload)
+	local data, err = self.client._api:modifyGuildRole(self._parent._id, self._id, payload)
+	if data then
+		self:_load(data)
+		return true
+	else
+		return false, err
+	end
+end
+
+function Role:delete()
+	local data, err = self.client._api:deleteGuildRole(self._parent._id, self._id)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+-- TODO: position setting
+
+function Role:setColor(color) -- TODO: resolve
+	return self:_modify({color = color or json.null})
+end
+
+function Role:setPermissions(permissions) -- TODO: resolve
+	return self:_modify({permissions = permissions or json.null})
+end
+
+function Role:setHoisted(hoist)
+	return self:_modify({hoist = hoist or json.null})
+end
+
+function Role:setMentionable(mentionable)
+	return self:_modify({mentionable = mentionable or json.null})
+end
+
+function Role:getColor()
+	return Color(self._color)
+end
+
+function Role:getPermissions()
+	return Permissions(self._permissions)
 end
 
 function get.hoisted(self)
@@ -37,11 +84,11 @@ function get.position(self)
 end
 
 function get.color(self)
-	return Color(self._color)
+	return self._color
 end
 
 function get.permissions(self)
-	return Permissions(self._permissions)
+	return self._permissions
 end
 
 function get.mentionString(self)

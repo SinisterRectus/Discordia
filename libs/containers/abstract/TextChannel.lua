@@ -19,6 +19,47 @@ function TextChannel:__init(data, parent)
 	self._messages = WeakCache(Message, self)
 end
 
+function TextChannel:getMessage(id)
+	local message = self._messages:get(id)
+	if message then
+		return message
+	else
+		local data, err = self.client._api:getChannelMessage(self._id, id)
+		if data then
+			return self._messages:_insert(data)
+		else
+			return nil, err
+		end
+	end
+end
+
+function TextChannel:getFirstMessage()
+	local data, err = self.client._api:getChannelMessages(self._id, {after = self._id, limit = 1})
+	if data then
+		return self._messages:_insert(data[1])
+	else
+		return nil, err
+	end
+end
+
+function TextChannel:getLastMessage()
+	local data, err = self.client._api:getChannelMessages(self._id, {limit = 1})
+	if data then
+		return self._messages:_insert(data[1])
+	else
+		return nil, err
+	end
+end
+
+function TextChannel:broadcastTyping()
+	local data, err = self.client._api:triggerTypingIndicator(self._id)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
 local function readFile(path)
 	if path:find('https?://') == 1 then
 		local success, res, data = pcall(request, 'GET', path)
@@ -61,23 +102,24 @@ local function parseMention(obj, mentions)
 	return mentions
 end
 
-function TextChannel:send(args)
+function TextChannel:send(content)
 
 	local data, err
 
-	if type(args) == 'table' then
+	if type(content) == 'table' then
 
-		local content = args.content
+		local tbl = content
+		content = tbl.content
 
 		local mentions
-		if args.mention then
-			mentions, err = parseMention(args.mention)
+		if tbl.mention then
+			mentions, err = parseMention(tbl.mention)
 			if err then
 				return nil, err
 			end
 		end
-		if type(args.mentions) == 'table' then
-			for _, mention in ipairs(args.mentions) do
+		if type(tbl.mentions) == 'table' then
+			for _, mention in ipairs(tbl.mentions) do
 				mentions, err = parseMention(mention, mentions)
 				if err then
 					return nil, err
@@ -91,14 +133,14 @@ function TextChannel:send(args)
 		end
 
 		local files
-		if args.file then
-			files, err = parseFile(args.file)
+		if tbl.file then
+			files, err = parseFile(tbl.file)
 			if err then
 				return nil, err
 			end
 		end
-		if type(args.files) == 'table' then
-			for _, file in ipairs(args.files) do
+		if type(tbl.files) == 'table' then
+			for _, file in ipairs(tbl.files) do
 				files, err = parseFile(file, files)
 				if err then
 					return nil, err
@@ -108,14 +150,14 @@ function TextChannel:send(args)
 
 		data, err = self.client._api:createMessage(self._id, {
 			content = content,
-			tts = args.tts,
-			nonce = args.nonce,
-			embed = args.embed,
+			tts = tbl.tts,
+			nonce = tbl.nonce,
+			embed = tbl.embed,
 		}, files)
 
 	else
 
-		data, err = self.client._api:createMessage(self._id, {content = args})
+		data, err = self.client._api:createMessage(self._id, {content = content})
 
 	end
 

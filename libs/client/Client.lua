@@ -12,6 +12,8 @@ local GroupChannel = require('containers/GroupChannel')
 local Guild = require('containers/Guild')
 local PrivateChannel = require('containers/PrivateChannel')
 local User = require('containers/User')
+local Invite = require('containers/Invite')
+local Webhook = require('containers/Webhook')
 
 local Cache = require('iterables/Cache')
 local WeakCache = require('iterables/WeakCache')
@@ -107,16 +109,25 @@ local function run(self, token)
 	self:info('Connecting to Discord...')
 
 	local api = self._api
+	local users = self._users
 	local options = self._options
 
-	local user, err = api:authenticate(token)
+	local user, err1 = api:authenticate(token)
 	if not user then
-		return self:error('Could not authenticate, check token: ' .. err)
+		return self:error('Could not authenticate, check token: ' .. err1)
 	end
+	self._user = users:_insert(user)
 
-	-- TODO: maybe load client.owner here
+	-- if user.bot then -- TODO: activate on release
+	-- 	local app, err2 = api:getCurrentApplicationInformation()
+	-- 	if not app then
+	-- 		return self:error('Could not get application information: ' .. err2)
+	-- 	end
+	-- 	self._owner = users:_insert(app.owner)
+	-- else
+	-- 	self._owner = self._user
+	-- end
 
-	self._user = self._users:_insert(user)
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
 
 	if not options.gateway then -- TODO: maybe remove until rest mode is sorted out
@@ -177,6 +188,90 @@ function Client:stop()
 	for _, shard in pairs(self._shards) do
 		shard:disconnect()
 	end
+end
+
+function Client:_modify(payload)
+	local data, err = self._api:modifyCurrentUser(payload)
+	if data then
+		data.token = nil
+		self._user:_load(data)
+		return true
+	else
+		return false, err
+	end
+end
+
+function Client:setUsername(username)
+	return self:_modify({username = username or json.null})
+end
+
+function Client:setAvatar(avatar) -- TODO resolve
+	return self:_modify({avatar = avatar or json.null})
+end
+
+function Client:createGuild(name)
+	local data, err = self._api:createGuild({name = name})
+	if data then -- NOTE: incomplete object, wait for GUILD_CREATE
+		return true
+	else
+		return false, err
+	end
+end
+
+function Client:getWebhook(id)
+	local data, err = self._api:getWebhook(id)
+	if data then
+		return Webhook(data, self)
+	else
+		return nil, err
+	end
+end
+
+function Client:getInvite(code)
+	local data, err = self._api:getInvite(code)
+	if data then
+		return Invite(data, self)
+	else
+		return nil, err
+	end
+end
+
+function Client:getUser(id)
+	local user = self._users:get(id)
+	if user then
+		return user
+	else
+		local data, err = self._api:getUser(id)
+		if data then
+			return self._users:_insert(data)
+		else
+			return nil, err
+		end
+	end
+end
+
+function Client:listVoiceRegions()
+	return self._api:listVoiceRegions()
+end
+
+function get.shardCount(self)
+	return self._shard_count
+end
+
+function get.user(self)
+	return self._user
+end
+
+function get.owner(self)
+	return self._owner
+end
+
+function get.verified(self)
+	return self._user and self._user._verified
+end
+
+function get.mfaEnabled(self)
+	return self._user and self._user._verified
 end
 
 function get.guilds(self)

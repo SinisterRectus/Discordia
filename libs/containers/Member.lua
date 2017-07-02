@@ -41,6 +41,102 @@ function Member:_loadPresence(presence)
 	end
 end
 
+local function sorter(a, b)
+	if a._position == b._position then -- TODO: needs testing
+		return tonumber(a._id) < tonumber(b._id)
+	else
+		return a._position > b._position
+	end
+end
+
+local function predicate(role)
+	return role._color > 0
+end
+
+function Member:getColor()
+	local roles = {}
+	for role in self.roles:findAll(predicate) do
+		table.insert(roles, role)
+	end
+	table.sort(roles, sorter)
+	return roles[1] and roles[1].color or Color()
+end
+
+-- TODO: add, remove, has roles
+
+function Member:addRole(role) -- TODO: add to roles array
+	-- TODO: resolve role
+	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, role)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Member:removeRole(role) -- TODO: remove from roles array
+	-- TODO: resolve role
+	local data, err = self.client._api:removeGuildMemberRole(self._parent._id, self.id, role)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Member:hasRole(role)
+	-- TODO: resolve role
+	local roles = self._roles and self._roles._array or self._roles_raw
+	if roles then
+		for _, id in ipairs(roles) do
+			if id == role then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function Member:setNickname(nick)
+	nick = nick or ''
+	local data, err
+	if self.id == self.client._user._id then
+		data, err = self.client._api:modifyCurrentUsersNick(self._parent._id, {nick = nick})
+	else
+		data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {nick = nick})
+	end
+	if data then
+		self._nick = nick
+		return true
+	else
+		return false, err
+	end
+end
+
+function Member:setMuted(mute)
+	mute = mute or false
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = mute})
+	if data then
+		self._mute = mute
+		return true
+	else
+		return false, err
+	end
+end
+
+function Member:setDeafened(deaf)
+	deaf = deaf or false
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = deaf})
+	if data then
+		self._deaf = deaf
+		return true
+	else
+		return false, err
+	end
+end
+
+-- TODO: user method shortcuts
+
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles
@@ -80,6 +176,14 @@ function get.status(self)
 	return self._status
 end
 
+function get.muted(self)
+	return self._mute
+end
+
+function get.deafened(self)
+	return self._deaf
+end
+
 function get.guild(self)
 	return self._parent
 end
@@ -88,27 +192,16 @@ function get.user(self)
 	return self._user
 end
 
-local function sorter(a, b)
-	if a._position == b._position then -- TODO: needs testing
-		return tonumber(a._id) < tonumber(b._id)
-	else
-		return a._position > b._position
-	end
-end
-
-local function predicate(role)
-	return role._color > 0
-end
-
-function get.color(self)
-	local roles = {}
-	for role in self.roles:findAll(predicate) do
-		table.insert(roles, role)
-	end
-	table.sort(roles, sorter)
-	return roles[1] and roles[1].color or Color()
-end
-
--- TODO: user shortcuts
+-- user shortcuts
+function get.id(self) return self._user.id end
+function get.bot(self) return self._user.bot end
+function get.name(self) return self._user.name end
+function get.username(self) return self._user.username end
+function get.discriminator(self) return self._user.discriminator end
+function get.avatar(self) return self._user.avatar end
+function get.defaultAvatar(self) return self._user.defaultAvatar end
+function get.avatarURL(self) return self._user.avatarURL end
+function get.defaultAvatarURL(self) return self._user.defaultAvatarURL end
+function get.mentionString(self) return self._user.mentionString end
 
 return Member

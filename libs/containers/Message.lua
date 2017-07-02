@@ -1,7 +1,11 @@
+local json = require('json')
+
 local Cache = require('iterables/Cache')
 local ArrayIterable = require('iterables/ArrayIterable')
 local Snowflake = require('containers/abstract/Snowflake')
 local Reaction = require('containers/Reaction')
+
+local format = string.format
 
 local Message = require('class')('Message', Snowflake)
 local get = Message.__getters
@@ -9,7 +13,7 @@ local get = Message.__getters
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._author = self.client._users:_insert(data.author)
-	self._timestamp = nil -- waste of space; see Snowflake.timestamp
+	self._timestamp = nil -- waste of space; can be calculated from Snowflake ID
 	if data.reactions and #data.reactions > 0 then
 		self._reactions = Cache(Reaction, self)
 		self._reactions:_load(data.reactions)
@@ -17,15 +21,19 @@ function Message:__init(data, parent)
 	return self:_loadMore(data)
 end
 
+function Message:__tostring()
+	return format('%s: %s', self.__name, self._content)
+end
+
 function Message:_load(data)
 	Snowflake._load(self, data)
 	return self:_loadMore(data)
 end
 
-local function parseUserMentions(mentions, users)
+local function parseUserMentions(mentions, cache)
 	if #mentions == 0 then return end
 	for i, user in ipairs(mentions) do
-		mentions[i] =  users:_insert(user)
+		mentions[i] =  cache:_insert(user)
 	end
 	return mentions
 end
@@ -119,6 +127,71 @@ function Message:_removeReaction(data, user)
 
 	return reaction
 
+end
+
+function Message:_modify(payload)
+	local data, err = self.client._api:editMessage(self._parent._id, self._id, payload)
+	if data then
+		self:_load(data)
+		return true
+	else
+		return false, err
+	end
+end
+
+function Message:setContent(content)
+	return self:_modify({content = content or json.null})
+end
+
+function Message:setEmbed(embed)
+	return self:_modify({embed = embed or json.null})
+end
+
+function Message:pin()
+	local data, err = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
+	if data then
+		self._pinned = true
+		return true
+	else
+		return false, err
+	end
+end
+
+function Message:unpin()
+	local data, err = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
+	if data then
+		self._pinned = false
+		return true
+	else
+		return false, err
+	end
+end
+
+function Message:react(emoji) -- TODO: return new reaction?, resolve emoji
+	local data, err = self.client._api:createReaction(self._parent._id, self._id, emoji)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Message:clearReactions()
+	local data, err = self.client._api:deleteAllReactions(self._parent._id, self._id)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Message:delete()
+	local data, err = self.client._api:deleteMessage(self._parent._id, self._id)
+	if data then
+		return true
+	else
+		return false, err
+	end
 end
 
 function get.reactions(self)

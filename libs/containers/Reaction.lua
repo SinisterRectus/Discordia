@@ -15,6 +15,26 @@ function Reaction:__hash()
 	return self._emoji_id or self._emoji_name
 end
 
+function Reaction:delete(user) -- TODO: resolve
+	local emoji = self._emoji_name
+	if self._emoji_id then
+		emoji = emoji .. ':' .. self._emoji_id
+	end
+	local message = self._parent
+	local channel = message._parent
+	local data, err
+	if user then
+		data, err = self.client._api:deleteUserReaction(channel._id, message._id, emoji, user)
+	else
+		data, err = self.client._api:deleteOwnReaction(channel._id, message._id, emoji)
+	end
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
 function get.emojiId(self)
 	return self._emoji_id
 end

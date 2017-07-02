@@ -6,7 +6,9 @@ local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
 local Snowflake = require('containers/abstract/Snowflake')
 
+local json = require('json')
 local enums = require('enums')
+
 local channelType = enums.channelType
 local floor = math.floor
 local format = string.format
@@ -68,12 +70,166 @@ function Guild:_loadMembers(data)
 	end
 end
 
+function Guild:_modify(payload)
+	local data, err = self.client._api:modifyGuild(self._id, payload)
+	if data then
+		self:_load(data)
+		return true
+	else
+		return false, err
+	end
+end
+
 function Guild:requestMembers()
 	local shard = self.client._shards[self.shardId]
 	if shard._loading then
 		shard._loading.chunks[self._id] = true
 	end
 	return shard:requestGuildMembers(self._id)
+end
+
+function Guild:getMember(id)
+	local member = self._members:get(id)
+	if member then
+		return member
+	else
+		local data, err = self.client._api:getGuildMember(self._id, id)
+		if data then
+			return self._members:_insert(data)
+		else
+			return nil, err
+		end
+	end
+end
+
+function Guild:createTextChannel(name)
+	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.text})
+	if data then
+		return self._text_channels:_insert(data)
+	else
+		return nil, err
+	end
+end
+
+function Guild:createVoiceChannel(name)
+	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.voice})
+	if data then
+		return self._voice_channels:_insert(data)
+	else
+		return nil, err
+	end
+end
+
+function Guild:createRole(name)
+	local data, err = self.client._api:createGuildRole(self._id, {name = name})
+	if data then
+		return self._roles:_insert(data)
+	else
+		return nil, err
+	end
+end
+
+function Guild:setName(name)
+	return self:_modify({name = name or json.null})
+end
+
+function Guild:setRegion(region)
+	return self:_modify({region = region or json.null})
+end
+
+function Guild:setVerificationLevel(verification_level)
+	return self:_modify({verification_level = verification_level or json.null})
+end
+
+function Guild:setNotificationSetting(default_message_notifications)
+	return self:_modify({default_message_notifications = default_message_notifications or json.null})
+end
+
+function Guild:setAFKTimeout(afk_timeout)
+	return self:_modify({afk_timeout = afk_timeout or json.null})
+end
+
+function Guild:setAFKChannel(afk_channel) -- TODO: resolve
+	return self:_modify({afk_channel = afk_channel or json.null})
+end
+
+function Guild:setOwner(owner_id) -- TODO: resolve
+	return self:_modify({owner_id = owner_id or json.null})
+end
+
+function Guild:setIcon(icon) -- TODO: resolve
+	return self:_modify({icon = icon or json.null})
+end
+
+function Guild:setSplash(splash) -- TODO: resolve
+	return self:_modify({splash = splash or json.null})
+end
+
+function Guild:getPruneCount(days)
+	local data, err = self.client._api:getGuildPruneCount(self._id, days and {days = days} or nil)
+	if data then
+		return data.pruned
+	else
+		return nil, err
+	end
+end
+
+function Guild:pruneMembers(days)
+	local data, err = self.client._api:beginGuildPrune(self._id, nil, days and {days = days} or nil)
+	if data then
+		return data.pruned
+	else
+		return nil, err
+	end
+end
+
+function Guild:listVoiceRegions()
+	return self.client._api:getGuildVoiceRegions()
+end
+
+function Guild:leave()
+	local data, err = self.client._api:leaveGuild(self._id)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Guild:delete()
+	local data, err = self.client._api:deleteGuild(self._id)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Guild:kickUser(user) -- TODO: resolve user, add query
+	local data, err = self.client._api:removeGuildMember(self._id, user)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Guild:banUser(user) -- TODO: resolve user, add query
+	local data, err = self.client._api:createGuildBan(self._id, user)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Guild:unbanUser(user) -- TODO: resolve user, add query
+	local data, err = self.client._api:removeGuildBan(self._id, user)
+	if data then
+		return true
+	else
+		return false, err
+	end
 end
 
 function get.shardId(self)

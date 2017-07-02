@@ -1,3 +1,5 @@
+local json = require('json')
+
 local TextChannel = require('containers/abstract/TextChannel')
 local SecondaryCache = require('iterables/SecondaryCache')
 
@@ -11,12 +13,44 @@ function GroupChannel:__init(data, parent)
 	self._recipients = SecondaryCache(data.recipients, self.client._users)
 end
 
+function GroupChannel:setName(name)
+	return self:_modify({name = name or json.null})
+end
+
+function GroupChannel:setIcon(icon) -- TODO: resolve
+	return self:_modify({icon = icon or json.null})
+end
+
+-- TODO: need to figure out other methods
+-- creating (group vs private)
+-- deleting (does it delete for everyone or just leave?)
+-- start call (is a group channel necessary to start a call?)
+-- is owner mutable?
+
+function GroupChannel:addRecipient(user) -- TODO: resolve
+	local data, err = self.client._api:groupDMAddRecipient(self._id, user)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function GroupChannel:removeRecipient(user) -- TODO: resolve
+	local data, err = self.client._api:groupDMRemoveRecipient(self._id, user)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
 function get.recipients(self)
 	return self._recipients
 end
 
 function get.name(self)
-	return self._name -- or 'Unnamed'?
+	return self._name
 end
 
 function get.owner(self) -- TODO: probably need to parse relationships for this

@@ -38,6 +38,31 @@ function User:getDefaultAvatarURL(size)
 	end
 end
 
+function User:getPrivateChannel() -- TODO: change to openChannel or openPrivateChannel?
+	local id = self._id
+	local client = self.client
+	local channel = client._private_channels:find(function(e) return e._recipient._id == id end)
+	if channel then
+		return channel
+	else
+		local data, err = client._api:createDM({recipient_id = id})
+		if data then
+			return client._private_channels:_insert(data)
+		else
+			return nil, err
+		end
+	end
+end
+
+function User:send(content)
+	local channel, err = self:getPrivateChannel()
+	if channel then
+		return channel:send(content)
+	else
+		return nil, err
+	end
+end
+
 function get.bot(self)
 	return self._bot or false
 end

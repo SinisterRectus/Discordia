@@ -8,6 +8,15 @@ function PermissionOverwrite:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 end
 
+function PermissionOverwrite:delete()
+	local data, err = self.client.api:deleteChannelPermission(self._parent._id, self._id)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
 function get.type(self)
 	return self._type
 end
