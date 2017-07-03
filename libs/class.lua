@@ -58,6 +58,7 @@ end
 
 return setmetatable({
 
+	classes = names,
 	isClass = isClass,
 	isObject = isObject,
 	isSubclass = isSubclass,

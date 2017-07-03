@@ -4,6 +4,7 @@ local GuildChannel = require('containers/abstract/GuildChannel')
 local TextChannel = require('containers/abstract/TextChannel')
 local Webhook = require('containers/Webhook')
 local Cache = require('iterables/Cache')
+local Resolver = require('client/Resolver')
 
 local GuildTextChannel = require('class')('GuildTextChannel', GuildChannel, TextChannel)
 local get = GuildTextChannel.__getters
@@ -38,7 +39,8 @@ function GuildTextChannel:getWebhooks()
 	end
 end
 
-function GuildTextChannel:bulkDelete(messages) -- TODO: resolve
+function GuildTextChannel:bulkDelete(messages)
+	messages = Resolver.ids(messages)
 	local data, err = self.client._api:bulkDeleteMessages(self._id, {messages = messages})
 	if data then
 		return true

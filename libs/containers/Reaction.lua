@@ -1,5 +1,6 @@
 local Container = require('utils/Container')
 local SecondaryCache = require('iterables/SecondaryCache')
+local Resolver = require('client/Resolver')
 
 local format = string.format
 
@@ -17,10 +18,7 @@ function Reaction:__hash()
 end
 
 function Reaction:getUsers()
-	local emoji = self._emoji_name
-	if self._emoji_id then
-		emoji = emoji .. ':' .. self._emoji_id
-	end
+	local emoji = Resolver.emoji(self)
 	local message = self._parent
 	local channel = message._parent
 	local data, err = self.client._api:getReactions(channel._id, message._id, emoji)
@@ -31,15 +29,13 @@ function Reaction:getUsers()
 	end
 end
 
-function Reaction:delete(user) -- TODO: resolve
-	local emoji = self._emoji_name
-	if self._emoji_id then
-		emoji = emoji .. ':' .. self._emoji_id
-	end
+function Reaction:delete(user)
+	local emoji = Resolver.emoji(self)
 	local message = self._parent
 	local channel = message._parent
 	local data, err
 	if user then
+		user = Resolver.id(user)
 		data, err = self.client._api:deleteUserReaction(channel._id, message._id, emoji, user)
 	else
 		data, err = self.client._api:deleteOwnReaction(channel._id, message._id, emoji)

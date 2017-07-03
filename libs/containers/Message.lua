@@ -4,6 +4,7 @@ local Cache = require('iterables/Cache')
 local ArrayIterable = require('iterables/ArrayIterable')
 local Snowflake = require('containers/abstract/Snowflake')
 local Reaction = require('containers/Reaction')
+local Resolver = require('client/Resolver')
 
 local format = string.format
 
@@ -167,7 +168,8 @@ function Message:unpin()
 	end
 end
 
-function Message:react(emoji) -- TODO: return new reaction?, resolve emoji
+function Message:react(emoji) -- TODO: return new reaction?
+	emoji = Resolver.emoji(emoji)
 	local data, err = self.client._api:createReaction(self._parent._id, self._id, emoji)
 	if data then
 		return true

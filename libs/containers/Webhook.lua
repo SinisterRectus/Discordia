@@ -2,6 +2,7 @@ local json = require('json')
 
 local Snowflake = require('containers/abstract/Snowflake')
 local User = require('containers/User')
+local Resolver = require('client/Resolver')
 
 local format = string.format
 
@@ -35,7 +36,8 @@ function Webhook:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
-function Webhook:setAvatar(avatar) -- TODO: resolve
+function Webhook:setAvatar(avatar)
+	avatar = Resolver.image(avatar)
 	return self:_modify({avatar = avatar or json.null})
 end
 

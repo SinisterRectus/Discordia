@@ -4,6 +4,7 @@ local Snowflake = require('containers/abstract/Snowflake')
 
 local Color = require('utils/Color')
 local Permissions = require('utils/Permissions')
+local Resolver = require('client/Resolver')
 
 local format = string.format
 
@@ -39,11 +40,13 @@ end
 
 -- TODO: position setting
 
-function Role:setColor(color) -- TODO: resolve
+function Role:setColor(color)
+	color = Resolver.number(color)
 	return self:_modify({color = color or json.null})
 end
 
-function Role:setPermissions(permissions) -- TODO: resolve
+function Role:setPermissions(permissions)
+	permissions = Resolver.number(permissions)
 	return self:_modify({permissions = permissions or json.null})
 end
 

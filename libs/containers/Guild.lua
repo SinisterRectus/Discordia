@@ -5,6 +5,7 @@ local Emoji = require('containers/Emoji')
 local Invite = require('containers/Invite')
 local Webhook = require('containers/Webhook')
 local Member = require('containers/Member')
+local Resolver = require('client/Resolver')
 local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
 local Snowflake = require('containers/abstract/Snowflake')
@@ -152,19 +153,23 @@ function Guild:setAFKTimeout(afk_timeout)
 	return self:_modify({afk_timeout = afk_timeout or json.null})
 end
 
-function Guild:setAFKChannel(afk_channel) -- TODO: resolve
-	return self:_modify({afk_channel = afk_channel or json.null})
+function Guild:setAFKChannel(afk_channel)
+	afk_channel = Resolver.id(afk_channel)
+	return self:_modify({afk_channel_id = afk_channel or json.null})
 end
 
-function Guild:setOwner(owner_id) -- TODO: resolve
-	return self:_modify({owner_id = owner_id or json.null})
+function Guild:setOwner(owner)
+	owner = Resolver.id(owner)
+	return self:_modify({owner_id = owner or json.null})
 end
 
-function Guild:setIcon(icon) -- TODO: resolve
+function Guild:setIcon(icon)
+	icon = Resolver.image(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
-function Guild:setSplash(splash) -- TODO: resolve
+function Guild:setSplash(splash)
+	splash = Resolver.image(splash)
 	return self:_modify({splash = splash or json.null})
 end
 
@@ -239,7 +244,8 @@ function Guild:delete()
 	end
 end
 
-function Guild:kickUser(user) -- TODO: resolve user, add query
+function Guild:kickUser(user) -- TODO: add query
+	user = Resolver.id(user)
 	local data, err = self.client._api:removeGuildMember(self._id, user)
 	if data then
 		return true
@@ -248,7 +254,8 @@ function Guild:kickUser(user) -- TODO: resolve user, add query
 	end
 end
 
-function Guild:banUser(user) -- TODO: resolve user, add query
+function Guild:banUser(user) -- TODO: add query
+	user = Resolver.id(user)
 	local data, err = self.client._api:createGuildBan(self._id, user)
 	if data then
 		return true
@@ -257,7 +264,8 @@ function Guild:banUser(user) -- TODO: resolve user, add query
 	end
 end
 
-function Guild:unbanUser(user) -- TODO: resolve user, add query
+function Guild:unbanUser(user) -- TODO: add query
+	user = Resolver.id(user)
 	local data, err = self.client._api:removeGuildBan(self._id, user)
 	if data then
 		return true

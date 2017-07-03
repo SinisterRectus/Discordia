@@ -2,6 +2,7 @@ local json = require('json')
 
 local TextChannel = require('containers/abstract/TextChannel')
 local SecondaryCache = require('iterables/SecondaryCache')
+local Resolver = require('client/Resolver')
 
 local format = string.format
 
@@ -17,7 +18,8 @@ function GroupChannel:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
-function GroupChannel:setIcon(icon) -- TODO: resolve
+function GroupChannel:setIcon(icon)
+	icon = Resolver.image(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
@@ -27,7 +29,8 @@ end
 -- start call (is a group channel necessary to start a call?)
 -- is owner mutable?
 
-function GroupChannel:addRecipient(user) -- TODO: resolve
+function GroupChannel:addRecipient(user)
+	user = Resolver.id(user)
 	local data, err = self.client._api:groupDMAddRecipient(self._id, user)
 	if data then
 		return true
@@ -36,7 +39,8 @@ function GroupChannel:addRecipient(user) -- TODO: resolve
 	end
 end
 
-function GroupChannel:removeRecipient(user) -- TODO: resolve
+function GroupChannel:removeRecipient(user)
+	user = Resolver.id(user)
 	local data, err = self.client._api:groupDMRemoveRecipient(self._id, user)
 	if data then
 		return true

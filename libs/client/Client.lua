@@ -7,6 +7,7 @@ local package = require('../../package.lua')
 
 local API = require('client/API')
 local Shard = require('client/Shard')
+local Resolver = require('client/Resolver')
 
 local GroupChannel = require('containers/GroupChannel')
 local Guild = require('containers/Guild')
@@ -205,7 +206,8 @@ function Client:setUsername(username)
 	return self:_modify({username = username or json.null})
 end
 
-function Client:setAvatar(avatar) -- TODO resolve
+function Client:setAvatar(avatar)
+	avatar = Resolver.image(avatar)
 	return self:_modify({avatar = avatar or json.null})
 end
 

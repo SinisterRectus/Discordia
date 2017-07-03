@@ -1,16 +1,12 @@
-local fs = require('fs')
-local http = require('coro-http')
 local pathjoin = require('pathjoin')
-
-local request = http.request
-local readFileSync = fs.readFileSync
-local splitPath = pathjoin.splitPath
-local insert, remove, concat = table.insert, table.remove, table.concat
-
 local Channel = require('containers/abstract/Channel')
 local Message = require('containers/Message')
 local WeakCache = require('iterables/WeakCache')
 local SecondaryCache = require('iterables/SecondaryCache')
+local Resolver = require('client/Resolver')
+
+local splitPath = pathjoin.splitPath
+local insert, remove, concat = table.insert, table.remove, table.concat
 
 local TextChannel = require('class')('TextChannel', Channel)
 local get = TextChannel.__getters
@@ -67,17 +63,20 @@ function TextChannel:getMessageHistory(limit)
 end
 
 function TextChannel:getMessageHistoryAfter(message, limit)
-	local query = {after = message, limit = limit} -- TODO: resolve
+	message = Resolver.id(message)
+	local query = {after = message, limit = limit}
 	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryBefore(message, limit)
-	local query = {before = message, limit = limit} -- TODO: resolve
+	message = Resolver.id(message)
+	local query = {before = message, limit = limit}
 	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryAround(message, limit)
-	local query = {around = message, limit = limit} -- TODO: resolve
+	message = Resolver.id(message)
+	local query = {around = message, limit = limit}
 	return getMessageHistory(self, query)
 end
 
@@ -99,24 +98,9 @@ function TextChannel:broadcastTyping()
 	end
 end
 
-local function readFile(path)
-	if path:find('https?://') == 1 then
-		local success, res, data = pcall(request, 'GET', path)
-		if not success then
-			return nil, res
-		elseif res.code > 299 then
-			return nil, res.reason
-		else
-			return data
-		end
-	else
-		return readFileSync(path)
-	end
-end
-
 local function parseFile(obj, files)
 	if type(obj) == 'string' then
-		local data, err = readFile(obj)
+		local data, err = Resolver.file(obj)
 		if not data then
 			return nil, err
 		end

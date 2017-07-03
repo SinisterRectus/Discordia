@@ -1,6 +1,7 @@
 local Container = require('utils/Container')
 local ArrayIterable = require('iterables/ArrayIterable')
 local Color = require('utils/Color')
+local Resolver = require('client/Resolver')
 
 local Member = require('class')('Member', Container)
 local get = Member.__getters
@@ -65,7 +66,7 @@ end
 -- TODO: add, remove, has roles
 
 function Member:addRole(role) -- TODO: add to roles array
-	-- TODO: resolve role
+	role = Resolver.id(role)
 	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, role)
 	if data then
 		return true
@@ -75,26 +76,13 @@ function Member:addRole(role) -- TODO: add to roles array
 end
 
 function Member:removeRole(role) -- TODO: remove from roles array
-	-- TODO: resolve role
+	role = Resolver.id(role)
 	local data, err = self.client._api:removeGuildMemberRole(self._parent._id, self.id, role)
 	if data then
 		return true
 	else
 		return false, err
 	end
-end
-
-function Member:hasRole(role)
-	-- TODO: resolve role
-	local roles = self._roles and self._roles._array or self._roles_raw
-	if roles then
-		for _, id in ipairs(roles) do
-			if id == role then
-				return true
-			end
-		end
-	end
-	return false
 end
 
 function Member:setNickname(nick)
@@ -135,7 +123,17 @@ function Member:setDeafened(deaf)
 	end
 end
 
--- TODO: user method shortcuts
+function Member:kick() -- TODO: query
+	return self._parent:kickUser(self._user)
+end
+
+function Member:ban() -- TODO: query
+	return self._parent:banUser(self._user)
+end
+
+function Member:unban() -- TODO: query
+	return self._parent:unbanUser(self._user)
+end
 
 function get.roles(self)
 	if not self._roles then
