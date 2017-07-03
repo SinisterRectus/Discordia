@@ -3,6 +3,7 @@ local json = require('json')
 local GuildChannel = require('containers/abstract/GuildChannel')
 local TextChannel = require('containers/abstract/TextChannel')
 local Webhook = require('containers/Webhook')
+local Cache = require('iterables/Cache')
 
 local GuildTextChannel = require('class')('GuildTextChannel', GuildChannel, TextChannel)
 local get = GuildTextChannel.__getters
@@ -23,6 +24,26 @@ function GuildTextChannel:createWebhook(name)
 		return Webhook(data, self)
 	else
 		return nil, err
+	end
+end
+
+function GuildTextChannel:getWebhooks()
+	local data, err = self.client._api:getChannelWebhooks(self._id)
+	if data then
+		local webhooks = Cache(Webhook, self.client) -- TODO: static cache
+		webhooks:_load(data)
+		return webhooks
+	else
+		return nil, err
+	end
+end
+
+function GuildTextChannel:bulkDelete(messages) -- TODO: resolve
+	local data, err = self.client._api:bulkDeleteMessages(self._id, {messages = messages})
+	if data then
+		return true
+	else
+		return false, err
 	end
 end
 

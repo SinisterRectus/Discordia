@@ -1,6 +1,9 @@
 local Cache = require('iterables/Cache')
+local SecondaryCache = require('iterables/SecondaryCache')
 local Role = require('containers/Role')
 local Emoji = require('containers/Emoji')
+local Invite = require('containers/Invite')
+local Webhook = require('containers/Webhook')
 local Member = require('containers/Member')
 local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
@@ -178,6 +181,37 @@ function Guild:pruneMembers(days)
 	local data, err = self.client._api:beginGuildPrune(self._id, nil, days and {days = days} or nil)
 	if data then
 		return data.pruned
+	else
+		return nil, err
+	end
+end
+
+function Guild:getBans()
+	local data, err = self.client._api:getGuildBans(self._id)
+	if data then
+		return SecondaryCache(data, self.client._users) -- TODO: static cache
+	else
+		return nil, err
+	end
+end
+
+function Guild:getInvites()
+	local data, err = self.client._api:getGuildInvites(self._id)
+	if data then
+		local invites = Cache(Invite, self.client) -- TODO: static cache
+		invites:_load(data)
+		return invites
+	else
+		return nil, err
+	end
+end
+
+function Guild:getWebhooks()
+	local data, err = self.client._api:getGuildWebhooks(self._id)
+	if data then
+		local webhooks = Cache(Webhook, self.client) -- TODO: static cache
+		webhooks:_load(data)
+		return webhooks
 	else
 		return nil, err
 	end

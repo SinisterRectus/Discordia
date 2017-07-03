@@ -222,14 +222,14 @@ end
 function EventHandler.GUILD_BAN_ADD(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_BAN_ADD') end
-	local user = client._users:_insert(d.user) -- TODO: secondary cache
+	local user = client._users:_insert(d.user)
 	return client:emit('userBan', user, guild)
 end
 
 function EventHandler.GUILD_BAN_REMOVE(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_BAN_REMOVE') end
-	local user = client._users:_insert(d.user) -- TODO: secondary cache
+	local user = client._users:_insert(d.user)
 	return client:emit('userUnban', user, guild)
 end
 

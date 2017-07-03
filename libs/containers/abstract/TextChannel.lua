@@ -10,6 +10,7 @@ local insert, remove, concat = table.insert, table.remove, table.concat
 local Channel = require('containers/abstract/Channel')
 local Message = require('containers/Message')
 local WeakCache = require('iterables/WeakCache')
+local SecondaryCache = require('iterables/SecondaryCache')
 
 local TextChannel = require('class')('TextChannel', Channel)
 local get = TextChannel.__getters
@@ -46,6 +47,44 @@ function TextChannel:getLastMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {limit = 1})
 	if data then
 		return self._messages:_insert(data[1])
+	else
+		return nil, err
+	end
+end
+
+local function getMessageHistory(self, query)
+	local data, err = self.client._api:getChannelMessages(self._id, query)
+	if data then
+		return SecondaryCache(data, self._messages) -- TODO: static cache
+	else
+		return nil, err
+	end
+end
+
+function TextChannel:getMessageHistory(limit)
+	local query = limit and {limit = limit} or nil
+	return getMessageHistory(self, query)
+end
+
+function TextChannel:getMessageHistoryAfter(message, limit)
+	local query = {after = message, limit = limit} -- TODO: resolve
+	return getMessageHistory(self, query)
+end
+
+function TextChannel:getMessageHistoryBefore(message, limit)
+	local query = {before = message, limit = limit} -- TODO: resolve
+	return getMessageHistory(self, query)
+end
+
+function TextChannel:getMessageHistoryAround(message, limit)
+	local query = {around = message, limit = limit} -- TODO: resolve
+	return getMessageHistory(self, query)
+end
+
+function TextChannel:getPinnedMessages()
+	local data, err = self.client._api:getPinnedMessages(self._id)
+	if data then
+		return SecondaryCache(data, self._messages) -- TODO: static cache
 	else
 		return nil, err
 	end

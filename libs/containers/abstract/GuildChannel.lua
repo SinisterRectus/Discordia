@@ -42,6 +42,17 @@ function GuildChannel:createInvite(max_age, max_uses, temporary, unique) -- all 
 	end
 end
 
+function GuildChannel:getInvites()
+	local data, err = self.client._api:getChannelInvites(self._id)
+	if data then
+		local invites = Cache(Invite, self.client) -- TODO: static cache
+		invites:_load(data)
+		return invites
+	else
+		return nil, err
+	end
+end
+
 -- TODO: position setting
 
 function get.permissionOverwrites(self)

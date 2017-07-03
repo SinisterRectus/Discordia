@@ -15,7 +15,7 @@ function Invite:__init(data, parent)
 	self._channel_name = data.channel.name
 	self._channel_type = data.channel.type
 	if data.inviter then
-		self._inviter = parent:_insert(data.inviter)
+		self._inviter = self.client._users:_insert(data.inviter)
 	end
 end
 

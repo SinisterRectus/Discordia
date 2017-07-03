@@ -243,7 +243,7 @@ function API:deleteChannel(channel_id) -- Channel:delete
 	return self:request("DELETE", endpoint)
 end
 
-function API:getChannelMessages(channel_id, query) -- TextChannel:get[First|Last]Message, TODO: getMessageHistory
+function API:getChannelMessages(channel_id, query) -- TextChannel:get[First|Last]Message, TextChannel:getMessageHistory
 	local endpoint = f(endpoints.CHANNEL_MESSAGES, channel_id)
 	return self:request("GET", endpoint, nil, query)
 end
@@ -273,7 +273,7 @@ function API:deleteUserReaction(channel_id, message_id, emoji, user_id) -- React
 	return self:request("DELETE", endpoint)
 end
 
-function API:getReactions(channel_id, message_id, emoji) -- TODO
+function API:getReactions(channel_id, message_id, emoji) -- Reaction:getUsers
 	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION, channel_id, message_id, emoji)
 	return self:request("GET", endpoint)
 end
@@ -293,7 +293,7 @@ function API:deleteMessage(channel_id, message_id) -- Message:delete
 	return self:request("DELETE", endpoint)
 end
 
-function API:bulkDeleteMessages(channel_id, payload) -- TODO
+function API:bulkDeleteMessages(channel_id, payload) -- GuildTextChannel:bulkDelete
 	local endpoint = f(endpoints.CHANNEL_MESSAGES_BULK_DELETE, channel_id)
 	return self:request("POST", endpoint, payload)
 end
@@ -303,7 +303,7 @@ function API:editChannelPermissions(channel_id, overwrite_id, payload) -- TODO
 	return self:request("PUT", endpoint, payload)
 end
 
-function API:getChannelInvites(channel_id) -- TODO
+function API:getChannelInvites(channel_id) -- GuildChannel:getInvites
 	local endpoint = f(endpoints.CHANNEL_INVITES, channel_id)
 	return self:request("GET", endpoint)
 end
@@ -323,7 +323,7 @@ function API:triggerTypingIndicator(channel_id, payload) -- TextChannel:broadcas
 	return self:request("POST", endpoint, payload)
 end
 
-function API:getPinnedMessages(channel_id) -- TODO
+function API:getPinnedMessages(channel_id) -- TextChannel:getPinnedMessages
 	local endpoint = f(endpoints.CHANNEL_PINS, channel_id)
 	return self:request("GET", endpoint)
 end
@@ -423,7 +423,7 @@ function API:removeGuildMember(guild_id, user_id) -- Guild:kickUser
 	return self:request("DELETE", endpoint)
 end
 
-function API:getGuildBans(guild_id) -- TODO
+function API:getGuildBans(guild_id) -- Guild:getBans
 	local endpoint = f(endpoints.GUILD_BANS, guild_id)
 	return self:request("GET", endpoint)
 end
@@ -478,7 +478,7 @@ function API:getGuildVoiceRegions(guild_id) -- Guild:listVoiceRegions
 	return self:request("GET", endpoint)
 end
 
-function API:getGuildInvites(guild_id) -- TODO
+function API:getGuildInvites(guild_id) -- Guild:getInvites
 	local endpoint = f(endpoints.GUILD_INVITES, guild_id)
 	return self:request("GET", endpoint)
 end
@@ -588,12 +588,12 @@ function API:createWebhook(channel_id, payload) -- GuildTextChannel:createWebhoo
 	return self:request("POST", endpoint, payload)
 end
 
-function API:getChannelWebhooks(channel_id) -- TODO
+function API:getChannelWebhooks(channel_id) -- GuildTextChannel:getWebhooks
 	local endpoint = f(endpoints.CHANNEL_WEBHOOKS, channel_id)
 	return self:request("GET", endpoint)
 end
 
-function API:getGuildWebhooks(guild_id) -- TODO
+function API:getGuildWebhooks(guild_id) -- Guild:getWebhooks
 	local endpoint = f(endpoints.GUILD_WEBHOOKS, guild_id)
 	return self:request("GET", endpoint)
 end

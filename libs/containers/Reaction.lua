@@ -1,4 +1,5 @@
 local Container = require('utils/Container')
+local SecondaryCache = require('iterables/SecondaryCache')
 
 local format = string.format
 
@@ -13,6 +14,21 @@ end
 
 function Reaction:__hash()
 	return self._emoji_id or self._emoji_name
+end
+
+function Reaction:getUsers()
+	local emoji = self._emoji_name
+	if self._emoji_id then
+		emoji = emoji .. ':' .. self._emoji_id
+	end
+	local message = self._parent
+	local channel = message._parent
+	local data, err = self.client._api:getReactions(channel._id, message._id, emoji)
+	if data then
+		return SecondaryCache(data, self.client._users) -- TODO: static cache
+	else
+		return nil, err
+	end
 end
 
 function Reaction:delete(user) -- TODO: resolve
