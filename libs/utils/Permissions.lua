@@ -41,12 +41,18 @@ function Permissions:__eq(other) check(self, other)
 end
 
 local function getPerm(i, ...)
-	local name = select(i, ...)
-	local perm = permission[name]
-	if not perm then
-		return error('Invalid permission: ' .. tostring(name), 2)
+	local v = select(i, ...)
+	local t = type(v)
+	local n = nil
+	if t == 'string' then
+		n = permission[v]
+	elseif t == 'number' then
+		n = permission(v) and v
 	end
-	return perm
+	if not n then
+		return error('Invalid permission: ' .. tostring(v), 2)
+	end
+	return n
 end
 
 function Permissions:enable(...)
