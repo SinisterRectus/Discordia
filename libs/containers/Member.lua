@@ -63,7 +63,7 @@ function Member:getColor()
 	return roles[1] and roles[1].color or Color()
 end
 
--- TODO: add, remove, has roles
+-- TODO: add/remove roles
 
 function Member:addRole(role) -- TODO: add to roles array
 	role = Resolver.id(role)
@@ -94,7 +94,11 @@ function Member:setNickname(nick)
 		data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {nick = nick})
 	end
 	if data then
-		self._nick = nick
+		if nick == '' then
+			self._nick = nil
+		else
+			self._nick = nick
+		end
 		return true
 	else
 		return false, err

@@ -207,7 +207,7 @@ function Client:setUsername(username)
 end
 
 function Client:setAvatar(avatar)
-	avatar = Resolver.image(avatar)
+	avatar = avatar and Resolver.base64(avatar)
 	return self:_modify({avatar = avatar or json.null})
 end
 

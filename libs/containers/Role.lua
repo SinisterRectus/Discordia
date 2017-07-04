@@ -41,12 +41,12 @@ end
 -- TODO: position setting
 
 function Role:setColor(color)
-	color = Resolver.number(color)
+	color = color and Resolver.color(color)
 	return self:_modify({color = color or json.null})
 end
 
 function Role:setPermissions(permissions)
-	permissions = Resolver.number(permissions)
+	permissions = permissions and Resolver.permissions(permissions)
 	return self:_modify({permissions = permissions or json.null})
 end
 

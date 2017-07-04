@@ -154,22 +154,22 @@ function Guild:setAFKTimeout(afk_timeout)
 end
 
 function Guild:setAFKChannel(afk_channel)
-	afk_channel = Resolver.id(afk_channel)
+	afk_channel = afk_channel and Resolver.id(afk_channel)
 	return self:_modify({afk_channel_id = afk_channel or json.null})
 end
 
 function Guild:setOwner(owner)
-	owner = Resolver.id(owner)
+	owner = owner and Resolver.id(owner)
 	return self:_modify({owner_id = owner or json.null})
 end
 
 function Guild:setIcon(icon)
-	icon = Resolver.image(icon)
+	icon = icon and Resolver.base64(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
 function Guild:setSplash(splash)
-	splash = Resolver.image(splash)
+	splash = splash and Resolver.base64(splash)
 	return self:_modify({splash = splash or json.null})
 end
 

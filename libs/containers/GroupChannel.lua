@@ -19,7 +19,7 @@ function GroupChannel:setName(name)
 end
 
 function GroupChannel:setIcon(icon)
-	icon = Resolver.image(icon)
+	icon = icon and Resolver.base64(icon)
 	return self:_modify({icon = icon or json.null})
 end
 

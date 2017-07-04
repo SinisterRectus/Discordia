@@ -37,7 +37,7 @@ function Webhook:setName(name)
 end
 
 function Webhook:setAvatar(avatar)
-	avatar = Resolver.image(avatar)
+	avatar = avatar and Resolver.base64(avatar)
 	return self:_modify({avatar = avatar or json.null})
 end
 

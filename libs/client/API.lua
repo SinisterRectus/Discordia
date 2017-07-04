@@ -113,7 +113,9 @@ end
 function API:request(method, endpoint, payload, query, files)
 
 	local _, main = running()
-	if main then return error('This function must be called in a coroutine') end
+	if main then
+		return nil, 'Cannot make HTTP request outside of a coroutine'
+	end
 
 	local url = BASE_URL .. endpoint
 
