@@ -1,3 +1,4 @@
+local random = math.random
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Iterable = require('class')('Iterable')
@@ -48,6 +49,17 @@ function Iterable:forEach(fn)
 	for obj in self:iter() do
 		fn(obj)
 	end
+end
+
+function Iterable:random()
+  local n = 1
+  local rand = random(#self)
+  for obj in self:iter() do
+    if n == rand then
+      return obj
+    end
+    n = n + 1
+  end
 end
 
 return Iterable

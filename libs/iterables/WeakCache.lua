@@ -8,9 +8,7 @@ function WeakCache:__init(constructor, parent)
 	setmetatable(self._objects, {__mode = 'v'})
 end
 
--- NOTE: _count is not accurate for weak caches
-
-function WeakCache:__len()
+function WeakCache:__len() -- NOTE: _count is not accurate for weak caches
 	return Iterable.__len(self)
 end
 
