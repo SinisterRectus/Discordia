@@ -1,4 +1,4 @@
-local Container = require('utils/Container')
+local Container = require('containers/abstract/Container')
 local ArrayIterable = require('iterables/ArrayIterable')
 local Color = require('utils/Color')
 local Resolver = require('client/Resolver')

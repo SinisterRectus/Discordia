@@ -1,4 +1,4 @@
-local Container = require('utils/Container')
+local Container = require('containers/abstract/Container')
 local SecondaryCache = require('iterables/SecondaryCache')
 local Resolver = require('client/Resolver')
 
