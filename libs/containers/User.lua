@@ -38,7 +38,7 @@ function User:getDefaultAvatarURL(size)
 	end
 end
 
-function User:getPrivateChannel() -- TODO: change to openChannel or openPrivateChannel?
+function User:getPrivateChannel()
 	local id = self._id
 	local client = self.client
 	local channel = client._private_channels:find(function(e) return e._recipient._id == id end)

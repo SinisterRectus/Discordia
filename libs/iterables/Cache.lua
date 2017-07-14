@@ -77,6 +77,15 @@ function Cache:_remove(data)
 	end
 end
 
+function Cache:_delete(k)
+	local old = self._objects[k]
+	if old then
+		return remove(self, k, old)
+	else
+		return nil
+	end
+end
+
 function Cache:_load(array, update)
 	if update then
 		local updated = {}
@@ -87,7 +96,7 @@ function Cache:_load(array, update)
 		for obj in self:iter() do
 			local k = obj:__hash()
 			if not updated[k] then
-				self:delete(k)
+				self:_delete(k)
 			end
 		end
 	else
@@ -106,15 +115,6 @@ function Cache:iter()
 	return function()
 		k, obj = next(objects, k)
 		return obj
-	end
-end
-
-function Cache:delete(k)
-	local old = self._objects[k]
-	if old then
-		return remove(self, k, old)
-	else
-		return nil
 	end
 end
 

@@ -46,6 +46,7 @@ local ignore = {
 	['MESSAGE_ACK'] = true,
 	['CHANNEL_PINS_ACK'] = true,
 	['USER_SETTINGS_UPDATE'] = true,
+	['GUILD_INTEGRATIONS_UPDATE'] = true,
 }
 
 local Shard = require('class')('Shard', Emitter)

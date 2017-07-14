@@ -79,21 +79,6 @@ return setmetatable({
 	local bases = {...}
 	local getters, setters = {}, {}
 
-	-- TODO: decide whether we want dynamic get/set methods
-	-- local getters = setmetatable({}, {
-	-- 	__newindex = function(self, k, fn)
-	-- 		class['get' .. k:gsub('^%l', string.upper)] = fn
-	-- 		return rawset(self, k, fn)
-	-- 	end
-	-- })
-	--
-	-- local setters = setmetatable({}, {
-	-- 	__newindex = function(self, k, fn)
-	-- 		class['set' .. k:gsub('^%l', string.upper)] = fn
-	-- 		return rawset(self, k, fn)
-	-- 	end
-	-- })
-
 	for _, base in ipairs(bases) do
 		for k1, v1 in pairs(base) do
 			class[k1] = v1

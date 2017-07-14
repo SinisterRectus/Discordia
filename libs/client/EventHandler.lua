@@ -240,9 +240,6 @@ function EventHandler.GUILD_EMOJIS_UPDATE(d, client)
 	return client:emit('emojisUpdate', guild)
 end
 
-function EventHandler.GUILD_INTEGRATIONS_UPDATE() -- TODO
-end
-
 function EventHandler.GUILD_MEMBER_ADD(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_MEMBER_ADD') end
@@ -283,7 +280,7 @@ end
 function EventHandler.GUILD_ROLE_DELETE(d, client) -- role object not provided
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_ROLE_DELETE') end
-	local role = guild._roles:delete(d.role_id)
+	local role = guild._roles:_delete(d.role_id)
 	if not role then return warning(client, 'Role', d.role_id, 'GUILD_ROLE_DELETE') end
 	return client:emit('roleDelete', role)
 end
@@ -310,7 +307,7 @@ end
 function EventHandler.MESSAGE_DELETE(d, client) -- message object not provided
 	local channel = getChannel(client, d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE') end
-	local message = channel._messages:delete(d.id)
+	local message = channel._messages:_delete(d.id)
 	if message then
 		return client:emit('messageDelete', message)
 	else
@@ -322,7 +319,7 @@ function EventHandler.MESSAGE_DELETE_BULK(d, client)
 	local channel = getChannel(client, d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE_BULK') end
 	for _, id in ipairs(d.ids) do
-		local message = channel._messages:delete(id)
+		local message = channel._messages:_delete(id)
 		if message then
 			client:emit('messageDelete', message)
 		else

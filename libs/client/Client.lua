@@ -46,7 +46,6 @@ local defaultOptions = {
 	logFile = 'discordia.log',
 	logLevel = logLevel.info,
 	dateTime = '%F %T',
-	gateway = true,
 }
 
 local function parseOptions(customOptions)
@@ -130,10 +129,6 @@ local function run(self, token)
 	-- end
 
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
-
-	if not options.gateway then -- TODO: maybe remove until rest mode is sorted out
-		return self:emit('ready')
-	end
 
 	local url, shard_count
 

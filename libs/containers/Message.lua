@@ -122,7 +122,7 @@ function Message:_removeReaction(data, user)
 	end
 
 	if reaction._count == 0 then
-		reactions:delete(k)
+		reactions:_delete(k)
 	end
 
 	return reaction

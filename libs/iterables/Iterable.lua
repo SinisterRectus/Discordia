@@ -52,14 +52,14 @@ function Iterable:forEach(fn)
 end
 
 function Iterable:random()
-  local n = 1
-  local rand = random(#self)
-  for obj in self:iter() do
-    if n == rand then
-      return obj
-    end
-    n = n + 1
-  end
+	local n = 1
+	local rand = random(#self)
+	for obj in self:iter() do
+		if n == rand then
+			return obj
+		end
+		n = n + 1
+	end
 end
 
 return Iterable
