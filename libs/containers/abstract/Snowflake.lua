@@ -1,9 +1,6 @@
-local constants = require('constants')
+local Date = require('utils/Date')
 
-local DISCORD_EPOCH = constants.DISCORD_EPOCH
-local MS_PER_S = constants.MS_PER_S
-
-local Container = require('utils/Container')
+local Container = require('containers/abstract/Container')
 
 local date = os.date
 local modf, floor = math.modf, math.floor
@@ -24,8 +21,8 @@ function get.id(self)
 	return self._id
 end
 
-function get.createdAt(self) -- TODO: move to utils or Date or Time class?
-	return (self._id / 2^22 + DISCORD_EPOCH) / MS_PER_S
+function get.createdAt(self)
+	return Date.parseSnowflake(self._id)
 end
 
 function get.timestamp(self) -- TODO: move to utils or Date or Time class?

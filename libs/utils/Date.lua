@@ -5,11 +5,13 @@ local Time = require('utils/Time')
 local abs = math.abs
 local format = string.format
 local date, time, difftime = os.date, os.time, os.difftime
+local isInstance = class.isInstance
 
 local MS_PER_S = constants.MS_PER_S
 local US_PER_MS = constants.US_PER_MS
 local US_PER_S = US_PER_MS * MS_PER_S
-local isInstance = class.isInstance
+
+local DISCORD_EPOCH = constants.DISCORD_EPOCH
 
 local months = {
 	Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
@@ -93,6 +95,10 @@ function Date.parseHeader(str) -- RFC2822
 	}
 end
 
+function Date.parseSnowflake(id)
+	return (id / 2^22 + DISCORD_EPOCH) / MS_PER_S
+end
+
 function Date.parseTable(tbl)
 	return time(tbl)
 end
@@ -107,6 +113,10 @@ end
 
 function Date.fromHeader(str)
 	return Date(Date.parseHeader(str))
+end
+
+function Date.fromSnowflake(id)
+	return Date(Date.parseSnowflake(id))
 end
 
 function Date.fromTable(tbl)
@@ -126,7 +136,7 @@ function Date.fromMilliseconds(t)
 end
 
 function Date:toISO(sep, tz)
-	local ret = date('!%F%%s%T%%s', self._seconds)
+	local ret = date('!%F%%s%T%%s', self._value)
 	return format(ret, sep or 'T', tz or 'Z')
 end
 
