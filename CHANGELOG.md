@@ -1,5 +1,10 @@
 # Changelog
 
+### 1.5.1
+- Added partial handling of failed socket connections
+- Added special handling for reaction ratelimits
+
+
 ### 1.5.0
 - Implemented webhook features
   - Added `Webhook` class
