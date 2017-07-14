@@ -43,7 +43,7 @@ function Member:_loadPresence(presence)
 end
 
 local function sorter(a, b)
-	if a._position == b._position then -- TODO: needs testing
+	if a._position == b._position then
 		return tonumber(a._id) < tonumber(b._id)
 	else
 		return a._position > b._position
@@ -63,8 +63,6 @@ function Member:getColor()
 	return roles[1] and roles[1].color or Color()
 end
 
--- TODO: add/remove roles
-
 function Member:addRole(role) -- TODO: add to roles array
 	role = Resolver.id(role)
 	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, role)
@@ -83,6 +81,19 @@ function Member:removeRole(role) -- TODO: remove from roles array
 	else
 		return false, err
 	end
+end
+
+function Member:hasRole(role)
+	local roles = self._roles and self._roles._array or self._roles_raw
+	if roles then
+		role = Resolver.id(role)
+		for _, id in ipairs(roles) do
+			if id == role then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 function Member:setNickname(nick)
