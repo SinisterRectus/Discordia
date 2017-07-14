@@ -3,8 +3,8 @@ local Iterable = require('iterables/Iterable')
 
 local WeakCache = require('class')('WeakCache', Cache)
 
-function WeakCache:__init(constructor, parent)
-	Cache.__init(self, constructor, parent)
+function WeakCache:__init(array, constructor, parent)
+	Cache.__init(self, array, constructor, parent)
 	setmetatable(self._objects, {__mode = 'v'})
 end
 

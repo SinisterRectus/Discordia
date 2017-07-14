@@ -22,11 +22,11 @@ local get = Guild.__getters
 
 function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self._roles = Cache(Role, self)
-	self._emojis = Cache(Emoji, self)
-	self._members = Cache(Member, self)
-	self._text_channels = Cache(GuildTextChannel, self)
-	self._voice_channels = Cache(GuildVoiceChannel, self)
+	self._roles = Cache({}, Role, self)
+	self._emojis = Cache({}, Emoji, self)
+	self._members = Cache({}, Member, self)
+	self._text_channels = Cache({}, GuildTextChannel, self)
+	self._voice_channels = Cache({}, GuildVoiceChannel, self)
 	if not data.unavailable then
 		return self:_makeAvailable(data)
 	end
@@ -194,7 +194,7 @@ end
 function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
 	if data then
-		return SecondaryCache(data, self.client._users) -- TODO: static cache
+		return SecondaryCache(data, self.client._users)
 	else
 		return nil, err
 	end
@@ -203,9 +203,7 @@ end
 function Guild:getInvites()
 	local data, err = self.client._api:getGuildInvites(self._id)
 	if data then
-		local invites = Cache(Invite, self.client) -- TODO: static cache
-		invites:_load(data)
-		return invites
+		return Cache(data, Invite, self.client)
 	else
 		return nil, err
 	end
@@ -214,9 +212,7 @@ end
 function Guild:getWebhooks()
 	local data, err = self.client._api:getGuildWebhooks(self._id)
 	if data then
-		local webhooks = Cache(Webhook, self.client) -- TODO: static cache
-		webhooks:_load(data)
-		return webhooks
+		return Cache(data, Webhook, self.client)
 	else
 		return nil, err
 	end
@@ -336,23 +332,23 @@ function get.notificationSetting(self)
 	return self._default_message_notifications
 end
 
-function get.me(self) -- TODO: check if always exists
+function get.me(self)
 	return self._members:get(self.client._user._id)
 end
 
-function get.owner(self) -- TODO: check if always exists
+function get.owner(self)
 	return self._members:get(self._owner_id)
 end
 
-function get.afkChannel(self) -- TODO: check if always exists
+function get.afkChannel(self)
 	return self._voice_channels:get(self._afk_channel_id)
 end
 
-function get.defaultRole(self) -- TODO: check if always exists
+function get.defaultRole(self)
 	return self._roles:get(self._id)
 end
 
-function get.defaultChannel(self) -- TODO: check if always exists
+function get.defaultChannel(self)
 	return self._text_channels:get(self._id)
 end
 

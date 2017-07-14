@@ -23,7 +23,7 @@ function Reaction:getUsers()
 	local channel = message._parent
 	local data, err = self.client._api:getReactions(channel._id, message._id, emoji)
 	if data then
-		return SecondaryCache(data, self.client._users) -- TODO: static cache
+		return SecondaryCache(data, self.client._users)
 	else
 		return nil, err
 	end

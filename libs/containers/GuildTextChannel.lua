@@ -31,9 +31,7 @@ end
 function GuildTextChannel:getWebhooks()
 	local data, err = self.client._api:getChannelWebhooks(self._id)
 	if data then
-		local webhooks = Cache(Webhook, self.client) -- TODO: static cache
-		webhooks:_load(data)
-		return webhooks
+		return Cache(data, Webhook, self.client)
 	else
 		return nil, err
 	end

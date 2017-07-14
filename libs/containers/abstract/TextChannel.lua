@@ -13,7 +13,7 @@ local get = TextChannel.__getters
 
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
-	self._messages = WeakCache(Message, self)
+	self._messages = WeakCache({}, Message, self)
 end
 
 function TextChannel:getMessage(id)
@@ -51,7 +51,7 @@ end
 local function getMessageHistory(self, query)
 	local data, err = self.client._api:getChannelMessages(self._id, query)
 	if data then
-		return SecondaryCache(data, self._messages) -- TODO: static cache
+		return SecondaryCache(data, self._messages)
 	else
 		return nil, err
 	end
@@ -83,7 +83,7 @@ end
 function TextChannel:getPinnedMessages()
 	local data, err = self.client._api:getPinnedMessages(self._id)
 	if data then
-		return SecondaryCache(data, self._messages) -- TODO: static cache
+		return SecondaryCache(data, self._messages)
 	else
 		return nil, err
 	end

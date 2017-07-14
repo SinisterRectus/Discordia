@@ -11,7 +11,7 @@ local get = GuildChannel.__getters
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
 	self.client._channel_map[self._id] = parent
-	self._permission_overwrites = Cache(PermissionOverwrite, self)
+	self._permission_overwrites = Cache({}, PermissionOverwrite, self)
 	return self:_loadMore(data)
 end
 
@@ -45,9 +45,7 @@ end
 function GuildChannel:getInvites()
 	local data, err = self.client._api:getChannelInvites(self._id)
 	if data then
-		local invites = Cache(Invite, self.client) -- TODO: static cache
-		invites:_load(data)
-		return invites
+		return Cache(data, Invite, self.client)
 	else
 		return nil, err
 	end

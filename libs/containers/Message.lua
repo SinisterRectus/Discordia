@@ -16,8 +16,7 @@ function Message:__init(data, parent)
 	self._author = self.client._users:_insert(data.author)
 	self._timestamp = nil -- waste of space; can be calculated from Snowflake ID
 	if data.reactions and #data.reactions > 0 then
-		self._reactions = Cache(Reaction, self)
-		self._reactions:_load(data.reactions)
+		self._reactions = Cache(data.reactions, Reaction, self)
 	end
 	return self:_loadMore(data)
 end
@@ -87,7 +86,7 @@ function Message:_addReaction(data, user)
 	local reactions = self._reactions
 
 	if not reactions then
-		reactions = Cache(Reaction, self)
+		reactions = Cache({}, Reaction, self)
 		self._reactions = reactions
 	end
 
@@ -198,7 +197,7 @@ end
 
 function get.reactions(self)
 	if not self._reactions then
-		self._reactions = Cache(Reaction, self)
+		self._reactions = Cache({}, Reaction, self)
 	end
 	return self._reactions
 end

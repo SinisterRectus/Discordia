@@ -86,10 +86,10 @@ function Client:__init(options)
 	self._shards = {}
 	self._api = API(self)
 	self._mutex = Mutex()
-	self._users = WeakCache(User, self)
-	self._guilds = Cache(Guild, self)
-	self._group_channels = Cache(GroupChannel, self)
-	self._private_channels = Cache(PrivateChannel, self)
+	self._users = WeakCache({}, User, self)
+	self._guilds = Cache({}, Guild, self)
+	self._group_channels = Cache({}, GroupChannel, self)
+	self._private_channels = Cache({}, PrivateChannel, self)
 	self._logger = Logger(options.logLevel, options.dateTime, options.logFile)
 	self._channel_map = {}
 end
