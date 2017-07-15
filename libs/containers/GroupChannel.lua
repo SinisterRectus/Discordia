@@ -30,7 +30,7 @@ end
 -- is owner mutable?
 
 function GroupChannel:addRecipient(user)
-	user = Resolver.id(user)
+	user = Resolver.userId(user)
 	local data, err = self.client._api:groupDMAddRecipient(self._id, user)
 	if data then
 		return true
@@ -40,7 +40,7 @@ function GroupChannel:addRecipient(user)
 end
 
 function GroupChannel:removeRecipient(user)
-	user = Resolver.id(user)
+	user = Resolver.userId(user)
 	local data, err = self.client._api:groupDMRemoveRecipient(self._id, user)
 	if data then
 		return true

@@ -154,12 +154,12 @@ function Guild:setAFKTimeout(afk_timeout)
 end
 
 function Guild:setAFKChannel(afk_channel)
-	afk_channel = afk_channel and Resolver.id(afk_channel)
+	afk_channel = afk_channel and Resolver.channelId(afk_channel)
 	return self:_modify({afk_channel_id = afk_channel or json.null})
 end
 
 function Guild:setOwner(owner)
-	owner = owner and Resolver.id(owner)
+	owner = owner and Resolver.userId(owner)
 	return self:_modify({owner_id = owner or json.null})
 end
 
@@ -241,7 +241,7 @@ function Guild:delete()
 end
 
 function Guild:kickUser(user) -- TODO: add query
-	user = Resolver.id(user)
+	user = Resolver.userId(user)
 	local data, err = self.client._api:removeGuildMember(self._id, user)
 	if data then
 		return true
@@ -251,7 +251,7 @@ function Guild:kickUser(user) -- TODO: add query
 end
 
 function Guild:banUser(user) -- TODO: add query
-	user = Resolver.id(user)
+	user = Resolver.userId(user)
 	local data, err = self.client._api:createGuildBan(self._id, user)
 	if data then
 		return true
@@ -261,7 +261,7 @@ function Guild:banUser(user) -- TODO: add query
 end
 
 function Guild:unbanUser(user) -- TODO: add query
-	user = Resolver.id(user)
+	user = Resolver.userId(user)
 	local data, err = self.client._api:removeGuildBan(self._id, user)
 	if data then
 		return true

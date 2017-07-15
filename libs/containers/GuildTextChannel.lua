@@ -38,7 +38,7 @@ function GuildTextChannel:getWebhooks()
 end
 
 function GuildTextChannel:bulkDelete(messages)
-	messages = Resolver.ids(messages)
+	messages = Resolver.messageIds(messages)
 	local data, err = self.client._api:bulkDeleteMessages(self._id, {messages = messages})
 	if data then
 		return true

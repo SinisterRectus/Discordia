@@ -64,7 +64,7 @@ function Member:getColor()
 end
 
 function Member:addRole(role) -- TODO: add to roles array
-	role = Resolver.id(role)
+	role = Resolver.roleId(role)
 	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, role)
 	if data then
 		return true
@@ -74,7 +74,7 @@ function Member:addRole(role) -- TODO: add to roles array
 end
 
 function Member:removeRole(role) -- TODO: remove from roles array
-	role = Resolver.id(role)
+	role = Resolver.roleId(role)
 	local data, err = self.client._api:removeGuildMemberRole(self._parent._id, self.id, role)
 	if data then
 		return true
@@ -86,7 +86,7 @@ end
 function Member:hasRole(role)
 	local roles = self._roles and self._roles._array or self._roles_raw
 	if roles then
-		role = Resolver.id(role)
+		role = Resolver.roleId(role)
 		for _, id in ipairs(roles) do
 			if id == role then
 				return true

@@ -35,7 +35,7 @@ function Reaction:delete(user)
 	local channel = message._parent
 	local data, err
 	if user then
-		user = Resolver.id(user)
+		user = Resolver.userId(user)
 		data, err = self.client._api:deleteUserReaction(channel._id, message._id, emoji, user)
 	else
 		data, err = self.client._api:deleteOwnReaction(channel._id, message._id, emoji)

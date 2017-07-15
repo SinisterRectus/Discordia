@@ -1,41 +1,77 @@
 local fs = require('fs')
 local base64 = require('base64')
 local class = require('class')
-local http = require('coro-http')
 
-local request = http.request
 local encode = base64.encode
 local readFileSync = fs.readFileSync
 local classes = class.classes
 local isInstance = class.isInstance
 local insert = table.insert
-local running = coroutine.running
+local format = string.format
 
 local Resolver = {}
 
-function Resolver.id(obj)
-	if type(obj) == 'string' then
-		local n = tonumber(obj)
-		if n and n % 1 == 0 and 0 <= n and n <= 2^64 then
-			return obj
+local int64_t, uint64_t, istype
+local function loadffi()
+	local ffi = require('ffi')
+	istype = ffi.istype
+	int64_t = ffi.typeof('int64_t')
+	uint64_t = ffi.typeof('uint64_t')
+end
+
+local function int(obj)
+	local t = type(obj)
+	if t == 'string' and tonumber(obj) then
+		return obj
+	elseif t == 'cdata' then
+		if not istype then loadffi() end
+		if istype(int64_t, obj) or istype(uint64_t, obj) then
+			return tostring(obj):match('%d*')
 		end
-	elseif isInstance(obj, classes.Snowflake) then
+	elseif t == 'number' then
+		return format('%i', obj)
+	end
+end
+
+function Resolver.userId(obj)
+	if isInstance(obj, classes.User) then
 		return obj.id
 	elseif isInstance(obj, classes.Member) then
 		return obj.user.id
 	end
-	return nil
+	return int(obj)
 end
 
-function Resolver.ids(objs)
+function Resolver.messageId(obj)
+	if isInstance(obj, classes.Message) then
+		return obj.id
+	end
+	return int(obj)
+end
+
+function Resolver.channelId(obj)
+	if isInstance(obj, classes.Channel) then
+		return obj.id
+	end
+	return int(obj)
+end
+
+function Resolver.roleId(obj)
+	if isInstance(obj, classes.Role) then
+		return obj.id
+	end
+	return int(obj)
+end
+
+function Resolver.messageIds(objs)
 	local ret = {}
 	if isInstance(objs, classes.Iterable) then
 		for obj in objs:iter() do
-			insert(ret, Resolver.id(obj))
+			insert(ret, Resolver.messageId(obj))
 		end
 	elseif type(objs) == 'table' then
 		for _, obj in pairs(objs) do
-			insert(ret, Resolver.id(obj))
+			insert(ret, Resolver.messageId(obj))
 		end
 	end
 	return ret
@@ -45,10 +81,10 @@ function Resolver.emoji(obj)
 	if isInstance(obj, classes.Emoji) then
 		return obj.name .. ':' .. obj.id
 	elseif isInstance(obj, classes.Reaction) then
-		if obj._emoji_id then
-			return obj._emoji_name .. ':' .. obj._emoji_id
+		if obj.emojiId then
+			return obj.emojiName .. ':' .. obj.emojiId
 		else
-			return obj._emoji_name
+			return obj.emojiId
 		end
 	end
 	return tostring(obj)
@@ -68,30 +104,12 @@ function Resolver.permissions(obj)
 	return tonumber(obj)
 end
 
-function Resolver.file(path)
-	if path:find('https?://') == 1 then
-		local _, main = running()
-		if main then
-			return nil, 'Cannot fetch URL outside of a coroutine'
-		end
-		local success, res, data = pcall(request, 'GET', path)
-		if not success then
-			return nil, res
-		elseif res.code > 299 then
-			return nil, res.reason
-		else
-			return data
-		end
-	end
-	return readFileSync(path)
-end
-
 function Resolver.base64(obj)
 	if type(obj) == 'string' then
 		if obj:find('data:.*;base64,') == 1 then
 			return obj
 		end
-		local data, err = Resolver.file(obj)
+		local data, err = readFileSync(obj)
 		if not data then
 			return nil, err
 		end

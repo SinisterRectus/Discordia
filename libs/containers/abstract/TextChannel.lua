@@ -4,9 +4,11 @@ local Message = require('containers/Message')
 local WeakCache = require('iterables/WeakCache')
 local SecondaryCache = require('iterables/SecondaryCache')
 local Resolver = require('client/Resolver')
+local fs = require('fs')
 
 local splitPath = pathjoin.splitPath
 local insert, remove, concat = table.insert, table.remove, table.concat
+local readFileSync = fs.readFileSync
 
 local TextChannel = require('class')('TextChannel', Channel)
 local get = TextChannel.__getters
@@ -63,19 +65,19 @@ function TextChannel:getMessageHistory(limit)
 end
 
 function TextChannel:getMessageHistoryAfter(message, limit)
-	message = Resolver.id(message)
+	message = Resolver.messageId(message)
 	local query = {after = message, limit = limit}
 	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryBefore(message, limit)
-	message = Resolver.id(message)
+	message = Resolver.messageId(message)
 	local query = {before = message, limit = limit}
 	return getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistoryAround(message, limit)
-	message = Resolver.id(message)
+	message = Resolver.messageId(message)
 	local query = {around = message, limit = limit}
 	return getMessageHistory(self, query)
 end
@@ -100,7 +102,7 @@ end
 
 local function parseFile(obj, files)
 	if type(obj) == 'string' then
-		local data, err = Resolver.file(obj)
+		local data, err = readFileSync(obj)
 		if not data then
 			return nil, err
 		end
