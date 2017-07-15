@@ -28,6 +28,10 @@ function GuildChannel:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+function GuildChannel:setPosition(position)
+	return self:_modify({position = position or json.null})
+end
+
 function GuildChannel:createInvite(max_age, max_uses, temporary, unique) -- all are optional
 	local data, err = self.client._api:createChannelInvite(self._id, {
 		max_age = max_age, -- number, default = 86400 (24 hours)
@@ -50,8 +54,6 @@ function GuildChannel:getInvites()
 		return nil, err
 	end
 end
-
--- TODO: position setting
 
 function get.permissionOverwrites(self)
 	return self._permission_overwrites

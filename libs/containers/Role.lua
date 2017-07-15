@@ -38,7 +38,9 @@ function Role:delete()
 	end
 end
 
--- TODO: position setting
+function Role:setPosition(position)
+	return self:_modify({position = position or json.null})
+end
 
 function Role:setColor(color)
 	color = color and Resolver.color(color)
