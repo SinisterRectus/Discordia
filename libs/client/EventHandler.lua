@@ -68,15 +68,19 @@ function EventHandler.READY(d, client, shard)
 			loading.guilds[guild.id] = true
 		end
 	else
-		local ids = {}
-		for _, guild in ipairs(d.guilds) do
-			guilds:_insert(guild)
-			if not guild.unavailable then -- if available
-				loading.syncs[guild.id] = true
-				insert(ids, guild.id)
+		if client._options.syncGuilds then
+			local ids = {}
+			for _, guild in ipairs(d.guilds) do
+				guilds:_insert(guild)
+				if not guild.unavailable then -- if available
+					loading.syncs[guild.id] = true
+					insert(ids, guild.id)
+				end
 			end
+			shard:syncGuilds(ids)
+		else
+			guilds:_load(d.guilds)
 		end
-		shard:syncGuilds(ids)
 	end
 
 	return checkReady(shard)
@@ -184,7 +188,7 @@ function EventHandler.CHANNEL_RECIPIENT_REMOVE(d, client)
 end
 
 function EventHandler.GUILD_CREATE(d, client, shard)
-	if not d.unavailable and not client._user._bot then
+	if client._options.syncGuilds and not d.unavailable and not client._user._bot then
 		shard:syncGuilds({d.id})
 	end
 	local guild = client._guilds:get(d.id)
@@ -331,28 +335,24 @@ end
 function EventHandler.MESSAGE_REACTION_ADD(d, client)
 	local channel = getChannel(client, d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_ADD') end
-	local user = client._users:get(d.user_id)
-	if not user then return warning(client, 'User', d.user_id, 'MESSAGE_REACTION_ADD') end
 	local message = channel._messages:get(d.message_id)
 	if message then
-		local reaction = message:_addReaction(d, user)
-		return client:emit('reactionAdd', reaction, user)
+		local reaction = message:_addReaction(d, d.user_id)
+		return client:emit('reactionAdd', reaction, d.user_id)
 	else
-		return client:emit('reactionAddUncached', channel, d.message_id, user)
+		return client:emit('reactionAddUncached', channel, d.message_id, d.user_id)
 	end
 end
 
 function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
 	local channel = getChannel(client, d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_REMOVE') end
-	local user = client._users:get(d.user_id)
-	if not user then return warning(client, 'User', d.user_id, 'MESSAGE_REACTION_REMOVE') end
 	local message = channel._messages:get(d.message_id)
 	if message then
-		local reaction = message:_removeReaction(d, user)
-		return client:emit('reactionRemove', reaction, user)
+		local reaction = message:_removeReaction(d, d.user_id)
+		return client:emit('reactionRemove', reaction, d.user_id)
 	else
-		return client:emit('reactionRemoveUncached', channel, d.message_id, user)
+		return client:emit('reactionRemoveUncached', channel, d.message_id, d.user_id)
 	end
 end
 

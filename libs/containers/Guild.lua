@@ -92,6 +92,14 @@ function Guild:requestMembers()
 	return shard:requestGuildMembers(self._id)
 end
 
+function Guild:sync()
+	local shard = self.client._shards[self.shardId]
+	if shard._loading then
+		shard._loading.syncs[self._id] = true
+	end
+	return shard:syncGuilds({self._id})
+end
+
 function Guild:getMember(id)
 	local member = self._members:get(id)
 	if member then
@@ -338,6 +346,14 @@ end
 
 function get.owner(self)
 	return self._members:get(self._owner_id)
+end
+
+function get.ownerId(self)
+	return self._owner_id
+end
+
+function get.afkChannelId(self)
+	return self._afk_channel_id
 end
 
 function get.afkChannel(self)

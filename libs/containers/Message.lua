@@ -81,7 +81,7 @@ function Message:_loadMore(data)
 
 end
 
-function Message:_addReaction(data, user)
+function Message:_addReaction(data, id)
 
 	local reactions = self._reactions
 
@@ -96,11 +96,11 @@ function Message:_addReaction(data, user)
 
 	if reaction then
 		reaction._count = reaction._count + 1
-		if user == self.client._user then
+		if id == self.client._user._id then
 			reaction._me = true
 		end
 	else
-		data.me = user == self.client._user
+		data.me = id == self.client._user._id
 		data.count = 1
 		reaction = reactions:_insert(data)
 	end
@@ -108,7 +108,7 @@ function Message:_addReaction(data, user)
 
 end
 
-function Message:_removeReaction(data, user)
+function Message:_removeReaction(data, id)
 
 	local reactions = self._reactions
 
@@ -117,7 +117,7 @@ function Message:_removeReaction(data, user)
 	local reaction = reactions:get(k)
 
 	reaction._count = reaction._count - 1
-	if user == self.client._user then
+	if id == self.client._user._id then
 		reaction._me = false
 	end
 

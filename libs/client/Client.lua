@@ -46,6 +46,7 @@ local defaultOptions = {
 	logFile = 'discordia.log',
 	logLevel = logLevel.info,
 	dateTime = '%F %T',
+	syncGuilds = false,
 }
 
 local function parseOptions(customOptions)
