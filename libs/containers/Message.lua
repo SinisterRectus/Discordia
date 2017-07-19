@@ -195,6 +195,10 @@ function Message:delete()
 	end
 end
 
+function Message:reply(...)
+	return self._parent:send(...)
+end
+
 function get.reactions(self)
 	if not self._reactions then
 		self._reactions = Cache({}, Reaction, self)
@@ -212,7 +216,7 @@ end
 
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
-		local guild = self._parent.guild
+		local guild = self.guild
 		local roles = guild and guild._roles
 		self._mentioned_roles = ArrayIterable(self._mentioned_roles_raw, function(id)
 			return roles:get(id)
@@ -236,6 +240,42 @@ function get.mentionedChannels(self)
 		end)
 	end
 	return self._mentioned_channels
+end
+
+local usersMeta = {__index = function(_, k) return '@' .. k end}
+local rolesMeta = {__index = function(_, k) return '@' .. k end}
+local channelsMeta = {__index = function(_, k) return '#' .. k end}
+local everyone = '@' .. string.char(0) .. 'everyone'
+local here = '@' .. string.char(0) .. 'here'
+
+function get.cleanContent(self)
+
+	local content = self._content
+	local guild = self.guild
+
+	local users = setmetatable({}, usersMeta)
+	for user in self.mentionedUsers:iter() do
+		local member = guild and guild._members:get(user._id)
+		users[user._id] = '@' .. (member and member._nick or user._username)
+	end
+
+	local roles = setmetatable({}, rolesMeta)
+	for role in self.mentionedRoles:iter() do
+		roles[role._id] = '@' .. role._name
+	end
+
+	local channels = setmetatable({}, channelsMeta)
+	for channel in self.mentionedChannels:iter() do
+		channels[channel._id] = '#' .. channel._name
+	end
+
+	return content
+		:gsub('<@!?(%d+)>', users)
+		:gsub('<@&(%d+)>', roles)
+		:gsub('<#(%d+)>', channels)
+		:gsub('@everyone', everyone)
+		:gsub('@here', here)
+
 end
 
 function get.pinned(self)
@@ -284,6 +324,15 @@ end
 
 function get.attachments(self)
 	return self._attachments
+end
+
+function get.guild(self)
+	return self._parent.guild
+end
+
+function get.member(self)
+	local guild = self.guild
+	return guild and guild._members:get(self._author._id)
 end
 
 return Message
