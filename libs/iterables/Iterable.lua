@@ -62,4 +62,40 @@ function Iterable:random()
 	end
 end
 
+local function sort(a, b)
+	local t = type(a)
+	if t == 'string' then
+		return (tonumber(a) or a) < (tonumber(b) or b)
+	elseif t == 'number' then
+		return a < b
+	else
+		local mt = getmetatable(a)
+		if mt and mt.__lt then
+			return a < b
+		else
+			return tostring(a) < tostring(b)
+		end
+	end
+end
+
+function Iterable:select(...)
+	local rows = {}
+	local keys = table.pack(...)
+	for obj in self:iter() do
+		local row = {}
+		for i = 1, keys.n do
+			table.insert(row, obj[keys[i]])
+		end
+		table.insert(rows, row)
+	end
+	table.sort(rows, function(a, b)
+		for i = 1, keys.n do
+			if a[i] ~= b[i] then
+				return sort(a[i], b[i])
+			end
+		end
+	end)
+	return rows
+end
+
 return Iterable
