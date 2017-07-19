@@ -7,7 +7,7 @@ local Cache = require('class')('Cache', Iterable)
 function Cache:__init(array, constructor, parent)
 	local objects = {}
 	for _, data in ipairs(array) do
-		local obj = self:_insert(data)
+		local obj = constructor(data, parent)
 		objects[obj:__hash()] = obj
 	end
 	self._count = #array

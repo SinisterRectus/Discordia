@@ -84,7 +84,7 @@ function Resolver.emoji(obj)
 		if obj.emojiId then
 			return obj.emojiName .. ':' .. obj.emojiId
 		else
-			return obj.emojiId
+			return obj.emojiName
 		end
 	end
 	return tostring(obj)
