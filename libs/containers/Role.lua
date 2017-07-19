@@ -60,6 +60,30 @@ function Role:setMentionable(mentionable)
 	return self:_modify({mentionable = mentionable or json.null})
 end
 
+function Role:enablePermissions(...)
+	local permissions = self:getPermissions()
+	permissions:enable(...)
+	return self:setPermissions(permissions)
+end
+
+function Role:disablePermissions(...)
+	local permissions = self:getPermissions()
+	permissions:disable(...)
+	return self:setPermissions(permissions)
+end
+
+function Role:enableAllPermissions()
+	local permissions = self:getPermissions()
+	permissions:enableAll()
+	return self:setPermissions(permissions)
+end
+
+function Role:disableAllPermissions()
+	local permissions = self:getPermissions()
+	permissions:disableAll()
+	return self:setPermissions(permissions)
+end
+
 function Role:getColor()
 	return Color(self._color)
 end

@@ -1,4 +1,3 @@
-local class = require('class')
 local enums = require('enums')
 
 local permission = enums.permission
@@ -6,7 +5,6 @@ local permission = enums.permission
 local format = string.format
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local sort, insert, concat = table.sort, table.insert, table.concat
-local isInstance = class.isInstance
 
 local ALL = 0
 for _, value in pairs(permission) do
@@ -15,12 +13,6 @@ end
 
 local Permissions = require('class')('Permissions')
 local get = Permissions.__getters
-
-local function check(self, other)
-	if not isInstance(self, Permissions) or not isInstance(other, Permissions) then
-		return error('Cannot perform operation with non-Permissions object', 2)
-	end
-end
 
 function Permissions:__init(value)
 	self._value = tonumber(value) or 0
@@ -36,7 +28,7 @@ function Permissions:__tostring()
 	end
 end
 
-function Permissions:__eq(other) check(self, other)
+function Permissions:__eq(other)
 	return self._value == other._value
 end
 

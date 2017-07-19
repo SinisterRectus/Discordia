@@ -300,7 +300,7 @@ function API:bulkDeleteMessages(channel_id, payload) -- GuildTextChannel:bulkDel
 	return self:request("POST", endpoint, payload)
 end
 
-function API:editChannelPermissions(channel_id, overwrite_id, payload) -- TODO
+function API:editChannelPermissions(channel_id, overwrite_id, payload) -- various PermissionOverwrite methods
 	local endpoint = f(endpoints.CHANNEL_PERMISSION, channel_id, overwrite_id)
 	return self:request("PUT", endpoint, payload)
 end
