@@ -177,7 +177,8 @@ local function run(self, token)
 
 end
 
-function Client:run(token)
+function Client:run(token, presence)
+	self._presence = presence or {}
 	return wrap(run)(self, token)
 end
 
@@ -250,6 +251,33 @@ end
 
 function Client:listVoiceRegions()
 	return self._api:listVoiceRegions()
+end
+
+local function updateStatus(self)
+	local presence = {
+		afk = not not self._presence.afk,
+		game = self._presence.game or json.null,
+		since = self._presence.status == 'idle' and 1000 * time() or 0,
+		status = self._presence.status or json.null,
+	}
+	for i = 0, self._shard_count - 1 do
+		self._shards[i]:updateStatus(presence)
+	end
+end
+
+function Client:setStatus(status)
+	self._presence.status = status
+	return updateStatus(self)
+end
+
+function Client:setGame(game)
+	self._presence.game = game
+	return updateStatus(self)
+end
+
+function Client:setAFK(afk)
+	self._presence.afk = afk
+	return updateStatus(self)
 end
 
 function get.shardCount(self)

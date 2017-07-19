@@ -27,7 +27,7 @@ local GATEWAY_DELAY = constants.GATEWAY_DELAY
 local DISPATCH              = 0
 local HEARTBEAT             = 1
 local IDENTIFY              = 2
--- local STATUS_UPDATE = 3 -- TODO
+local STATUS_UPDATE         = 3
 -- local VOICE_STATE_UPDATE = 4 -- TODO
 -- local VOICE_SERVER_PING = 5 -- TODO
 local RESUME                = 6
@@ -279,6 +279,7 @@ function Shard:identify(token)
 		compress = options.compress,
 		large_threshold = options.largeThreshold,
 		shard = {self._id, client._shard_count},
+		presence = next(client._presence) and client._presence,
 	})
 
 end
@@ -297,6 +298,10 @@ function Shard:requestGuildMembers(id)
 		query = '',
 		limit = 0,
 	})
+end
+
+function Shard:updateStatus(presence)
+	return send(self, STATUS_UPDATE, presence)
 end
 
 function Shard:syncGuilds(ids)
