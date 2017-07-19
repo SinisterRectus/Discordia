@@ -1,6 +1,8 @@
 local Date = require('utils/Date')
-
 local Container = require('containers/abstract/Container')
+local constants = require('constants')
+
+local US_PER_S = constants.US_PER_MS * constants.MS_PER_S
 
 local date = os.date
 local modf, floor = math.modf, math.floor
@@ -25,13 +27,13 @@ function get.createdAt(self)
 	return Date.parseSnowflake(self._id)
 end
 
-function get.timestamp(self) -- TODO: move to utils or Date or Time class?
+function get.timestamp(self)
 	local t, f = modf(self.createdAt)
-	local ms = floor(1000 * f + 0.5) / 1000
-	if ms == 0 then
+	local micro = floor(US_PER_S * f + 0.5)
+	if micro == 0 then
 		return date('!%FT%T', t) .. '+00:00'
 	else
-		return date('!%FT%T', t) .. format('%.6f', ms):sub(2) .. '+00:00'
+		return date('!%FT%T', t) .. format('.%6i', micro) .. '+00:00'
 	end
 end
 
