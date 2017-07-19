@@ -63,6 +63,12 @@ enums.verificationLevel = enum {
 	veryHigh = 4, -- ┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻
 }
 
+enums.explicitContentLevel = enum {
+	none   = 0,
+	medium = 1,
+	high   = 2,
+}
+
 enums.permission = enum {
 	createInstantInvite = 0x00000001,
 	kickMembers         = 0x00000002,

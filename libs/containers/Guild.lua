@@ -340,6 +340,10 @@ function get.notificationSetting(self)
 	return self._default_message_notifications
 end
 
+function get.explicitContentSetting(self)
+	return self._explicit_content_filter or 0
+end
+
 function get.me(self)
 	return self._members:get(self.client._user._id)
 end
