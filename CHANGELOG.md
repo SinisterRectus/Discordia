@@ -4,20 +4,151 @@
 - General changes:
 	- REST API methods now return an error message as a secondary return value if the request fails
 	- `class` module is no longer a global; access `discordia.class` instead
-	- `Time`, `Date`, and `Logger` classes added
 	- Enumerations and `enums` module added
-	- The library is now in the main directory of the repository instead of a nested folder
+	- Properties and methods are now segregated:
+		- Values that are locally accessible are exposed as properties
+		- Values that may require an HTTP request to access are exposed as methods
+		- Ex: `channel.name` is valid; `channel:getName()` is not valid
+		- Ex: `channel:setName('new-name')` is valid; `channel.name == 'new-name'` is not valid
+		- Ex: `color.r = 255` is valid; `color:setR(255)` is not valid
+	- The Discordia library is now the main directory of the repository instead of a nested folder
 	- All core library files are now found in a `libs` folder
-	- Containers have been reorganized into only two locations: abstract classes go in `containers/abstract`; everything else goes in `containers`
+	- Container directory reorganization:
+		- Abstract classes are in `containers/abstract` (Ex: Channel, Snowflake)
+		- All others are in `containers` (Ex: User, Guild, PrivateChannel)
+	- `GroupChannel` class added
+	- `Time`, `Date`, and `Logger` classes added
 	- `ArrayIterable`, `SecondaryCache`, `WeakCache` classes added
 	- `OrderedCache` class removed
+	- All container objects now have a `__hash` method
+	- `Caches` and other `Iterables` are now exposed directly; most cache methods have been removed
+	- Guilds are no longer automatically synced (user-bots only)
+	- Many methods have been changed to allow resolvables:
+		- Ex: `member:addRole()` now accepts a valid role object or role ID
 
 
-- Dependencies updated
+- Container API:
+	- Channel
+		- `isPrivate` property removed; use `type` instead
+		- `type` changed from string to number (use `enums.channelType`)
+		- `mentionString` property was moved from `GuildChannel` to `Channel` base
+	- Container
+		- Default `__eq` and `__tostring` methods added (both use `__hash` as a virtual method)
+	- GuildChannel
+		- TODO: getPermissionOverwriteFor
+		- `permissionOverwrites` is now an `Iterable`; removed `PermissionOverwrite`  cache methods
+		- `getInvites` now returns an `Iterable` via HTTP; removed `invites` property
+	- Snowflake
+		- Default `__eq` and `__tostring` methods moved to `Container`
+		- Added `__hash` method
+		- Changed `timestamp` generation to be more consistent with Python datetime
+	- TextChannel
+		- `messages` is now an `Iterable`; removed `Message` cache methods
+		- `getMessage` remains and now accepts a messageId resolvable
+		- `getPinnedMessages` now returns a `Iterable` via HTTP; removed `pinnedMessages` property
+		- Explicitly changed `firstMessage` property to `getFirstMessage` method
+		- Explicitly changed `lastMessage` property to `getLastMessage` method
+		- TODO: loadMessages
+		- `sendMessage` changes:
+			- Renamed to `send` for simplicity
+			- Deprecated version was removed; use a content string or table only
+			- `content` field no longer has to be a string, but it probably should be
+			- `mention` field must be a single mentionable object (or nil)
+			- `mentions` field must be a table of `mention`s as described above (or nil)
+			- `file` field must be a single file path string, or table (or nil)
+			- `files` field must be a table of `file`s as described above (or nil)
+			- Undocumented ability to use URLs as file paths has been removed
+	- Emoji
+		- `url` property now uses CDN URL
+		- Added `roles` `Iterable` for roles that may be required to use the emoji
+	- GroupChannel
+		- New class; see documentation
+	- Guild
+		- Replaced `vip` boolean with `features` table
+		- `requestMembers` and `sync` are now public methods
+		- `members` is now an `Iterable`; removed `Member` cache methods
+		- Added `setVerificationLevel`, `setNotificationSetting`, and `setExplicitContentSetting` methods
+		- `setAfkChannel` changed to `setAFKChannel`
+		- `setAfkTimeout` changed to `setAFKTimeout`
+		- `setAFKChannel` now accepts a channelId-resolvable
+		- `setIcon` now accepts a base64-resolvable (file path or base64 URI)
+		- `setOwner` now accepts a userId-resolvable
+		- Added `setSplash` method and `splash` and `splashURL` properties
+		- Added `explicitContentSetting` property
+		- Fixed `pruneMembers` method
+		- `getBans` now returns an `Iterable` via HTTP; removed `bannedUsers` property
+		- `getInvites` now returns an `Iterable` via HTTP; removed `invites` property
+		- `getWebhooks` now returns an `Iterable` via HTTP; removed `webhooks` property
+		- TODO: ban and kick queries
+		- Changed `iconUrl` to `iconURL`
+		- Added `ownerId` and `afkChannelId` properties
+		- `roles`, `emojis`, `members`, `textChannels`, and `voiceChannels` are now `Iterables`; removed all cache methods
+		- `getMember` remains and now accepts a userId resolvable
+	- GuildTextChannel
+		- `getWebhooks` now returns an `Iterable` via HTTP; removed `webhooks` property
+		- Removed `bulkDelete[After|Before|Around]`
+		- `bulkDelete` now accepts a messageIds resolvable
+		- `mentionString` property moved to `Channel` super-class
+	- GuildVoiceChannel
+		- TODO: voice
+	- Invite
+		- Added `__hash` method
+		- Added `guildIcon`, `guildIconURL`, `guildSplash`, and `guildSplasURL` properties
+		- Removed `accept` method
+	- Member
+		- Now inherits from `Container` instead of `Snowflake`
+		- Added `__hash` method
+		- Explicitly changed `color` property to `getColor` method
+		- `roles` is now an `Iterable`; removed `Role` cache methods
+		- Renamed `setMute` to `setMuted` and `mute` to `muted`
+		- Renamed `setDeaf` to `setDeafened` and `deaf` to `deafened`
+		- Removed `addRoles`, `removeRoles`, and `hasRoles` methods
+		- `addRole`, `removeRole` and `hasRole` now accept a roleId-resolvable
+		- `kick`, `ban`, and `unban` methods now always use the member's parent guild; use `guild:kickUser(member)` etc if a different guild is required
+		- Removed `Member:getMembership(guild)`, use `Guild:getMember(member)` instead
+		- Added `gameURL` and `gameType` properties
+		- Changed `avatarUrl` to `avatarURL`
+	- Message
+		- `reactions`, `mentionedUsers`, `mentionedRoles`, and `mentionedChannels` are now `Iterables` instead of iterator functions
+		- Changed `Message:addReaction` to `Message:react`
+		- Changed `Message:removeReaction` to `Reaction:delete`
+		- Changed `Message:getReactionUsers` to `Reaction:getUsers`
+		- TODO: oldContent
+		- Optimized `cleanContent` construction
+	- PermissionOverwrite
+		- Removed `name` property
+		- Explicitly changed `object` property to `getObject` method
+		- Explicitly changed `allowedPermissions` and `deniedPermissions` properties to `getAllowedPermissions` and `getDeniedPermissions` methods
+	- PrivateChannel
+		- No changes
+	- Reaction
+		- Added `__hash` method
+		- Added `delete` method
+		- Added `getUsers` method
+		- Replaced `emoji` property with `emojiId`, `emojiName`, and `emojiURL` properties
+	- Role
+			- Explicitly changed `color` property to `getColor` method
+			- Explicitly changed `permissions` property to `getPermissions` method
+			- `setColor` now accepts a color-resolvable
+			- `setPermissions` now accepts a permissions-resolvable
+			- Renamed `setHoist` to `setHoisted` and `hoist` to `hoisted`
+	- User
+		- Explicitly changed `privateChannel` property to `getPrivateChannel` method
+		- Removed `User:getMembership(guild)`; use `Guild:getMember(user)` instead
+		- `setAvatar` now accepts a base64-resolvable
+		- Changed "Url" methods and properties to "URL"
+		- Changed default avatars from hashes to enumerations
+		- Default avatar size of 1024 was removed; use an explicit size if necessary
+	- Webhook
+		- `setAvatar` now accepts a base64-resolvable
+		- Changed "Url" methods and properties to "URL"
+
+
+- Dependencies
 	- Updated coro-http from 2.1.1 to 3.0.0
 	- Updated coro-websocket from 1.0.0 to 3.1.0
 	- Updated secure-socket from 1.1.4 to 1.2.0
-	- Removed coro-fs dependency
+	- Removed coro-fs
 
 
 - Class and Module changes:

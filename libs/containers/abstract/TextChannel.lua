@@ -19,6 +19,7 @@ function TextChannel:__init(data, parent)
 end
 
 function TextChannel:getMessage(id)
+	id = Resolver.messageId(id)
 	local message = self._messages:get(id)
 	if message then
 		return message

@@ -60,7 +60,7 @@ function Member:getColor()
 		table.insert(roles, role)
 	end
 	table.sort(roles, sorter)
-	return roles[1] and roles[1].color or Color()
+	return roles[1] and roles[1]:getColor() or Color()
 end
 
 function Member:addRole(role) -- TODO: add to roles array
@@ -150,6 +150,10 @@ function Member:unban() -- TODO: query
 	return self._parent:unbanUser(self._user)
 end
 
+function Member:send(...)
+	return self._user:send(...)
+end
+
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles
@@ -208,7 +212,6 @@ end
 -- user shortcuts
 function get.id(self) return self._user.id end
 function get.bot(self) return self._user.bot end
-function get.name(self) return self._user.name end
 function get.username(self) return self._user.username end
 function get.discriminator(self) return self._user.discriminator end
 function get.avatar(self) return self._user.avatar end

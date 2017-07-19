@@ -101,6 +101,7 @@ function Guild:sync()
 end
 
 function Guild:getMember(id)
+	id = Resolver.userId(id)
 	local member = self._members:get(id)
 	if member then
 		return member
@@ -155,6 +156,10 @@ end
 
 function Guild:setNotificationSetting(default_message_notifications)
 	return self:_modify({default_message_notifications = default_message_notifications or json.null})
+end
+
+function Guild:setExplicitContentSetting(explicit_content_filter)
+	return self:_modify({explicit_content_filter = explicit_content_filter or json.null})
 end
 
 function Guild:setAFKTimeout(afk_timeout)

@@ -236,6 +236,7 @@ function Client:getInvite(code)
 end
 
 function Client:getUser(id)
+	id = Resolver.userId(id)
 	local user = self._users:get(id)
 	if user then
 		return user

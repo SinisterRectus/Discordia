@@ -1,5 +1,6 @@
 local random = math.random
 local wrap, yield = coroutine.wrap, coroutine.yield
+local insert, sort, pack = table.insert, table.sort, table.pack
 
 local Iterable = require('class')('Iterable')
 
@@ -62,7 +63,9 @@ function Iterable:random()
 	end
 end
 
-local function sort(a, b)
+-- TODO: filter method
+
+local function sorter(a, b)
 	local t = type(a)
 	if t == 'string' then
 		return (tonumber(a) or a) < (tonumber(b) or b)
@@ -80,18 +83,18 @@ end
 
 function Iterable:select(...)
 	local rows = {}
-	local keys = table.pack(...)
+	local keys = pack(...)
 	for obj in self:iter() do
 		local row = {}
 		for i = 1, keys.n do
-			table.insert(row, obj[keys[i]])
+			insert(row, obj[keys[i]])
 		end
-		table.insert(rows, row)
+		insert(rows, row)
 	end
-	table.sort(rows, function(a, b)
+	sort(rows, function(a, b)
 		for i = 1, keys.n do
 			if a[i] ~= b[i] then
-				return sort(a[i], b[i])
+				return sorter(a[i], b[i])
 			end
 		end
 	end)

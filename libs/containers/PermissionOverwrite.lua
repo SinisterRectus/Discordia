@@ -20,12 +20,13 @@ function PermissionOverwrite:delete()
 	end
 end
 
-function get.type(self)
-	return self._type
-end
-
-function get.channel(self)
-	return self._channel
+function PermissionOverwrite:getObject()
+	local guild = self._parent._parent
+	if self._type == 'role' then
+		return guild._roles:get(self._id) -- TODO: getRole
+	elseif self._type == 'member' then
+		return guild:getMember(self._id)
+	end
 end
 
 local function getPermissions(self)
@@ -97,6 +98,18 @@ function PermissionOverwrite:clearAllPermissions()
 	local allowed, denied = getPermissions(self)
 	allowed:disableAll(); denied:disableAll()
 	return setPermissions(self, allowed._value, denied._value)
+end
+
+function get.type(self)
+	return self._type
+end
+
+function get.channel(self)
+	return self._parent
+end
+
+function get.guild(self)
+	return self._parent._guild
 end
 
 return PermissionOverwrite

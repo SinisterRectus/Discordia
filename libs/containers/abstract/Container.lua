@@ -34,4 +34,8 @@ function get.client(self)
 	return self._parent.client or self._parent
 end
 
+function get.parent(self)
+	return self._parent
+end
+
 return Container
