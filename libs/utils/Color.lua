@@ -7,7 +7,7 @@ local band, bor = bit.band, bit.bor
 local bnot = bit.bnot
 local isInstance = class.isInstance
 
-local Color = require('class')('Color')
+local Color = class('Color')
 local get = Color.__getters
 local set = Color.__setters
 

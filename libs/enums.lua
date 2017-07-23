@@ -8,7 +8,7 @@ local function enum(tbl)
 	end
 	return setmetatable({}, {
 		__call = function(_, k) return call[k] end,
-		__index = function(_, k) return tbl[k]	end,
+		__index = function(_, k) return tbl[k] end,
 		__pairs = function() return next, tbl end,
 		__newindex = function() return error('cannot overwrite enumeration') end,
 	})

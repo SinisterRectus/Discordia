@@ -127,11 +127,11 @@
 		- Added `getUsers` method
 		- Replaced `emoji` property with `emojiId`, `emojiName`, and `emojiURL` properties
 	- Role
-			- Explicitly changed `color` property to `getColor` method
-			- Explicitly changed `permissions` property to `getPermissions` method
-			- `setColor` now accepts a color-resolvable
-			- `setPermissions` now accepts a permissions-resolvable
-			- Renamed `setHoist` to `setHoisted` and `hoist` to `hoisted`
+		- Explicitly changed `color` property to `getColor` method
+		- Explicitly changed `permissions` property to `getPermissions` method
+		- `setColor` now accepts a color-resolvable
+		- `setPermissions` now accepts a permissions-resolvable
+		- Renamed `setHoist` to `setHoisted` and `hoist` to `hoisted`
 	- User
 		- Explicitly changed `privateChannel` property to `getPrivateChannel` method
 		- Removed `User:getMembership(guild)`; use `Guild:getMember(user)` instead

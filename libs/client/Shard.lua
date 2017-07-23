@@ -247,7 +247,7 @@ end
 
 function Shard:heartbeat()
 	self._sw:reset()
-	return send(self, HEARTBEAT, self._seq)
+	return send(self, HEARTBEAT, self._seq or json.null)
 end
 
 function Shard:identify(token)
