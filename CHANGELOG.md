@@ -79,7 +79,7 @@
 		- `getBans` now returns an `Iterable` via HTTP; removed `bannedUsers` property
 		- `getInvites` now returns an `Iterable` via HTTP; removed `invites` property
 		- `getWebhooks` now returns an `Iterable` via HTTP; removed `webhooks` property
-		- TODO: ban and kick queries
+		- `banUser`, `unbanUser`, and `kickUser` now accept reason queries
 		- Changed `iconUrl` to `iconURL`
 		- Added `ownerId` and `afkChannelId` properties
 		- `roles`, `emojis`, `members`, `textChannels`, and `voiceChannels` are now `Iterables`; removed all cache methods
@@ -105,6 +105,7 @@
 		- Removed `addRoles`, `removeRoles`, and `hasRoles` methods
 		- `addRole`, `removeRole` and `hasRole` now accept a roleId-resolvable
 		- `kick`, `ban`, and `unban` methods now always use the member's parent guild; use `guild:kickUser(member)` etc if a different guild is required
+		- `kick`, `ban`, and `unban` methods now accept reason queries
 		- Removed `Member:getMembership(guild)`, use `Guild:getMember(member)` instead
 		- Added `gameURL` and `gameType` properties
 		- Changed `avatarUrl` to `avatarURL`
@@ -139,6 +140,7 @@
 		- Changed "Url" methods and properties to "URL"
 		- Changed default avatars from hashes to enumerations
 		- Default avatar size of 1024 was removed; use an explicit size if necessary
+		- `ban`, `unban`, and `kick` methods were remove; use `Guild` methods instead
 	- Webhook
 		- `setAvatar` now accepts a base64-resolvable
 		- Changed "Url" methods and properties to "URL"

@@ -7,7 +7,7 @@ local Mutex = require('utils/Mutex')
 local endpoints = require('endpoints')
 
 local request = http.request
-local f = string.format
+local f, gsub, byte = string.format, string.gsub, string.byte
 local max, random = math.max, math.random
 local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
@@ -94,6 +94,14 @@ local mutexMeta = {
 	end
 }
 
+local function tohex(c)
+	return f('%%%02X', byte(c))
+end
+
+local function urlencode(str)
+	return gsub(tostring(str), '%W', tohex)
+end
+
 local API = require('class')('API')
 
 function API:__init(client)
@@ -122,7 +130,7 @@ function API:request(method, endpoint, payload, query, files)
 	if query and next(query) then
 		local buffer = {}
 		for k, v in pairs(query) do
-			insert(buffer, f('%s=%s', k, v))
+			insert(buffer, f('%s=%s', urlencode(k), urlencode(v)))
 		end
 		url = f('%s?%s', url, concat(buffer, '&'))
 	end
@@ -420,9 +428,9 @@ function API:removeGuildMemberRole(guild_id, user_id, role_id) -- Member:removeR
 	return self:request("DELETE", endpoint)
 end
 
-function API:removeGuildMember(guild_id, user_id) -- Guild:kickUser
+function API:removeGuildMember(guild_id, user_id, query) -- Guild:kickUser
 	local endpoint = f(endpoints.GUILD_MEMBER, guild_id, user_id)
-	return self:request("DELETE", endpoint)
+	return self:request("DELETE", endpoint, nil, query)
 end
 
 function API:getGuildBans(guild_id) -- Guild:getBans
@@ -430,14 +438,14 @@ function API:getGuildBans(guild_id) -- Guild:getBans
 	return self:request("GET", endpoint)
 end
 
-function API:createGuildBan(guild_id, user_id, payload) -- Guild:banUser
+function API:createGuildBan(guild_id, user_id, query) -- Guild:banUser
 	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
-	return self:request("PUT", endpoint, payload)
+	return self:request("PUT", endpoint, nil, query)
 end
 
-function API:removeGuildBan(guild_id, user_id) -- Guild:unbanUser
+function API:removeGuildBan(guild_id, user_id, query) -- Guild:unbanUser
 	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
-	return self:request("DELETE", endpoint)
+	return self:request("DELETE", endpoint, nil, query)
 end
 
 function API:getGuildRoles(guild_id) -- not exposed, use cache

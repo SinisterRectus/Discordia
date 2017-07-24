@@ -253,9 +253,10 @@ function Guild:delete()
 	end
 end
 
-function Guild:kickUser(user) -- TODO: add query
+function Guild:kickUser(user, reason)
 	user = Resolver.userId(user)
-	local data, err = self.client._api:removeGuildMember(self._id, user)
+	local query = reason and {reason = reason}
+	local data, err = self.client._api:removeGuildMember(self._id, user, query)
 	if data then
 		return true
 	else
@@ -263,9 +264,14 @@ function Guild:kickUser(user) -- TODO: add query
 	end
 end
 
-function Guild:banUser(user) -- TODO: add query
+function Guild:banUser(user, reason, days)
+	local query = reason and {reason = reason}
+	if days then
+		query = query or {}
+		query['delete-message-days'] = days
+	end
 	user = Resolver.userId(user)
-	local data, err = self.client._api:createGuildBan(self._id, user)
+	local data, err = self.client._api:createGuildBan(self._id, user, query)
 	if data then
 		return true
 	else
@@ -273,9 +279,10 @@ function Guild:banUser(user) -- TODO: add query
 	end
 end
 
-function Guild:unbanUser(user) -- TODO: add query
+function Guild:unbanUser(user, reason)
 	user = Resolver.userId(user)
-	local data, err = self.client._api:removeGuildBan(self._id, user)
+	local query = reason and {reason = reason}
+	local data, err = self.client._api:removeGuildBan(self._id, user, query)
 	if data then
 		return true
 	else

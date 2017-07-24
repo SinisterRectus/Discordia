@@ -61,7 +61,7 @@ local function getMessageHistory(self, query)
 end
 
 function TextChannel:getMessageHistory(limit)
-	local query = limit and {limit = limit} or nil
+	local query = limit and {limit = limit}
 	return getMessageHistory(self, query)
 end
 

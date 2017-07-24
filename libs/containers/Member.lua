@@ -148,16 +148,16 @@ function Member:setDeafened(deaf)
 	end
 end
 
-function Member:kick() -- TODO: query
-	return self._parent:kickUser(self._user)
+function Member:kick(reason)
+	return self._parent:kickUser(self._user, reason)
 end
 
-function Member:ban() -- TODO: query
-	return self._parent:banUser(self._user)
+function Member:ban(reason, days)
+	return self._parent:banUser(self._user, reason, days)
 end
 
-function Member:unban() -- TODO: query
-	return self._parent:unbanUser(self._user)
+function Member:unban(reason)
+	return self._parent:unbanUser(self._user, reason)
 end
 
 function Member:send(...)
