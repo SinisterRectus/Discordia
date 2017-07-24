@@ -88,6 +88,7 @@ local function attachFiles(payload, files)
 end
 
 local mutexMeta = {
+	__mode = 'v',
 	__index = function(self, k)
 		self[k] = Mutex()
 		return self[k]
