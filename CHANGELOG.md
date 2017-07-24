@@ -109,6 +109,9 @@
 		- Removed `Member:getMembership(guild)`, use `Guild:getMember(member)` instead
 		- Added `gameURL` and `gameType` properties
 		- Changed `avatarUrl` to `avatarURL`
+		- `hasRole` now returns `true` for `@everyone` default role
+		- `addRole` will no longer make an HTTP request if the member already has the target role
+		- `removeRole` will no longer make an HTTP request if the member already does not have the target role
 	- Message
 		- `reactions`, `mentionedUsers`, `mentionedRoles`, and `mentionedChannels` are now `Iterables` instead of iterator functions
 		- Changed `Message:addReaction` to `Message:react`

@@ -4,6 +4,7 @@ local Color = require('utils/Color')
 local Resolver = require('client/Resolver')
 
 local format = string.format
+local insert, remove, sort = table.insert, table.remove, table.sort
 
 local Member = require('class')('Member', Container)
 local get = Member.__getters
@@ -67,26 +68,47 @@ end
 function Member:getColor()
 	local roles = {}
 	for role in self.roles:findAll(predicate) do
-		table.insert(roles, role)
+		insert(roles, role)
 	end
-	table.sort(roles, sorter)
+	sort(roles, sorter)
 	return roles[1] and roles[1]:getColor() or Color()
 end
 
-function Member:addRole(role) -- TODO: add to roles array
+function Member:addRole(role)
+	if self:hasRole(role) then return true end
 	role = Resolver.roleId(role)
 	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, role)
 	if data then
+		local roles = self._roles and self._roles._array or self._roles_raw
+		if roles then
+			insert(roles, role)
+		else
+			self._roles_raw = {role}
+		end
 		return true
 	else
 		return false, err
 	end
 end
 
-function Member:removeRole(role) -- TODO: remove from roles array
+function Member:removeRole(role)
+	if not self:hasRole(role) then return true end
 	role = Resolver.roleId(role)
 	local data, err = self.client._api:removeGuildMemberRole(self._parent._id, self.id, role)
 	if data then
+		local roles = self._roles and self._roles._array or self._roles_raw
+		if roles then
+			for i, v in ipairs(roles) do
+				if v == role then
+					remove(roles, i)
+					break
+				end
+			end
+		end
+		if #roles == 0 then
+			self._roles_raw = nil
+			self._roles._array = nil
+		end
 		return true
 	else
 		return false, err
@@ -94,9 +116,10 @@ function Member:removeRole(role) -- TODO: remove from roles array
 end
 
 function Member:hasRole(role)
+	role = Resolver.roleId(role)
+	if role == self._parent._id then return true end -- @everyone
 	local roles = self._roles and self._roles._array or self._roles_raw
 	if roles then
-		role = Resolver.roleId(role)
 		for _, id in ipairs(roles) do
 			if id == role then
 				return true
@@ -115,11 +138,7 @@ function Member:setNickname(nick)
 		data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {nick = nick})
 	end
 	if data then
-		if nick == '' then
-			self._nick = nil
-		else
-			self._nick = nick
-		end
+		self._nick = nick ~= '' and nick or nil
 		return true
 	else
 		return false, err
