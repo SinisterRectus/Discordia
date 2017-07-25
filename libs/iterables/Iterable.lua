@@ -52,6 +52,16 @@ function Iterable:forEach(fn)
 	end
 end
 
+function Iterable:toTable(fn)
+	local ret = {}
+	for obj in self:iter() do
+		if not fn or fn(obj) then
+			insert(ret, obj)
+		end
+	end
+	return ret
+end
+
 function Iterable:random()
 	local n = 1
 	local rand = random(#self)
@@ -62,8 +72,6 @@ function Iterable:random()
 		n = n + 1
 	end
 end
-
--- TODO: filter method
 
 local function sorter(a, b)
 	local t = type(a)
