@@ -63,6 +63,13 @@ function Resolver.roleId(obj)
 	return int(obj)
 end
 
+function Resolver.guildId(obj)
+	if isInstance(obj, classes.Guild) then
+		return obj.id
+	end
+	return int(obj)
+end
+
 function Resolver.messageIds(objs)
 	local ret = {}
 	if isInstance(objs, classes.Iterable) then

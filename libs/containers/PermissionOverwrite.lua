@@ -23,7 +23,7 @@ end
 function PermissionOverwrite:getObject()
 	local guild = self._parent._parent
 	if self._type == 'role' then
-		return guild._roles:get(self._id) -- TODO: getRole
+		return guild:getRole(self._id)
 	elseif self._type == 'member' then
 		return guild:getMember(self._id)
 	end

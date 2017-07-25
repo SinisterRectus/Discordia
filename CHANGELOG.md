@@ -83,7 +83,7 @@
 		- Changed `iconUrl` to `iconURL`
 		- Added `ownerId` and `afkChannelId` properties
 		- `roles`, `emojis`, `members`, `textChannels`, and `voiceChannels` are now `Iterables`; removed all cache methods
-		- `getMember` remains and now accepts a userId resolvable
+		- `getMember`, `getRole`, and `getChannel` remain and now accept id resolvables
 	- GuildTextChannel
 		- `getWebhooks` now returns an `Iterable` via HTTP; removed `webhooks` property
 		- Removed `bulkDelete[After|Before|Around]`
@@ -185,7 +185,7 @@
 		- `setAvatar` now optionally accepts a file path
 		- Removed `acceptInvite` method
 		- Replaced most cache methods and properties with direct caches: `Users`, `Guilds`, `PrivateChannels`, and `GroupChannels`
-		- `getUser` remains a shortcut for getting users by Snowflake ID
+		- `getUser` and `getGuild` remain and now accept id resolvables
 		- Removed `email` and `mobile` properties
 	- EventHandler
 		- Upgraded to use new logging and caches

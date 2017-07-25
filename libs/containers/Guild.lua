@@ -115,6 +115,16 @@ function Guild:getMember(id)
 	end
 end
 
+function Guild:getRole(id)
+	id = Resolver.roleId(id)
+	return self._roles:get(id)
+end
+
+function Guild:getChannel(id)
+	id = Resolver.channelId(id)
+	return self._text_channels:get(id) or self._voice_channels:get(id)
+end
+
 function Guild:createTextChannel(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.text})
 	if data then
@@ -337,7 +347,7 @@ function get.afkTimeout(self)
 end
 
 function get.unavailable(self)
-	return self._unavailable
+	return self._unavailable or false
 end
 
 function get.totalMemberCount(self)

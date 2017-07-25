@@ -250,6 +250,11 @@ function Client:getUser(id)
 	end
 end
 
+function Client:getGuild(id)
+	id = Resolver.guildId(id)
+	return self._guilds:get(id)
+end
+
 function Client:listVoiceRegions()
 	return self._api:listVoiceRegions()
 end
