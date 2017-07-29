@@ -7,6 +7,7 @@ local Reaction = require('containers/Reaction')
 local Resolver = require('client/Resolver')
 
 local format = string.format
+local insert, remove = table.insert, table.remove
 
 local Message = require('class')('Message', Snowflake)
 local get = Message.__getters
@@ -129,9 +130,54 @@ function Message:_removeReaction(data, id)
 
 end
 
+function Message:_setOldContent(d)
+
+	if not d.edited_timestamp then return end
+	if self._content == d.content then return end
+	if self._edited and self._edited[d.edited_timestamp] then return end
+
+	if self._old then
+		local t = type(self._old)
+		if t == 'string' then
+			self._old = {self._old, self._content}
+		elseif t == 'table' then
+			insert(self._old, self._content)
+		end
+		self._edited[d.edited_timestamp] = true
+	else
+		self._old = self._content
+		self._edited = {[d.edited_timestamp] = true}
+	end
+
+end
+
+function Message:_getOldContent(d)
+
+	if not d.edited_timestamp then return end
+	if not self._old then return end
+
+	local t = type(self._old)
+
+	if t == 'string' then
+		local old = self._old
+		self._old = nil
+		self._edited = nil
+		return old
+	elseif t == 'table' then
+		local old = remove(self._old, 1)
+		if #self._old == 0 then
+			self._old = nil
+			self._edited = nil
+		end
+		return old
+	end
+
+end
+
 function Message:_modify(payload)
 	local data, err = self.client._api:editMessage(self._parent._id, self._id, payload)
 	if data then
+		self:_setOldContent(data)
 		self:_load(data)
 		return true
 	else

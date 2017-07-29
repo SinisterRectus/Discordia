@@ -117,7 +117,7 @@
 		- Changed `Message:addReaction` to `Message:react`
 		- Changed `Message:removeReaction` to `Reaction:delete`
 		- Changed `Message:getReactionUsers` to `Reaction:getUsers`
-		- TODO: oldContent
+		- `oldContent` is no longer a property; see `messageUpdate` event
 		- Optimized `cleanContent` construction
 	- PermissionOverwrite
 		- Removed `name` property
@@ -196,6 +196,7 @@
 		- Removed: `guildCreateUnavailable` and `typingStartUncached` events
 		- `reaction[Add|Remove]Uncached` events now provide a channel object, message ID, and user object instead of raw data table
 		- `typingStart` now provides a raw data table
+		- `messageUpdate` now provides old content; message property removed
 	- Resolver
 		- A singleton used internally that allows for more flexibility to accepting user input
 	- Shard

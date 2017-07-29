@@ -347,7 +347,7 @@ function get.afkTimeout(self)
 end
 
 function get.unavailable(self)
-	return self._unavailable or false
+	return self._unavailable
 end
 
 function get.totalMemberCount(self)

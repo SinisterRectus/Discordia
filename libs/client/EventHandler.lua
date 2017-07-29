@@ -194,7 +194,7 @@ function EventHandler.GUILD_CREATE(d, client, shard)
 	local guild = client._guilds:get(d.id)
 	if guild then
 		if guild._unavailable and not d.unavailable then
-			guild:_load(d) -- do guilds mutate while unavailable?
+			guild:_load(d)
 			guild:_makeAvailable(d)
 			client:emit('guildAvailable', guild)
 		end
@@ -301,8 +301,9 @@ function EventHandler.MESSAGE_UPDATE(d, client) -- may not contain the whole mes
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_UPDATE') end
 	local message = channel._messages:get(d.id)
 	if message then
+		message:_setOldContent(d)
 		message:_load(d)
-		return client:emit('messageUpdate', message)
+		return client:emit('messageUpdate', message, message:_getOldContent(d))
 	else
 		return client:emit('messageUpdateUncached', channel, d.id)
 	end
