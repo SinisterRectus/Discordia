@@ -1,5 +1,5 @@
 local json = require('json')
-
+local constants = require('constants')
 local Cache = require('iterables/Cache')
 local ArrayIterable = require('iterables/ArrayIterable')
 local Snowflake = require('containers/abstract/Snowflake')
@@ -291,8 +291,8 @@ end
 local usersMeta = {__index = function(_, k) return '@' .. k end}
 local rolesMeta = {__index = function(_, k) return '@' .. k end}
 local channelsMeta = {__index = function(_, k) return '#' .. k end}
-local everyone = '@' .. string.char(0) .. 'everyone'
-local here = '@' .. string.char(0) .. 'here'
+local everyone = '@' .. constants.ZWSP .. 'everyone'
+local here = '@' .. constants.ZWSP .. 'here'
 
 function get.cleanContent(self)
 

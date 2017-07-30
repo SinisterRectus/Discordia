@@ -57,6 +57,7 @@
 			- `mentions` field must be a table of `mention`s as described above (or nil)
 			- `file` field must be a single file path string, or table (or nil)
 			- `files` field must be a table of `file`s as described above (or nil)
+			- `code` field must be a string or boolean to indicate code block wrapping
 			- Undocumented ability to use URLs as file paths has been removed
 	- Emoji
 		- `url` property now uses CDN URL

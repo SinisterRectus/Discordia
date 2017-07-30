@@ -8,6 +8,7 @@ local fs = require('fs')
 
 local splitPath = pathjoin.splitPath
 local insert, remove, concat = table.insert, table.remove, table.concat
+local format = string.format
 local readFileSync = fs.readFileSync
 
 local TextChannel = require('class')('TextChannel', Channel)
@@ -136,6 +137,12 @@ function TextChannel:send(content)
 
 		local tbl = content
 		content = tbl.content
+
+		if type(tbl.code) == 'string' then
+			content = format('```%s\n%s\n```', tbl.code, content)
+		elseif tbl.code == true then
+			content = format('```\n%s\n```', content)
+		end
 
 		local mentions
 		if tbl.mention then
