@@ -22,6 +22,16 @@ function default:__tostring()
 	return 'instance of class ' .. self.__name
 end
 
+function default:__pairs()
+	local getters, k, v = self.__getters
+	return function()
+		k, v = next(getters, k)
+		if v then
+			return k, v(self)
+		end
+	end
+end
+
 local function isClass(cls)
 	return classes[cls]
 end
@@ -53,8 +63,6 @@ local rawtype = type
 local function type(obj)
 	return isObject(obj) and obj.__name or rawtype(obj)
 end
-
--- TODO: method to serialize objs
 
 return setmetatable({
 
