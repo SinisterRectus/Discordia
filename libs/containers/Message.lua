@@ -6,7 +6,6 @@ local Snowflake = require('containers/abstract/Snowflake')
 local Reaction = require('containers/Reaction')
 local Resolver = require('client/Resolver')
 
-local format = string.format
 local insert, remove = table.insert, table.remove
 
 local Message = require('class')('Message', Snowflake)
@@ -20,10 +19,6 @@ function Message:__init(data, parent)
 		self._reactions = Cache(data.reactions, Reaction, self)
 	end
 	return self:_loadMore(data)
-end
-
-function Message:__tostring()
-	return format('%s: %s', self.__name, self._content)
 end
 
 function Message:_load(data)

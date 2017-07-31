@@ -11,10 +11,6 @@ function Emoji:__init(data, parent)
 	return self:_loadMore(data)
 end
 
-function Emoji:__tostring()
-	return format('%s: %s', self.__name, self._name)
-end
-
 function Emoji:_load(data)
 	Snowflake._load(self, data)
 	return self:_loadMore(data)

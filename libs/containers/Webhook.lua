@@ -4,18 +4,12 @@ local Snowflake = require('containers/abstract/Snowflake')
 local User = require('containers/User')
 local Resolver = require('client/Resolver')
 
-local format = string.format
-
 local Webhook = require('class')('Webhook', Snowflake)
 local get = Webhook.__getters
 
 function Webhook:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._user = data.user and self.client._users:_insert(data.user) -- DNE if getting by token
-end
-
-function Webhook:__tostring()
-	return format('%s: %s', self.__name, self._name)
 end
 
 function Webhook:_modify(payload)

@@ -11,10 +11,6 @@ function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 end
 
-function User:__tostring()
-	return format('%s: %s', self.__name, self._username)
-end
-
 function User:getAvatarURL(size, ext)
 	local avatar = self._avatar
 	if avatar then

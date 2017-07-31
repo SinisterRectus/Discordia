@@ -3,7 +3,6 @@ local ArrayIterable = require('iterables/ArrayIterable')
 local Color = require('utils/Color')
 local Resolver = require('client/Resolver')
 
-local format = string.format
 local insert, remove, sort = table.insert, table.remove, table.sort
 
 local Member = require('class')('Member', Container)
@@ -17,14 +16,6 @@ end
 
 function Member:__hash()
 	return self._user._id
-end
-
-function Member:__tostring()
-	if self._nick then
-		return format('%s: %s (%s)', self.__name, self._user._username, self._nick)
-	else
-		return format('%s: %s', self.__name, self._user._username)
-	end
 end
 
 function Member:_load(data)

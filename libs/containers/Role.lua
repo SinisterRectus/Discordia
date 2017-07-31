@@ -15,10 +15,6 @@ function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 end
 
-function Role:__tostring()
-	return format('%s: %s', self.__name, self._name)
-end
-
 function Role:_modify(payload)
 	local data, err = self.client._api:modifyGuildRole(self._parent._id, self._id, payload)
 	if data then
