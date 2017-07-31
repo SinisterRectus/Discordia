@@ -75,6 +75,10 @@ function get.discriminator(self)
 	return self._discriminator
 end
 
+function get.fullname(self)
+	return self._username .. '#' .. self._discriminator
+end
+
 function get.avatar(self)
 	return self._avatar
 end
