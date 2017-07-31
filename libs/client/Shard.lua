@@ -118,7 +118,9 @@ function Shard:connect(url, token)
 end
 
 function Shard:disconnect(reconnect)
-	if not self._write then return end
+	if not self._write then
+		return false, 'Not connected to gateway'
+	end
 	self._reconnect = not not reconnect
 	self:stopHeartbeat()
 	self._write()
@@ -144,7 +146,8 @@ function Shard:handlePayloads(token)
 		elseif opcode == CLOSE then
 
 			local code, i = ('>H'):unpack(payload)
-			self:warning('%i - %s', code, payload:sub(i))
+			local msg = #payload > i and payload:sub(i) or 'Connection closed'
+			self:warning('%i - %s', code, msg)
 			break
 
 		end
@@ -239,10 +242,13 @@ function Shard:identifyWait()
 end
 
 local function send(self, op, d)
-	-- TODO: pcall / assert / check for _write / wrap?
+	if not self._write then
+		return false, 'Not connected to gateway'
+	end
 	self._mutex:lock()
-	self._write {opcode = TEXT, payload = encode {op = op, d = d}}
+	local success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
 	self._mutex:unlockAfter(GATEWAY_DELAY)
+	return success, err
 end
 
 function Shard:heartbeat()
