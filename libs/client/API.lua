@@ -584,7 +584,7 @@ function API:createGroupDM(payload)
 	return self:request("POST", endpoint, payload)
 end
 
-function API:getUsersConnections() -- TODO maybe
+function API:getUsersConnections() -- Client:getConnections
 	local endpoint = endpoints.USER_ME_CONNECTIONS
 	return self:request("GET", endpoint)
 end

@@ -269,6 +269,10 @@ function Client:listVoiceRegions()
 	return self._api:listVoiceRegions()
 end
 
+function Client:getConnections()
+	return self._api:getUsersConnections()
+end
+
 local function updateStatus(self)
 	local presence = {
 		afk = not not self._presence.afk,
