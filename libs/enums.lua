@@ -55,6 +55,11 @@ enums.relationshipType = enum {
 	pendingOutgoing = 4,
 }
 
+enums.gameType = enum {
+	default   = 0,
+	streaming = 1,
+}
+
 enums.verificationLevel = enum {
 	none     = 0,
 	low      = 1,
