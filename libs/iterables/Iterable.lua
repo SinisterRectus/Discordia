@@ -73,23 +73,28 @@ function Iterable:random()
 	end
 end
 
-local function compare(a, b)
-	return a < b
-end
-
 local function sorter(a, b)
 	local t1, t2 = type(a), type(b)
 	if t1 == 'string' and t2 == 'string' then
-		return (tonumber(a) or a:lower()) < (tonumber(b) or b:lower())
+		local n1 = tonumber(a)
+		if n1 then
+			local n2 = tonumber(b)
+			if n2 then
+				return n1 < n2
+			end
+		end
+		return a:lower() < b:lower()
 	elseif t1 == 'number' and t2 == 'number' then
 		return a < b
 	else
-		local success, ret = pcall(compare)
-		if success then
-			return ret
-		else
-			return tostring(a) < tostring(b)
+		local m1 = getmetatable(a)
+		if m1 and m1.__lt then
+			local m2 = getmetatable(b)
+			if m2 and m2.__lt then
+				return a < b
+			end
 		end
+		return tostring(a) < tostring(b)
 	end
 end
 
