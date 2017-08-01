@@ -57,7 +57,11 @@ function get.name(self)
 	return self._name
 end
 
-function get.owner(self) -- TODO: probably need to parse relationships for this
+function get.ownerId(self)
+	return self._owner_id
+end
+
+function get.owner(self)
 	return self.client._users:get(self._owner_id)
 end
 

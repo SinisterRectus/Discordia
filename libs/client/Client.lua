@@ -15,6 +15,7 @@ local PrivateChannel = require('containers/PrivateChannel')
 local User = require('containers/User')
 local Invite = require('containers/Invite')
 local Webhook = require('containers/Webhook')
+local Relationship = require('containers/Relationship')
 
 local Cache = require('iterables/Cache')
 local WeakCache = require('iterables/WeakCache')
@@ -90,6 +91,7 @@ function Client:__init(options)
 	self._guilds = Cache({}, Guild, self)
 	self._group_channels = Cache({}, GroupChannel, self)
 	self._private_channels = Cache({}, PrivateChannel, self)
+	self._relationships = Cache({}, Relationship, self)
 	self._logger = Logger(options.logLevel, options.dateTime, options.logFile)
 	self._channel_map = {}
 end
@@ -334,6 +336,10 @@ end
 
 function get.groupChannels(self)
 	return self._group_channels
+end
+
+function get.relationships(self)
+	return self._relationships
 end
 
 return Client

@@ -40,8 +40,6 @@ end})
 
 function EventHandler.READY(d, client, shard)
 
-	-- TODO: relationships (maybe)
-
 	shard:info('Received READY (%s)', concat(d._trace, ', '))
 	shard:emit('READY')
 
@@ -51,6 +49,7 @@ function EventHandler.READY(d, client, shard)
 	local guilds = client._guilds
 	local group_channels = client._group_channels
 	local private_channels = client._private_channels
+	local relationships = client._relationships
 
 	for _, channel in ipairs(d.private_channels) do
 		if channel.type == channelType.private then
@@ -72,7 +71,7 @@ function EventHandler.READY(d, client, shard)
 			local ids = {}
 			for _, guild in ipairs(d.guilds) do
 				guilds:_insert(guild)
-				if not guild.unavailable then -- if available
+				if not guild.unavailable then
 					loading.syncs[guild.id] = true
 					insert(ids, guild.id)
 				end
@@ -80,6 +79,15 @@ function EventHandler.READY(d, client, shard)
 			shard:syncGuilds(ids)
 		else
 			guilds:_load(d.guilds)
+		end
+	end
+
+	relationships:_load(d.relationships)
+
+	for _, presence in ipairs(d.presences) do
+		local relationship = relationships:get(presence.user.id)
+		if relationship then
+			relationship:_loadPresence(presence)
 		end
 	end
 
@@ -375,14 +383,31 @@ function EventHandler.CHANNEL_PINS_UPDATE(d, client)
 end
 
 function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
-	if not d.guild_id then return end -- relationship update
-	local guild = client._guilds:get(d.guild_id)
-	if not guild then return warning(client, 'Guild', d.guild_id, 'PRESENCE_UPDATE') end
-	local member = guild._members:get(d.user.id)
-	if not member then return end -- joined_at pls
-	member:_loadPresence(d)
-	member._user:_load(d.user)
-	return client:emit('presenceUpdate', member)
+	if d.guild_id then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'PRESENCE_UPDATE') end
+		local member = guild._members:get(d.user.id)
+		if not member then return end -- joined_at pls
+		member:_loadPresence(d)
+		member._user:_load(d.user)
+		return client:emit('presenceUpdate', member)
+	else
+		local relationship = client._relationships:get(d.user.id)
+		if not relationship then return end
+		relationship:_loadPresence(d)
+		relationship._user:_load(d.user)
+		return client:emit('relationshipUpdate', relationship)
+	end
+end
+
+function EventHandler.RELATIONSHIP_ADD(d, client)
+	local relationship = client._relationships:_insert(d)
+	return client:emit('relationshipAdd', relationship)
+end
+
+function EventHandler.RELATIONSHIP_REMOVE(d, client)
+	local relationship = client._relationships:_remove(d)
+	return client:emit('relationshipRemove', relationship)
 end
 
 function EventHandler.TYPING_START(d, client)

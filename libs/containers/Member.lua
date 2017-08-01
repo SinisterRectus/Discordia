@@ -36,12 +36,11 @@ function Member:_loadMore(data)
 end
 
 function Member:_loadPresence(presence)
+	local game = presence.game
+	self._game_name = game and game.name
+	self._game_type = game and game.type
+	self._game_url = game and game.url
 	self._status = presence.status
-	if presence.game then
-		self._game_name = presence.game.name
-		self._game_type = presence.game.type
-		self._game_url = presence.game.url
-	end
 end
 
 local function sorter(a, b)
