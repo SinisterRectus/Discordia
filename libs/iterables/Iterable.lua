@@ -73,16 +73,20 @@ function Iterable:random()
 	end
 end
 
+local function compare(a, b)
+	return a < b
+end
+
 local function sorter(a, b)
-	local t = type(a)
-	if t == 'string' then
-		return (tonumber(a) or a) < (tonumber(b) or b)
-	elseif t == 'number' then
+	local t1, t2 = type(a), type(b)
+	if t1 == 'string' and t2 == 'string' then
+		return (tonumber(a) or a:lower()) < (tonumber(b) or b:lower())
+	elseif t1 == 'number' and t2 == 'number' then
 		return a < b
 	else
-		local mt = getmetatable(a)
-		if mt and mt.__lt then
-			return a < b
+		local success, ret = pcall(compare)
+		if success then
+			return ret
 		else
 			return tostring(a) < tostring(b)
 		end
@@ -95,7 +99,7 @@ function Iterable:select(...)
 	for obj in self:iter() do
 		local row = {}
 		for i = 1, keys.n do
-			insert(row, obj[keys[i]])
+			row[i] = obj[keys[i]]
 		end
 		insert(rows, row)
 	end
