@@ -5,8 +5,7 @@ local Resolver = require('client/Resolver')
 
 local insert, remove, sort = table.insert, table.remove, table.sort
 
-local Member = require('class')('Member', Container)
-local get = Member.__getters
+local Member, get = require('class')('Member', Container)
 
 function Member:__init(data, parent)
 	Container.__init(self, data, parent)

@@ -4,8 +4,7 @@ local constants = require('constants')
 local format = string.format
 local DEFAULT_AVATARS = constants.DEFAULT_AVATARS
 
-local User = require('class')('User', Snowflake)
-local get = User.__getters
+local User, get = require('class')('User', Snowflake)
 
 function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)

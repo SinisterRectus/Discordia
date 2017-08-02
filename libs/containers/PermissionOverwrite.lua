@@ -4,8 +4,7 @@ local Resolver = require('client/Resolver')
 
 local band, bnot = bit.band, bit.bnot
 
-local PermissionOverwrite = require('class')('PermissionOverwrite', Snowflake)
-local get = PermissionOverwrite.__getters
+local PermissionOverwrite, get = require('class')('PermissionOverwrite', Snowflake)
 
 function PermissionOverwrite:__init(data, parent)
 	Snowflake.__init(self, data, parent)

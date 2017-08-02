@@ -85,16 +85,13 @@ return setmetatable({
 	end
 
 	local bases = {...}
-	local getters, setters = {}, {}
+	local getters = {}
 
 	for _, base in ipairs(bases) do
 		for k1, v1 in pairs(base) do
 			class[k1] = v1
 			for k2, v2 in pairs(base.__getters) do
 				getters[k2] = v2
-			end
-			for k2, v2 in pairs(base.__setters) do
-				setters[k2] = v2
 			end
 		end
 	end
@@ -103,7 +100,6 @@ return setmetatable({
 	class.__class = class
 	class.__bases = bases
 	class.__getters = getters
-	class.__setters = setters
 
 	local pool = {}
 	local n = 1
@@ -120,10 +116,7 @@ return setmetatable({
 	end
 
 	function class:__newindex(k, v)
-		local setter = setters[k]
-		if setter then
-			return setter(self, v)
-		elseif class[k] or getters[k] then
+		if class[k] or getters[k] then
 			return error(format('Cannot overwrite protected property: %s.%s', name, k))
 		else
 			assert(k:find('_') == 1) -- debug
@@ -137,6 +130,6 @@ return setmetatable({
 
 	names[name] = class
 
-	return class
+	return class, getters
 
 end})

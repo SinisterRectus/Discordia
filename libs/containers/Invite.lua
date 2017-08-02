@@ -2,8 +2,7 @@ local Container = require('containers/abstract/Container')
 
 local format = string.format
 
-local Invite = require('class')('Invite', Container)
-local get = Invite.__getters
+local Invite, get = require('class')('Invite', Container)
 
 function Invite:__init(data, parent)
 	Container.__init(self, data, parent)

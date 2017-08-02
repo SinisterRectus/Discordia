@@ -4,8 +4,7 @@ local Resolver = require('client/Resolver')
 
 local format = string.format
 
-local Reaction = require('class')('Reaction', Container)
-local get = Reaction.__getters
+local Reaction, get = require('class')('Reaction', Container)
 
 function Reaction:__init(data, parent)
 	Container.__init(self, data, parent)

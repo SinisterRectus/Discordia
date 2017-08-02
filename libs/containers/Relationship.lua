@@ -1,7 +1,6 @@
 local Snowflake = require('containers/abstract/Snowflake')
 
-local Relationship = require('class')('Relationship', Snowflake)
-local get = Relationship.__getters
+local Relationship, get = require('class')('Relationship', Snowflake)
 
 function Relationship:__init(data, parent)
 	Snowflake.__init(self, data, parent)

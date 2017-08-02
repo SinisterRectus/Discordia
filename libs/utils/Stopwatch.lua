@@ -7,8 +7,7 @@ local NS_PER_S = NS_PER_MS * constants.MS_PER_S
 local NS_PER_MIN = NS_PER_S * constants.S_PER_MIN
 local NS_PER_HOUR = NS_PER_MIN * constants.MIN_PER_HOUR
 
-local Stopwatch  = require('class')('Stopwatch')
-local get = Stopwatch.__getters
+local Stopwatch , get = require('class')('Stopwatch')
 
 function Stopwatch:__init(stopped)
 	local t = hrtime()

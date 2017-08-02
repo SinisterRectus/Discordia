@@ -8,8 +8,7 @@ local Resolver = require('client/Resolver')
 
 local insert, remove = table.insert, table.remove
 
-local Message = require('class')('Message', Snowflake)
-local get = Message.__getters
+local Message, get = require('class')('Message', Snowflake)
 
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)

@@ -6,8 +6,7 @@ local Resolver = require('client/Resolver')
 
 local format = string.format
 
-local GroupChannel = require('class')('GroupChannel', TextChannel)
-local get = GroupChannel.__getters
+local GroupChannel, get = require('class')('GroupChannel', TextChannel)
 
 function GroupChannel:__init(data, parent)
 	TextChannel.__init(self, data, parent)

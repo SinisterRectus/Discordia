@@ -17,8 +17,7 @@ local channelType = enums.channelType
 local floor = math.floor
 local format = string.format
 
-local Guild = require('class')('Guild', Snowflake)
-local get = Guild.__getters
+local Guild, get = require('class')('Guild', Snowflake)
 
 function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)

@@ -7,9 +7,7 @@ local band, bor = bit.band, bit.bor
 local bnot = bit.bnot
 local isInstance = class.isInstance
 
-local Color = class('Color')
-local get = Color.__getters
-local set = Color.__setters
+local Color, get = class('Color')
 
 local function check(self, other)
 	if not isInstance(self, Color) or not isInstance(other, Color) then
@@ -200,15 +198,15 @@ local function setByte(value, offset, new)
 	return bor(value, band(lshift(new, offset), byte))
 end
 
-function set.r(self, r)
+function Color:setRed(r)
 	self._value = setByte(self._value, 16, r)
 end
 
-function set.g(self, g)
+function Color:setGreen(g)
 	self._value = setByte(self._value, 8, g)
 end
 
-function set.b(self, b)
+function Color:setBlue(b)
 	self._value = setByte(self._value, 0, b)
 end
 

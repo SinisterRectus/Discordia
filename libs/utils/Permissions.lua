@@ -11,8 +11,7 @@ for _, value in pairs(permission) do
 	ALL = bor(ALL, value)
 end
 
-local Permissions = require('class')('Permissions')
-local get = Permissions.__getters
+local Permissions, get = require('class')('Permissions')
 
 function Permissions:__init(value)
 	self._value = tonumber(value) or 0

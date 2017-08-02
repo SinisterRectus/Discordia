@@ -3,8 +3,7 @@ local ArrayIterable = require('iterables/ArrayIterable')
 
 local format = string.format
 
-local Emoji = require('class')('Emoji', Snowflake)
-local get = Emoji.__getters
+local Emoji, get = require('class')('Emoji', Snowflake)
 
 function Emoji:__init(data, parent)
 	Snowflake.__init(self, data, parent)

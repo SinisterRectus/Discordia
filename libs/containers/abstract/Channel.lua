@@ -2,8 +2,7 @@ local Snowflake = require('containers/abstract/Snowflake')
 
 local format = string.format
 
-local Channel = require('class')('Channel', Snowflake)
-local get = Channel.__getters
+local Channel, get = require('class')('Channel', Snowflake)
 
 function Channel:__init(data, parent)
 	Snowflake.__init(self, data, parent)

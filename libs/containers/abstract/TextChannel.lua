@@ -11,8 +11,7 @@ local insert, remove, concat = table.insert, table.remove, table.concat
 local format = string.format
 local readFileSync = fs.readFileSync
 
-local TextChannel = require('class')('TextChannel', Channel)
-local get = TextChannel.__getters
+local TextChannel, get = require('class')('TextChannel', Channel)
 
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)

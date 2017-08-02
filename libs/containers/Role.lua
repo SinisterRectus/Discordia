@@ -8,8 +8,7 @@ local Resolver = require('client/Resolver')
 
 local format = string.format
 
-local Role = require('class')('Role', Snowflake)
-local get = Role.__getters
+local Role, get = require('class')('Role', Snowflake)
 
 function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)

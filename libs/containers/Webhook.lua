@@ -4,8 +4,7 @@ local Snowflake = require('containers/abstract/Snowflake')
 local User = require('containers/User')
 local Resolver = require('client/Resolver')
 
-local Webhook = require('class')('Webhook', Snowflake)
-local get = Webhook.__getters
+local Webhook, get = require('class')('Webhook', Snowflake)
 
 function Webhook:__init(data, parent)
 	Snowflake.__init(self, data, parent)

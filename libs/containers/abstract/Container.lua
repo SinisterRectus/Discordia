@@ -1,7 +1,6 @@
 local format = string.format
 
-local Container = require('class')('Container')
-local get = Container.__getters
+local Container, get = require('class')('Container')
 
 local types = {['string'] = true, ['number'] = true, ['boolean'] = true}
 

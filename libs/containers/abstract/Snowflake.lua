@@ -8,8 +8,7 @@ local date = os.date
 local modf, floor = math.modf, math.floor
 local format = string.format
 
-local Snowflake = require('class')('Snowflake', Container)
-local get = Snowflake.__getters
+local Snowflake, get = require('class')('Snowflake', Container)
 
 function Snowflake:__init(data, parent)
 	Container.__init(self, data, parent)

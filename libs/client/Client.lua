@@ -77,8 +77,7 @@ local function parseOptions(customOptions)
 	end
 end
 
-local Client = require('class')('Client', Emitter)
-local get = Client.__getters
+local Client, get = require('class')('Client', Emitter)
 
 function Client:__init(options)
 	Emitter.__init(self)

@@ -2,8 +2,7 @@ local json = require('json')
 
 local GuildChannel = require('containers/abstract/GuildChannel')
 
-local GuildVoiceChannel = require('class')('GuildVoiceChannel', GuildChannel)
-local get = GuildVoiceChannel.__getters
+local GuildVoiceChannel, get = require('class')('GuildVoiceChannel', GuildChannel)
 
 function GuildVoiceChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)

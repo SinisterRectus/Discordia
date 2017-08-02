@@ -6,8 +6,7 @@ local Webhook = require('containers/Webhook')
 local Cache = require('iterables/Cache')
 local Resolver = require('client/Resolver')
 
-local GuildTextChannel = require('class')('GuildTextChannel', GuildChannel, TextChannel)
-local get = GuildTextChannel.__getters
+local GuildTextChannel, get = require('class')('GuildTextChannel', GuildChannel, TextChannel)
 
 function GuildTextChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)

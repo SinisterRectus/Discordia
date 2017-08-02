@@ -5,8 +5,7 @@ local PermissionOverwrite = require('containers/PermissionOverwrite')
 local Invite = require('containers/Invite')
 local Cache = require('iterables/Cache')
 
-local GuildChannel = require('class')('GuildChannel', Channel)
-local get = GuildChannel.__getters
+local GuildChannel, get = require('class')('GuildChannel', Channel)
 
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
