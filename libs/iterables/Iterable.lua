@@ -73,29 +73,52 @@ function Iterable:random()
 	end
 end
 
+function Iterable:count(fn)
+	local n = 0
+	for _ in self:findAll(fn) do
+		n = n + 1
+	end
+	return n
+end
+
 local function sorter(a, b)
 	local t1, t2 = type(a), type(b)
-	if t1 == 'string' and t2 == 'string' then
-		local n1 = tonumber(a)
-		if n1 then
+	if t1 == 'string' then
+		if t2 == 'string' then
+			local n1 = tonumber(a)
+			if n1 then
+				local n2 = tonumber(b)
+				if n2 then
+					return n1 < n2
+				end
+			end
+			return a:lower() < b:lower()
+		elseif t2 == 'number' then
+			local n1 = tonumber(a)
+			if n1 then
+				return n1 < b
+			end
+			return a:lower() < tostring(b)
+		end
+	elseif t1 == 'number' then
+		if t2 == 'number' then
+			return a < b
+		elseif t2 == 'string' then
 			local n2 = tonumber(b)
 			if n2 then
-				return n1 < n2
+				return a < n2
 			end
+			return tostring(a) < b:lower()
 		end
-		return a:lower() < b:lower()
-	elseif t1 == 'number' and t2 == 'number' then
-		return a < b
-	else
-		local m1 = getmetatable(a)
-		if m1 and m1.__lt then
-			local m2 = getmetatable(b)
-			if m2 and m2.__lt then
-				return a < b
-			end
-		end
-		return tostring(a) < tostring(b)
 	end
+	local m1 = getmetatable(a)
+	if m1 and m1.__lt then
+		local m2 = getmetatable(b)
+		if m2 and m2.__lt then
+			return a < b
+		end
+	end
+	return tostring(a) < tostring(b)
 end
 
 function Iterable:select(...)
