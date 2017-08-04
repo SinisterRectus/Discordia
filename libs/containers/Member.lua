@@ -134,22 +134,40 @@ function Member:setNickname(nick)
 	end
 end
 
-function Member:setMuted(mute)
-	mute = mute or false
-	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = mute})
+function Member:mute()
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = true})
 	if data then
-		self._mute = mute
+		self._mute = true
 		return true
 	else
 		return false, err
 	end
 end
 
-function Member:setDeafened(deaf)
-	deaf = deaf or false
-	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = deaf})
+function Member:unmute()
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = false})
 	if data then
-		self._deaf = deaf
+		self._mute = false
+		return true
+	else
+		return false, err
+	end
+end
+
+function Member:deafen()
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = true})
+	if data then
+		self._deaf = true
+		return true
+	else
+		return false, err
+	end
+end
+
+function Member:undeafen()
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = false})
+	if data then
+		self._deaf = false
 		return true
 	else
 		return false, err

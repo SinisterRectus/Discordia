@@ -102,8 +102,8 @@
 - Changed super-class from `Snowflake` to `Container`
 - Added `__hash` method, which returns `user.id` property
 - Replaced `roles` iterator property and associated methods with directly accessible `ArrayIterable` property
-- Renamed `setMute` method to `setMuted`
-- Renamed `setDeaf` method to `setDeafened`
+- Replaced `setMute` method with `mute` and `unmute` methods
+- Replaced `setDeaf` method with `deafen` and `undeafen` methods
 - Renamed `mute` property to `muted`
 - Renamed `deaf` property to `deafened`
 - Changed `color` property from `Color` object to number
