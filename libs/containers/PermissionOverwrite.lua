@@ -111,4 +111,12 @@ function get.guild(self)
 	return self._parent._guild
 end
 
+function get.allowedPermissions(self)
+	return self._allow
+end
+
+function get.deniedPermissions(self)
+	return self._deny
+end
+
 return PermissionOverwrite

@@ -118,9 +118,7 @@ function Shard:connect(url, token)
 end
 
 function Shard:disconnect(reconnect)
-	if not self._write then
-		return false, 'Not connected to gateway'
-	end
+	if not self._write then return end
 	self._reconnect = not not reconnect
 	self:stopHeartbeat()
 	self._write()
@@ -208,7 +206,7 @@ function Shard:handlePayloads(token)
 
 		elseif op then
 
-			self:warning('Unhandled WebSocket OP %i', op)
+			self:warning('Unhandled WebSocket payload OP %i', op)
 
 		end
 
