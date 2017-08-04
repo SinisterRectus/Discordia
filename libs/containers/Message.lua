@@ -76,7 +76,7 @@ function Message:_loadMore(data)
 
 end
 
-function Message:_addReaction(data, id)
+function Message:_addReaction(d)
 
 	local reactions = self._reactions
 
@@ -85,34 +85,34 @@ function Message:_addReaction(data, id)
 		self._reactions = reactions
 	end
 
-	local emoji = data.emoji
+	local emoji = d.emoji
 	local k = emoji.id or emoji.name
 	local reaction = reactions:get(k)
 
 	if reaction then
 		reaction._count = reaction._count + 1
-		if id == self.client._user._id then
+		if d.user_id == self.client._user._id then
 			reaction._me = true
 		end
 	else
-		data.me = id == self.client._user._id
-		data.count = 1
-		reaction = reactions:_insert(data)
+		d.me = d.user_id == self.client._user._id
+		d.count = 1
+		reaction = reactions:_insert(d)
 	end
 	return reaction
 
 end
 
-function Message:_removeReaction(data, id)
+function Message:_removeReaction(d)
 
 	local reactions = self._reactions
 
-	local emoji = data.emoji
+	local emoji = d.emoji
 	local k = emoji.id or emoji.name
 	local reaction = reactions:get(k)
 
 	reaction._count = reaction._count - 1
-	if id == self.client._user._id then
+	if d.user_id == self.client._user._id then
 		reaction._me = false
 	end
 
@@ -207,9 +207,25 @@ function Message:unpin()
 	end
 end
 
-function Message:react(emoji) -- TODO: return new reaction?
+function Message:addReaction(emoji)
 	emoji = Resolver.emoji(emoji)
 	local data, err = self.client._api:createReaction(self._parent._id, self._id, emoji)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+function Message:removeReaction(emoji, user)
+	emoji = Resolver.emoji(emoji)
+	local data, err
+	if user then
+		user = Resolver.userId(user)
+		data, err = self.client._api:deleteUserReaction(self._parent._id, self._id, emoji, user)
+	else
+		data, err = self.client._api:deleteOwnReaction(self._parent._id, self._id, emoji)
+	end
 	if data then
 		return true
 	else

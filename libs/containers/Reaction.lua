@@ -29,21 +29,7 @@ function Reaction:getUsers()
 end
 
 function Reaction:delete(user)
-	local emoji = Resolver.emoji(self)
-	local message = self._parent
-	local channel = message._parent
-	local data, err
-	if user then
-		user = Resolver.userId(user)
-		data, err = self.client._api:deleteUserReaction(channel._id, message._id, emoji, user)
-	else
-		data, err = self.client._api:deleteOwnReaction(channel._id, message._id, emoji)
-	end
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self._parent:removeReaction(self, user)
 end
 
 function get.emojiId(self)

@@ -11,9 +11,9 @@
 - TODO
 
 ##### Channel
-- Moved `mentionString` from `GuildChannel` to `Channel`
-- Removed `isPrivate` (check `type` instead)
-- Changed `type` from string to number (use `enums.channelType`)
+- Moved `mentionString` property from `GuildChannel` to `Channel`
+- Removed `isPrivate` property (check `type` instead)
+- Changed `type` property from string to number (use `enums.channelType`)
 
 ##### Container
 - Added `__tostring` metamethod, which uses new `__hash` method(s)
@@ -21,7 +21,7 @@
 
 ##### GuildChannel
 - Replaced `invites` property with `getInvites` method
-- Replaced `permissionOverwrites` iterator property and associated methods with directly accessible `Cache` property
+- Replaced `permissionOverwrites` properties and methods with directly accessible `Cache` property
 
 ##### Snowflake
 - Added `__hash` method, which returns `id` property
@@ -34,7 +34,7 @@
 - Replaced `lastMessage` property with `getLastMessage` method
 - Replaced `firstMessage` property with `getFirstMessage` method
 - Replaced `pinnedMessages` property with `getPinnedMessages` method
-- Replaced `messages` iterator property and associated methods with directly accessible `Cache` property
+- Replaced `messages` properties and methods with directly accessible `Cache` property
 - Changed `getMessageHistory` behavior (see documentation)
 - Renamed `sendMessage` to `send` and changed behavior (see documentation)
 - Added stand-alone `getMessage` method, which accepts only a messageId-resolvable
@@ -70,13 +70,13 @@
 - Replaced `bannedUsers` property with `getBans` method
 - Replaced `invites` property with `getInvites` method
 - Replaced `webhooks` property with `getWebhooks` method
-- Replaced `roles` iterator property and associated methods with directly accessible `Cache` property
-- Replaced `emojis` iterator property and associated methods with directly accessible `Cache` property
-- Replaced `members` iterator property and associated methods with directly accessible `Cache` property
-- Replaced `textChannels` iterator property and associated methods with directly accessible `Cache` property
-- Replaced `voiceChannels` iterator property and associated methods with directly accessible `Cache` property
-- Removed `messages` iterator property and associated methods
-- Removed `channels` iterator property and associated methods
+- Replaced `roles` properties and methods with directly accessible `Cache` property
+- Replaced `emojis` properties and methods with directly accessible `Cache` property
+- Replaced `members` properties and methods with directly accessible `Cache` property
+- Replaced `textChannels` properties and methods with directly accessible `Cache` property
+- Replaced `voiceChannels` properties and methods with directly accessible `Cache` property
+- Removed `messages` properties and methods
+- Removed `channels` properties and methods
 - Added stand-alone `getRole` method, which accepts only a roleId-resolvable
 - Added stand-alone `getChannel` method, which accepts only a channelId-resolvable
 - Added stand-alone `getMember` method, which accepts only a userId-resolvable
@@ -101,7 +101,7 @@
 ##### Member
 - Changed super-class from `Snowflake` to `Container`
 - Added `__hash` method, which returns `user.id` property
-- Replaced `roles` iterator property and associated methods with directly accessible `ArrayIterable` property
+- Replaced `roles` properties and methods with directly accessible `ArrayIterable` property
 - Replaced `setMute` method with `mute` and `unmute` methods
 - Replaced `setDeaf` method with `deafen` and `undeafen` methods
 - Renamed `mute` property to `muted`
@@ -120,13 +120,11 @@
 - Changed `hasRole` method to return `true` for `@everyone` role
 
 ##### Message
-- Replaced `reactions` iterator property and associated methods with directly accessible `Cache` property
-- Replaced `mentionedUsers` iterator property and associated methods with directly accessible `ArrayIterable` property
-- Replaced `mentionedRoles` iterator property and associated methods with directly accessible `ArrayIterable` property
-- Replaced `mentionedChannels` iterator property and associated methods with directly accessible `ArrayIterable` property
+- Replaced `reactions` properties and methods with directly accessible `Cache` property
+- Replaced `mentionedUsers` properties and methods with directly accessible `ArrayIterable` property
+- Replaced `mentionedRoles` properties and methods with directly accessible `ArrayIterable` property
+- Replaced `mentionedChannels` properties and methods with directly accessible `ArrayIterable` property
 - Removed `oldContent` property (use `messageUpdate` event instead)
-- Renamed `Message:addReaction(emoji)` to `Message:react(emoji)`
-- Moved `Message:removeReaction(emoji[, user])` to `Reaction:delete([user])`
 - Moved `Message:getReactionUsers(emoji)` to `Reaction:getUsers()`
 - Added `type` property
 - Changed `@everyone` and `@here` mentions (in `cleanContent`) to use a zero-width space instead of a null character
@@ -144,7 +142,7 @@
 
 ##### Reaction
 - Added `__hash` method, which returns the emoji ID for custom emojis or emoji name for standard emojis
-- Moved `Message:removeReaction(emoji[, user])` to `Reaction:delete([user])`
+- Added `delete([user])` method
 - Moved `Message:getReactionUsers(emoji)` to `Reaction:getUsers()`
 - Removed `emoji` property
 - Added `emojiId` property
