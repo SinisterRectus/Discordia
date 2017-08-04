@@ -579,7 +579,7 @@ function API:createDM(payload) -- User:getPrivateChannel fallback
 	return self:request("POST", endpoint, payload)
 end
 
-function API:createGroupDM(payload)
+function API:createGroupDM(payload) -- Client:createGroupChannel
 	local endpoint = endpoints.USER_ME_CHANNELS
 	return self:request("POST", endpoint, payload)
 end

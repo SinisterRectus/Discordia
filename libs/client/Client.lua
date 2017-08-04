@@ -218,6 +218,15 @@ function Client:createGuild(name)
 	end
 end
 
+function Client:createGroupChannel()
+	local data, err = self._api:createGroupDM()
+	if data then
+		return self._group_channels:_insert(data)
+	else
+		return nil, err
+	end
+end
+
 function Client:getWebhook(id)
 	local data, err = self._api:getWebhook(id)
 	if data then
