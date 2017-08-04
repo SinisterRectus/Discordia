@@ -385,12 +385,8 @@ function get.afkChannel(self)
 	return self._voice_channels:get(self._afk_channel_id)
 end
 
-function get.defaultRole(self) -- TODO: maybe change to "everyoneRole" or "everyone"
+function get.defaultRole(self)
 	return self._roles:get(self._id)
-end
-
-function get.defaultChannel(self) -- TODO: remove or fix
-	return self._text_channels:get(self._id)
 end
 
 function get.roles(self)

@@ -67,6 +67,7 @@
 - Fixed `pruneMembers` method
 - Changed `kickUser`, `banUser`, and `unbanUser` methods to accept userId-resolvables
 - Changed `banUser` parameters from `(days)` to `(reason, days)`
+- Removed `defaultChannel` property
 - Replaced `bannedUsers` property with `getBans` method
 - Replaced `invites` property with `getInvites` method
 - Replaced `webhooks` property with `getWebhooks` method
