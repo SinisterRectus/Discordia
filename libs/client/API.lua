@@ -95,12 +95,12 @@ local mutexMeta = {
 	end
 }
 
-local function tohex(c)
-	return f('%%%02X', byte(c))
+local function tohex(char)
+	return f('%%%02X', byte(char))
 end
 
-local function urlencode(str)
-	return gsub(tostring(str), '%W', tohex)
+local function urlencode(obj)
+	return (gsub(tostring(obj), '%W', tohex))
 end
 
 local API = require('class')('API')
@@ -129,11 +129,14 @@ function API:request(method, endpoint, payload, query, files)
 	local url = BASE_URL .. endpoint
 
 	if query and next(query) then
-		local buffer = {}
+		url = {url}
 		for k, v in pairs(query) do
-			insert(buffer, f('%s=%s', urlencode(k), urlencode(v)))
+			insert(url, #url == 1 and '?' or '&')
+			insert(url, urlencode(k))
+			insert(url, '=')
+			insert(url, urlencode(v))
 		end
-		url = f('%s?%s', url, concat(buffer, '&'))
+		url = concat(url)
 	end
 
 	local req
