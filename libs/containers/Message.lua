@@ -334,6 +334,10 @@ function get.cleanContent(self)
 
 end
 
+function get.mentionsEveryone(self)
+	return self._mention_everyone
+end
+
 function get.pinned(self)
 	return self._pinned
 end

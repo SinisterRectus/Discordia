@@ -127,6 +127,7 @@
 - Removed `oldContent` property (use `messageUpdate` event instead)
 - Moved `Message:getReactionUsers(emoji)` to `Reaction:getUsers()`
 - Added `type` property
+- Added `mentionsEveryone` property
 - Changed `@everyone` and `@here` mentions (in `cleanContent`) to use a zero-width space instead of a null character
 
 ##### PermissionOverwrite
