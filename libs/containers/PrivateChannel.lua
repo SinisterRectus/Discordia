@@ -15,4 +15,8 @@ function get.recipient(self)
 	return self._recipient
 end
 
+function PrivateChannel:close()
+	return self:_delete()
+end
+
 return PrivateChannel

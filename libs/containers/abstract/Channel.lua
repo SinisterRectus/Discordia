@@ -18,7 +18,7 @@ function Channel:_modify(payload)
 	end
 end
 
-function Channel:delete()
+function Channel:_delete()
 	local data, err = self.client._api:deleteChannel(self._id)
 	if data then
 		return true

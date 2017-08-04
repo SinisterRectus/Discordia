@@ -140,7 +140,7 @@
 - Added `getDeniedPermissions` method to access `Permissions` object
 
 ##### PrivateChannel
-- No public changes
+- Changed `delete` method to `leave`
 
 ##### Reaction
 - Added `__hash` method, which returns the emoji ID for custom emojis or emoji name for standard emojis

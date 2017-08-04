@@ -22,12 +22,6 @@ function GroupChannel:setIcon(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
--- TODO: need to figure out other methods
--- creating (group vs private)
--- deleting (does it delete for everyone or just leave?)
--- start call (is a group channel necessary to start a call?)
--- is owner mutable?
-
 function GroupChannel:addRecipient(user)
 	user = Resolver.userId(user)
 	local data, err = self.client._api:groupDMAddRecipient(self._id, user)
@@ -46,6 +40,10 @@ function GroupChannel:removeRecipient(user)
 	else
 		return false, err
 	end
+end
+
+function GroupChannel:leave()
+	return self:_delete()
 end
 
 function get.recipients(self)

@@ -54,6 +54,10 @@ function GuildChannel:getInvites()
 	end
 end
 
+function GuildChannel:delete()
+	return self:_delete()
+end
+
 function get.permissionOverwrites(self)
 	return self._permission_overwrites
 end
