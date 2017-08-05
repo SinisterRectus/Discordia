@@ -59,6 +59,15 @@ local function isInstance(obj, cls)
 	return isObject(obj) and isSubclass(obj.__class, cls)
 end
 
+local function profile()
+	local ret = setmetatable({}, {__index = function() return 0 end})
+	for obj in pairs(objects) do
+		local name = obj.__name
+		ret[name] = ret[name] + 1
+	end
+	return ret
+end
+
 local rawtype = type
 local function type(obj)
 	return isObject(obj) and obj.__name or rawtype(obj)
@@ -72,6 +81,7 @@ return setmetatable({
 	isSubclass = isSubclass,
 	isInstance = isInstance,
 	type = type,
+	profile = profile,
 
 }, {__call = function(_, name, ...)
 
