@@ -411,7 +411,7 @@ function EventHandler.RELATIONSHIP_REMOVE(d, client)
 end
 
 function EventHandler.TYPING_START(d, client)
-	return client:emit('typingStart', d) -- raw data because users are often uncached
+	return client:emit('typingStart', d.user_id, d.channel_id, d.timestamp)
 end
 
 function EventHandler.USER_UPDATE(d, client)

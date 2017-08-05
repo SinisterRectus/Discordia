@@ -38,7 +38,6 @@ local defaultOptions = {
 	routeDelay = 300,
 	maxRetries = 5,
 	shardCount = 0,
-	messageLimit = 100,
 	largeThreshold = 100,
 	fetchMembers = false,
 	autoReconnect = true,

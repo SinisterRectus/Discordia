@@ -85,6 +85,9 @@ end
 
 function Guild:requestMembers()
 	local shard = self.client._shards[self.shardId]
+	if not shard then
+		return false, 'Invalid shard'
+	end
 	if shard._loading then
 		shard._loading.chunks[self._id] = true
 	end
@@ -93,6 +96,9 @@ end
 
 function Guild:sync()
 	local shard = self.client._shards[self.shardId]
+	if not shard then
+		return false, 'Invalid shard'
+	end
 	if shard._loading then
 		shard._loading.syncs[self._id] = true
 	end

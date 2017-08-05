@@ -7,8 +7,70 @@
 
 #### Public API Changes
 
+##### Events
+- Added `pinsUpdate` event
+- Added `webhooksUpdate` event
+- Added `reactionRemoveAll` event
+- Added `reactionRemoveAllUncached` event
+- Added `recipientAdd` event
+- Added `recipientRemove` event
+- Added `relationshipAdd` event
+- Added `relationshipRemove` event
+- Added `relationshipUpdate` event
+- Added group channel handling to `channelCreate`, `channelUpdate`, and `channelDelete`
+- Renamed `resumed` event to `shardResumed`
+- Removed `guildCreateUnavailable` event (check `guild.unavailable` on `guildCreate` instead)
+- Removed `typingStartUncached` event
+- Added `oldContent` as a second parameter to `messageUpdate` event
+- Changed `reactionAdd` and `reactionRemove` parameters from `(reaction, user)` to `(reaction, userId)`
+- Changed `reactionAddUncached` and `reactionRemoveUncached` parameters from raw `(data)` table to `(channel, messageId, userId)`
+- Changed `typingStart` parameters from `(user, channel, timestamp)` to raw `(userId, channelId, timestamp)` table
+
 ##### Client
-- TODO
+- Added `shardCount` option
+- Added `syncGuilds` option
+- Added `logLevel` option (use `enums.logLevel` for convenience)
+- Added `logFile` option (use an empty string `''` to disable)
+- Removed `globalDelay` option
+- Removed `messageLimit` option
+- Changed `dateTime` option from `'%c'` to `'%F %T'`
+- Non-integer options are now rejected (where relevant)
+- Added `info` and `debug` methods and log-levels to complement `warning` and `error` methods and log-levels
+- Registering a callback to log events no longer prevents messages from being logged
+- Messages logged to the console are now also logged to a file
+- Fixed issue where `gateway.json` did not have user-specific fields
+- Added `setAFK` method
+- Added `setGame` method
+- Added `setStatus` method
+- Added `getConnections` method
+- Added `createGroupChannel` method
+- Added `groupChannels` `Cache` property
+- Added `relationships` `Cache` property
+- Changed `run` to require a `Bot ` prefix for bot tokens
+- Changed `run` to accept an initial presence as its second argument
+- Changed `run` to not accept email and password for logins
+- Changed `stop` method to never exit the process (do this manually instead)
+- Changed `setAvatar` to accept a base64-resolvable
+- Removed `setNickname` method (use `guild.me:setNickname` instead)
+- Removed `setStatusOnline` and `setStatusIdle` methods (use `setStatus` instead)
+- Removed `setGameName` method (use `setGame` instead)
+- Removed `acceptInvite` method
+- Replaced `users` properties and methods with directly accessible `Cache` property
+- Replaced `guilds` properties and methods with directly accessible `Cache` property
+- Replaced `privateChannels` properties and methods with directly accessible `Cache` property
+- Removed `roles` properties and methods
+- Removed `members` properties and methods
+- Removed `channels` properties and methods
+- Removed `messages` properties and methods
+- Removed `textChannels` properties and methods
+- Removed `voiceChannels` properties and methods
+- Removed `guildVoiceChannels` properties and methods
+- Removed `guildTextChannels` properties and methods
+- Added stand-alone `getUser` method, which accepts only a userId-resolvable
+- Added stand-alone `getGuild` method, which accepts only a guildId-resolvable
+- Added stand-alone `getChannel` method, which accepts only a channelId-resolvable
+- Removed `email` property
+- Removed `mobile` property
 
 ##### Channel
 - Moved `mentionString` property from `GuildChannel` to `Channel`
@@ -58,6 +120,8 @@
 - Added `splashURL`
 - Added `setSplash` method
 - Added optional `reason` argument to `kickUser`, `banUser`, and `unbanUser` methods
+- Added `sync` method
+- Added `requestMembers` method
 - Renamed `iconUrl` to `iconURL`
 - Renamed `setAfkTimeout` to `setAFKTimeout`
 - Renamed `setAfkChannel` to `setAFKChannel`
