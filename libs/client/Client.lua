@@ -34,10 +34,14 @@ local format = string.format
 
 local CACHE_AGE = constants.CACHE_AGE
 
+-- do not change these options here
+-- pass a custom table on client construction instead
 local defaultOptions = {
 	routeDelay = 300,
 	maxRetries = 5,
 	shardCount = 0,
+	firstShard = 0,
+	lastShard = -1,
 	largeThreshold = 100,
 	fetchMembers = false,
 	autoReconnect = true,
@@ -66,7 +70,7 @@ local function parseOptions(customOptions)
 			if default ~= custom then
 				return error(format('invalid client option %q (%s expected, got %s)', k, default, custom), 3)
 			end
-			if v == 'number' and (v < 0 or v % 1 ~= 0) then
+			if custom == 'number' and (v < 0 or v % 1 ~= 0) then
 				return error(format('invalid client option %q (number must be a positive integer)', k), 3)
 			end
 		end
@@ -130,7 +134,7 @@ local function run(self, token)
 
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
 
-	local url, shard_count
+	local url, count
 
 	local cache = readFileSync('gateway.json')
 	cache = cache and decode(cache)
@@ -138,7 +142,7 @@ local function run(self, token)
 	if cache then
 		local d = cache[user.id]
 		if d and difftime(time(), d.timestamp) < CACHE_AGE then
-			url, shard_count = cache.url, d.shards or 1
+			url, count = cache.url, d.shards or 1
 		end
 	else
 		cache = {}
@@ -147,7 +151,7 @@ local function run(self, token)
 	if not url then
 		local d = user.bot and api:getGatewayBot() or api:getGateway()
 		if d then
-			url, shard_count = d.url, d.shards or 1
+			url, count = d.url, d.shards or 1
 			cache.url = url
 			cache[user.id] = {timestamp = time(), shards = d.shards}
 			writeFileSync('gateway.json', encode(cache))
@@ -159,13 +163,35 @@ local function run(self, token)
 	end
 
 	if options.shardCount > 0 then
-		shard_count = options.shardCount
+		if count ~= options.shardCount then
+			self:warning('Requested shard count (%i) is different from recommended count (%i)', options.shardCount, count)
+		end
+		count = options.shardCount
 	end
 
-	self:info('Shard count: %i', shard_count)
-	self._shard_count = shard_count
+	local first, last = options.firstShard, options.lastShard
 
-	for id = 0, shard_count - 1 do
+	if last < 0 then
+		last = count - 1
+	end
+
+	if last < first then
+		return self:error('First shard ID (%i) is greater than last shard ID (%i)', first, last)
+	end
+
+	local d = last - first + 1
+	if d > count then
+		return self:error('Shard count (%i) is less than target shard range (%i)', count, d)
+	end
+
+	if first == last then
+		self:info('Launching shard %i (%i out of %i)...', first, d, count)
+	else
+		self:info('Launching shards %i through %i (%i out of %i)...', first, last, d, count)
+	end
+
+	self._shard_count = count
+	for id = first, last do
 		self._shards[id] = Shard(id, self)
 	end
 

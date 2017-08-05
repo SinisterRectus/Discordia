@@ -28,6 +28,8 @@
 
 ##### Client
 - Added `shardCount` option
+- Added `firstShard` option
+- Added `lastShard` option
 - Added `syncGuilds` option
 - Added `logLevel` option (use `enums.logLevel` for convenience)
 - Added `logFile` option (use an empty string `''` to disable)
