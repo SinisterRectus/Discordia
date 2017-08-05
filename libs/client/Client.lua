@@ -95,8 +95,7 @@ function Client:__init(options)
 	self._channel_map = {}
 end
 
-for _, name in ipairs({'error', 'warning', 'info', 'debug'}) do
-	local level = logLevel[name]
+for name, level in pairs(logLevel) do
 	Client[name] = function(self, fmt, ...)
 		local msg = self._logger:log(level, fmt, ...)
 		if #self._listeners[name] > 0 then

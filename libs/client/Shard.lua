@@ -9,7 +9,9 @@ local Stopwatch = require('utils/Stopwatch')
 local EventHandler = require('client/EventHandler')
 
 local constants = require('constants')
+local enums = require('enums')
 
+local logLevel = enums.logLevel
 local inflate = miniz.inflate
 local min, max, random = math.min, math.max, math.random
 local encode, decode = json.encode, json.decode
@@ -60,7 +62,7 @@ function Shard:__init(id, client)
 	self._backoff = 1000
 end
 
-for _, name in ipairs({'error', 'warning', 'info', 'debug'}) do
+for name in pairs(logLevel) do
 	Shard[name] = function(self, fmt, ...)
 		local client = self._client
 		return client[name](client, format('Shard %i : %s', self._id, fmt), ...)
@@ -126,8 +128,6 @@ function Shard:disconnect(reconnect)
 	self._write = nil
 end
 
--- TODO: check for failed heartbeats / out of sequence events
-
 function Shard:handlePayloads(token)
 
 	local client = self._client
@@ -177,6 +177,7 @@ function Shard:handlePayloads(token)
 
 		elseif op == RECONNECT then
 
+			self:warning('Discord has requested a reconnection')
 			self:disconnect(true)
 
 		elseif op == INVALID_SESSION then
@@ -215,7 +216,12 @@ function Shard:handlePayloads(token)
 end
 
 local function loop(self)
+	if self._waiting then
+		self:warning('Previous heartbeat not acknowledged')
+		return wrap(self.disconnect)(self, true)
+	end
 	decrementReconnectTime(self)
+	self._waiting = true
 	wrap(self.heartbeat)(self)
 end
 
