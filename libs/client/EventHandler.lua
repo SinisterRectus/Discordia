@@ -13,12 +13,12 @@ local function checkReady(shard)
 	end
 	shard._ready = true
 	shard._loading = nil
+	collectgarbage()
 	local client = shard._client
 	client:emit('shardReady', shard._id)
 	for _, other in pairs(client._shards) do
 		if not other._ready then return end
 	end
-	collectgarbage()
 	return client:emit('ready')
 end
 
