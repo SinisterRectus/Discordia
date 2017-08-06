@@ -190,7 +190,7 @@ end
 
 function EventHandler.CHANNEL_RECIPIENT_REMOVE(d, client)
 	local channel = client._group_channels:get(d.channel_id)
-	if not channel then return warning(client, 'GroupChannel', d.channel_id, 'CHANNEL_RECIPIENT_ADD') end
+	if not channel then return warning(client, 'GroupChannel', d.channel_id, 'CHANNEL_RECIPIENT_REMOVE') end
 	local user = channel._recipients:_remove(d.user)
 	return client:emit('recipientRemove', channel, user)
 end

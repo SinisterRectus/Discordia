@@ -2,8 +2,82 @@
 
 ### 2.0.0 - Not Finished
 
+The major goals of this rewrite were to add new or missing features and to improve consistency and efficiency. A lot of changes were made to Discordia to achieve these goals; many of them are breaking. Please read the following changelog carefully and update your applications accordingly.
+
+**Note:** Due to changes made by Discord, versions of Discordia prior to 2.0.0 may not be supported on or after October 16, 2017.
+
 #### General Changes
-- TODO
+
+##### Connectivity
+- Bot tokens must now be manually prefixed with `Bot `
+- The core of the library that establishes and maintains a connection to Discord has been overhauled (see Internal Changes for more information)
+- More and clearer information regarding the client's connection is now logged
+- Manual sharding is now supported
+- Updated to Discord gateway v6
+- Updated to Discord REST API v7
+- Guilds are no longer automatically synced by default (user accounts only)
+
+##### Dependencies
+- Updated coro-http from 2.1.1 to 3.0.0
+- Updated coro-websocket from 1.0.0 to 3.1.0
+- Updated secure-socket from 1.1.4 to 1.2.0
+- Removed coro-fs
+
+##### Class Behavior
+- Class methods are no longer automatically generated for class properties (eg: `User:getUsername` is not a valid alternative for `User.username`)
+	- Properties are generally used for items that are immediately available for consumption
+	- Methods are generally used for items that require arguments or an HTTP or WebSocket request to be procured
+	- Some previously generated methods may still exist (eg: `TextChannel:getFirstMessage` exists; `TextChannel.firstMessage` does not exist)
+	- Some previous property-method pairs may still exist (eg: `Role.color` exists and is a number; `Role:getColor` exists and returns a `Color` object)
+	- Properties are never directly mutable; all mutations are done via methods
+- `class` module is no longer automatically registered as a global (access the new `class` field of the `discordia` module instead)
+- Added various helper functions: `isClass`, `isObject`, `isSubclass`, `isInstance`, `type`, `profile`
+- Calling `class` now returns only a class and getter table (instead of a class table and property, method, and cache constructors)
+- Changed the "private" `class.__classes` table to `class.classes`
+
+##### Caches and Iterables
+- Properties and methods that access caches have been removed and replaced by caches that can be directly accessed
+- Some shortcut methods remain (eg: `client:getGuild` and `channel:getMessage`)
+- Stand-alone iterators for cached objects have been changed to iterable objects (eg: `message.mentionedUsers` is now an `ArrayIterable`)
+- Stand-alone iterators for HTTP-accessible objects have been removed and replaced by methods that return an iterable object (eg: `channel.invites` was replaced by `channel:getInvites`)
+- Iterable objects are those that implement the `Iterable` mixin; all have an `iter` method plus methods that rely on this
+- The `Iterable` mixin provides methods such as `get`, `find`, `forEach`, etc
+- Classes that implement the `Iterable` mixin are:
+	- `Cache` - for main Discord objects (eg: guilds, channels, roles)
+	- `SecondaryCache` - for select references to objects that are stored in `WeakCaches` (eg: pinned messages, reaction users)
+	- `ArrayIterable` - for objects that are better represented in an ordered form, and sometimes mapped (eg: member roles, mentioned users)
+	- `WeakCache` - for objects that are either never directly deleted or are temporarily referenced from other locations (eg: client users, channel messages)
+
+##### New Container Classes
+- `Ban` - represents a guild ban (provides a user object and reason)
+- `GroupChannel` - represents a group DM channel (user accounts only)
+- `Relationship` - represents friends and blocked users (user accounts only)
+
+##### New Utility Classes
+- `Date` - used to represent a single instance in time
+- `Time` - used to represent a specific length of time
+- `Logger` - used to log messages to the console and files
+
+##### Error Messages and Logging
+- New `Logger` class added
+	- Available log-levels are `error`, `warning`, `info`, `debug`, and `none`
+	- Messages use a format `timestamp | level | message`
+	- Messages are logged to the console and to a file
+- The client uses a `Logger` instance with a default level of `info`, default file of `discordia.log`, and default timestamp of `%F %T`
+- Shards use the main client logger, but prefix messages with `Shard: #` where `#` is the shard ID.
+- Most methods that return false or nil to indicate a failure will now return an error message as their second return value
+	- This generally applies to methods that make HTTP requests
+	- When available, more detailed error messages will be provided than those that are sent to the client logger; always check these messages when debugging issues
+
+##### Input resolution
+- Added `Resolver` singleton (used internally)
+- Methods that previously required certain objects now accept object hashes or objects that can be similarly hashed (eg: `guild:addRole` now accepts either a `Role` object or snowflake ID)
+- Methods that previously required raw base64 now accept a path to a file
+
+##### Enumerations
+- Added `enums` module to the main `discordia` module
+- Most types and levels are now enumerated as Lua numbers
+- Enumerated properties can be more easily represented using fields within the `enums` module (eg: `channelType.voice` and `verificationLevel.medium`)
 
 #### Public API Changes
 
@@ -17,6 +91,8 @@
 - Added `relationshipAdd` event
 - Added `relationshipRemove` event
 - Added `relationshipUpdate` event
+- Added `info` event
+- Added `debug` event
 - Added group channel handling to `channelCreate`, `channelUpdate`, and `channelDelete`
 - Renamed `resumed` event to `shardResumed`
 - Removed `guildCreateUnavailable` event (check `guild.unavailable` on `guildCreate` instead)
@@ -25,6 +101,8 @@
 - Changed `reactionAdd` and `reactionRemove` parameters from `(reaction, user)` to `(reaction, userId)`
 - Changed `reactionAddUncached` and `reactionRemoveUncached` parameters from raw `(data)` table to `(channel, messageId, userId)`
 - Changed `typingStart` parameters from `(user, channel, timestamp)` to raw `(userId, channelId, timestamp)` table
+- Changed `heartbeat` parameters from `(sequence, latency, shardId)` to `(shardId, latency)`
+- Changed `raw` parameters from `(tbl, str)` to `(str)` where `str` is a JSON string
 
 ##### Client
 - Added `shardCount` option

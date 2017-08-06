@@ -311,7 +311,7 @@ local function updateStatus(self)
 	local presence = {
 		afk = not not self._presence.afk,
 		game = self._presence.game or json.null,
-		since = self._presence.status == 'idle' and 1000 * time() or 0,
+		since = self._presence.status == 'idle' and 1000 * time() or json.null,
 		status = self._presence.status or json.null,
 	}
 	for i = 0, self._shard_count - 1 do
