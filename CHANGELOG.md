@@ -275,7 +275,6 @@
 - Changed `__tostring` to display hex value and RGB
 - Added `fromHex`, `fromRGB`, `fromHSV`, and `fromHSL` static methods
 - Added `toHex`, `toRGB`, `toHSV`, and `toHSL` member methods
-- Removed `copy` method
 
 ##### Date
 - New class! See documentation.
@@ -297,7 +296,6 @@
 
 ##### Permissions
 - Changed `enable`, `disable`, and `has` methods to accept a string (`"sendMessages"`) or a number (`0x800` or `enums.permission.sendMessages`)
-- Removed `copy` method
 
 ##### Stopwatch
 - Added `stopped` parameter to constructor to optionally initialize a stopped stopwatch

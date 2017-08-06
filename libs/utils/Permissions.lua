@@ -124,6 +124,10 @@ function Permissions:complement(other) -- in other not in self
 	return Permissions(band(bnot(self._value), value))
 end
 
+function Permissions:copy()
+	return Permissions(self._value)
+end
+
 function get.value(self)
 	return self._value
 end

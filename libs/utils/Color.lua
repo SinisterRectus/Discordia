@@ -210,4 +210,8 @@ function Color:setBlue(b)
 	self._value = setByte(self._value, 0, b)
 end
 
+function Color:copy()
+	return Color(self._value)
+end
+
 return Color
