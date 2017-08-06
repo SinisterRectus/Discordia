@@ -74,6 +74,9 @@
 - Removed `email` property
 - Removed `mobile` property
 
+##### Ban
+- New class! See documentation.
+
 ##### Channel
 - Moved `mentionString` property from `GuildChannel` to `Channel`
 - Removed `isPrivate` property (check `type` instead)

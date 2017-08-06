@@ -447,7 +447,7 @@ function API:createGuildBan(guild_id, user_id, query) -- Guild:banUser
 	return self:request("PUT", endpoint, nil, query)
 end
 
-function API:removeGuildBan(guild_id, user_id, query) -- Guild:unbanUser
+function API:removeGuildBan(guild_id, user_id, query) -- Guild:unbanUser / Ban:delete
 	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
 	return self:request("DELETE", endpoint, nil, query)
 end

@@ -1,9 +1,9 @@
 local Cache = require('iterables/Cache')
-local SecondaryCache = require('iterables/SecondaryCache')
 local Role = require('containers/Role')
 local Emoji = require('containers/Emoji')
 local Invite = require('containers/Invite')
 local Webhook = require('containers/Webhook')
+local Ban = require('containers/Ban')
 local Member = require('containers/Member')
 local Resolver = require('client/Resolver')
 local GuildTextChannel = require('containers/GuildTextChannel')
@@ -222,7 +222,7 @@ end
 function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
 	if data then
-		return SecondaryCache(data, self.client._users)
+		return Cache(data, Ban, self)
 	else
 		return nil, err
 	end
