@@ -11,7 +11,7 @@ function PermissionOverwrite:__init(data, parent)
 end
 
 function PermissionOverwrite:delete()
-	local data, err = self.client.api:deleteChannelPermission(self._parent._id, self._id)
+	local data, err = self.client._api:deleteChannelPermission(self._parent._id, self._id)
 	if data then
 		return true
 	else

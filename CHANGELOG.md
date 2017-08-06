@@ -89,6 +89,7 @@
 ##### GuildChannel
 - Replaced `invites` property with `getInvites` method
 - Replaced `permissionOverwrites` properties and methods with directly accessible `Cache` property
+- Changed `getPermissionOverwriteFor` to `getPermissionOverwrite`, which accepts an overwriteId-resolvable
 
 ##### Snowflake
 - Added `__hash` method, which returns `id` property

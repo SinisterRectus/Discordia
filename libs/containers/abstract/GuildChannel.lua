@@ -4,6 +4,7 @@ local Channel = require('containers/abstract/Channel')
 local PermissionOverwrite = require('containers/PermissionOverwrite')
 local Invite = require('containers/Invite')
 local Cache = require('iterables/Cache')
+local Resolver = require('client/Resolver')
 
 local GuildChannel, get = require('class')('GuildChannel', Channel)
 
@@ -51,6 +52,20 @@ function GuildChannel:getInvites()
 		return Cache(data, Invite, self.client)
 	else
 		return nil, err
+	end
+end
+
+function GuildChannel:getPermissionOverwrite(id, type)
+	id, type = Resolver.overwriteId(id, type)
+	local overwrite = self._permission_overwrites:get(id)
+	if overwrite then
+		return overwrite
+	elseif id and type then
+		return self._permission_overwrites:_insert(setmetatable({
+			id = id, type = type, allow = 0, deny = 0
+		}, {__jsontype = 'object'}))
+	else
+		return nil, 'Could not resolve PermissionOverwrite'
 	end
 end
 

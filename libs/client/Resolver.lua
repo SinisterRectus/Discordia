@@ -6,6 +6,7 @@ local encode = base64.encode
 local readFileSync = fs.readFileSync
 local classes = class.classes
 local isInstance = class.isInstance
+local isObject = class.isObject
 local insert = table.insert
 local format = string.format
 
@@ -34,10 +35,16 @@ local function int(obj)
 end
 
 function Resolver.userId(obj)
-	if isInstance(obj, classes.User) then
-		return obj.id
-	elseif isInstance(obj, classes.Member) then
-		return obj.user.id
+	if isObject(obj) then
+		if isInstance(obj, classes.User) then
+			return obj.id
+		elseif isInstance(obj, classes.Member) then
+			return obj.user.id
+		elseif isInstance(obj, classes.Message) then
+			return obj.author.id
+		elseif isInstance(obj, classes.Guild) then
+			return obj.ownerId
+		end
 	end
 	return int(obj)
 end
@@ -68,6 +75,22 @@ function Resolver.guildId(obj)
 		return obj.id
 	end
 	return int(obj)
+end
+
+function Resolver.overwriteId(obj, t)
+	if isObject(obj) then
+		if isInstance(obj, classes.Role) then
+			return obj.id, 'role'
+		elseif isInstance(obj, classes.Member) then
+			return obj.user.id, 'member'
+		elseif isInstance(obj, classes.User) then
+			return obj.id, 'member'
+		elseif isInstance(obj, classes.PermissionOverwrite) then
+			return obj.id, obj.type
+		end
+	elseif t == 'role' or t == 'member' then
+		return int(obj), t
+	end
 end
 
 function Resolver.messageIds(objs)
