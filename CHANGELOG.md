@@ -71,8 +71,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 
 ##### Input resolution
 - Added `Resolver` singleton (used internally)
-- Methods that previously required certain objects now accept object hashes or objects that can be similarly hashed (eg: `guild:addRole` now accepts either a `Role` object or snowflake ID)
-- Methods that previously required raw base64 now accept a path to a file
+- Methods that previously required certain objects now accept object hashes or objects that can be similarly hashed (eg: `member:addRole` now accepts either a `Role` object or snowflake ID)
+- Methods that previously required raw base64 now also accept a path to a file
 
 ##### Enumerations
 - Added `enums` module to the main `discordia` module
@@ -149,7 +149,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added stand-alone `getUser` method, which accepts only a userId-resolvable
 - Added stand-alone `getGuild` method, which accepts only a guildId-resolvable
 - Added stand-alone `getChannel` method, which accepts only a channelId-resolvable
-- Removed `email` property
 - Removed `mobile` property
 
 ##### Ban

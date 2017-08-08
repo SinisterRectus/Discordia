@@ -354,6 +354,10 @@ function get.mfaEnabled(self)
 	return self._user and self._user._verified
 end
 
+function get.email(self)
+	return self._user and self._user._email
+end
+
 function get.guilds(self)
 	return self._guilds
 end
