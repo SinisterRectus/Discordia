@@ -1,7 +1,9 @@
 local fs = require('fs')
 local base64 = require('base64')
 local class = require('class')
+local enums = require('enums')
 
+local permission = enums.permission
 local encode = base64.encode
 local readFileSync = fs.readFileSync
 local classes = class.classes
@@ -116,6 +118,17 @@ function Resolver.permissions(obj)
 		return obj.value
 	end
 	return tonumber(obj)
+end
+
+function Resolver.permission(obj)
+	local t = type(obj)
+	local n = nil
+	if t == 'string' then
+		n = permission[obj]
+	elseif t == 'number' then
+		n = permission(obj) and obj
+	end
+	return n
 end
 
 function Resolver.base64(obj)

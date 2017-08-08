@@ -1,11 +1,18 @@
+local enums = require('enums')
+local class = require('class')
 local Container = require('containers/abstract/Container')
 local ArrayIterable = require('iterables/ArrayIterable')
 local Color = require('utils/Color')
 local Resolver = require('client/Resolver')
+local GuildChannel = require('containers/abstract/GuildChannel')
+local Permissions = require('utils/Permissions')
 
 local insert, remove, sort = table.insert, table.remove, table.sort
+local band, bor, bnot = bit.band, bit.bor, bit.bnot
+local isInstance = class.isInstance
+local permission = enums.permission
 
-local Member, get = require('class')('Member', Container)
+local Member, get = class('Member', Container)
 
 function Member:__init(data, parent)
 	Container.__init(self, data, parent)
@@ -61,6 +68,153 @@ function Member:getColor()
 	end
 	sort(roles, sorter)
 	return roles[1] and roles[1]:getColor() or Color()
+end
+
+local function has(a, b)
+	return band(a, b) > 0 or band(a, permission.administrator) > 0
+end
+
+function Member:hasPermission(channel, perm)
+
+	if not perm then
+		perm = channel
+		channel = nil
+	end
+
+	local guild = self.guild
+	if channel then
+		if not isInstance(channel, GuildChannel) or channel.guild ~= guild then
+			return error('Invalid GuildChannel: ' .. tostring(channel), 2)
+		end
+	end
+
+	local n = Resolver.permission(perm)
+	if not n then
+		return error('Invalid permission: ' .. tostring(perm), 2)
+	end
+
+	if self.id == guild.ownerId then
+		return true
+	end
+
+	if channel then
+
+		local overwrites = channel.permissionOverwrites
+
+		local overwrite = overwrites:get(self.id)
+		if overwrite then
+			if has(overwrite.allowedPermissions, n) then
+				return true
+			end
+			if has(overwrite.deniedPermissions, n) then
+				return false
+			end
+		end
+
+		local allow, deny = 0, 0
+		for role in self.roles:iter() do
+			if role.id ~= guild.id then -- just in case
+				overwrite = overwrites:get(role.id)
+				if overwrite then
+					allow = bor(allow, overwrite.allowedPermissions)
+					deny = bor(deny, overwrite.deniedPermissions)
+				end
+			end
+		end
+
+		if has(allow, n) then
+			return true
+		end
+		if has(deny, n) then
+			return false
+		end
+
+		local everyone = overwrites:get(guild.id)
+		if everyone then
+			if has(everyone.allowedPermissions, n) then
+				return true
+			end
+			if has(everyone.deniedPermissions, n) then
+				return false
+			end
+		end
+
+	end
+
+	for role in self.roles:iter() do
+		if role.id ~= guild.id then -- just in case
+			if has(role.permissions, n) then
+				return true
+			end
+		end
+	end
+
+	if has(guild.defaultRole.permissions, n) then
+		return true
+	end
+
+	return false
+
+end
+
+function Member:getPermissions(channel)
+
+	local guild = self.guild
+	if channel then
+		if not isInstance(channel, GuildChannel) or channel.guild ~= guild then
+			return error('Invalid GuildChannel: ' .. tostring(channel), 2)
+		end
+	end
+
+	if self.id == guild.ownerId then
+		return Permissions.all()
+	end
+
+	local ret = guild.defaultRole.permissions
+
+	for role in self.roles:iter() do
+		if role.id ~= guild.id then -- just in case
+			ret = bor(ret, role.permissions)
+		end
+	end
+
+	if band(ret, permission.administrator) > 0 then
+		return Permissions.all()
+	end
+
+	if channel then
+
+		local overwrites = channel.permissionOverwrites
+
+		local everyone = overwrites:get(guild.id)
+		if everyone then
+			ret = band(ret, bnot(everyone.deniedPermissions))
+			ret = bor(ret, everyone.allowedPermissions)
+		end
+
+		local allow, deny = 0, 0
+		for role in self.roles:iter() do
+			if role.id ~= guild.id then -- just in case
+				local overwrite = overwrites:get(role.id)
+				if overwrite then
+					deny = bor(deny, overwrite.deniedPermissions)
+					allow = bor(allow, overwrite.allowedPermissions)
+				end
+			end
+		end
+		ret = band(ret, bnot(deny))
+		ret = bor(ret, allow)
+
+		local overwrite = overwrites:get(self.id)
+		if overwrite then
+			ret = band(ret, bnot(overwrite.deniedPermissions))
+			ret = bor(ret, overwrite.allowedPermissions)
+		end
+
+	end
+
+	return Permissions(ret)
+
 end
 
 function Member:addRole(role)

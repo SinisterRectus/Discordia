@@ -34,6 +34,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added various helper functions: `isClass`, `isObject`, `isSubclass`, `isInstance`, `type`, `profile`
 - Calling `class` now returns only a class and getter table (instead of a class table and property, method, and cache constructors)
 - Changed the "private" `class.__classes` table to `class.classes`
+- Added a default `__pairs` metanmethod for class instances, an iterator for all explicitly "gettable" object properties
 
 ##### Caches and Iterables
 - Properties and methods that access caches have been removed and replaced by caches that can be directly accessed
@@ -265,6 +266,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `gameType` property (use `enums.gameType`)
 - Added `gameURL` property
 - Changed `hasRole` method to return `true` for `@everyone` role
+- Added `getPermissions` method
+- Added `hasPermission` method
 
 ##### Message
 - Replaced `reactions` properties and methods with directly accessible `Cache` property

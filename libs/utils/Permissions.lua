@@ -1,4 +1,5 @@
 local enums = require('enums')
+local Resolver = require('client/Resolver')
 
 local permission = enums.permission
 
@@ -27,19 +28,17 @@ function Permissions:__tostring()
 	end
 end
 
+function Permissions.all()
+	return Permissions(ALL)
+end
+
 function Permissions:__eq(other)
 	return self._value == other._value
 end
 
 local function getPerm(i, ...)
 	local v = select(i, ...)
-	local t = type(v)
-	local n = nil
-	if t == 'string' then
-		n = permission[v]
-	elseif t == 'number' then
-		n = permission(v) and v
-	end
+	local n = Resolver.permission(v)
 	if not n then
 		return error('Invalid permission: ' .. tostring(v), 2)
 	end
