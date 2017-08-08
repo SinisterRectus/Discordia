@@ -77,22 +77,6 @@ function Resolver.guildId(obj)
 	return int(obj)
 end
 
-function Resolver.overwriteId(obj, t)
-	if isObject(obj) then
-		if isInstance(obj, classes.Role) then
-			return obj.id, 'role'
-		elseif isInstance(obj, classes.Member) then
-			return obj.user.id, 'member'
-		elseif isInstance(obj, classes.User) then
-			return obj.id, 'member'
-		elseif isInstance(obj, classes.PermissionOverwrite) then
-			return obj.id, obj.type
-		end
-	elseif t == 'role' or t == 'member' then
-		return int(obj), t
-	end
-end
-
 function Resolver.messageIds(objs)
 	local ret = {}
 	if isInstance(objs, classes.Iterable) then

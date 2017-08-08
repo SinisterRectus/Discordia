@@ -1,12 +1,14 @@
 local json = require('json')
-
+local class = require('class')
 local Channel = require('containers/abstract/Channel')
 local PermissionOverwrite = require('containers/PermissionOverwrite')
 local Invite = require('containers/Invite')
 local Cache = require('iterables/Cache')
-local Resolver = require('client/Resolver')
 
-local GuildChannel, get = require('class')('GuildChannel', Channel)
+local isInstance = class.isInstance
+local classes = class.classes
+
+local GuildChannel, get = class('GuildChannel', Channel)
 
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
@@ -55,18 +57,19 @@ function GuildChannel:getInvites()
 	end
 end
 
-function GuildChannel:getPermissionOverwrite(id, type)
-	id, type = Resolver.overwriteId(id, type)
-	local overwrite = self._permission_overwrites:get(id)
-	if overwrite then
-		return overwrite
-	elseif id and type then
-		return self._permission_overwrites:_insert(setmetatable({
-			id = id, type = type, allow = 0, deny = 0
-		}, {__jsontype = 'object'}))
+function GuildChannel:getPermissionOverwriteFor(obj)
+	local id, type
+	if isInstance(obj, classes.Role) and self._parent == obj._parent then
+		id, type = obj._id, 'role'
+	elseif isInstance(obj, classes.Member) and self._parent == obj._parent then
+		id, type = obj._user._id, 'member'
 	else
-		return nil, 'Could not resolve PermissionOverwrite'
+		return error('Invalid Role or Member: ' .. tostring(obj), 2)
 	end
+	local overwrites = self._permission_overwrites
+	return overwrites:get(id) or overwrites:_insert(setmetatable({
+		id = id, type = type, allow = 0, deny = 0
+	}, {__jsontype = 'object'}))
 end
 
 function GuildChannel:delete()
