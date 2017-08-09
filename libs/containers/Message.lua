@@ -62,8 +62,11 @@ function Message:_loadMore(data)
 		end
 	end
 
-	if data.content and self._mentioned_channels then
-		self._mentioned_channels._array = parseChannelMentions(data.content)
+	if data.content then
+		if self._mentioned_channels then
+			self._mentioned_channels._array = parseChannelMentions(data.content)
+		end
+		self._clean_content = nil
 	end
 
 	if data.embeds then
@@ -306,31 +309,37 @@ local here = '@' .. constants.ZWSP .. 'here'
 
 function get.cleanContent(self)
 
-	local content = self._content
-	local guild = self.guild
+	if not self._clean_content then
+		
+		local content = self._content
+		local guild = self.guild
 
-	local users = setmetatable({}, usersMeta)
-	for user in self.mentionedUsers:iter() do
-		local member = guild and guild._members:get(user._id)
-		users[user._id] = '@' .. (member and member._nick or user._username)
+		local users = setmetatable({}, usersMeta)
+		for user in self.mentionedUsers:iter() do
+			local member = guild and guild._members:get(user._id)
+			users[user._id] = '@' .. (member and member._nick or user._username)
+		end
+
+		local roles = setmetatable({}, rolesMeta)
+		for role in self.mentionedRoles:iter() do
+			roles[role._id] = '@' .. role._name
+		end
+
+		local channels = setmetatable({}, channelsMeta)
+		for channel in self.mentionedChannels:iter() do
+			channels[channel._id] = '#' .. channel._name
+		end
+
+		self._clean_content = content
+			:gsub('<@!?(%d+)>', users)
+			:gsub('<@&(%d+)>', roles)
+			:gsub('<#(%d+)>', channels)
+			:gsub('@everyone', everyone)
+			:gsub('@here', here)
+
 	end
 
-	local roles = setmetatable({}, rolesMeta)
-	for role in self.mentionedRoles:iter() do
-		roles[role._id] = '@' .. role._name
-	end
-
-	local channels = setmetatable({}, channelsMeta)
-	for channel in self.mentionedChannels:iter() do
-		channels[channel._id] = '#' .. channel._name
-	end
-
-	return content
-		:gsub('<@!?(%d+)>', users)
-		:gsub('<@&(%d+)>', roles)
-		:gsub('<#(%d+)>', channels)
-		:gsub('@everyone', everyone)
-		:gsub('@here', here)
+	return self._clean_content
 
 end
 
