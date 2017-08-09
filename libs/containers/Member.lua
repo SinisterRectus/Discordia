@@ -49,25 +49,9 @@ function Member:_loadPresence(presence)
 	self._status = presence.status
 end
 
-local function sorter(a, b)
-	if a._position == b._position then
-		return tonumber(a._id) < tonumber(b._id)
-	else
-		return a._position > b._position
-	end
-end
-
-local function predicate(role)
-	return role._color > 0
-end
 
 function Member:getColor()
-	local roles = {}
-	for role in self.roles:findAll(predicate) do
-		insert(roles, role)
-	end
-	sort(roles, sorter)
-	return roles[1] and roles[1]:getColor() or Color()
+	return Color(self.color)
 end
 
 local function has(a, b)
@@ -340,8 +324,8 @@ function Member:unban(reason)
 	return self._parent:unbanUser(self._user, reason)
 end
 
-function Member:send(...)
-	return self._user:send(...)
+function Member:send(content)
+	return self._user:send(content)
 end
 
 function get.roles(self)
@@ -399,15 +383,73 @@ function get.user(self)
 	return self._user
 end
 
+local function sorter(a, b)
+	if a._position == b._position then
+		return tonumber(a._id) < tonumber(b._id)
+	else
+		return a._position > b._position
+	end
+end
+
+function get.highestRole(self)
+	local ret
+	for role in self.roles:iter() do
+		if not ret or sorter(role, ret) then
+			ret = role
+		end
+	end
+	return ret
+end
+
+local function predicate(role)
+	return role._color > 0
+end
+
+function get.color(self)
+	local roles = {}
+	for role in self.roles:findAll(predicate) do
+		insert(roles, role)
+	end
+	sort(roles, sorter)
+	return roles[1] and roles[1]._color or 0
+end
+
 -- user shortcuts
-function get.id(self) return self._user.id end
-function get.bot(self) return self._user.bot end
-function get.username(self) return self._user.username end
-function get.discriminator(self) return self._user.discriminator end
-function get.avatar(self) return self._user.avatar end
-function get.defaultAvatar(self) return self._user.defaultAvatar end
-function get.avatarURL(self) return self._user.avatarURL end
-function get.defaultAvatarURL(self) return self._user.defaultAvatarURL end
-function get.mentionString(self) return self._user.mentionString end
+
+function get.id(self)
+	return self._user.id
+end
+
+function get.bot(self)
+	return self._user.bot
+end
+
+function get.username(self)
+	return self._user.username
+end
+
+function get.discriminator(self)
+	return self._user.discriminator
+end
+
+function get.avatar(self)
+	return self._user.avatar
+end
+
+function get.defaultAvatar(self)
+	return self._user.defaultAvatar
+end
+
+function get.avatarURL(self)
+	return self._user.avatarURL
+end
+
+function get.defaultAvatarURL(self)
+	return self._user.defaultAvatarURL
+end
+
+function get.mentionString(self)
+	return self._user.mentionString
+end
 
 return Member

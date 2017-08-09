@@ -617,7 +617,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 			end
 			```
 			```lua
-			-- 1.0 code ...
+			-- 1.0 code
 			for role in guild.roles do
 				print(role)
 			end

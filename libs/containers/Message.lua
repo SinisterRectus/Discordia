@@ -251,8 +251,8 @@ function Message:delete()
 	end
 end
 
-function Message:reply(...)
-	return self._parent:send(...)
+function Message:reply(content)
+	return self._parent:send(content)
 end
 
 function get.reactions(self)
