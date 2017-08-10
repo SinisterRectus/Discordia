@@ -331,6 +331,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Changed `setAvatar` to accept a base64-resolvable
 - Renamed `avatarUrl` to `avatarURL`
 - Renamed `getAvatarUrl` to `getAvatarURL`
+- Added `getDefaultAvatarURL`
+- Added `defaultAvatarURL`
 
 ##### ArrayIterable
 - New class! See documentation.

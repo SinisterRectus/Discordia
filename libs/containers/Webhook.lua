@@ -1,8 +1,10 @@
 local json = require('json')
-
+local enums = require('enums')
 local Snowflake = require('containers/abstract/Snowflake')
 local User = require('containers/User')
 local Resolver = require('client/Resolver')
+
+local defaultAvatar = enums.defaultAvatar
 
 local Webhook, get = require('class')('Webhook', Snowflake)
 
@@ -23,6 +25,10 @@ end
 
 function Webhook:getAvatarURL(size, ext)
 	return User.getAvatarURL(self, size, ext)
+end
+
+function Webhook:getDefaultAvatarURL(size)
+	return User.getDefaultAvatarURL(self, size)
 end
 
 function Webhook:setName(name)
@@ -68,7 +74,15 @@ function get.avatar(self)
 end
 
 function get.avatarURL(self)
-	return User.__getters.avatarURL(self)
+	return self:getAvatarURL()
+end
+
+function get.defaultAvatar()
+	return defaultAvatar.blurple
+end
+
+function get.defaultAvatarURL(self)
+	return self:getDefaultAvatarURL()
 end
 
 return Webhook
