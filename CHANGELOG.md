@@ -233,6 +233,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Changed `bulkDelete` behavior (see documentation)
 - Moved `mentionString` from `GuildChannel` to `Channel`
 - Replaced `webhooks` property with `getWebhooks` method
+- Changed `createInvite` parameters from `(maxAge, maxUses, temporary, unique)` to `(payload)`
 
 ##### GuildVoiceChannel
 - TODO

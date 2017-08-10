@@ -34,13 +34,8 @@ function GuildChannel:setPosition(position)
 	return self:_modify({position = position or json.null})
 end
 
-function GuildChannel:createInvite(max_age, max_uses, temporary, unique) -- all are optional
-	local data, err = self.client._api:createChannelInvite(self._id, {
-		max_age = max_age, -- number, default = 86400 (24 hours)
-		max_uses = max_uses, -- number, default = 0 (unlimited)
-		temporary = temporary, -- boolean, default = false
-		unique = unique, -- boolean, default = false
-	})
+function GuildChannel:createInvite(payload)
+	local data, err = self.client._api:createChannelInvite(self._id, payload)
 	if data then
 		return Invite(data, self.client)
 	else
