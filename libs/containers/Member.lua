@@ -49,9 +49,25 @@ function Member:_loadPresence(presence)
 	self._status = presence.status
 end
 
+local function sorter(a, b)
+	if a._position == b._position then
+		return tonumber(a._id) < tonumber(b._id)
+	else
+		return a._position > b._position
+	end
+end
+
+local function predicate(role)
+	return role._color > 0
+end
 
 function Member:getColor()
-	return Color(self.color)
+	local roles = {}
+	for role in self.roles:findAll(predicate) do
+		insert(roles, role)
+	end
+	sort(roles, sorter)
+	return roles[1] and roles[1]:getColor() or Color()
 end
 
 local function has(a, b)
@@ -383,14 +399,6 @@ function get.user(self)
 	return self._user
 end
 
-local function sorter(a, b)
-	if a._position == b._position then
-		return tonumber(a._id) < tonumber(b._id)
-	else
-		return a._position > b._position
-	end
-end
-
 function get.highestRole(self)
 	local ret
 	for role in self.roles:iter() do
@@ -399,19 +407,6 @@ function get.highestRole(self)
 		end
 	end
 	return ret
-end
-
-local function predicate(role)
-	return role._color > 0
-end
-
-function get.color(self)
-	local roles = {}
-	for role in self.roles:findAll(predicate) do
-		insert(roles, role)
-	end
-	sort(roles, sorter)
-	return roles[1] and roles[1]._color or 0
 end
 
 -- user shortcuts
