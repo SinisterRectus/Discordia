@@ -2,7 +2,7 @@ local class = require('class')
 local constants = require('constants')
 local Time = require('utils/Time')
 
-local abs = math.abs
+local abs, modf, fmod, floor = math.abs, math.modf, math.fmod, math.floor
 local format = string.format
 local date, time, difftime = os.date, os.time, os.difftime
 local isInstance = class.isInstance
@@ -30,24 +30,47 @@ local function check(self, other)
 	end
 end
 
-function Date:__init(value)
-	self._value = tonumber(value) or time()
+function Date:__init(seconds, micro)
+
+	local f
+	seconds = tonumber(seconds)
+	if seconds then
+		seconds, f = modf(seconds)
+	else
+		seconds = time()
+	end
+
+	micro = tonumber(micro)
+	if micro then
+		seconds = seconds + modf(micro / US_PER_S)
+		micro = fmod(micro, US_PER_S)
+	else
+		micro = 0
+	end
+
+	if f and f > 0 then
+		micro = micro + US_PER_S * f
+	end
+
+	self._s = seconds
+	self._us = floor(micro + 0.5)
+
 end
 
 function Date:__tostring()
-	return date('%a %b %d %Y %T GMT%z (%Z)', self._value)
+	return date('%a %b %d %Y %T GMT%z (%Z)', self._s)
 end
 
 function Date:__eq(other) check(self, other)
-	return self._value == other._value
+	return self._s == other._s and self._us == other._us
 end
 
 function Date:__lt(other) check(self, other)
-	return self._value < other._value
+	return self._s < other._s and self._us < other._us
 end
 
 function Date:__le(other) check(self, other)
-	return self._value <= other._value
+	return self._s <= other._s and self._us < other._us
 end
 
 function Date:__add(other)
@@ -57,7 +80,7 @@ function Date:__add(other)
 	if not isInstance(other, Time) then
 		return error('Cannot perform operation with non-Time object')
 	end
-	return Date(self:toSeconds() + other:toSeconds())
+	return Date(self._s + other._s, self._us + other._us)
 end
 
 function Date:__sub(other)
@@ -65,7 +88,7 @@ function Date:__sub(other)
 		if isInstance(other, Date) then
 			return Time(abs(self:toMilliseconds() - other:toMilliseconds()))
 		elseif isInstance(other, Time) then
-			return Date(self:toSeconds() - other:toSeconds())
+			return Date(self._s - other._s, self._us - other._us)
 		else
 			return error('Cannot perform operation with non-Date/Time object')
 		end
@@ -135,29 +158,49 @@ function Date.fromMilliseconds(t)
 	return Date(t / MS_PER_S)
 end
 
+function Date.fromMicroseconds(t)
+	return Date(0, t)
+end
+
 function Date:toISO(sep, tz)
-	local ret = date('!%F%%s%T%%s', self._value)
-	return format(ret, sep or 'T', tz or 'Z')
+	if sep and tz then
+		local ret = date('!%F%%s%T%%s', self._s)
+		return format(ret, sep, tz)
+	else
+		if self._us == 0 then
+			return date('!%FT%T', self._s) .. '+00:00'
+		else
+			return date('!%FT%T', self._s) .. format('.%6i', self._us) .. '+00:00'
+		end
+	end
 end
 
 function Date:toHeader()
-	return date('!%a, %d %b %Y %T GMT', self._value)
+	return date('!%a, %d %b %Y %T GMT', self._s)
 end
 
 function Date:toTable()
-	return date('*t', self._value)
+	return date('*t', self._s)
 end
 
 function Date:toTableUTC()
-	return date('!*t', self._value)
+	return date('!*t', self._s)
 end
 
 function Date:toSeconds()
-	return self._value
+	return self._s + self._us / US_PER_S
 end
 
 function Date:toMilliseconds()
-	return self._value * MS_PER_S
+	return self._s * MS_PER_S + self._us / US_PER_MS
+end
+
+function Date:toMicroseconds()
+	return self._s * US_PER_S + self._us
+end
+
+function Date:toParts()
+	return self._s, self._us
 end
 
 return Date
