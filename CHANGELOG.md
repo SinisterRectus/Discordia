@@ -385,6 +385,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Renamed `pause` method to `stop`
 - Renamed `resume` method to `start`
 - Renamed `restart` method to `reset`
+- Removed `hours`, `minutes`, `seconds`, `microseconds`, and `nanoseconds` properties
+- Added `getTime` method
 
 ##### Time
 - New class! See documentation.
