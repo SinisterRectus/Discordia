@@ -49,38 +49,65 @@ function Webhook:delete()
 	end
 end
 
+--[[
+@property guildId: string
+]]
 function get.guildId(self)
 	return self._guild_id
 end
 
+--[[
+@property channelId: string
+]]
 function get.channelId(self)
 	return self._channel_id
 end
 
+--[[
+@property user: User|nil
+]]
 function get.user(self)
 	return self._user
 end
 
+--[[
+@property token: string
+]]
 function get.token(self)
 	return self._token
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._name
 end
 
+--[[
+@property avatar: string|nil
+]]
 function get.avatar(self)
 	return self._avatar
 end
 
+--[[
+@property avatarURL: string|nil
+]]
 function get.avatarURL(self)
 	return self:getAvatarURL()
 end
 
+--[[
+@property defaultAvatar: number
+]]
 function get.defaultAvatar()
 	return defaultAvatar.blurple
 end
 
+--[[
+@property defaultAvatarURL: string
+]]
 function get.defaultAvatarURL(self)
 	return self:getDefaultAvatarURL()
 end

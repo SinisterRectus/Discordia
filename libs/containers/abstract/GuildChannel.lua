@@ -59,7 +59,7 @@ function GuildChannel:getPermissionOverwriteFor(obj)
 	elseif isInstance(obj, classes.Member) and self._parent == obj._parent then
 		id, type = obj._user._id, 'member'
 	else
-		return error('Invalid Role or Member: ' .. tostring(obj), 2)
+		return nil, 'Invalid Role or Member: ' .. tostring(obj)
 	end
 	local overwrites = self._permission_overwrites
 	return overwrites:get(id) or overwrites:_insert(setmetatable({
@@ -71,18 +71,30 @@ function GuildChannel:delete()
 	return self:_delete()
 end
 
+--[[
+@property permissionOverwrites: Cache
+]]
 function get.permissionOverwrites(self)
 	return self._permission_overwrites
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._name
 end
 
+--[[
+@property position: number
+]]
 function get.position(self)
 	return self._position
 end
 
+--[[
+@property guild: Guild
+]]
 function get.guild(self)
 	return self._parent
 end

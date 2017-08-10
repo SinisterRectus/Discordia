@@ -15,14 +15,23 @@ function Ban:delete()
 	return self._parent:unbanUser(self._user)
 end
 
+--[[
+@property reason: string|nil
+]]
 function get.reason(self)
 	return self._reason
 end
 
+--[[
+@property guild: Guild
+]]
 function get.guild(self)
 	return self._parent
 end
 
+--[[
+@property user: User
+]]
 function get.user(self)
 	return self._user
 end

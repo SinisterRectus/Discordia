@@ -58,42 +58,72 @@ function User:send(content)
 	end
 end
 
+--[[
+@property bot: boolean
+]]
 function get.bot(self)
 	return self._bot or false
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._username
 end
 
+--[[
+@property username: string
+]]
 function get.username(self)
 	return self._username
 end
 
+--[[
+@property discriminator: string
+]]
 function get.discriminator(self)
 	return self._discriminator
 end
 
+--[[
+@property fullname: string
+]]
 function get.fullname(self)
 	return self._username .. '#' .. self._discriminator
 end
 
+--[[
+@property avatar: string|nil
+]]
 function get.avatar(self)
 	return self._avatar
 end
 
+--[[
+@property defaultAvatar: number
+]]
 function get.defaultAvatar(self)
 	return self._discriminator % DEFAULT_AVATARS
 end
 
+--[[
+@property avatarURL: string
+]]
 function get.avatarURL(self)
 	return self:getAvatarURL()
 end
 
+--[[
+@property defaultAvatarURL: string
+]]
 function get.defaultAvatarURL(self)
 	return self:getDefaultAvatarURL()
 end
 
+--[[
+@property mentionString: string
+]]
 function get.mentionString(self)
 	return format('<@%s>', self._id)
 end

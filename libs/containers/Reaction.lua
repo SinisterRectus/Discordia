@@ -32,27 +32,45 @@ function Reaction:delete(user)
 	return self._parent:removeReaction(self, user)
 end
 
+--[[
+@property emojiId: string|nil
+]]
 function get.emojiId(self)
 	return self._emoji_id
 end
 
+--[[
+@property emojiName: string
+]]
 function get.emojiName(self)
 	return self._emoji_name
 end
 
+--[[
+@property emojiURL: string|nil
+]]
 function get.emojiURL(self)
 	local id = self._emoji_id
 	return id and format('https://cdn.discordapp.com/emojis/%s.png', id) or nil
 end
 
+--[[
+@property me: boolean
+]]
 function get.me(self)
 	return self._me
 end
 
+--[[
+@property count: number
+]]
 function get.count(self)
 	return self._count
 end
 
+--[[
+@property message: Message
+]]
 function get.message(self)
 	return self._parent
 end

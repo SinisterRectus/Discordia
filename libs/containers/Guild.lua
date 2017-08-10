@@ -305,112 +305,193 @@ function Guild:unbanUser(user, reason)
 	end
 end
 
+--[[
+@property shardId: number
+]]
 function get.shardId(self)
 	return floor(self._id / 2^22) % self.client._shard_count
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._name
 end
 
+--[[
+@property icon: string|nil
+]]
 function get.icon(self)
 	return self._icon
 end
 
+--[[
+@property iconURL: string|nil
+]]
 function get.iconURL(self)
 	local icon = self._icon
 	return icon and format('https://cdn.discordapp.com/icons/%s/%s.png', self._id, icon) or nil
 end
 
+--[[
+@property splash: string|nil
+]]
 function get.splash(self)
 	return self._splash
 end
 
+--[[
+@property splashURL: string|nil
+]]
 function get.splashURL(self)
 	local splash = self._splash
 	return splash and format('https://cdn.discordapp.com/splashs/%s/%s.png', self._id, splash) or nil
 end
 
+--[[
+@property large: boolean
+]]
 function get.large(self)
 	return self._large
 end
 
+--[[
+@property region: string
+]]
 function get.region(self)
 	return self._region
 end
 
+--[[
+@property mfaLevel: number
+]]
 function get.mfaLevel(self)
 	return self._mfa_level
 end
 
+--[[
+@property joinedAt: string
+]]
 function get.joinedAt(self)
 	return self._joined_at
 end
 
+--[[
+@property afkTimeout: number
+]]
 function get.afkTimeout(self)
 	return self._afk_timeout
 end
 
+--[[
+@property unavailable: boolean
+]]
 function get.unavailable(self)
-	return self._unavailable
+	return self._unavailable or false
 end
 
+--[[
+@property totalMemberCount: number
+]]
 function get.totalMemberCount(self)
 	return self._member_count
 end
 
+--[[
+@property verificationLevel: number
+]]
 function get.verificationLevel(self)
 	return self._verification_level
 end
 
+--[[
+@property notificationSetting: number
+]]
 function get.notificationSetting(self)
 	return self._default_message_notifications
 end
 
+--[[
+@property explicitContentSetting: number
+]]
 function get.explicitContentSetting(self)
-	return self._explicit_content_filter or 0
+	return self._explicit_content_filter
 end
 
+--[[
+@property me: Member|nil
+]]
 function get.me(self)
 	return self._members:get(self.client._user._id)
 end
 
+--[[
+@property owner: Member|nil
+]]
 function get.owner(self)
 	return self._members:get(self._owner_id)
 end
 
+--[[
+@property ownerId: string
+]]
 function get.ownerId(self)
 	return self._owner_id
 end
 
+--[[
+@property afkChannelId: string|nil
+]]
 function get.afkChannelId(self)
 	return self._afk_channel_id
 end
 
+--[[
+@property afkChannel: GuildVoiceChannel|nil
+]]
 function get.afkChannel(self)
 	return self._voice_channels:get(self._afk_channel_id)
 end
 
+--[[
+@property defaultRole: Role
+]]
 function get.defaultRole(self)
 	return self._roles:get(self._id)
 end
 
+--[[
+@property roles: Cache
+]]
 function get.roles(self)
 	return self._roles
 end
 
+--[[
+@property emojis: Cache
+]]
 function get.emojis(self)
 	return self._emojis
 end
 
+--[[
+@property members: Cache
+]]
 function get.members(self)
 	return self._members
 end
 
+--[[
+@property textChannels: Cache
+]]
 function get.textChannels(self)
 	return self._text_channels
 end
 
+--[[
+@property voiceChannels: Cache
+]]
 function get.voiceChannels(self)
 	return self._voice_channels
 end

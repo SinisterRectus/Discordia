@@ -7,6 +7,8 @@ function Relationship:__init(data, parent)
 	self._user = self.client._users:_insert(data.user)
 end
 
+-- TODO: base UserPresence class?
+
 function Relationship:_loadPresence(presence)
 	local game = presence.game
 	self._game_name = game and game.name
@@ -15,39 +17,111 @@ function Relationship:_loadPresence(presence)
 	self._status = presence.status
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._user._username
 end
 
+--[[
+@property gameName: string|nil
+]]
 function get.gameName(self)
 	return self._game_name
 end
 
+--[[
+@property gameType: number|nil
+]]
 function get.gameType(self)
 	return self._game_type
 end
 
+--[[
+@property gameURL: string|nil
+]]
 function get.gameURL(self)
 	return self._game_url
 end
 
+--[[
+@property status: string
+]]
 function get.status(self)
 	return self._status or 'offline'
 end
 
+--[[
+@property type: number
+]]
 function get.type(self)
 	return self._type
 end
 
 -- user shortcuts
-function get.id(self) return self._user.id end
-function get.bot(self) return self._user.bot end
-function get.username(self) return self._user.username end
-function get.discriminator(self) return self._user.discriminator end
-function get.avatar(self) return self._user.avatar end
-function get.defaultAvatar(self) return self._user.defaultAvatar end
-function get.avatarURL(self) return self._user.avatarURL end
-function get.defaultAvatarURL(self) return self._user.defaultAvatarURL end
-function get.mentionString(self) return self._user.mentionString end
+
+--[[
+@property id: string
+]]
+function get.id(self)
+	return self._user.id
+end
+
+--[[
+@property bot: boolean
+]]
+function get.bot(self)
+	return self._user.bot
+end
+
+--[[
+@property username: string
+]]
+function get.username(self)
+	return self._user.username
+end
+
+--[[
+@property discriminator: string
+]]
+function get.discriminator(self)
+	return self._user.discriminator
+end
+
+--[[
+@property avatar: string|nil
+]]
+function get.avatar(self)
+	return self._user.avatar
+end
+
+--[[
+@property defaultAvatar: number
+]]
+function get.defaultAvatar(self)
+	return self._user.defaultAvatar
+end
+
+--[[
+@property avatarURL: string
+]]
+function get.avatarURL(self)
+	return self._user.avatarURL
+end
+
+--[[
+@property defaultAvatarURL: string
+]]
+function get.defaultAvatarURL(self)
+	return self._user.defaultAvatarURL
+end
+
+--[[
+@property mentionString: string
+]]
+function get.mentionString(self)
+	return self._user.mentionString
+end
 
 return Relationship

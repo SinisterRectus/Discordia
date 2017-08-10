@@ -334,46 +334,79 @@ function Client:setAFK(afk)
 	return updateStatus(self)
 end
 
+--[[
+@property shardCount: number|nil
+]]
 function get.shardCount(self)
 	return self._shard_count
 end
 
+--[[
+@property user: User|nil
+]]
 function get.user(self)
 	return self._user
 end
 
+--[[
+@property owner: User|nil
+]]
 function get.owner(self)
 	return self._owner
 end
 
+--[[
+@property verified: boolean|nil
+]]
 function get.verified(self)
 	return self._user and self._user._verified
 end
 
+--[[
+@property mfaEnabled: boolean|nil
+]]
 function get.mfaEnabled(self)
 	return self._user and self._user._verified
 end
 
+--[[
+@property email: string|nil
+]]
 function get.email(self)
 	return self._user and self._user._email
 end
 
+--[[
+@property guilds: Cache
+]]
 function get.guilds(self)
 	return self._guilds
 end
 
+--[[
+@property user: Cache
+]]
 function get.users(self)
 	return self._users
 end
 
+--[[
+@property privateChannels: Cache
+]]
 function get.privateChannels(self)
 	return self._private_channels
 end
 
+--[[
+@property groupChannels: Cache
+]]
 function get.groupChannels(self)
 	return self._group_channels
 end
 
+--[[
+@property relationships: Cache
+]]
 function get.relationships(self)
 	return self._relationships
 end

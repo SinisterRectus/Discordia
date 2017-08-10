@@ -32,6 +32,9 @@ function Stopwatch:getTime()
 	return Time(self.milliseconds)
 end
 
+--[[
+@property value: number
+]]
 function get.milliseconds(self)
 	local ns = (self._final or hrtime()) - self._initial
 	return ns / NS_PER_MS

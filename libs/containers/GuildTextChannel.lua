@@ -50,6 +50,9 @@ function GuildTextChannel:setTopic(topic)
 	return self:_modify({topic = topic or json.null})
 end
 
+--[[
+@property topic: string|nil
+]]
 function get.topic(self)
 	return self._topic
 end

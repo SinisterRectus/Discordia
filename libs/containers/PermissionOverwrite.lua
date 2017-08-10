@@ -99,22 +99,37 @@ function PermissionOverwrite:clearAllPermissions()
 	return setPermissions(self, allowed._value, denied._value)
 end
 
+--[[
+@property type: string
+]]
 function get.type(self)
 	return self._type
 end
 
+--[[
+@property channel: GuildChannel
+]]
 function get.channel(self)
 	return self._parent
 end
 
+--[[
+@property guild: Guild
+]]
 function get.guild(self)
-	return self._parent._guild
+	return self._parent._parent
 end
 
+--[[
+@property allowedPermissions: number
+]]
 function get.allowedPermissions(self)
 	return self._allow
 end
 
+--[[
+@property deniedPermissions: number
+]]
 function get.deniedPermissions(self)
 	return self._deny
 end

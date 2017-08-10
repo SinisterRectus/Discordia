@@ -1,7 +1,5 @@
 local Iterable = require('iterables/Iterable')
 
-local format = string.format
-
 local Cache = require('class')('Cache', Iterable)
 
 function Cache:__init(array, constructor, parent)
@@ -14,10 +12,6 @@ function Cache:__init(array, constructor, parent)
 	self._objects = objects
 	self._constructor = constructor
 	self._parent = parent
-end
-
-function Cache:__tostring()
-	return format('%s[%s]', self.__name, self._constructor.__name)
 end
 
 function Cache:__len()

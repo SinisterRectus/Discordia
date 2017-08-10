@@ -344,6 +344,9 @@ function Member:send(content)
 	return self._user:send(content)
 end
 
+--[[
+@property roles: ArrayIterable
+]]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles
@@ -355,50 +358,86 @@ function get.roles(self)
 	return self._roles
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._nick or self._user._username
 end
 
+--[[
+@property nickname: string|nil
+]]
 function get.nickname(self)
 	return self._nick
 end
 
+--[[
+@property joinedAt: string
+]]
 function get.joinedAt(self)
 	return self._joined_at
 end
 
+--[[
+@property gameName: string|nil
+]]
 function get.gameName(self)
 	return self._game_name
 end
 
+--[[
+@property gameType: number|nil
+]]
 function get.gameType(self)
 	return self._game_type
 end
 
+--[[
+@property gameURL: string|nil
+]]
 function get.gameURL(self)
 	return self._game_url
 end
 
+--[[
+@property status: string
+]]
 function get.status(self)
-	return self._status
+	return self._status or 'offline'
 end
 
+--[[
+@property muted: boolean
+]]
 function get.muted(self)
 	return self._mute
 end
 
+--[[
+@property deafened: boolean
+]]
 function get.deafened(self)
 	return self._deaf
 end
 
+--[[
+@property guild: Guild
+]]
 function get.guild(self)
 	return self._parent
 end
 
+--[[
+@property user: User
+]]
 function get.user(self)
 	return self._user
 end
 
+--[[
+@property highestRole: Role
+]]
 function get.highestRole(self)
 	local ret
 	for role in self.roles:iter() do
@@ -406,43 +445,70 @@ function get.highestRole(self)
 			ret = role
 		end
 	end
-	return ret
+	return ret or self.guild.defaultRole
 end
 
 -- user shortcuts
 
+--[[
+@property id: string
+]]
 function get.id(self)
 	return self._user.id
 end
 
+--[[
+@property bot: boolean
+]]
 function get.bot(self)
 	return self._user.bot
 end
 
+--[[
+@property username: string
+]]
 function get.username(self)
 	return self._user.username
 end
 
+--[[
+@property discriminator: string
+]]
 function get.discriminator(self)
 	return self._user.discriminator
 end
 
+--[[
+@property avatar: string|nil
+]]
 function get.avatar(self)
 	return self._user.avatar
 end
 
+--[[
+@property defaultAvatar: number
+]]
 function get.defaultAvatar(self)
 	return self._user.defaultAvatar
 end
 
+--[[
+@property avatarURL: string
+]]
 function get.avatarURL(self)
 	return self._user.avatarURL
 end
 
+--[[
+@property defaultAvatarURL: string
+]]
 function get.defaultAvatarURL(self)
 	return self._user.defaultAvatarURL
 end
 
+--[[
+@property mentionString: string
+]]
 function get.mentionString(self)
 	return self._user.mentionString
 end

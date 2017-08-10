@@ -27,10 +27,16 @@ function Channel:_delete()
 	end
 end
 
+--[[
+@property type: number
+]]
 function get.type(self)
 	return self._type
 end
 
+--[[
+@property mentionString: string
+]]
 function get.mentionString(self)
 	return format('<#%s>', self._id)
 end

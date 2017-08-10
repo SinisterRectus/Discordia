@@ -1,7 +1,5 @@
 local Iterable = require('iterables/Iterable')
 
-local format = string.format
-
 local SecondaryCache = require('class')('SecondaryCache', Iterable)
 
 function SecondaryCache:__init(array, primary)
@@ -13,10 +11,6 @@ function SecondaryCache:__init(array, primary)
 	self._count = #array
 	self._objects = objects
 	self._primary = primary
-end
-
-function SecondaryCache:__tostring()
-	return format('%s[%s]', self.__name, self._primary._constructor.__name)
 end
 
 function SecondaryCache:__len()

@@ -172,6 +172,9 @@ function Color:toHSL()
 	return h, s, l
 end
 
+--[[
+@property value: number
+]]
 function get.value(self)
 	return self._value
 end
@@ -180,14 +183,23 @@ local function getByte(value, offset)
 	return band(rshift(value, offset), 0xFF)
 end
 
+--[[
+@property r: number
+]]
 function get.r(self)
 	return getByte(self._value, 16)
 end
 
+--[[
+@property g: number
+]]
 function get.g(self)
 	return getByte(self._value, 8)
 end
 
+--[[
+@property b: number
+]]
 function get.b(self)
 	return getByte(self._value, 0)
 end

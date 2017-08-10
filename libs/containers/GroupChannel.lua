@@ -46,29 +46,47 @@ function GroupChannel:leave()
 	return self:_delete()
 end
 
+--[[
+@property recipients: SecondaryCache
+]]
 function get.recipients(self)
 	return self._recipients
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._name
 end
 
+--[[
+@property ownerId: string
+]]
 function get.ownerId(self)
 	return self._owner_id
 end
 
+--[[
+@property owner: User
+]]
 function get.owner(self)
 	return self.client._users:get(self._owner_id)
 end
 
+--[[
+@property icon: string|nil
+]]
 function get.icon(self)
 	return self._icon
 end
 
+--[[
+@property iconURL: string|nil
+]]
 function get.iconURL(self)
 	local icon = self._icon
-	return icon and format('https://cdn.discordapp.com/channel-icons/%s/%s.png', self._id, icon) or nil
+	return icon and format('https://cdn.discordapp.com/channel-icons/%s/%s.png', self._id, icon)
 end
 
 return GroupChannel

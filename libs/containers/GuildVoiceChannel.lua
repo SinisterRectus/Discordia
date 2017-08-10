@@ -16,10 +16,16 @@ function GuildVoiceChannel:setUserLimit(user_limit)
 	return self:_modify({user_limit = user_limit or json.null})
 end
 
+--[[
+@property bitrate: number
+]]
 function get.bitrate(self)
 	return self._bitrate
 end
 
+--[[
+@property userLimit: number
+]]
 function get.userLimit(self)
 	return self._user_limit
 end

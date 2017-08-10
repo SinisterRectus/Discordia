@@ -127,6 +127,9 @@ function Permissions:copy()
 	return Permissions(self._value)
 end
 
+--[[
+@property value: number
+]]
 function get.value(self)
 	return self._value
 end

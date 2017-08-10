@@ -26,30 +26,51 @@ function Emoji:_loadMore(data)
 	end
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._name
 end
 
+--[[
+@property guild: Guild
+]]
 function get.guild(self)
 	return self._parent
 end
 
+--[[
+@property string: string
+]]
 function get.string(self)
 	return format('<:%s:%s>', self._name, self._id)
 end
 
+--[[
+@property url: string
+]]
 function get.url(self)
 	return format('https://cdn.discordapp.com/emojis/%s.png', self._id)
 end
 
+--[[
+@property managed: boolean
+]]
 function get.managed(self)
 	return self._managed
 end
 
+--[[
+@property requireColons: boolean
+]]
 function get.requireColons(self)
 	return self._require_colons
 end
 
+--[[
+@property roles: ArrayIterable
+]]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles

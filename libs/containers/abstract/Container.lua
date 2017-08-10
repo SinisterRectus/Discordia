@@ -29,10 +29,16 @@ end
 
 Container._load = load
 
+--[[
+@property client: Client
+]]
 function get.client(self)
 	return self._parent.client or self._parent
 end
 
+--[[
+@property parent Container|Client
+]]
 function get.parent(self)
 	return self._parent
 end

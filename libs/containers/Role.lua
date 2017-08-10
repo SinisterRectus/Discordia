@@ -87,38 +87,65 @@ function Role:getPermissions()
 	return Permissions(self._permissions)
 end
 
+--[[
+@property hoisted: boolean
+]]
 function get.hoisted(self)
 	return self._hoist
 end
 
+--[[
+@property mentionable: boolean
+]]
 function get.mentionable(self)
 	return self._mentionable
 end
 
+--[[
+@property managed: boolean
+]]
 function get.managed(self)
 	return self._managed
 end
 
+--[[
+@property name: string
+]]
 function get.name(self)
 	return self._name
 end
 
+--[[
+@property position: number
+]]
 function get.position(self)
 	return self._position
 end
 
+--[[
+@property color: number
+]]
 function get.color(self)
 	return self._color
 end
 
+--[[
+@property permissions: number
+]]
 function get.permissions(self)
 	return self._permissions
 end
 
+--[[
+@property mentionString: string
+]]
 function get.mentionString(self)
 	return format('<@&%s>', self._id)
 end
 
+--[[
+@property guild: Guild
+]]
 function get.guild(self)
 	return self._parent
 end

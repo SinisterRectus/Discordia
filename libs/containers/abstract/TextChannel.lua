@@ -201,6 +201,9 @@ function TextChannel:send(content)
 
 end
 
+--[[
+@property messages: WeakCache
+]]
 function get.messages(self)
 	return self._messages
 end
