@@ -10,6 +10,10 @@ function Clock:__init()
 	Emitter.__init(self)
 end
 
+--[[
+@method start
+@param utc: boolean
+]]
 function Clock:start(utc)
 	if self._interval then return end
 	local fmt = utc and '!*t' or '*t'
@@ -25,6 +29,9 @@ function Clock:start(utc)
 	end)
 end
 
+--[[
+@method stop
+]]
 function Clock:stop()
 	if not self._interval then return end
 	clearInterval(self._interval)

@@ -97,6 +97,11 @@ function Date:__sub(other)
 	end
 end
 
+--[[
+@static parseISO
+@param str: string
+@ret number, number
+]]
 function Date.parseISO(str) -- ISO8601
 	local year, month, day, hour, min, sec, other = str:match(
 		'(%d+)-(%d+)-(%d+).(%d+):(%d+):(%d+)(.*)'
@@ -105,9 +110,14 @@ function Date.parseISO(str) -- ISO8601
 	return Date.parseTableUTC {
 		day = day, month = month, year = year,
 		hour = hour, min = min, sec = sec, isdst = false,
-	}, other and other * US_PER_S
+	}, other and other * US_PER_S or 0
 end
 
+--[[
+@static parseHeader
+@param str: string
+@ret number
+]]
 function Date.parseHeader(str) -- RFC2822
 	local day, month, year, hour, min, sec = str:match(
 		'%a+, (%d+) (%a+) (%d+) (%d+):(%d+):(%d+) GMT'
@@ -118,50 +128,111 @@ function Date.parseHeader(str) -- RFC2822
 	}
 end
 
+--[[
+@static parseSnowflake
+@param id: string
+@ret number
+]]
 function Date.parseSnowflake(id)
 	return (id / 2^22 + DISCORD_EPOCH) / MS_PER_S
 end
 
+--[[
+@static parseTable
+@param tbl: table
+@ret number
+]]
 function Date.parseTable(tbl)
 	return time(tbl)
 end
 
+--[[
+@static parseTableUTC
+@param tbl: table
+@ret number
+]]
 function Date.parseTableUTC(tbl)
 	return time(tbl) + offset()
 end
 
+--[[
+@static fromISO
+@param str: string
+@ret Date
+]]
 function Date.fromISO(str)
 	return Date(Date.parseISO(str))
 end
 
+--[[
+@static fromHeader
+@param str: string
+@ret Date
+]]
 function Date.fromHeader(str)
 	return Date(Date.parseHeader(str))
 end
 
+--[[
+@static fromSnowflake
+@param id: string
+@ret Date
+]]
 function Date.fromSnowflake(id)
 	return Date(Date.parseSnowflake(id))
 end
 
+--[[
+@static fromTable
+@param tbl: table
+@ret Date
+]]
 function Date.fromTable(tbl)
 	return Date(Date.parseTable(tbl))
 end
 
+--[[
+@static fromTableUTC
+@param tbl: table
+@ret Date
+]]
 function Date.fromTableUTC(tbl)
 	return Date(Date.parseTableUTC(tbl))
 end
 
+--[[
+@static fromSeconds
+@param t: number
+@ret Date
+]]
 function Date.fromSeconds(t)
 	return Date(t)
 end
 
+--[[
+@static fromMilliseconds
+@param t: number
+@ret Date
+]]
 function Date.fromMilliseconds(t)
 	return Date(t / MS_PER_S)
 end
 
+--[[
+@static fromMicroseconds
+@param t: number
+@ret Date
+]]
 function Date.fromMicroseconds(t)
 	return Date(0, t)
 end
 
+--[[
+@method toISO
+@param sep: string
+@param tz: string
+@ret string
+]]
 function Date:toISO(sep, tz)
 	if sep and tz then
 		local ret = date('!%F%%s%T%%s', self._s)
@@ -175,30 +246,58 @@ function Date:toISO(sep, tz)
 	end
 end
 
+--[[
+@method toHeader
+@ret string
+]]
 function Date:toHeader()
 	return date('!%a, %d %b %Y %T GMT', self._s)
 end
 
+--[[
+@method toTable
+@ret table
+]]
 function Date:toTable()
 	return date('*t', self._s)
 end
 
+--[[
+@method toTableUTC
+@ret table
+]]
 function Date:toTableUTC()
 	return date('!*t', self._s)
 end
 
+--[[
+@method toSeconds
+@ret number
+]]
 function Date:toSeconds()
 	return self._s + self._us / US_PER_S
 end
 
+--[[
+@method toMilliseconds
+@ret number
+]]
 function Date:toMilliseconds()
 	return self._s * MS_PER_S + self._us / US_PER_MS
 end
 
+--[[
+@method toMicroseconds
+@ret number
+]]
 function Date:toMicroseconds()
 	return self._s * US_PER_S + self._us
 end
 
+--[[
+@method toParts
+@ret number, number
+]]
 function Date:toParts()
 	return self._s, self._us
 end

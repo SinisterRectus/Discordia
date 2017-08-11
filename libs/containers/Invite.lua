@@ -22,6 +22,10 @@ function Invite:__hash()
 	return self._code
 end
 
+--[[
+@method delete
+@ret boolean
+]]
 function Invite:delete()
 	local data, err = self.client._api:deleteInvite(self._code)
 	if data then

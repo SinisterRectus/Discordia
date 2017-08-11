@@ -13,6 +13,10 @@ function Mutex:__init()
 	self._active = false
 end
 
+--[[
+@method lock
+@param prepend: boolean
+]]
 function Mutex:lock(prepend)
 	if self._active then
 		if prepend then
@@ -25,6 +29,9 @@ function Mutex:lock(prepend)
 	end
 end
 
+--[[
+@method unlock
+]]
 function Mutex:unlock()
 	if self:getCount() > 0 then
 		return assert(resume(self:popLeft()))
@@ -33,6 +40,11 @@ function Mutex:unlock()
 	end
 end
 
+--[[
+@method unlockAfter
+@param delay: number
+@ret userdata
+]]
 local unlock = Mutex.unlock
 function Mutex:unlockAfter(delay)
 	return setTimeout(delay, unlock, self)

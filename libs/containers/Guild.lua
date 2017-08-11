@@ -83,6 +83,10 @@ function Guild:_modify(payload)
 	end
 end
 
+--[[
+@method requestMembers
+@ret boolean
+]]
 function Guild:requestMembers()
 	local shard = self.client._shards[self.shardId]
 	if not shard then
@@ -94,6 +98,10 @@ function Guild:requestMembers()
 	return shard:requestGuildMembers(self._id)
 end
 
+--[[
+@method sync
+@ret boolean
+]]
 function Guild:sync()
 	local shard = self.client._shards[self.shardId]
 	if not shard then
@@ -105,6 +113,11 @@ function Guild:sync()
 	return shard:syncGuilds({self._id})
 end
 
+--[[
+@method getMember
+@param id: User ID Resolveable
+@ret Member
+]]
 function Guild:getMember(id)
 	id = Resolver.userId(id)
 	local member = self._members:get(id)
@@ -120,16 +133,31 @@ function Guild:getMember(id)
 	end
 end
 
+--[[
+@method getRole
+@param id: Role ID Resolveable
+@ret Role
+]]
 function Guild:getRole(id)
 	id = Resolver.roleId(id)
 	return self._roles:get(id)
 end
 
+--[[
+@method getChannel
+@param id: Channel ID Resolveable
+@ret GuildChannel
+]]
 function Guild:getChannel(id)
 	id = Resolver.channelId(id)
 	return self._text_channels:get(id) or self._voice_channels:get(id)
 end
 
+--[[
+@method createTextChannel
+@param name: string
+@ret GuildTextChannel
+]]
 function Guild:createTextChannel(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.text})
 	if data then
@@ -139,6 +167,11 @@ function Guild:createTextChannel(name)
 	end
 end
 
+--[[
+@method createVoicehannel
+@param name: string
+@ret GuildVoicehannel
+]]
 function Guild:createVoiceChannel(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.voice})
 	if data then
@@ -148,6 +181,11 @@ function Guild:createVoiceChannel(name)
 	end
 end
 
+--[[
+@method createRole
+@param name: string
+@ret Role
+]]
 function Guild:createRole(name)
 	local data, err = self.client._api:createGuildRole(self._id, {name = name})
 	if data then
@@ -157,50 +195,105 @@ function Guild:createRole(name)
 	end
 end
 
+--[[
+@method setName
+@param name: string
+@ret boolean
+]]
 function Guild:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[[
+@method setRegion
+@param region: string
+@ret boolean
+]]
 function Guild:setRegion(region)
 	return self:_modify({region = region or json.null})
 end
 
+--[[
+@method setVerificationLevel
+@param verificationLevel: number
+@ret boolean
+]]
 function Guild:setVerificationLevel(verification_level)
 	return self:_modify({verification_level = verification_level or json.null})
 end
 
+--[[
+@method setNotificationSetting
+@param notificationSetting: number
+@ret boolean
+]]
 function Guild:setNotificationSetting(default_message_notifications)
 	return self:_modify({default_message_notifications = default_message_notifications or json.null})
 end
 
+--[[
+@method setExplicitContentSetting
+@param explicitContentSetting: number
+@ret boolean
+]]
 function Guild:setExplicitContentSetting(explicit_content_filter)
 	return self:_modify({explicit_content_filter = explicit_content_filter or json.null})
 end
 
+--[[
+@method setAFKTimeout
+@param afkTimeout: number
+@ret boolean
+]]
 function Guild:setAFKTimeout(afk_timeout)
 	return self:_modify({afk_timeout = afk_timeout or json.null})
 end
 
-function Guild:setAFKChannel(afk_channel)
-	afk_channel = afk_channel and Resolver.channelId(afk_channel)
-	return self:_modify({afk_channel_id = afk_channel or json.null})
+--[[
+@method setAFKChannel
+@param id: Channel ID Resolveable
+@ret boolean
+]]
+function Guild:setAFKChannel(id)
+	id = id and Resolver.channelId(id)
+	return self:_modify({afk_channel_id = id or json.null})
 end
 
-function Guild:setOwner(owner)
-	owner = owner and Resolver.userId(owner)
-	return self:_modify({owner_id = owner or json.null})
+--[[
+@method setOwner
+@param id: User ID Resolveable
+@ret boolean
+]]
+function Guild:setOwner(id)
+	id = id and Resolver.userId(id)
+	return self:_modify({owner_id = id or json.null})
 end
 
+--[[
+@method setIcon
+@param icon: Base64 Resolveable
+@ret boolean
+]]
 function Guild:setIcon(icon)
 	icon = icon and Resolver.base64(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
+--[[
+@method setSplash
+@param splash: Base64 Resolveable
+@ret boolean
+]]
 function Guild:setSplash(splash)
 	splash = splash and Resolver.base64(splash)
 	return self:_modify({splash = splash or json.null})
 end
 
+--[[
+@method getPruneCount
+@param days: number
+@ret number
+]]
 function Guild:getPruneCount(days)
 	local data, err = self.client._api:getGuildPruneCount(self._id, days and {days = days} or nil)
 	if data then
@@ -210,6 +303,11 @@ function Guild:getPruneCount(days)
 	end
 end
 
+--[[
+@method pruneMembers
+@param days: number
+@ret number
+]]
 function Guild:pruneMembers(days)
 	local data, err = self.client._api:beginGuildPrune(self._id, nil, days and {days = days} or nil)
 	if data then
@@ -219,6 +317,10 @@ function Guild:pruneMembers(days)
 	end
 end
 
+--[[
+@method getBans
+@ret Cache
+]]
 function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
 	if data then
@@ -228,6 +330,10 @@ function Guild:getBans()
 	end
 end
 
+--[[
+@method getInvites
+@ret Cache
+]]
 function Guild:getInvites()
 	local data, err = self.client._api:getGuildInvites(self._id)
 	if data then
@@ -237,6 +343,10 @@ function Guild:getInvites()
 	end
 end
 
+--[[
+@method getWebhooks
+@ret Cache
+]]
 function Guild:getWebhooks()
 	local data, err = self.client._api:getGuildWebhooks(self._id)
 	if data then
@@ -246,10 +356,18 @@ function Guild:getWebhooks()
 	end
 end
 
+--[[
+@method listVoiceRegions
+@ret table
+]]
 function Guild:listVoiceRegions()
 	return self.client._api:getGuildVoiceRegions()
 end
 
+--[[
+@method leave
+@ret boolean
+]]
 function Guild:leave()
 	local data, err = self.client._api:leaveGuild(self._id)
 	if data then
@@ -259,6 +377,10 @@ function Guild:leave()
 	end
 end
 
+--[[
+@method delete
+@ret boolean
+]]
 function Guild:delete()
 	local data, err = self.client._api:deleteGuild(self._id)
 	if data then
@@ -268,10 +390,16 @@ function Guild:delete()
 	end
 end
 
-function Guild:kickUser(user, reason)
-	user = Resolver.userId(user)
+--[[
+@method kiskUser
+@param id: User ID Resolveable
+@param reason: string
+@ret boolean
+]]
+function Guild:kickUser(id, reason)
+	id = Resolver.userId(id)
 	local query = reason and {reason = reason}
-	local data, err = self.client._api:removeGuildMember(self._id, user, query)
+	local data, err = self.client._api:removeGuildMember(self._id, id, query)
 	if data then
 		return true
 	else
@@ -279,6 +407,13 @@ function Guild:kickUser(user, reason)
 	end
 end
 
+--[[
+@method banUser
+@param id: User ID Resolveable
+@param reason: string
+@param days: number
+@ret boolean
+]]
 function Guild:banUser(user, reason, days)
 	local query = reason and {reason = reason}
 	if days then
@@ -294,6 +429,12 @@ function Guild:banUser(user, reason, days)
 	end
 end
 
+--[[
+@method unbanUser
+@param id: User ID Resolveable
+@param reason: string
+@ret boolean
+]]
 function Guild:unbanUser(user, reason)
 	user = Resolver.userId(user)
 	local query = reason and {reason = reason}

@@ -23,23 +23,48 @@ function Webhook:_modify(payload)
 	end
 end
 
+--[[
+@method getAvatarURL
+@param size: number
+@param ext: string
+@ret string
+]]
 function Webhook:getAvatarURL(size, ext)
 	return User.getAvatarURL(self, size, ext)
 end
 
+--[[
+@method getDefaultAvatarURL
+@param size: number
+@ret string
+]]
 function Webhook:getDefaultAvatarURL(size)
 	return User.getDefaultAvatarURL(self, size)
 end
 
+--[[
+@method setName
+@param name: string
+@ret boolean
+]]
 function Webhook:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[[
+@method setAvatar
+@param avatar: Base64 Resolveable
+@ret boolean
+]]
 function Webhook:setAvatar(avatar)
 	avatar = avatar and Resolver.base64(avatar)
 	return self:_modify({avatar = avatar or json.null})
 end
 
+--[[
+@method delete
+@ret boolean
+]]
 function Webhook:delete()
 	local data, err = self.client._api:deleteWebhook(self._id)
 	if data then

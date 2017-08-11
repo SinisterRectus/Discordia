@@ -61,6 +61,10 @@ local function predicate(role)
 	return role._color > 0
 end
 
+--[[
+@method getColor
+@ret Color
+]]
 function Member:getColor()
 	local roles = {}
 	for role in self.roles:findAll(predicate) do
@@ -74,6 +78,12 @@ local function has(a, b)
 	return band(a, b) > 0 or band(a, permission.administrator) > 0
 end
 
+--[[
+@method hasPermission
+@param channel: GuildChannel
+@param perm: Permission Resolveable
+@ret boolean
+]]
 function Member:hasPermission(channel, perm)
 
 	if not perm then
@@ -157,6 +167,11 @@ function Member:hasPermission(channel, perm)
 
 end
 
+--[[
+@method getPermissions
+@param channel: GuildChannel
+@ret Permissions
+]]
 function Member:getPermissions(channel)
 
 	local guild = self.guild
@@ -217,16 +232,21 @@ function Member:getPermissions(channel)
 
 end
 
-function Member:addRole(role)
-	if self:hasRole(role) then return true end
-	role = Resolver.roleId(role)
-	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, role)
+--[[
+@method addRole
+@param id: Role ID Resolveable
+@ret boolean
+]]
+function Member:addRole(id)
+	if self:hasRole(id) then return true end
+	id = Resolver.roleId(id)
+	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, id)
 	if data then
 		local roles = self._roles and self._roles._array or self._roles_raw
 		if roles then
-			insert(roles, role)
+			insert(roles, id)
 		else
-			self._roles_raw = {role}
+			self._roles_raw = {id}
 		end
 		return true
 	else
@@ -234,15 +254,20 @@ function Member:addRole(role)
 	end
 end
 
-function Member:removeRole(role)
-	if not self:hasRole(role) then return true end
-	role = Resolver.roleId(role)
-	local data, err = self.client._api:removeGuildMemberRole(self._parent._id, self.id, role)
+--[[
+@method removeRole
+@param id: Role ID Resolveable
+@ret boolean
+]]
+function Member:removeRole(id)
+	if not self:hasRole(id) then return true end
+	id = Resolver.roleId(id)
+	local data, err = self.client._api:removeGuildMemberRole(self._parent._id, self.id, id)
 	if data then
 		local roles = self._roles and self._roles._array or self._roles_raw
 		if roles then
 			for i, v in ipairs(roles) do
-				if v == role then
+				if v == id then
 					remove(roles, i)
 					break
 				end
@@ -258,13 +283,18 @@ function Member:removeRole(role)
 	end
 end
 
-function Member:hasRole(role)
-	role = Resolver.roleId(role)
-	if role == self._parent._id then return true end -- @everyone
+--[[
+@method hasRole
+@param id: Role ID Resolveable
+@ret boolean
+]]
+function Member:hasRole(id)
+	id = Resolver.roleId(id)
+	if id == self._parent._id then return true end -- @everyone
 	local roles = self._roles and self._roles._array or self._roles_raw
 	if roles then
-		for _, id in ipairs(roles) do
-			if id == role then
+		for _, v in ipairs(roles) do
+			if v == id then
 				return true
 			end
 		end
@@ -272,6 +302,11 @@ function Member:hasRole(role)
 	return false
 end
 
+--[[
+@method setNickname
+@param nickname: string
+@ret boolean
+]]
 function Member:setNickname(nick)
 	nick = nick or ''
 	local data, err
@@ -288,6 +323,10 @@ function Member:setNickname(nick)
 	end
 end
 
+--[[
+@method mute
+@ret boolean
+]]
 function Member:mute()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = true})
 	if data then
@@ -298,6 +337,10 @@ function Member:mute()
 	end
 end
 
+--[[
+@method unmute
+@ret boolean
+]]
 function Member:unmute()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = false})
 	if data then
@@ -308,6 +351,10 @@ function Member:unmute()
 	end
 end
 
+--[[
+@method deafen
+@ret boolean
+]]
 function Member:deafen()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = true})
 	if data then
@@ -318,6 +365,10 @@ function Member:deafen()
 	end
 end
 
+--[[
+@method undeafen
+@ret boolean
+]]
 function Member:undeafen()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = false})
 	if data then
@@ -328,18 +379,39 @@ function Member:undeafen()
 	end
 end
 
+--[[
+@method kick
+@param reason: string
+@ret boolean
+]]
 function Member:kick(reason)
 	return self._parent:kickUser(self._user, reason)
 end
 
+--[[
+@method ban
+@param reason: string
+@param days: number
+@ret boolean
+]]
 function Member:ban(reason, days)
 	return self._parent:banUser(self._user, reason, days)
 end
 
+--[[
+@method unban
+@param reason: string
+@ret boolean
+]]
 function Member:unban(reason)
 	return self._parent:unbanUser(self._user, reason)
 end
 
+--[[
+@method send
+@param content: string|table
+@ret Message
+]]
 function Member:send(content)
 	return self._user:send(content)
 end

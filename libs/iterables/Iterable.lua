@@ -18,6 +18,11 @@ function Iterable:__len()
 	return n
 end
 
+--[[
+@method get
+@param k: *
+@ret *
+]]
 function Iterable:get(k) -- objects must be hashable
 	for obj in self:iter() do
 		if obj:__hash() == k then
@@ -27,6 +32,11 @@ function Iterable:get(k) -- objects must be hashable
 	return nil
 end
 
+--[[
+@method find
+@param fn: function
+@ret *
+]]
 function Iterable:find(fn)
 	for obj in self:iter() do
 		if fn(obj) then
@@ -36,6 +46,11 @@ function Iterable:find(fn)
 	return nil
 end
 
+--[[
+@method findAll
+@param fn: function
+@ret function
+]]
 function Iterable:findAll(fn)
 	return wrap(function()
 		for obj in self:iter() do
@@ -46,12 +61,21 @@ function Iterable:findAll(fn)
 	end)
 end
 
+--[[
+@method forEach
+@param fn: function
+]]
 function Iterable:forEach(fn)
 	for obj in self:iter() do
 		fn(obj)
 	end
 end
 
+--[[
+@method toTable
+@param fn: function
+@ret table
+]]
 function Iterable:toTable(fn)
 	local ret = {}
 	for obj in self:iter() do
@@ -62,6 +86,10 @@ function Iterable:toTable(fn)
 	return ret
 end
 
+--[[
+@method random
+@ret *
+]]
 function Iterable:random()
 	local n = 1
 	local rand = random(#self)
@@ -73,6 +101,11 @@ function Iterable:random()
 	end
 end
 
+--[[
+@method count
+@param fn: function
+@ret number
+]]
 function Iterable:count(fn)
 	local n = 0
 	for _ in self:findAll(fn) do
@@ -121,6 +154,11 @@ local function sorter(a, b)
 	return tostring(a) < tostring(b)
 end
 
+--[[
+@method select
+@param ...: *
+@ret table
+]]
 function Iterable:select(...)
 	local rows = {}
 	local keys = pack(...)

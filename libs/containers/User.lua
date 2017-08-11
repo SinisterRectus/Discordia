@@ -10,6 +10,12 @@ function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 end
 
+--[[
+@method getAvatarURL
+@param size: number
+@param ext: string
+@ret string
+]]
 function User:getAvatarURL(size, ext)
 	local avatar = self._avatar
 	if avatar then
@@ -24,6 +30,11 @@ function User:getAvatarURL(size, ext)
 	end
 end
 
+--[[
+@method getDefaultAvatarURL
+@param size: number
+@ret string
+]]
 function User:getDefaultAvatarURL(size)
 	local avatar = self.defaultAvatar
 	if size then
@@ -33,6 +44,10 @@ function User:getDefaultAvatarURL(size)
 	end
 end
 
+--[[
+@method getPrivateChannel
+@ret PrivateChannel
+]]
 function User:getPrivateChannel()
 	local id = self._id
 	local client = self.client
@@ -49,6 +64,11 @@ function User:getPrivateChannel()
 	end
 end
 
+--[[
+@method send
+@param content: string|table
+@ret Message
+]]
 function User:send(content)
 	local channel, err = self:getPrivateChannel()
 	if channel then

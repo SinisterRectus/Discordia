@@ -7,6 +7,10 @@ function PrivateChannel:__init(data, parent)
 	self._recipient = self.client._users:_insert(data.recipients[1])
 end
 
+--[[
+@method close
+@ret boolean
+]]
 function PrivateChannel:close()
 	return self:_delete()
 end

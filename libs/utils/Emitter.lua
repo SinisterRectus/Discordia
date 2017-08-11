@@ -18,26 +18,55 @@ function Emitter:__init()
 	self._listeners = setmetatable({}, listenersMeta)
 end
 
+--[[
+@method on
+@param name: string
+@param  fn: function
+@ret function
+]]
 function Emitter:on(name, fn)
 	insert(self._listeners[name], {fn = fn})
 	return fn
 end
 
+--[[
+@method once
+@param name: string
+@param  fn: function
+@ret function
+]]
 function Emitter:once(name, fn)
 	insert(self._listeners[name], {fn = fn, once = true})
 	return fn
 end
 
+--[[
+@method onSync
+@param name: string
+@param  fn: function
+@ret function
+]]
 function Emitter:onSync(name, fn)
 	insert(self._listeners[name], {fn = fn, sync = true})
 	return fn
 end
 
+--[[
+@method onceSync
+@param name: string
+@param  fn: function
+@ret function
+]]
 function Emitter:onceSync(name, fn)
 	insert(self._listeners[name], {fn = fn, once = true, sync = true})
 	return fn
 end
 
+--[[
+@method emit
+@param name: string
+@param ...: *
+]]
 function Emitter:emit(name, ...)
 	local listeners = self._listeners[name]
 	for i = 1, #listeners do
@@ -61,6 +90,11 @@ function Emitter:emit(name, ...)
 	end
 end
 
+--[[
+@method getListeners
+@param name: string
+@ret function
+]]
 function Emitter:getListeners(name)
 	local listeners = self._listeners[name]
 	return wrap(function()
@@ -72,6 +106,11 @@ function Emitter:getListeners(name)
 	end)
 end
 
+--[[
+@method getListenerCount
+@param name: string
+@ret number
+]]
 function Emitter:getListenerCount(name)
 	local listeners = self._listeners[name]
 	local n = 0
@@ -83,6 +122,11 @@ function Emitter:getListenerCount(name)
 	return n
 end
 
+--[[
+@method removeListener
+@param name: string
+@param fn: function
+]]
 function Emitter:removeListener(name, fn)
 	local listeners = self._listeners[name]
 	for i, listener in ipairs(listeners) do
@@ -92,10 +136,20 @@ function Emitter:removeListener(name, fn)
 	end
 end
 
+--[[
+@method removeAllListeners
+@param name: string
+]]
 function Emitter:removeAllListeners(name)
 	self._listeners[name] = nil
 end
 
+--[[
+@method waitFor
+@param name: string
+@param timeout: number
+@ret boolean, ...
+]]
 function Emitter:waitFor(name, timeout)
 	local thread = running()
 	local fn = self:onceSync(name, function(...)

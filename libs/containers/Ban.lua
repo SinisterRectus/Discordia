@@ -11,6 +11,10 @@ function Ban:__hash()
 	return self._user._id
 end
 
+--[[
+@method delete
+@ret boolean
+]]
 function Ban:delete()
 	return self._parent:unbanUser(self._user)
 end

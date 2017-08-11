@@ -202,11 +202,19 @@ local function run(self, token)
 
 end
 
+--[[
+@method run
+@param token: string
+@param presence: table
+]]
 function Client:run(token, presence)
 	self._presence = presence or {}
 	return wrap(run)(self, token)
 end
 
+--[[
+@method stop
+]]
 function Client:stop()
 	for _, shard in pairs(self._shards) do
 		shard:disconnect()
@@ -224,15 +232,30 @@ function Client:_modify(payload)
 	end
 end
 
+--[[
+@method setUsername
+@param username: string
+@ret boolean
+]]
 function Client:setUsername(username)
 	return self:_modify({username = username or json.null})
 end
 
+--[[
+@method setAvatar
+@param avatar: Base64 Resolveable
+@ret boolean
+]]
 function Client:setAvatar(avatar)
 	avatar = avatar and Resolver.base64(avatar)
 	return self:_modify({avatar = avatar or json.null})
 end
 
+--[[
+@method createGuild
+@param name: string
+@ret boolean
+]]
 function Client:createGuild(name)
 	local data, err = self._api:createGuild({name = name})
 	if data then -- NOTE: incomplete object, wait for GUILD_CREATE
@@ -242,6 +265,10 @@ function Client:createGuild(name)
 	end
 end
 
+--[[
+@method createGroupChannel
+@ret GroupChannel
+]]
 function Client:createGroupChannel()
 	local data, err = self._api:createGroupDM()
 	if data then
@@ -251,6 +278,11 @@ function Client:createGroupChannel()
 	end
 end
 
+--[[
+@method getWebhook
+@param id: string
+@ret Webhook
+]]
 function Client:getWebhook(id)
 	local data, err = self._api:getWebhook(id)
 	if data then
@@ -260,6 +292,11 @@ function Client:getWebhook(id)
 	end
 end
 
+--[[
+@method getInvite
+@param code: string
+@ret Invite
+]]
 function Client:getInvite(code)
 	local data, err = self._api:getInvite(code)
 	if data then
@@ -269,6 +306,11 @@ function Client:getInvite(code)
 	end
 end
 
+--[[
+@method getUser
+@param id: User ID Resolveable
+@ret User
+]]
 function Client:getUser(id)
 	id = Resolver.userId(id)
 	local user = self._users:get(id)
@@ -284,11 +326,21 @@ function Client:getUser(id)
 	end
 end
 
+--[[
+@method getGuild
+@param id: Guild ID Resolveable
+@ret Guild
+]]
 function Client:getGuild(id)
 	id = Resolver.guildId(id)
 	return self._guilds:get(id)
 end
 
+--[[
+@method getChannel
+@param id: Channel ID Resolveable
+@ret Channel
+]]
 function Client:getChannel(id)
 	id = Resolver.channelId(id)
 	local guild = self._channel_map[id]
@@ -299,10 +351,18 @@ function Client:getChannel(id)
 	end
 end
 
+--[[
+@method listVoiceRegions
+@ret table
+]]
 function Client:listVoiceRegions()
 	return self._api:listVoiceRegions()
 end
 
+--[[
+@method getConnections
+@ret table
+]]
 function Client:getConnections()
 	return self._api:getUsersConnections()
 end
@@ -319,16 +379,28 @@ local function updateStatus(self)
 	end
 end
 
+--[[
+@method setStatus
+@param status: string
+]]
 function Client:setStatus(status)
 	self._presence.status = status
 	return updateStatus(self)
 end
 
+--[[
+@method setGame
+@param game: table
+]]
 function Client:setGame(game)
 	self._presence.game = game
 	return updateStatus(self)
 end
 
+--[[
+@method setAFK
+@param afk: boolean
+]]
 function Client:setAFK(afk)
 	self._presence.afk = afk
 	return updateStatus(self)

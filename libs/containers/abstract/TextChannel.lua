@@ -18,6 +18,11 @@ function TextChannel:__init(data, parent)
 	self._messages = WeakCache({}, Message, self)
 end
 
+--[[
+@method getMessage
+@param id: Message ID Resolveable
+@ret Message
+]]
 function TextChannel:getMessage(id)
 	id = Resolver.messageId(id)
 	local message = self._messages:get(id)
@@ -33,6 +38,10 @@ function TextChannel:getMessage(id)
 	end
 end
 
+--[[
+@method getFirstMessage
+@ret Message
+]]
 function TextChannel:getFirstMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {after = self._id, limit = 1})
 	if data then
@@ -42,6 +51,10 @@ function TextChannel:getFirstMessage()
 	end
 end
 
+--[[
+@method getLastMessage
+@ret Message
+]]
 function TextChannel:getLastMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {limit = 1})
 	if data then
@@ -60,29 +73,56 @@ local function getMessageHistory(self, query)
 	end
 end
 
+--[[
+@method getMessageHistory
+@param [limit]: number
+@ret SecondaryCache
+]]
 function TextChannel:getMessageHistory(limit)
 	local query = limit and {limit = limit}
 	return getMessageHistory(self, query)
 end
 
-function TextChannel:getMessageHistoryAfter(message, limit)
-	message = Resolver.messageId(message)
-	local query = {after = message, limit = limit}
+--[[
+@method getMessageHistoryAfter
+@param id: Message ID Resolveable
+@param [limit]: number
+@ret SecondaryCache
+]]
+function TextChannel:getMessageHistoryAfter(id, limit)
+	id = Resolver.messageId(id)
+	local query = {after = id, limit = limit}
 	return getMessageHistory(self, query)
 end
 
-function TextChannel:getMessageHistoryBefore(message, limit)
-	message = Resolver.messageId(message)
-	local query = {before = message, limit = limit}
+--[[
+@method getMessageHistoryBefore
+@param id: Message ID Resolveable
+@param [limit]: number
+@ret SecondaryCache
+]]
+function TextChannel:getMessageHistoryBefore(id, limit)
+	id = Resolver.messageId(id)
+	local query = {before = id, limit = limit}
 	return getMessageHistory(self, query)
 end
 
-function TextChannel:getMessageHistoryAround(message, limit)
-	message = Resolver.messageId(message)
-	local query = {around = message, limit = limit}
+--[[
+@method getMessageHistoryAround
+@param id: Message ID Resolveable
+@param [limit]: number
+@ret SecondaryCache
+]]
+function TextChannel:getMessageHistoryAround(id, limit)
+	id = Resolver.messageId(id)
+	local query = {around = id, limit = limit}
 	return getMessageHistory(self, query)
 end
 
+--[[
+@method getPinnedMessages
+@ret SecondaryCache
+]]
 function TextChannel:getPinnedMessages()
 	local data, err = self.client._api:getPinnedMessages(self._id)
 	if data then
@@ -92,6 +132,10 @@ function TextChannel:getPinnedMessages()
 	end
 end
 
+--[[
+@method broadcastTyping
+@ret boolean
+]]
 function TextChannel:broadcastTyping()
 	local data, err = self.client._api:triggerTypingIndicator(self._id)
 	if data then
@@ -128,6 +172,11 @@ local function parseMention(obj, mentions)
 	return mentions
 end
 
+--[[
+@method send
+@param content: string|table
+@ret Message
+]]
 function TextChannel:send(content)
 
 	local data, err

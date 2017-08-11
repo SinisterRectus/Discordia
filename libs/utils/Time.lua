@@ -93,30 +93,65 @@ function Time:__div(other)
 	end
 end
 
+--[[
+@static fromWeeks
+@param t: number
+@ret Time
+]]
 function Time.fromWeeks(t)
 	return Time(t * MS_PER_WEEK)
 end
 
+--[[
+@static fromDays
+@param t: number
+@ret Time
+]]
 function Time.fromDays(t)
 	return Time(t * MS_PER_DAY)
 end
 
+--[[
+@static fromHours
+@param t: number
+@ret Time
+]]
 function Time.fromHours(t)
 	return Time(t * MS_PER_HOUR)
 end
 
+--[[
+@static fromMinutes
+@param t: number
+@ret Time
+]]
 function Time.fromMinutes(t)
 	return Time(t * MS_PER_MIN)
 end
 
+--[[
+@static fromSeconds
+@param t: number
+@ret Time
+]]
 function Time.fromSeconds(t)
 	return Time(t * MS_PER_S)
 end
 
+--[[
+@static fromMilliseconds
+@param t: number
+@ret Time
+]]
 function Time.fromMilliseconds(t)
 	return Time(t)
 end
 
+--[[
+@static fromTable
+@param t: table
+@ret Time
+]]
 function Time.fromTable(t)
 	local n = 0
 	for k, v in pairs(from) do
@@ -128,30 +163,58 @@ function Time.fromTable(t)
 	return Time(n)
 end
 
+--[[
+@method toWeeks
+@ret number
+]]
 function Time:toWeeks()
 	return self:toMilliseconds() / MS_PER_WEEK
 end
 
+--[[
+@method toDays
+@ret number
+]]
 function Time:toDays()
 	return self:toMilliseconds() / MS_PER_DAY
 end
 
+--[[
+@method toHours
+@ret number
+]]
 function Time:toHours()
 	return self:toMilliseconds() / MS_PER_HOUR
 end
 
+--[[
+@method toMilliseconds
+@ret number
+]]
 function Time:toMinutes()
 	return self:toMilliseconds() / MS_PER_MIN
 end
 
+--[[
+@method toSeconds
+@ret number
+]]
 function Time:toSeconds()
 	return self:toMilliseconds() / MS_PER_S
 end
 
+--[[
+@method toMilliseconds
+@ret number
+]]
 function Time:toMilliseconds()
 	return self._value
 end
 
+--[[
+@method toTable
+@ret table
+]]
 function Time:toTable()
 	local v = self._value
 	return {

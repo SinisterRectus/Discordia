@@ -28,6 +28,10 @@ function Permissions:__tostring()
 	end
 end
 
+--[[
+@method all
+@ret Permissions
+]]
 function Permissions.all()
 	return Permissions(ALL)
 end
@@ -45,6 +49,10 @@ local function getPerm(i, ...)
 	return n
 end
 
+--[[
+@method enable
+@param ...: Permissions Resolveable(s)
+]]
 function Permissions:enable(...)
 	local value = self._value
 	for i = 1, select('#', ...) do
@@ -54,6 +62,10 @@ function Permissions:enable(...)
 	self._value = value
 end
 
+--[[
+@method disable
+@param ...: Permissions Resolveable(s)
+]]
 function Permissions:disable(...)
 	local value = self._value
 	for i = 1, select('#', ...) do
@@ -63,6 +75,11 @@ function Permissions:disable(...)
 	self._value = value
 end
 
+--[[
+@method has
+@param ...: Permissions Resolveable(s)
+@ret boolean
+]]
 function Permissions:has(...)
 	local value = self._value
 	for i = 1, select('#', ...) do
@@ -74,18 +91,32 @@ function Permissions:has(...)
 	return true
 end
 
+--[[
+@method enableAll
+]]
 function Permissions:enableAll()
 	self._value = ALL
 end
 
+--[[
+@method disableAll
+]]
 function Permissions:disableAll()
 	self._value = 0
 end
 
+--[[
+@method toHex
+@ret string
+]]
 function Permissions:toHex()
 	return format('0x%08X', self._value)
 end
 
+--[[
+@method toTable
+@ret table
+]]
 function Permissions:toTable()
 	local ret = {}
 	local value = self._value
@@ -95,6 +126,10 @@ function Permissions:toTable()
 	return ret
 end
 
+--[[
+@method toArray
+@ret table
+]]
 function Permissions:toArray()
 	local ret = {}
 	local value = self._value
@@ -106,23 +141,47 @@ function Permissions:toArray()
 	return ret
 end
 
+--[[
+@method union
+@param other: Permissions
+@ret Permissions
+]]
 function Permissions:union(other) -- in either
 	return Permissions(bor(self._value, other._value))
 end
 
+--[[
+@method intersection
+@param other: Permissions
+@ret Permissions
+]]
 function Permissions:intersection(other) -- in both
 	return Permissions(band(self._value, other._value))
 end
 
+--[[
+@method difference
+@param other: Permissions
+@ret Permissions
+]]
 function Permissions:difference(other) -- not in both
 	return Permissions(bxor(self._value, other._value))
 end
 
+--[[
+@method complement
+@param other: Permissions
+@ret Permissions
+]]
 function Permissions:complement(other) -- in other not in self
 	local value = other and other._value or ALL
 	return Permissions(band(bnot(self._value), value))
 end
 
+--[[
+@method copy
+@ret Permissions
+]]
 function Permissions:copy()
 	return Permissions(self._value)
 end

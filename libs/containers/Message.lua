@@ -182,14 +182,28 @@ function Message:_modify(payload)
 	end
 end
 
+--[[
+@method setContent
+@param content: string
+@ret boolean
+]]
 function Message:setContent(content)
 	return self:_modify({content = content or json.null})
 end
 
+--[[
+@method setEmbed
+@param embed: table
+@ret boolean
+]]
 function Message:setEmbed(embed)
 	return self:_modify({embed = embed or json.null})
 end
 
+--[[
+@method pin
+@ret boolean
+]]
 function Message:pin()
 	local data, err = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
 	if data then
@@ -200,6 +214,10 @@ function Message:pin()
 	end
 end
 
+--[[
+@method unpin
+@ret boolean
+]]
 function Message:unpin()
 	local data, err = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
 	if data then
@@ -210,6 +228,11 @@ function Message:unpin()
 	end
 end
 
+--[[
+@method removeReaction
+@param emoji Emoji Resolveable
+@ret boolean
+]]
 function Message:addReaction(emoji)
 	emoji = Resolver.emoji(emoji)
 	local data, err = self.client._api:createReaction(self._parent._id, self._id, emoji)
@@ -220,12 +243,18 @@ function Message:addReaction(emoji)
 	end
 end
 
-function Message:removeReaction(emoji, user)
+--[[
+@method removeReaction
+@param emoji Emoji Resolveable
+@param id: User ID Resolveable
+@ret boolean
+]]
+function Message:removeReaction(emoji, id)
 	emoji = Resolver.emoji(emoji)
 	local data, err
-	if user then
-		user = Resolver.userId(user)
-		data, err = self.client._api:deleteUserReaction(self._parent._id, self._id, emoji, user)
+	if id then
+		id = Resolver.userId(id)
+		data, err = self.client._api:deleteUserReaction(self._parent._id, self._id, emoji, id)
 	else
 		data, err = self.client._api:deleteOwnReaction(self._parent._id, self._id, emoji)
 	end
@@ -236,6 +265,10 @@ function Message:removeReaction(emoji, user)
 	end
 end
 
+--[[
+@method clearReactions
+@ret boolean
+]]
 function Message:clearReactions()
 	local data, err = self.client._api:deleteAllReactions(self._parent._id, self._id)
 	if data then
@@ -245,6 +278,10 @@ function Message:clearReactions()
 	end
 end
 
+--[[
+@method delete
+@ret boolean
+]]
 function Message:delete()
 	local data, err = self.client._api:deleteMessage(self._parent._id, self._id)
 	if data then
@@ -254,6 +291,11 @@ function Message:delete()
 	end
 end
 
+--[[
+@method reply
+@param content: string|table
+@ret Message
+]]
 function Message:reply(content)
 	return self._parent:send(content)
 end

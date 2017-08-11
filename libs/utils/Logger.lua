@@ -45,6 +45,13 @@ function Logger:__init(level, dateTime, file)
 	self._file = file and openSync(file, 'a')
 end
 
+--[[
+@method log
+@param level: number
+@param msg: string
+@param ...: *
+@ret string
+]]
 function Logger:log(level, msg, ...)
 
 	if self._level < level then return end

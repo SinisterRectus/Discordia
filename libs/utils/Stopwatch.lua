@@ -13,21 +13,34 @@ function Stopwatch:__init(stopped)
 	self._final = stopped and t or nil
 end
 
+--[[
+@method stop
+]]
 function Stopwatch:stop()
 	if self._final then return end
 	self._final = hrtime()
 end
 
+--[[
+@method start
+]]
 function Stopwatch:start()
 	if not self._final then return end
 	self._initial = self._initial + hrtime() - self._final
 	self._final = nil
 end
 
+--[[
+@method reset
+]]
 function Stopwatch:reset()
 	self._initial = self._final or hrtime()
 end
 
+--[[
+@method getTime
+@ret Time
+]]
 function Stopwatch:getTime()
 	return Time(self.milliseconds)
 end

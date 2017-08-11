@@ -76,10 +76,22 @@ function Color:__div(other)
 	end
 end
 
+--[[
+@static fromHex
+@param hex: string
+@ret Color
+]]
 function Color.fromHex(hex)
 	return Color(tonumber(hex:match('#?(.*)'), 16))
 end
 
+--[[
+@static fromRGB
+@param r: number
+@param g: number
+@param b: number
+@ret Color
+]]
 function Color.fromRGB(r, g, b)
 	r = band(lshift(r, 16), 0xFF0000)
 	g = band(lshift(g, 8), 0x00FF00)
@@ -130,6 +142,13 @@ local function toHue(r, g, b)
 	return h, d, mx, mn
 end
 
+--[[
+@static fromHSV
+@param h: number
+@param s: number
+@param v: number
+@ret Color
+]]
 function Color.fromHSV(h, s, v)
 	h = h % 360
 	s = clamp(s, 0, 1)
@@ -140,6 +159,13 @@ function Color.fromHSV(h, s, v)
 	return Color.fromRGB(r, g, b)
 end
 
+--[[
+@static fromHSL
+@param h: number
+@param s: number
+@param l: number
+@ret Color
+]]
 function Color.fromHSL(h, s, l)
 	h = h % 360
 	s = clamp(s, 0, 1)
@@ -150,14 +176,26 @@ function Color.fromHSL(h, s, l)
 	return Color.fromRGB(r, g, b)
 end
 
+--[[
+@method toHex
+@ret string
+]]
 function Color:toHex()
 	return format('#%06X', self._value)
 end
 
+--[[
+@method toRGB
+@ret number, number, number
+]]
 function Color:toRGB()
 	return self.r, self.g, self.b
 end
 
+--[[
+@method toHSV
+@ret number, number, number
+]]
 function Color:toHSV()
 	local h, d, mx = toHue(self.r, self.g, self.b)
 	local v = mx
@@ -165,6 +203,10 @@ function Color:toHSV()
 	return h, s, v
 end
 
+--[[
+@method toHSL
+@ret number, number, number
+]]
 function Color:toHSL()
 	local h, d, mx, mn = toHue(self.r, self.g, self.b)
 	local l = (mx + mn) * 0.5
@@ -210,18 +252,34 @@ local function setByte(value, offset, new)
 	return bor(value, band(lshift(new, offset), byte))
 end
 
+--[[
+@method setRed
+@param r: number
+]]
 function Color:setRed(r)
 	self._value = setByte(self._value, 16, r)
 end
 
+--[[
+@method setGreen
+@param g: number
+]]
 function Color:setGreen(g)
 	self._value = setByte(self._value, 8, g)
 end
 
+--[[
+@method setBlue
+@param b: number
+]]
 function Color:setBlue(b)
 	self._value = setByte(self._value, 0, b)
 end
 
+--[[
+@method copy
+@ret Color
+]]
 function Color:copy()
 	return Color(self._value)
 end

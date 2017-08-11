@@ -26,14 +26,29 @@ function GuildChannel:_loadMore(data)
 	return self._permission_overwrites:_load(data.permission_overwrites, true)
 end
 
+--[[
+@method setName
+@param name: string
+@ret boolean
+]]
 function GuildChannel:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[[
+@method setPosition
+@param position: number
+@ret boolean
+]]
 function GuildChannel:setPosition(position)
 	return self:_modify({position = position or json.null})
 end
 
+--[[
+@method createInvite
+@param payload: table
+@ret Invite
+]]
 function GuildChannel:createInvite(payload)
 	local data, err = self.client._api:createChannelInvite(self._id, payload)
 	if data then
@@ -43,6 +58,10 @@ function GuildChannel:createInvite(payload)
 	end
 end
 
+--[[
+@method getInvites
+@ret Cache
+]]
 function GuildChannel:getInvites()
 	local data, err = self.client._api:getChannelInvites(self._id)
 	if data then
@@ -52,6 +71,11 @@ function GuildChannel:getInvites()
 	end
 end
 
+--[[
+@method getPermissionOverwriteFor
+@param object: Role|Member
+@ret PermissionOverwrite
+]]
 function GuildChannel:getPermissionOverwriteFor(obj)
 	local id, type
 	if isInstance(obj, classes.Role) and self._parent == obj._parent then
@@ -67,6 +91,10 @@ function GuildChannel:getPermissionOverwriteFor(obj)
 	}, {__jsontype = 'object'}))
 end
 
+--[[
+@method delete
+@ret boolean
+]]
 function GuildChannel:delete()
 	return self:_delete()
 end

@@ -13,18 +13,33 @@ function GroupChannel:__init(data, parent)
 	self._recipients = SecondaryCache(data.recipients, self.client._users)
 end
 
+--[[
+@method setName
+@param name: string
+@ret boolean
+]]
 function GroupChannel:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[[
+@method setIcon
+@param icon: Base64 Resolveable
+@ret boolean
+]]
 function GroupChannel:setIcon(icon)
 	icon = icon and Resolver.base64(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
-function GroupChannel:addRecipient(user)
-	user = Resolver.userId(user)
-	local data, err = self.client._api:groupDMAddRecipient(self._id, user)
+--[[
+@method addRecipient
+@param id: User ID Resolveable
+@ret boolean
+]]
+function GroupChannel:addRecipient(id)
+	id = Resolver.userId(id)
+	local data, err = self.client._api:groupDMAddRecipient(self._id, id)
 	if data then
 		return true
 	else
@@ -32,9 +47,14 @@ function GroupChannel:addRecipient(user)
 	end
 end
 
-function GroupChannel:removeRecipient(user)
-	user = Resolver.userId(user)
-	local data, err = self.client._api:groupDMRemoveRecipient(self._id, user)
+--[[
+@method removeRecipient
+@param id: User ID Resolveable
+@ret boolean
+]]
+function GroupChannel:removeRecipient(id)
+	id = Resolver.userId(id)
+	local data, err = self.client._api:groupDMRemoveRecipient(self._id, id)
 	if data then
 		return true
 	else
@@ -42,6 +62,10 @@ function GroupChannel:removeRecipient(user)
 	end
 end
 
+--[[
+@method leave
+@ret boolean
+]]
 function GroupChannel:leave()
 	return self:_delete()
 end

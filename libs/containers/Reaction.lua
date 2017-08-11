@@ -16,6 +16,10 @@ function Reaction:__hash()
 	return self._emoji_id or self._emoji_name
 end
 
+--[[
+@method getUsers
+@ret SecondaryCache
+]]
 function Reaction:getUsers()
 	local emoji = Resolver.emoji(self)
 	local message = self._parent
@@ -28,8 +32,13 @@ function Reaction:getUsers()
 	end
 end
 
-function Reaction:delete(user)
-	return self._parent:removeReaction(self, user)
+--[[
+@method delete
+@param id: User ID Resolveable
+@ret boolean
+]]
+function Reaction:delete(id)
+	return self._parent:removeReaction(self, id)
 end
 
 --[[

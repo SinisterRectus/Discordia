@@ -18,6 +18,13 @@ function GuildTextChannel:_load(data)
 	TextChannel._load(self, data)
 end
 
+--[[
+@method banUser
+@param id: User ID Resolveable
+@param reason: string
+@param days: number
+@ret boolean
+]]
 function GuildTextChannel:createWebhook(name)
 	local data, err = self.client._api:createWebhook(self._id, {name = name})
 	if data then
@@ -27,6 +34,10 @@ function GuildTextChannel:createWebhook(name)
 	end
 end
 
+--[[
+@method getWebhooks
+@ret Cache
+]]
 function GuildTextChannel:getWebhooks()
 	local data, err = self.client._api:getChannelWebhooks(self._id)
 	if data then
@@ -36,6 +47,10 @@ function GuildTextChannel:getWebhooks()
 	end
 end
 
+--[[
+@method bulkDelete
+@param Message ID Resolveables
+]]
 function GuildTextChannel:bulkDelete(messages)
 	messages = Resolver.messageIds(messages)
 	local data, err = self.client._api:bulkDeleteMessages(self._id, {messages = messages})
@@ -46,6 +61,11 @@ function GuildTextChannel:bulkDelete(messages)
 	end
 end
 
+--[[
+@method setTopic
+@param topic: string
+@ret boolean
+]]
 function GuildTextChannel:setTopic(topic)
 	return self:_modify({topic = topic or json.null})
 end
