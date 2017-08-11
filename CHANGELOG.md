@@ -248,7 +248,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Removed `accept` method
 
 ##### Member
-- Changed super-class from `Snowflake` to `Container`
+- Changed base class from `Snowflake` to `UserPresence`
 - Added `__hash` method, which returns `user.id` property
 - Replaced `roles` properties and methods with directly accessible `ArrayIterable` property
 - Replaced `setMute` method with `mute` and `unmute` methods
@@ -328,6 +328,9 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `fullname` property
 - Removed avatar default size of 1024 (pass an explicit size to `get[Default]AvatarURL` if a size is required)
 - Removed `kick`, `ban`, and `unban` methods (used `Guild` methods instead)
+
+##### UserPresence
+- New class! See documentation.
 
 ##### Webhook
 - Changed `setAvatar` to accept a base64-resolvable

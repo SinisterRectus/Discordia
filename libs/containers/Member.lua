@@ -1,6 +1,6 @@
 local enums = require('enums')
 local class = require('class')
-local Container = require('containers/abstract/Container')
+local UserPresence = require('containers/UserPresence')
 local ArrayIterable = require('iterables/ArrayIterable')
 local Color = require('utils/Color')
 local Resolver = require('client/Resolver')
@@ -12,20 +12,15 @@ local band, bor, bnot = bit.band, bit.bor, bit.bnot
 local isInstance = class.isInstance
 local permission = enums.permission
 
-local Member, get = class('Member', Container)
+local Member, get = class('Member', UserPresence)
 
 function Member:__init(data, parent)
-	Container.__init(self, data, parent)
-	self._user = self.client._users:_insert(data.user)
+	UserPresence.__init(self, data, parent)
 	return self:_loadMore(data)
 end
 
-function Member:__hash()
-	return self._user._id
-end
-
 function Member:_load(data)
-	Container._load(self, data)
+	UserPresence._load(self, data)
 	return self:_loadMore(data)
 end
 
@@ -39,14 +34,6 @@ function Member:_loadMore(data)
 			self._roles_raw = roles
 		end
 	end
-end
-
-function Member:_loadPresence(presence)
-	local game = presence.game
-	self._game_name = game and game.name
-	self._game_type = game and game.type
-	self._game_url = game and game.url
-	self._status = presence.status
 end
 
 local function sorter(a, b)
@@ -408,15 +395,6 @@ function Member:unban(reason)
 end
 
 --[[
-@method send
-@param content: string|table
-@ret Message
-]]
-function Member:send(content)
-	return self._user:send(content)
-end
-
---[[
 @property roles: ArrayIterable
 ]]
 function get.roles(self)
@@ -452,34 +430,6 @@ function get.joinedAt(self)
 end
 
 --[[
-@property gameName: string|nil
-]]
-function get.gameName(self)
-	return self._game_name
-end
-
---[[
-@property gameType: number|nil
-]]
-function get.gameType(self)
-	return self._game_type
-end
-
---[[
-@property gameURL: string|nil
-]]
-function get.gameURL(self)
-	return self._game_url
-end
-
---[[
-@property status: string
-]]
-function get.status(self)
-	return self._status or 'offline'
-end
-
---[[
 @property muted: boolean
 ]]
 function get.muted(self)
@@ -501,13 +451,6 @@ function get.guild(self)
 end
 
 --[[
-@property user: User
-]]
-function get.user(self)
-	return self._user
-end
-
---[[
 @property highestRole: Role
 ]]
 function get.highestRole(self)
@@ -518,71 +461,6 @@ function get.highestRole(self)
 		end
 	end
 	return ret or self.guild.defaultRole
-end
-
--- user shortcuts
-
---[[
-@property id: string
-]]
-function get.id(self)
-	return self._user.id
-end
-
---[[
-@property bot: boolean
-]]
-function get.bot(self)
-	return self._user.bot
-end
-
---[[
-@property username: string
-]]
-function get.username(self)
-	return self._user.username
-end
-
---[[
-@property discriminator: string
-]]
-function get.discriminator(self)
-	return self._user.discriminator
-end
-
---[[
-@property avatar: string|nil
-]]
-function get.avatar(self)
-	return self._user.avatar
-end
-
---[[
-@property defaultAvatar: number
-]]
-function get.defaultAvatar(self)
-	return self._user.defaultAvatar
-end
-
---[[
-@property avatarURL: string
-]]
-function get.avatarURL(self)
-	return self._user.avatarURL
-end
-
---[[
-@property defaultAvatarURL: string
-]]
-function get.defaultAvatarURL(self)
-	return self._user.defaultAvatarURL
-end
-
---[[
-@property mentionString: string
-]]
-function get.mentionString(self)
-	return self._user.mentionString
 end
 
 return Member
