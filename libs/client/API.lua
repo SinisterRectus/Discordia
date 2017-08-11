@@ -9,7 +9,7 @@ local endpoints = require('endpoints')
 local request = http.request
 local f, gsub, byte = string.format, string.gsub, string.byte
 local max, random = math.max, math.random
-local encode, decode = json.encode, json.decode
+local encode, decode, null = json.encode, json.decode, json.null
 local insert, concat = table.insert, table.concat
 local difftime = os.difftime
 local sleep = timer.sleep
@@ -196,7 +196,7 @@ function API:commit(method, url, req, payload, retries)
 		delay = max(1000 * dt, delay)
 	end
 
-	local data = res['Content-Type'] == JSON and decode(msg) or msg
+	local data = res['Content-Type'] == JSON and decode(msg, 1, null) or msg
 
 	if res.code < 300 then
 

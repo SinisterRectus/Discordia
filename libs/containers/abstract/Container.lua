@@ -1,3 +1,6 @@
+local json = require('json')
+
+local null = json.null
 local format = string.format
 
 local Container, get = require('class')('Container')
@@ -9,6 +12,8 @@ local function load(self, data)
 	for k, v in pairs(data) do
 		if types[type(v)] then
 			self['_' .. k] = v
+		elseif v == null then
+			self['_' .. k] = nil
 		end
 	end
 end

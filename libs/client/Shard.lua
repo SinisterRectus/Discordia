@@ -14,7 +14,7 @@ local enums = require('enums')
 local logLevel = enums.logLevel
 local inflate = miniz.inflate
 local min, max, random = math.min, math.max, math.random
-local encode, decode = json.encode, json.decode
+local encode, decode, null = json.encode, json.decode, json.null
 local ws_parseUrl, ws_connect = websocket.parseUrl, websocket.connect
 local format = string.format
 local sleep = timer.sleep
@@ -151,7 +151,7 @@ function Shard:handlePayloads(token)
 		end
 
 		client:emit('raw', payload)
-		payload = decode(payload)
+		payload = decode(payload, 1, null)
 
 		local s = payload.s
 		local t = payload.t

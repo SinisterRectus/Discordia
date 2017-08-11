@@ -25,7 +25,6 @@ function Member:_load(data)
 end
 
 function Member:_loadMore(data)
-	self._nick = data.nick -- can be nil
 	if data.roles then
 		local roles = #data.roles > 0 and data.roles or nil
 		if self._roles then
