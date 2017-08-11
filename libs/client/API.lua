@@ -115,8 +115,7 @@ function API:authenticate(token)
 		{'Authorization', token},
 		{'User-Agent', f('DiscordBot (%s, %s)', package.homepage, package.version)},
 	}
-	-- return self:getCurrentUser() -- TODO: active this on release
-	return decode(encode({id = '1234', bot = token:find('Bot')}))
+	return self:getCurrentUser()
 end
 
 function API:request(method, endpoint, payload, query, files)

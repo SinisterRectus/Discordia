@@ -122,15 +122,15 @@ local function run(self, token)
 	end
 	self._user = users:_insert(user)
 
-	-- if user.bot then -- TODO: activate on release
-	-- 	local app, err2 = api:getCurrentApplicationInformation()
-	-- 	if not app then
-	-- 		return self:error('Could not get application information: ' .. err2)
-	-- 	end
-	-- 	self._owner = users:_insert(app.owner)
-	-- else
-	-- 	self._owner = self._user
-	-- end
+	if user.bot then
+		local app, err2 = api:getCurrentApplicationInformation()
+		if not app then
+			return self:error('Could not get application information: ' .. err2)
+		end
+		self._owner = users:_insert(app.owner)
+	else
+		self._owner = self._user
+	end
 
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
 
