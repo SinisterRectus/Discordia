@@ -47,12 +47,20 @@ function Role:setPermissions(permissions)
 	return self:_modify({permissions = permissions or json.null})
 end
 
-function Role:setHoisted(hoist)
-	return self:_modify({hoist = hoist or json.null})
+function Role:hoist()
+	return self:_modify({hoist = true})
 end
 
-function Role:setMentionable(mentionable)
-	return self:_modify({mentionable = mentionable or json.null})
+function Role:unhoist()
+	return self:_modify({hoist = false})
+end
+
+function Role:enableMentioning()
+	return self:_modify({mentionable = true})
+end
+
+function Role:disableMentioning()
+	return self:_modify({mentionable = false})
 end
 
 function Role:enablePermissions(...)

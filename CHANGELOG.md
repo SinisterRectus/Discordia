@@ -311,7 +311,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `getPermissions` method to access `Permissions` object
 - Changed `setColor` to accept a color-resolvable
 - Changed `setPermissions` to accept a permissions-resolvable
-- Changed `setHoist` method to `setHoisted`
+- Replaced `setHoist` method with `hoist` and `unhoist`
+- Replaced `setMentionable` method with `enableMentioning` and `disableMentioning`
 - Changed `hoist` property to `hoisted`
 
 ##### User
