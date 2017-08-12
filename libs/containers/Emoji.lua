@@ -43,7 +43,7 @@ end
 --[[
 @property string: string
 ]]
-function get.string(self)
+function get.mentionString(self)
 	return format('<:%s:%s>', self._name, self._id)
 end
 

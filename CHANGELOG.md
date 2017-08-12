@@ -186,6 +186,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 
 ##### Emoji
 - Changed `url` property to use cdn URL
+- Renamed `string` to `mentionString` to be consistent with other "mentions"
 - Added `roles` `ArrayIterable` for roles that may be required to use the emoji
 - Removed explicit `__tostring` method (parent method is used instead)
 
