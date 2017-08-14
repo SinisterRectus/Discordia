@@ -64,7 +64,7 @@ function TextChannel:getLastMessage()
 	end
 end
 
-local function getMessageHistory(self, query)
+local function getMessages(self, query)
 	local data, err = self.client._api:getChannelMessages(self._id, query)
 	if data then
 		return SecondaryCache(data, self._messages)
@@ -74,49 +74,45 @@ local function getMessageHistory(self, query)
 end
 
 --[[
-@method getMessageHistory
+@method getMessages
 @param [limit]: number
 @ret SecondaryCache
 ]]
-function TextChannel:getMessageHistory(limit)
-	local query = limit and {limit = limit}
-	return getMessageHistory(self, query)
+function TextChannel:getMessages(limit)
+	return getMessages(self, limit and {limit = limit})
 end
 
 --[[
-@method getMessageHistoryAfter
+@method getMessagesAfter
 @param id: Message ID Resolveable
 @param [limit]: number
 @ret SecondaryCache
 ]]
-function TextChannel:getMessageHistoryAfter(id, limit)
+function TextChannel:getMessagesAfter(id, limit)
 	id = Resolver.messageId(id)
-	local query = {after = id, limit = limit}
-	return getMessageHistory(self, query)
+	return getMessages(self, {after = id, limit = limit})
 end
 
 --[[
-@method getMessageHistoryBefore
+@method getMessagesBefore
 @param id: Message ID Resolveable
 @param [limit]: number
 @ret SecondaryCache
 ]]
-function TextChannel:getMessageHistoryBefore(id, limit)
+function TextChannel:getMessagesBefore(id, limit)
 	id = Resolver.messageId(id)
-	local query = {before = id, limit = limit}
-	return getMessageHistory(self, query)
+	return getMessages(self, {before = id, limit = limit})
 end
 
 --[[
-@method getMessageHistoryAround
+@method getMessagesAround
 @param id: Message ID Resolveable
 @param [limit]: number
 @ret SecondaryCache
 ]]
-function TextChannel:getMessageHistoryAround(id, limit)
+function TextChannel:getMessagesAround(id, limit)
 	id = Resolver.messageId(id)
-	local query = {around = id, limit = limit}
-	return getMessageHistory(self, query)
+	return getMessages(self, {around = id, limit = limit})
 end
 
 --[[

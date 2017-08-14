@@ -180,7 +180,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Replaced `firstMessage` property with `getFirstMessage` method
 - Replaced `pinnedMessages` property with `getPinnedMessages` method
 - Replaced `messages` properties and methods with directly accessible `Cache` property
-- Changed `getMessageHistory` behavior (see documentation)
+- Renamed `getMessageHistory` to `getMessages` and changed behavior (see documentation)
 - Renamed `sendMessage` to `send` and changed behavior (see documentation)
 - Added stand-alone `getMessage` method, which accepts only a messageId-resolvable
 

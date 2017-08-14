@@ -256,7 +256,7 @@ function API:deleteChannel(channel_id) -- Channel:delete
 	return self:request("DELETE", endpoint)
 end
 
-function API:getChannelMessages(channel_id, query) -- TextChannel:get[First|Last]Message, TextChannel:getMessageHistory
+function API:getChannelMessages(channel_id, query) -- TextChannel:get[First|Last]Message, TextChannel:getMessages
 	local endpoint = f(endpoints.CHANNEL_MESSAGES, channel_id)
 	return self:request("GET", endpoint, nil, query)
 end
@@ -271,17 +271,17 @@ function API:createMessage(channel_id, payload, files) -- TextChannel:send
 	return self:request("POST", endpoint, payload, nil, files)
 end
 
-function API:createReaction(channel_id, message_id, emoji, payload) -- Message:react
+function API:createReaction(channel_id, message_id, emoji, payload) -- Message:addReaction
 	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, emoji)
 	return self:request("PUT", endpoint, payload)
 end
 
-function API:deleteOwnReaction(channel_id, message_id, emoji) -- Reaction:delete
+function API:deleteOwnReaction(channel_id, message_id, emoji) -- Message:removeReaction
 	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, emoji)
 	return self:request("DELETE", endpoint)
 end
 
-function API:deleteUserReaction(channel_id, message_id, emoji, user_id) -- Reaction:delete
+function API:deleteUserReaction(channel_id, message_id, emoji, user_id) -- Message:removeReaction
 	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_USER, channel_id, message_id, emoji, user_id)
 	return self:request("DELETE", endpoint)
 end
