@@ -167,6 +167,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 ##### GuildChannel
 - Replaced `invites` property with `getInvites` method
 - Replaced `permissionOverwrites` properties and methods with directly accessible `Cache` property
+- Replaced `setPosition` method with `moveUp` and `moveDown` methods
 
 ##### Snowflake
 - Added `__hash` method, which returns `id` property
@@ -315,6 +316,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Replaced `setHoist` method with `hoist` and `unhoist`
 - Replaced `setMentionable` method with `enableMentioning` and `disableMentioning`
 - Changed `hoist` property to `hoisted`
+- Replaced `setPosition` method with `moveUp` and `moveDown` methods
 
 ##### User
 - Removed `User:getMembership(guild)` (use `Guild:getMember(user)` instead)

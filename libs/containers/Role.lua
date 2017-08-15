@@ -1,12 +1,13 @@
 local json = require('json')
-
 local Snowflake = require('containers/abstract/Snowflake')
-
 local Color = require('utils/Color')
 local Permissions = require('utils/Permissions')
 local Resolver = require('client/Resolver')
 
 local format = string.format
+local insert, sort = table.insert, table.sort
+local min, max, floor = math.min, math.max, math.floor
+local huge = math.huge
 
 local Role, get = require('class')('Role', Snowflake)
 
@@ -37,13 +38,98 @@ function Role:delete()
 	end
 end
 
+local function sorter(a, b)
+	if a.position == b.position then
+		return tonumber(a.id) < tonumber(b.id)
+	else
+		return a.position < b.position
+	end
+end
+
+local function getSortedRoles(self)
+	local guild = self._parent
+	local id = self._parent._id
+	local ret = {}
+	for role in guild.roles:iter() do
+		if role._id ~= id then
+			insert(ret, {id = role._id, position = role._position})
+		end
+	end
+	sort(ret, sorter)
+	return ret
+end
+
+local function setSortedRoles(self, roles)
+	local id = self._parent._id
+	insert(roles, {id = id, position = 0})
+	local data, err = self.client._api:modifyGuildRolePositions(id, roles)
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
 --[[
-@method setPosition
-@param position: number
+@method moveDown
+@param [n]: number
 @ret boolean
 ]]
-function Role:setPosition(position)
-	return self:_modify({position = position or json.null})
+function Role:moveDown(n)
+
+	n = tonumber(n) or 1
+	if n < 0 then
+		return self:moveDown(-n)
+	end
+
+	local roles = getSortedRoles(self)
+
+	local new = huge
+	for i = #roles, 1, -1 do
+		local v = roles[i]
+		if v.id == self._id then
+			new = max(1, i - floor(n))
+			v.position = new
+		elseif i >= new then
+			v.position = i + 1
+		else
+			v.position = i
+		end
+	end
+
+	return setSortedRoles(self, roles)
+
+end
+
+--[[
+@method moveUp
+@param [n]: number
+@ret boolean
+]]
+function Role:moveUp(n)
+
+	n = tonumber(n) or 1
+	if n < 0 then
+		return self:moveUp(-n)
+	end
+
+	local roles = getSortedRoles(self)
+
+	local new = -huge
+	for i = 1, #roles do
+		local v = roles[i]
+		if v.id == self._id then
+			new = min(i + floor(n), #roles)
+			v.position = new
+		elseif i <= new then
+			v.position = i - 1
+		else
+			v.position = i
+		end
+	end
+
+	return setSortedRoles(self, roles)
+
 end
 
 --[[

@@ -391,7 +391,7 @@ function API:createGuildChannel(guild_id, payload) -- Guild:create[Text|Voice]Ch
 	return self:request("POST", endpoint, payload)
 end
 
-function API:modifyGuildChannelPositions(guild_id, payload) -- TODO
+function API:modifyGuildChannelPositions(guild_id, payload) -- GuildChannel:move[Up|Down]
 	local endpoint = f(endpoints.GUILD_CHANNELS, guild_id)
 	return self:request("PATCH", endpoint, payload)
 end
@@ -461,7 +461,7 @@ function API:createGuildRole(guild_id, payload) -- Guild:createRole
 	return self:request("POST", endpoint, payload)
 end
 
-function API:modifyGuildRolePositions(guild_id, payload) -- TODO
+function API:modifyGuildRolePositions(guild_id, payload) -- Role:move[Up|Down]
 	local endpoint = f(endpoints.GUILD_ROLES, guild_id)
 	return self:request("PATCH", endpoint, payload)
 end
