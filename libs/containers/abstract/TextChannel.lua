@@ -45,7 +45,11 @@ end
 function TextChannel:getFirstMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {after = self._id, limit = 1})
 	if data then
-		return self._messages:_insert(data[1])
+		if data[1] then
+			return self._messages:_insert(data[1])
+		else
+			return nil, 'Channel has no messages'
+		end
 	else
 		return nil, err
 	end
@@ -58,7 +62,11 @@ end
 function TextChannel:getLastMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {limit = 1})
 	if data then
-		return self._messages:_insert(data[1])
+		if data[1] then
+			return self._messages:_insert(data[1])
+		else
+			return nil, 'Channel has no messages'
+		end
 	else
 		return nil, err
 	end
