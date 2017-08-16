@@ -23,10 +23,11 @@ local Emitter = require('utils/Emitter')
 local Logger = require('utils/Logger')
 local Mutex = require('utils/Mutex')
 
-local encode, decode = json.encode, json.decode
+local encode, decode, null = json.encode, json.decode, json.null
 local readFileSync, writeFileSync = fs.readFileSync, fs.writeFileSync
 
 local logLevel = enums.logLevel
+local gameType = enums.gameType
 
 local wrap = coroutine.wrap
 local time, difftime = os.time, os.difftime
@@ -238,7 +239,7 @@ end
 @ret boolean
 ]]
 function Client:setUsername(username)
-	return self:_modify({username = username or json.null})
+	return self:_modify({username = username or null})
 end
 
 --[[
@@ -248,7 +249,7 @@ end
 ]]
 function Client:setAvatar(avatar)
 	avatar = avatar and Resolver.base64(avatar)
-	return self:_modify({avatar = avatar or json.null})
+	return self:_modify({avatar = avatar or null})
 end
 
 --[[
@@ -368,14 +369,14 @@ function Client:getConnections()
 end
 
 local function updateStatus(self)
-	local presence = {
-		afk = not not self._presence.afk,
-		game = self._presence.game or json.null,
-		since = self._presence.status == 'idle' and 1000 * time() or json.null,
-		status = self._presence.status or json.null,
-	}
+	local shards = self._shards
+	local presence = self._presence
+	presence.afk = presence.afk or null
+	presence.game = presence.game or null
+	presence.since = presence.since or null
+	presence.status = presence.status or null
 	for i = 0, self._shard_count - 1 do
-		self._shards[i]:updateStatus(presence)
+		shards[i]:updateStatus(presence)
 	end
 end
 
@@ -384,15 +385,40 @@ end
 @param status: string
 ]]
 function Client:setStatus(status)
-	self._presence.status = status
+	if type(status) == 'string' then
+		self._presence.status = status
+		if status == 'idle' then
+			self._presence.since = 1000 * time()
+		else
+			self._presence.since = null
+		end
+	else
+		self._presence.status = null
+		self._presence.since = null
+	end
 	return updateStatus(self)
 end
 
 --[[
 @method setGame
-@param game: table
+@param game: string|table
 ]]
 function Client:setGame(game)
+	if type(game) == 'string' then
+		game = {name = game, type = gameType.default}
+	elseif type(game) == 'table' then
+		if type(game.name) == 'string' then
+			if type(game.url) == 'string' then
+				game.type = gameType.streaming
+			else
+				game.type = gameType.default
+			end
+		else
+			game = null
+		end
+	else
+		game = null
+	end
 	self._presence.game = game
 	return updateStatus(self)
 end
@@ -402,7 +428,11 @@ end
 @param afk: boolean
 ]]
 function Client:setAFK(afk)
-	self._presence.afk = afk
+	if type(afk) == 'boolean' then
+		self._presence.afk = afk
+	else
+		self._presence.afk = null
+	end
 	return updateStatus(self)
 end
 
