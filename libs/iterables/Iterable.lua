@@ -72,21 +72,6 @@ function Iterable:forEach(fn)
 end
 
 --[[
-@method toTable
-@param fn: function
-@ret table
-]]
-function Iterable:toTable(fn)
-	local ret = {}
-	for obj in self:iter() do
-		if not fn or fn(obj) then
-			insert(ret, obj)
-		end
-	end
-	return ret
-end
-
---[[
 @method random
 @ret *
 ]]
@@ -152,6 +137,26 @@ local function sorter(a, b)
 		end
 	end
 	return tostring(a) < tostring(b)
+end
+
+--[[
+@method toTable
+@param fn: function
+@ret table
+]]
+function Iterable:toTable(fn, sortBy)
+	local ret = {}
+	for obj in self:iter() do
+		if not fn or fn(obj) then
+			insert(ret, obj)
+		end
+	end
+	if type(sortBy) == 'string' then
+		sort(ret, function(a, b)
+			return sorter(a[sortBy], b[sortBy])
+		end)
+	end
+	return ret
 end
 
 --[[
