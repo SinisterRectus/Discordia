@@ -128,4 +128,18 @@ function get.mentionString(self)
 	return self._user.mentionString
 end
 
+--[[
+@property createdAt: number
+]]
+function get.createdAt(self)
+	return self._user.createdAt
+end
+
+--[[
+@property timestamp: string
+]]
+function get.timestamp(self)
+	return self._user.timestamp
+end
+
 return UserPresence
