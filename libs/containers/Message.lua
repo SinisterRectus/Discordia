@@ -10,6 +10,12 @@ local insert, remove = table.insert, table.remove
 
 local Message, get = require('class')('Message', Snowflake)
 
+--[[
+@class Message x Snowflake
+
+Represents a text message sent in a Discord text channel. Messages can contain
+simple content strings, rich embeds, attachments, or reactions.
+]]
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._author = self.client._users:_insert(data.author)
@@ -184,8 +190,13 @@ end
 
 --[[
 @method setContent
+@tags http
 @param content: string
 @ret boolean
+
+Sets the message's content. The message must be authored by the current user
+(ie: you cannot change the content of messages sent by other users). The content
+must be from 1 to 2000 characters in length.
 ]]
 function Message:setContent(content)
 	return self:_modify({content = content or json.null})
@@ -193,8 +204,12 @@ end
 
 --[[
 @method setEmbed
+@tags http
 @param embed: table
 @ret boolean
+
+Sets the message's embed. The message must be authored by the current user.
+(ie: you cannot change the embed of messages sent by other users).
 ]]
 function Message:setEmbed(embed)
 	return self:_modify({embed = embed or json.null})
@@ -202,7 +217,10 @@ end
 
 --[[
 @method pin
+@tags http
 @ret boolean
+
+Pins the message in the channel.
 ]]
 function Message:pin()
 	local data, err = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
@@ -216,7 +234,10 @@ end
 
 --[[
 @method unpin
+@tags http
 @ret boolean
+
+Unpins the message in the channel.
 ]]
 function Message:unpin()
 	local data, err = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
@@ -230,8 +251,12 @@ end
 
 --[[
 @method removeReaction
+@tags http
 @param emoji Emoji Resolveable
 @ret boolean
+
+Adds a reaction to the message. Note that this does not return the new reaction
+object; wait for the `reactionAdd` event instead.
 ]]
 function Message:addReaction(emoji)
 	emoji = Resolver.emoji(emoji)
@@ -245,9 +270,14 @@ end
 
 --[[
 @method removeReaction
+@tags http
 @param emoji Emoji Resolveable
-@param id: User ID Resolveable
+@param [id]: User ID Resolveable
 @ret boolean
+
+Removes a reaction from the message. Note that this does not return the old
+reaction object; wait for the `reactionAdd` event instead. If no user is
+indicated, then this will remove the current user's reaction.
 ]]
 function Message:removeReaction(emoji, id)
 	emoji = Resolver.emoji(emoji)
@@ -267,7 +297,10 @@ end
 
 --[[
 @method clearReactions
+@tags http
 @ret boolean
+
+Removes all reactions from the message.
 ]]
 function Message:clearReactions()
 	local data, err = self.client._api:deleteAllReactions(self._parent._id, self._id)
@@ -280,7 +313,10 @@ end
 
 --[[
 @method delete
+@tags http
 @ret boolean
+
+Permanently deletes the message. This cannot be undone!
 ]]
 function Message:delete()
 	local data, err = self.client._api:deleteMessage(self._parent._id, self._id)
@@ -293,8 +329,11 @@ end
 
 --[[
 @method reply
+@tags http
 @param content: string|table
 @ret Message
+
+Equivalent to `$.channel:send(content)`.
 ]]
 function Message:reply(content)
 	return self._parent:send(content)
@@ -302,6 +341,8 @@ end
 
 --[[
 @property reactions: Cache
+
+An iterable cache of all reactions that exist for this message.
 ]]
 function get.reactions(self)
 	if not self._reactions then
@@ -312,6 +353,8 @@ end
 
 --[[
 @property mentionedUsers: ArrayIterable
+
+An iterable array of all users that are mentioned in this message.
 ]]
 function get.mentionedUsers(self)
 	if not self._mentioned_users then
@@ -323,6 +366,10 @@ end
 
 --[[
 @property mentionedRoles: ArrayIterable
+
+An iterable array of known roles that are mentioned in this message, excluding
+the default everyone role. The message must be in a guild text channel and the
+roles must be cached in that channel's guild for them to appear here.
 ]]
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
@@ -338,6 +385,9 @@ end
 
 --[[
 @property mentionedChannels: ArrayIterable
+
+An iterable array of all known channels that are mentioned in this message. If
+the client does not have the channel cached, then it will not appear here.
 ]]
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then
@@ -363,6 +413,9 @@ local here = '@' .. constants.ZWSP .. 'here'
 
 --[[
 @property cleanContent: string
+
+The message content with all recognized mentions replaced by names and with
+@everyone and @here mentions escaped by a zero-width space (ZWSP).
 ]]
 function get.cleanContent(self)
 
@@ -402,6 +455,8 @@ end
 
 --[[
 @property mentionsEveryone: boolean
+
+Whether this message mentions @everyone or @here.
 ]]
 function get.mentionsEveryone(self)
 	return self._mention_everyone
@@ -409,6 +464,8 @@ end
 
 --[[
 @property pinned: boolean
+
+Whether this message belongs to its channel's pinned messages.
 ]]
 function get.pinned(self)
 	return self._pinned
@@ -416,6 +473,8 @@ end
 
 --[[
 @property tts: boolean
+
+Whether this message is a text-to-speech message.
 ]]
 function get.tts(self)
 	return self._tts
@@ -423,6 +482,8 @@ end
 
 --[[
 @property nonce: string|number|boolean|nil
+
+Used by the official Discord client to detect the success of a sent message.
 ]]
 function get.nonce(self)
 	return self._nonce
@@ -430,6 +491,9 @@ end
 
 --[[
 @property editedTimestamp: string|nil
+
+The date and time at which the message was most recently edited, represented as
+an ISO 8601 string plus microseconds when available.
 ]]
 function get.editedTimestamp(self)
 	return self._edited_timestamp
@@ -437,6 +501,8 @@ end
 
 --[[
 @property content: string
+
+The raw message content. This should be between 0 and 2000 characters in length.
 ]]
 function get.content(self)
 	return self._content
@@ -444,6 +510,8 @@ end
 
 --[[
 @property author: User
+
+The object of the user that created the message.
 ]]
 function get.author(self)
 	return self._author
@@ -451,6 +519,8 @@ end
 
 --[[
 @property channel: TextChannel
+
+The channel in which this message was sent. Equivalent to `$.parent`.
 ]]
 function get.channel(self)
 	return self._parent
@@ -458,6 +528,9 @@ end
 
 --[[
 @property type: number
+
+The message type. Use the `messageType` enumeration for a human-readable
+representation.
 ]]
 function get.type(self)
 	return self._type
@@ -465,20 +538,29 @@ end
 
 --[[
 @property embed: table|nil
+
+A raw data table that represents the first rich embed that exists in this
+message. See the Discord documentation for more information.
 ]]
 function get.embed(self)
 	return self._embeds and self._embeds[1]
 end
 
 --[[
-@property embeds: table|nil
+@property attachment: table|nil
+
+A raw data table that represents the first file attachment that exists in this
+message. See the Discord documentation for more information.
 ]]
 function get.attachment(self)
 	return self._attachments and self._attachments[1]
 end
 
 --[[
-@property attachment: table|nil
+@property embeds: table|nil
+
+A raw data table that contains all embeds that exist for this message. If
+there are none, this table will not be present.
 ]]
 function get.embeds(self)
 	return self._embeds
@@ -486,6 +568,9 @@ end
 
 --[[
 @property attachments: table|nil
+
+A raw data table that contains all attachments that exist for this message. If
+there are none, this table will not be present.
 ]]
 function get.attachments(self)
 	return self._attachments
@@ -493,6 +578,9 @@ end
 
 --[[
 @property guild: Guild|nil
+
+The guild in which this message was sent. This will not exist if the message
+was not sent in a guild text channel. Equivalent to `$.channel.guild`.
 ]]
 function get.guild(self)
 	return self._parent.guild
@@ -500,6 +588,10 @@ end
 
 --[[
 @property member: Member|nil
+
+The member object of the message's author. This will not exist if the message
+is not sent in a guild text channel or if the member object is not cached.
+Equivalent to `$.guild.members:get($.author.id)`.
 ]]
 function get.member(self)
 	local guild = self.guild

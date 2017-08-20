@@ -1,14 +1,14 @@
 # Changelog
 
-### 2.0.0 - Not Finished
+## 2.0.0 - Not Finished
 
 The major goals of this rewrite were to add new or missing features and to improve consistency and efficiency. A lot of changes were made to Discordia to achieve these goals; many of them are breaking. Please read the following changelog carefully and update your applications accordingly.
 
 **Note:** Due to changes made by Discord, versions of Discordia prior to 2.0.0 may not be supported on or after October 16, 2017.
 
-#### General Changes
+### General Changes
 
-##### Connectivity
+#### Connectivity
 - Bot tokens must now be manually prefixed with `Bot `
 - The core of the library that establishes and maintains a connection to Discord has been overhauled (see Internal Changes for more information)
 - More and clearer information regarding the client's connection is now logged
@@ -17,13 +17,13 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Updated to Discord REST API v7
 - Guilds are no longer automatically synced by default (user accounts only)
 
-##### Dependencies
+#### Dependencies
 - Updated coro-http from 2.1.1 to 3.0.0
 - Updated coro-websocket from 1.0.0 to 3.1.0
 - Updated secure-socket from 1.1.4 to 1.2.0
 - Removed coro-fs
 
-##### Class Behavior
+#### Class Behavior
 - Class methods are no longer automatically generated for class properties (eg: `User:getUsername` is not a valid alternative for `User.username`)
 	- Properties are generally used for items that are immediately available for consumption
 	- Methods are generally used for items that require arguments or an HTTP or WebSocket request to be procured
@@ -36,7 +36,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Changed the "private" `class.__classes` table to `class.classes`
 - Added a default `__pairs` metanmethod for class instances, an iterator for all explicitly "gettable" object properties
 
-##### Caches and Iterables
+#### Caches and Iterables
 - Properties and methods that access caches have been removed and replaced by caches that can be directly accessed
 - Some shortcut methods remain (eg: `client:getGuild` and `channel:getMessage`)
 - Stand-alone iterators for cached objects have been changed to iterable objects (eg: `message.mentionedUsers` is now an `ArrayIterable`)
@@ -49,17 +49,17 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- `ArrayIterable` - for objects that are better represented in an ordered form, and sometimes mapped (eg: member roles, mentioned users)
 	- `WeakCache` - for objects that are either never directly deleted or are temporarily referenced from other locations (eg: client users, channel messages)
 
-##### New Container Classes
+#### New Container Classes
 - `Ban` - represents a guild ban (provides a user object and reason)
 - `GroupChannel` - represents a group DM channel (user accounts only)
 - `Relationship` - represents friends and blocked users (user accounts only)
 
-##### New Utility Classes
+#### New Utility Classes
 - `Date` - used to represent a single instance in time
 - `Time` - used to represent a specific length of time
 - `Logger` - used to log messages to the console and files
 
-##### Error Messages and Logging
+#### Error Messages and Logging
 - New `Logger` class added
 	- Available log-levels are `error`, `warning`, `info`, `debug`, and `none`
 	- Messages use a format `timestamp | level | message`
@@ -70,19 +70,19 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- This generally applies to methods that make HTTP requests
 	- When available, more detailed error messages will be provided than those that are sent to the client logger; always check these messages when debugging issues
 
-##### Input resolution
+#### Input resolution
 - Added `Resolver` singleton (used internally)
 - Methods that previously required certain objects now accept object hashes or objects that can be similarly hashed (eg: `member:addRole` now accepts either a `Role` object or snowflake ID)
 - Methods that previously required raw base64 now also accept a path to a file
 
-##### Enumerations
+#### Enumerations
 - Added `enums` module to the main `discordia` module
 - Most types and levels are now enumerated as Lua numbers
 - Enumerated properties can be more easily represented using fields within the `enums` module (eg: `channelType.voice` and `verificationLevel.medium`)
 
-#### Public API Changes
+### Public API Changes
 
-##### Events
+#### Events
 - Added `pinsUpdate` event
 - Added `webhooksUpdate` event
 - Added `reactionRemoveAll` event
@@ -105,7 +105,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Changed `heartbeat` parameters from `(sequence, latency, shardId)` to `(shardId, latency)`
 - Changed `raw` parameters from `(tbl, str)` to `(str)` where `str` is a JSON string
 
-##### Client
+#### Client
 - Added `shardCount` option
 - Added `firstShard` option
 - Added `lastShard` option
@@ -152,30 +152,30 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added stand-alone `getChannel` method, which accepts only a channelId-resolvable
 - Removed `mobile` property
 
-##### Ban
+#### Ban
 - New class! See documentation.
 
-##### Channel
+#### Channel
 - Moved `mentionString` property from `GuildChannel` to `Channel`
 - Removed `isPrivate` property (check `type` instead)
 - Changed `type` property from string to number (use `enums.channelType`)
 
-##### Container
+#### Container
 - Added `__tostring` metamethod, which uses new `__hash` method(s)
 - Added `__eq` metamethod, which uses new `__hash` method(s)
 
-##### GuildChannel
+#### GuildChannel
 - Replaced `invites` property with `getInvites` method
 - Replaced `permissionOverwrites` properties and methods with directly accessible `Cache` property
 - Replaced `setPosition` method with `moveUp` and `moveDown` methods
 
-##### Snowflake
+#### Snowflake
 - Added `__hash` method, which returns `id` property
 - Removed `__eq` method (parent method is used instead)
 - Removed `__tostring` method (parent method is used instead)
 - Changed `timestamp` property to correctly match Python DateTime
 
-##### TextChannel
+#### TextChannel
 - Removed `loadMessages` method
 - Replaced `lastMessage` property with `getLastMessage` method
 - Replaced `firstMessage` property with `getFirstMessage` method
@@ -185,16 +185,16 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Renamed `sendMessage` to `send` and changed behavior (see documentation)
 - Added stand-alone `getMessage` method, which accepts only a messageId-resolvable
 
-##### Emoji
+#### Emoji
 - Changed `url` property to use cdn URL
 - Renamed `string` to `mentionString` to be consistent with other "mentions"
 - Added `roles` `ArrayIterable` for roles that may be required to use the emoji
 - Removed explicit `__tostring` method (parent method is used instead)
 
-##### GroupChannel
+#### GroupChannel
 - New class! See documentation.
 
-##### Guild
+#### Guild
 - Added `setVerificationLevel` method
 - Added `setNotificationSetting` method
 - Added `setExplicitContentSetting` method
@@ -231,16 +231,16 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added stand-alone `getChannel` method, which accepts only a channelId-resolvable
 - Added stand-alone `getMember` method, which accepts only a userId-resolvable
 
-##### GuildTextChannel
+#### GuildTextChannel
 - Changed `bulkDelete` behavior (see documentation)
 - Moved `mentionString` from `GuildChannel` to `Channel`
 - Replaced `webhooks` property with `getWebhooks` method
 - Changed `createInvite` parameters from `(maxAge, maxUses, temporary, unique)` to `(payload)`
 
-##### GuildVoiceChannel
+#### GuildVoiceChannel
 - TODO
 
-##### Invite
+#### Invite
 - Added `__hash` method, which returns `code` property
 - Added `guildSplash` property
 - Added `guildIcon` property
@@ -249,7 +249,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Changed `channelType` from string to number (use `enums.channelType`)
 - Removed `accept` method
 
-##### Member
+#### Member
 - Changed base class from `Snowflake` to `UserPresence`
 - Added `__hash` method, which returns `user.id` property
 - Replaced `roles` properties and methods with directly accessible `ArrayIterable` property
@@ -272,7 +272,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `getPermissions` method
 - Added `hasPermission` method
 
-##### Message
+#### Message
 - Replaced `reactions` properties and methods with directly accessible `Cache` property
 - Replaced `mentionedUsers` properties and methods with directly accessible `ArrayIterable` property
 - Replaced `mentionedRoles` properties and methods with directly accessible `ArrayIterable` property
@@ -283,7 +283,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `mentionsEveryone` property
 - Changed `@everyone` and `@here` mentions (in `cleanContent`) to use a zero-width space instead of a null character
 
-##### PermissionOverwrite
+#### PermissionOverwrite
 - Removed `name` property (directly check name of object instead)
 - Replaced `object` property with `getObject` method
 - Changed `allowedPermissions` property from `Permissions` object to number
@@ -291,10 +291,10 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `getAllowedPermissions` method to access `Permissions` object
 - Added `getDeniedPermissions` method to access `Permissions` object
 
-##### PrivateChannel
+#### PrivateChannel
 - Changed `delete` method to `leave`
 
-##### Reaction
+#### Reaction
 - Added `__hash` method, which returns the emoji ID for custom emojis or emoji name for standard emojis
 - Added `delete([user])` method
 - Moved `Message:getReactionUsers(emoji)` to `Reaction:getUsers()`
@@ -303,10 +303,10 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `emojiName` property
 - Added `emojiURL` property
 
-##### Relationship
+#### Relationship
 - New class! See documentation.
 
-##### Role
+#### Role
 - Changed `color` property from `Color` object to number
 - Changed `permissions` property from `Permissions` object to number
 - Added `getColor` method to access `Color` object
@@ -318,7 +318,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Changed `hoist` property to `hoisted`
 - Replaced `setPosition` method with `moveUp` and `moveDown` methods
 
-##### User
+#### User
 - Removed `User:getMembership(guild)` (use `Guild:getMember(user)` instead)
 - Replaced `privateChannel` property with `getPrivateChannel` method
 - Renamed `sendMessage` method to `send` (see `TextChannel:send`)
@@ -332,62 +332,65 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Removed avatar default size of 1024 (pass an explicit size to `get[Default]AvatarURL` if a size is required)
 - Removed `kick`, `ban`, and `unban` methods (used `Guild` methods instead)
 
-##### UserPresence
+#### UserPresence
 - New class! See documentation.
 
-##### Webhook
+#### Webhook
 - Changed `setAvatar` to accept a base64-resolvable
 - Renamed `avatarUrl` to `avatarURL`
 - Renamed `getAvatarUrl` to `getAvatarURL`
 - Added `getDefaultAvatarURL`
 - Added `defaultAvatarURL`
 
-##### ArrayIterable
+#### ArrayIterable
 - New class! See documentation.
 
-##### Cache
+#### Cache
 - New class! See documentation.
 
-##### Iterable
+#### Iterable
 - New class! See documentation.
 
-##### SecondaryCache
+#### SecondaryCache
 - New class! See documentation.
 
-##### WeakCache
+#### WeakCache
 - New class! See documentation.
 
-##### Clock
+#### Buffer
+- TODO
+
+#### Clock
 - No public changes
 
-##### Color
+#### Color
 - Changed constructor to accept only a number (use static methods for more options)
 - Changed `__tostring` to display hex value and RGB
 - Added `fromHex`, `fromRGB`, `fromHSV`, and `fromHSL` static methods
 - Added `toHex`, `toRGB`, `toHSV`, and `toHSL` member methods
 
-##### Date
+#### Date
 - New class! See documentation.
 
-##### Deque
+#### Deque
 - No public changes
 
-##### Emitter
+#### Emitter
 - Added `onSync` and `onceSync` method s for omitting automatic coroutine-wrapping of listener callbacks
 - Changed `removeListener` to remove all listeners that match the provided function instead of just the first match
 - Added awaitable `waitFor` method with optional timeout
 - Removed `propagate` method
 
-##### Logger
+#### Logger
 - New class! See documentation.
 
-##### Mutex
+#### Mutex
 - No public changes
 
-##### Permissions
+#### Permissions
 - Changed `enable`, `disable`, and `has` methods to accept a string (`"sendMessages"`) or a number (`0x800` or `enums.permission.sendMessages`)
 
-##### Stopwatch
+#### Stopwatch
 - Added `stopped` parameter to constructor to optionally initialize a stopped stopwatch
 - Renamed `pause` method to `stop`
 - Renamed `resume` method to `start`
@@ -395,19 +398,19 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Removed `hours`, `minutes`, `seconds`, `microseconds`, and `nanoseconds` properties
 - Added `getTime` method
 
-##### Time
+#### Time
 - New class! See documentation.
 
-#### Internal Changes
+### Internal Changes
 - TODO
 
 
-### 1.5.1
+## 1.5.1
 - Added partial handling of failed socket connections
 - Added special handling for reaction ratelimits
 
 
-### 1.5.0
+## 1.5.0
 - Implemented webhook features
 	- Added `Webhook` class
 	- Added `Guild.webhooks` and `GuildTextChannel.webhooks` iterators  (both use an HTTP request)
@@ -435,13 +438,13 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Changed `print` call in console logging function to `process.stdout:write`
 
 
-### 1.4.2
+## 1.4.2
 - Fixed bug in Guild:setOwner
 - Fixed nickname not being cleared from member objects
 - Minor optimization in `printf`
 
 
-### 1.4.1
+## 1.4.1
 - Added token check to socket reconnection
 - Fixed bug when setting client nickname via Member
 - Added default JSON table for non-JSON HTTP responses
@@ -452,7 +455,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- `string.split2` for splitting strings by pattern [@FiniteReality]
 
 
-### 1.4.0
+## 1.4.0
 - Implemented automatic gateway sharding
 	- Multiple shards are automatically spawned on startup according to the Discord-recommended amount
 	- Added a `shardReady` event that fires as each shard finishes loading with a shard ID as its argument
@@ -482,7 +485,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Fixed a missing parameter in the sodium decrypt function (not currently used by Discordia)
 
 
-### 1.3.1
+## 1.3.1
 - Event handler optimizations
 	- If an uncached guild, channel, member, or role is encountered on their respective `UPDATE` or `DELETE` events, an object is now created and cached from the event payload instead of throwing a warning.
 	- Events that parse a text channel ID are now more performant; the channel is found by using an channel map instead of by iterating over guilds.
@@ -495,7 +498,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Fixed an oversight where the positional return value of `string.unpack` was passed to the opus encoder for FFmpeg streams.
 
 
-### 1.3.0
+## 1.3.0
 - Message enhancements
 	- Deprecated `TextChannel:sendMessage(content, mentions, tts)` format
 	- `TextChannel:sendMessage(content)` is now the suggested format, where `content` is a string or table. Table properties are:
@@ -519,7 +522,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Added `isPlaying`, `isPaused`, and `playTime` properties to `VoiceConnection` class
 
 
-### 1.2.2
+## 1.2.2
 - Added package metadata to main `discordia` module
 - Reduced timeout on voice channel join from 10 to 5 seconds
 - Fixed an overflow when writing the maximum least-significant byte to a buffer
@@ -528,7 +531,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Voice optimizations
 
 
-### 1.2.1
+## 1.2.1
 - Fixed issue where PermissionOverwrite tostring value was not properly formatted
 - Voice tweaks
 	- Moved encryption mode to constants module
@@ -536,7 +539,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Some minor optimizations
 
 
-### 1.2.0
+## 1.2.0
 - Implemented voice-send features
 	- Streaming of PCM data from strings, tables, generators, or an FFmpeg process is now possible
  - Implemented `VoiceManager`, `VoiceConnection`, `VoiceSocket`, `AudioStream`, and `FFmpegPipe` classes
@@ -554,7 +557,7 @@ The major goals of this rewrite were to add new or missing features and to impro
  - Fixed gateway reconnection bug
 
 
-### 1.1.0
+## 1.1.0
 - Implemented emoji features
 	- Added Emoji and Reaction classes
 	- Added message reaction methods
@@ -568,7 +571,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- `table.slice`, `string.startswith`, `string.endswith`, `string.levenshtein`
 
 
-### 1.0.0
+## 1.0.0
 
 - General
 
@@ -671,18 +674,18 @@ The major goals of this rewrite were to add new or missing features and to impro
 - For other API changes, please consult the Discordia [wiki](https://github.com/SinisterRectus/Discordia/wiki).
 
 
-### 0.6.2
+## 0.6.2
 - Fixed issue where presences were applied to offline members on guild creation
 - Fixed issue where roles where not properly being applied by Member:setRoles method
 
 
-### 0.6.1
+## 0.6.1
 - Fixed issue where mentioned object would be nil
 - Fixed issue with UTC time parsing
 - Updated secure-socket dependency to version 0.1.4
 
 
-### 0.6.0
+## 0.6.0
 - Member:setRoles now accepts a table of roles instead of IDs
 - Tweaked internal Member updating
 - Mentions are now ignored in private/direct messages
@@ -690,15 +693,15 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Fixed erroneous private message parenting for User:sendMessage
 
 
-### 0.5.8
+## 0.5.8
 - Partial restoration of class overhaul for critical fix
 
 
-### 0.5.7
+## 0.5.7
 - Reverted class overhaul due to complicated bugs
 
 
-### 0.5.6
+## 0.5.6
 - Added API client class (not yet exposed)
 - Updated class constructor
 	- Reduced memory footprint by 30 to 40%
@@ -707,17 +710,17 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Fixes an issue where Server == defaultChannel or defaultRole was true
 
 
-### 0.5.5
+## 0.5.5
 - Fixed regression due to Message.channelId removal
 
 
-### 0.5.4
+## 0.5.4
 - Added User object fallback for member[Ban/Unban]
 - Added local datetime to Error/Warning output
 - Fixed critical issue where client would not recognize a resumed connection
 
 
-### 0.5.3
+## 0.5.3
 - Added "0x" to Color:toHex() output
 - Added Permissions:toHex() method
 - Fixed issue where server owner was nil
@@ -725,17 +728,17 @@ The major goals of this rewrite were to add new or missing features and to impro
 - utils.dateToTime and resulting timestamps now support milliseconds
 
 
-### 0.5.2
+## 0.5.2
 - Fixed critical issue with lit package metadata
 
 
-### 0.5.1
+## 0.5.1
 - Added Member:kick() overload method
 - table.reverse now reverses a table in place
 - Reorganized directories
 
 
-### 0.5.0
+## 0.5.0
 - Implemented basic Permissions handling
 - Added abstract Channel superclass for TextChannel and ServerChannel
 - Expanded Role features
@@ -753,24 +756,24 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Minor refactoring of token caching
 
 
-### 0.4.5
+## 0.4.5
 - Overhauled WebSocket keep alive process
 - Fixed issue where Server.defaultRole was nil
 - Fixed UTC issue with dateToTime utility
 
 
-### 0.4.4
+## 0.4.4
 - Added utility for converting UTC datetime string to Unix timestamp
 	- Message timestamps and Message joinedAt is now a Unix timestamp
 - messageUpdate is no longer fired for non-existing messages
 - Fixed @everyone mention crash
 
 
-### 0.4.3
+## 0.4.3
 - Critical: Removed code that accesses Server.memberCount
 
 
-### 0.4.2
+## 0.4.2
 - TextChannel improvements
 	- Added adjustable limit to getMessageHistory()
 	- Reimplemented broadcastTyping() from an old version
@@ -784,14 +787,14 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added error codes to HTTP warnings and errors
 
 
-### 0.4.1
+## 0.4.1
 - Client:setNickname now uses proper endpoint
 - Fixed issue where nickname would not update
 - Fixed issue where deleting private channels crashed library
 - Added table.randompair and table.randomipair
 
 
-### 0.4.0
+## 0.4.0
 - Added standard library extensions (printf, string, table, and math)
 - Implemented nickname support
 	- Added Client:setNickname and Member:setNickname methods
@@ -814,14 +817,14 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Fixed issue where server owner was nil
 
 
-### 0.3.5
+## 0.3.5
 - Fixed issue where Member.gameName would be nil
 - Removed logout POST until otherwise required
 - Added timeout for WebSocket reconnections
 - Improved rate limit handling
 
 
-### 0.3.4
+## 0.3.4
 - ServerChannel:createInvite() now returns an Invite object
 - Privatized update methods with leading underscore
 - getMessageHistory now returns a table of objects
@@ -829,7 +832,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Fixed issue where voiceLeave event would not fire
 
 
-### 0.3.3
+## 0.3.3
 - Reworked logout and termination handling:
 	- Client:logout() now also clears the stored token
 	- Added Client:stop() method
@@ -840,7 +843,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added User.name alias for User.username
 
 
-### 0.3.2
+## 0.3.2
 - Added HTTP 502 handling
 - Caught exceptions no longer terminate the program
 - Added convenient Server attributes defaultRole, defaultChannel, and me
@@ -849,7 +852,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Increased max messages to 500 per channel
 
 
-### 0.3.1
+## 0.3.1
 - Fixed issue where offline member status was nil
 - Fixed issue where nil gateways or tokens could potentially be cached as empty files
 - Fixed issue where ready was not properly delayed
@@ -860,7 +863,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Bot is prepended to the token according to the READY data
 
 
-### 0.3.0
+## 0.3.0
 - Added User:sendMessage() method
 - Implemented support for bot accounts
 	- Client:run() now accepts email and password or token
@@ -874,11 +877,11 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Added setBitrate method for ServerVoiceChannel
 
 
-### 0.2.1
+## 0.2.1
 - Critical: Fixed package path issue
 
 
-### 0.2.0
+## 0.2.0
 - Overhauled class system
 - Implemented exception handling
 	- New Error and Warning classes
@@ -893,7 +896,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Implemented WebSocket reconnecting
 
 
-### 0.1.0
+## 0.1.0
 - First 'stable' release to coincide with official API documentation release
 - Code overhauled for optimizations and bug fixes
 - Event callbacks no longer block the main loop
@@ -903,12 +906,12 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added setOwner, setAfkTimeout, setAfkChannel Server methods
 
 
-### 0.0.8
+## 0.0.8
 - Established project name: Discordia
 - Added reply example script
 
 
-### 0.0.7
+## 0.0.7
 - Changed luvit/secure-socket version to 1.1.2
 - Request data is now camelified
 - Moved websocket handlers to their own Client methods
@@ -917,7 +920,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - General Git version control employed instead of GitHub direct editing
 
 
-### 0.0.6
+## 0.0.6
 - Implemented custom class module with multiple inheritance
 - Added base Base class for Discord classes
 - Added peek methods to Deque class
@@ -929,7 +932,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Fixed token caching, which now uses an MD5 hash
 
 
-### 0.0.5
+## 0.0.5
 - Implemented token caching
 - Conformed user agent to API standard
 - Message deques and maximum scrollback implemented
@@ -941,7 +944,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Message updates now account for 'embeds only'
 
 
-### 0.0.4
+## 0.0.4
 - Added getServers and getMessages User methods
 - Added event handling for guildCreate, guildDelete, guildUpdate
 - Added event handling for guildBanAdd and guildBanRemove
@@ -950,7 +953,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Pasted MIT license info into package.lua
 
 
-### 0.0.3
+## 0.0.3
 - Created PrivateChannel class
 - Moved several methods from Client class to respective Discord classes
 - Added event handling for typingStart, messageDelete, messageUpdate, and MessageAck
@@ -959,13 +962,13 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Switched from multiple User classes to one main class for all types
 
 
-### 0.0.2
+## 0.0.2
 - Added event handling for messageCreate and voiceStateUpdate
 - get[Role|Channel|Server]By[Name|Id] now use cached data
 - Expanded Message class
 
 
-### 0.0.1
+## 0.0.1
 - Finished the majority of REST methods
 - Started the majority of expected class definitions
 - Added websocket support

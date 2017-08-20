@@ -13,6 +13,12 @@ local readFileSync = fs.readFileSync
 
 local TextChannel, get = require('class')('TextChannel', Channel)
 
+--[[
+@abc TextChannel x Channel
+
+Abstract base class that defines the base methods and/or properties for all
+Discord text channels.
+]]
 function TextChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
 	self._messages = WeakCache({}, Message, self)
@@ -20,8 +26,12 @@ end
 
 --[[
 @method getMessage
+@tags http
 @param id: Message ID Resolveable
 @ret Message
+
+Gets a message object by ID. If the object is already cached, then the cached
+object will be returned; otherwise, an HTTP request is made.
 ]]
 function TextChannel:getMessage(id)
 	id = Resolver.messageId(id)
@@ -40,7 +50,11 @@ end
 
 --[[
 @method getFirstMessage
+@tags http
 @ret Message
+
+Returns the first message found in the channel, if any exist. This is not a
+cache shortcut; an HTTP request is made each time this method is called.
 ]]
 function TextChannel:getFirstMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {after = self._id, limit = 1})
@@ -57,7 +71,11 @@ end
 
 --[[
 @method getLastMessage
+@tags http
 @ret Message
+
+Returns the last message found in the channel, if any exist. This is not a
+cache shortcut; an HTTP request is made each time this method is called.
 ]]
 function TextChannel:getLastMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {limit = 1})
@@ -83,8 +101,13 @@ end
 
 --[[
 @method getMessages
+@tags http
 @param [limit]: number
 @ret SecondaryCache
+
+Returns a newly constructed cache of between 1 and 100 (default = 50) message
+objects found in the channel. While the cache will never automatically gain or
+lose objects, the objects that it contains may be updated by gateway events.
 ]]
 function TextChannel:getMessages(limit)
 	return getMessages(self, limit and {limit = limit})
@@ -92,9 +115,15 @@ end
 
 --[[
 @method getMessagesAfter
+@tags http
 @param id: Message ID Resolveable
 @param [limit]: number
 @ret SecondaryCache
+
+Returns a newly constructed cache of between 1 and 100 (default = 50) message
+objects found in the channel after a specific point. While the cache will never
+automatically gain or lose objects, the objects that it contains may be updated
+by gateway events.
 ]]
 function TextChannel:getMessagesAfter(id, limit)
 	id = Resolver.messageId(id)
@@ -103,9 +132,15 @@ end
 
 --[[
 @method getMessagesBefore
+@tags http
 @param id: Message ID Resolveable
 @param [limit]: number
 @ret SecondaryCache
+
+Returns a newly constructed cache of between 1 and 100 (default = 50) message
+objects found in the channel before a specific point. While the cache will never
+automatically gain or lose objects, the objects that it contains may be updated
+by gateway events.
 ]]
 function TextChannel:getMessagesBefore(id, limit)
 	id = Resolver.messageId(id)
@@ -114,9 +149,15 @@ end
 
 --[[
 @method getMessagesAround
+@tags http
 @param id: Message ID Resolveable
 @param [limit]: number
 @ret SecondaryCache
+
+Returns a newly constructed cache of between 1 and 100 (default = 50) message
+objects found in the channel around a specific point. While the cache will never
+automatically gain or lose objects, the objects that it contains may be updated
+by gateway events.
 ]]
 function TextChannel:getMessagesAround(id, limit)
 	id = Resolver.messageId(id)
@@ -125,7 +166,12 @@ end
 
 --[[
 @method getPinnedMessages
+@tags http
 @ret SecondaryCache
+
+Returns a newly constructed cache of up to 50 messages that are pinned in the
+channel. While the cache will never automatically gain or lose objects, the
+objects that it contains may be updated by gateway events.
 ]]
 function TextChannel:getPinnedMessages()
 	local data, err = self.client._api:getPinnedMessages(self._id)
@@ -138,7 +184,10 @@ end
 
 --[[
 @method broadcastTyping
+@tags http
 @ret boolean
+
+Indicates in the channel that the client's user "is typing".
 ]]
 function TextChannel:broadcastTyping()
 	local data, err = self.client._api:triggerTypingIndicator(self._id)
@@ -178,8 +227,13 @@ end
 
 --[[
 @method send
+@tags http
 @param content: string|table
 @ret Message
+
+Sends a message to the channel. If `content` is a string, then this is simply
+sent as the message content. If it is a table, more advanced formatting is
+allowed. See #message-formatting for more information.
 ]]
 function TextChannel:send(content)
 
@@ -256,6 +310,10 @@ end
 
 --[[
 @property messages: WeakCache
+
+An iterable weak cache of all messages that are visible to the client. Messages
+that are not referenced elsewhere are eventually garbage collected. To access a
+message that may exist but is not cached, use `$:getMessage`.
 ]]
 function get.messages(self)
 	return self._messages

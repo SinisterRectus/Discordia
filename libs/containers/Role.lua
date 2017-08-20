@@ -11,6 +11,12 @@ local huge = math.huge
 
 local Role, get = require('class')('Role', Snowflake)
 
+--[[
+@class Role x Snowflake
+
+Represents a Discord guild role, which is used to assign priority, permissions,
+and a color to guild members.
+]]
 function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 end
@@ -27,7 +33,10 @@ end
 
 --[[
 @method delete
+@tags http
 @ret boolean
+
+Permanently deletes the role. This cannot be undone!
 ]]
 function Role:delete()
 	local data, err = self.client._api:deleteGuildRole(self._parent._id, self._id)
@@ -72,8 +81,14 @@ end
 
 --[[
 @method moveDown
+@tags http
 @param [n]: number
 @ret boolean
+
+Moves a role down its list. The parameter `n` indicates how many spaces the
+role should be moved, clamped to the lowest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all roles. Note that
+the default everyone role cannot be moved.
 ]]
 function Role:moveDown(n)
 
@@ -103,8 +118,14 @@ end
 
 --[[
 @method moveUp
+@tags http
 @param [n]: number
 @ret boolean
+
+Moves a role up its list. The parameter `n` indicates how many spaces the
+role should be moved, clamped to the highest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all roles. Note that
+the default everyone role cannot be moved.
 ]]
 function Role:moveUp(n)
 
@@ -133,9 +154,24 @@ function Role:moveUp(n)
 end
 
 --[[
+@method setName
+@tags http
+@param name:
+@ret boolean
+
+Sets the role's name. The name must be between 1 and 100 characters in length.
+]]
+function Role:setName(name)
+	return self:_modify({name = name or json.null})
+end
+
+--[[
 @method setColor
+@tags http
 @param color: Color Resolveable
 @ret boolean
+
+Sets the role's display color.
 ]]
 function Role:setColor(color)
 	color = color and Resolver.color(color)
@@ -144,8 +180,11 @@ end
 
 --[[
 @method setPermissions
+@tags http
 @param permissions: Permissions Resolveable
 @ret boolean
+
+Sets the permissions that this role explicitly allows.
 ]]
 function Role:setPermissions(permissions)
 	permissions = permissions and Resolver.permissions(permissions)
@@ -154,15 +193,22 @@ end
 
 --[[
 @method hoist
+@tags http
 @ret boolean
+
+Causes members with this role to display above unhoisted roles in the member
+list.
 ]]
 function Role:hoist()
 	return self:_modify({hoist = true})
 end
 
 --[[
-@method hoist
+@method unhoist
+@tags http
 @ret boolean
+
+Causes member with this role to display amongst other unhoisted members.
 ]]
 function Role:unhoist()
 	return self:_modify({hoist = false})
@@ -170,7 +216,10 @@ end
 
 --[[
 @method enableMentioning
+@tags http
 @ret boolean
+
+Allows anyone to mention this role in text messages.
 ]]
 function Role:enableMentioning()
 	return self:_modify({mentionable = true})
@@ -178,7 +227,10 @@ end
 
 --[[
 @method disableMentioning
+@tags http
 @ret boolean
+
+Disallows anyone to mention this role in text messages.
 ]]
 function Role:disableMentioning()
 	return self:_modify({mentionable = false})
@@ -186,8 +238,12 @@ end
 
 --[[
 @method enablePermissions
+@tags http
 @param ...: Permissions Resolveable(s)
 @ret boolean
+
+Enables individual permissions for this role. This does not necessarily fully
+allow the permissions.
 ]]
 function Role:enablePermissions(...)
 	local permissions = self:getPermissions()
@@ -197,8 +253,12 @@ end
 
 --[[
 @method disablePermissions
+@tags http
 @param ...: Permissions Resolveable(s)
 @ret boolean
+
+Disables individual permissions for this role.This does not necessarily fully
+allow the permissions.
 ]]
 function Role:disablePermissions(...)
 	local permissions = self:getPermissions()
@@ -208,7 +268,11 @@ end
 
 --[[
 @method enableAllPermissions
+@tags http
 @ret boolean
+
+Enables all permissions for this role. This does not necessarily fully
+allow the permissions.
 ]]
 function Role:enableAllPermissions()
 	local permissions = self:getPermissions()
@@ -218,7 +282,11 @@ end
 
 --[[
 @method disableAllPermissions
+@tags http
 @ret boolean
+
+Disables all permissions for this role. This does not necessarily fully
+allow the permissions.
 ]]
 function Role:disableAllPermissions()
 	local permissions = self:getPermissions()
@@ -229,6 +297,8 @@ end
 --[[
 @method getColor
 @ret Color
+
+Returns a color object that represents the role's display color.
 ]]
 function Role:getColor()
 	return Color(self._color)
@@ -237,6 +307,9 @@ end
 --[[
 @method getPermissions
 @ret Permissions
+
+Returns a permissions object that represents the permissions that this role
+has enabled.
 ]]
 function Role:getPermissions()
 	return Permissions(self._permissions)
@@ -244,6 +317,9 @@ end
 
 --[[
 @property hoisted: boolean
+
+Whether members with this role should be shown separated from other members
+in the guild member list.
 ]]
 function get.hoisted(self)
 	return self._hoist
@@ -251,6 +327,8 @@ end
 
 --[[
 @property mentionable: boolean
+
+Whether this role can be mentioned in a text channel message.
 ]]
 function get.mentionable(self)
 	return self._mentionable
@@ -258,6 +336,8 @@ end
 
 --[[
 @property managed: boolean
+
+Whether this role is managed by some integration or bot inclusion.
 ]]
 function get.managed(self)
 	return self._managed
@@ -265,6 +345,8 @@ end
 
 --[[
 @property name: string
+
+The name of the role. This shoud be between 1 and 100 characters in length.
 ]]
 function get.name(self)
 	return self._name
@@ -272,6 +354,8 @@ end
 
 --[[
 @property position: number
+
+The position of the role, where 0 is the lowest.
 ]]
 function get.position(self)
 	return self._position
@@ -279,6 +363,8 @@ end
 
 --[[
 @property color: number
+
+Represents the display color of the role as a decimal value.
 ]]
 function get.color(self)
 	return self._color
@@ -286,6 +372,8 @@ end
 
 --[[
 @property permissions: number
+
+Represents the total permissions of the role as a decimal value.
 ]]
 function get.permissions(self)
 	return self._permissions
@@ -293,6 +381,9 @@ end
 
 --[[
 @property mentionString: string
+
+A string that, when included in a message content, may resolve as a role
+notification in the official Discord client.
 ]]
 function get.mentionString(self)
 	return format('<@&%s>', self._id)
@@ -300,6 +391,8 @@ end
 
 --[[
 @property guild: Guild
+
+The guild in which this role exists. Equivalent to `$.parent`.
 ]]
 function get.guild(self)
 	return self._parent

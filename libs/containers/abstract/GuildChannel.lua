@@ -16,6 +16,12 @@ local huge = math.huge
 
 local GuildChannel, get = class('GuildChannel', Channel)
 
+--[[
+@abc GuildChannel x Channel
+
+Abstract base class that defines the base methods and/or properties for all
+Discord guild channels.
+]]
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
 	self.client._channel_map[self._id] = parent
@@ -34,8 +40,11 @@ end
 
 --[[
 @method setName
+@tags http
 @param name: string
 @ret boolean
+
+Sets the channel's name. This must be between 2 and 100 characters in length.
 ]]
 function GuildChannel:setName(name)
 	return self:_modify({name = name or json.null})
@@ -79,8 +88,13 @@ end
 
 --[[
 @method moveUp
+@tags http
 @param [n]: number
 @ret boolean
+
+Moves a channel up its list. The parameter `n` indicates how many spaces the
+channel should be moved, clamped to the highest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all channels.
 ]]
 function GuildChannel:moveUp(n)
 
@@ -110,8 +124,13 @@ end
 
 --[[
 @method moveDown
+@tags http
 @param [n]: number
 @ret boolean
+
+Moves a channel down its list. The parameter `n` indicates how many spaces the
+channel should be moved, clamped to the lowest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all channels.
 ]]
 function GuildChannel:moveDown(n)
 
@@ -141,8 +160,15 @@ end
 
 --[[
 @method createInvite
-@param payload: table
+@tags http
+@param [payload]: table
 @ret Invite
+
+Creates an invite to the channel. Optional payload fields are:
+- max_age:number time in seconds until expiration, default = 86400 (24 hours)
+- max_uses:number total number of uses allowed, default = 0 (unlimited)
+- temporary:boolean whether the invite grants temporary membership, default = false
+- unique:boolean whether a unique code should be guaranteed, default = false
 ]]
 function GuildChannel:createInvite(payload)
 	local data, err = self.client._api:createChannelInvite(self._id, payload)
@@ -155,7 +181,12 @@ end
 
 --[[
 @method getInvites
+@tags http
 @ret Cache
+
+Returns a newly constructed cache of all invite objects for the channel. The
+cache and its objects are not automatically updated via gateway events. You must
+call this method again to get the updated objects.
 ]]
 function GuildChannel:getInvites()
 	local data, err = self.client._api:getChannelInvites(self._id)
@@ -170,6 +201,12 @@ end
 @method getPermissionOverwriteFor
 @param object: Role|Member
 @ret PermissionOverwrite
+
+Returns a permission overwrite object corresponding to the provided member or
+role object. If a cached overwrite is not found, an empty overwrite with
+zero-permissions is returned instead. Therefore, this can be used to create a
+new overwrite when one does not exist. Note that the member or role must exist
+in the same guild as the channel does.
 ]]
 function GuildChannel:getPermissionOverwriteFor(obj)
 	local id, type
@@ -188,7 +225,10 @@ end
 
 --[[
 @method delete
+@tags http
 @ret boolean
+
+Permanently deletes the channel. This cannot be undone!
 ]]
 function GuildChannel:delete()
 	return self:_delete()
@@ -196,6 +236,9 @@ end
 
 --[[
 @property permissionOverwrites: Cache
+
+An iterable cache of all overwrites that exist in this channel. To access an
+overwrite that may exist, but is not cached, use `$:getPermissionOverwriteFor`.
 ]]
 function get.permissionOverwrites(self)
 	return self._permission_overwrites
@@ -203,6 +246,8 @@ end
 
 --[[
 @property name: string
+
+The name of the channel. This should be between 2 and 100 characters in length.
 ]]
 function get.name(self)
 	return self._name
@@ -210,6 +255,8 @@ end
 
 --[[
 @property position: number
+
+The position of the channel, where 0 is the highest.
 ]]
 function get.position(self)
 	return self._position
@@ -217,6 +264,8 @@ end
 
 --[[
 @property guild: Guild
+
+The guild in which this channel exists. Equivalent to `$.parent`.
 ]]
 function get.guild(self)
 	return self._parent

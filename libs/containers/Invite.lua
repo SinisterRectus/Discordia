@@ -4,6 +4,12 @@ local format = string.format
 
 local Invite, get = require('class')('Invite', Container)
 
+--[[
+@class Invite x Container
+
+Represents an invitation to a Discord guild channel. Invites can be used to join
+a guild, though they are not always permanent.
+]]
 function Invite:__init(data, parent)
 	Container.__init(self, data, parent)
 	self._guild_id = data.guild.id
@@ -24,7 +30,10 @@ end
 
 --[[
 @method delete
+@tags http
 @ret boolean
+
+Permanently deletes the invite. This cannot be undone!
 ]]
 function Invite:delete()
 	local data, err = self.client._api:deleteInvite(self._code)
@@ -37,6 +46,8 @@ end
 
 --[[
 @property code: string
+
+The invite's code which can be used to identify the invite.
 ]]
 function get.code(self)
 	return self._code
@@ -44,6 +55,8 @@ end
 
 --[[
 @property guildId: string
+
+The Snowflake ID of the guild to which this invite belongs.
 ]]
 function get.guildId(self)
 	return self._guild_id
@@ -51,6 +64,8 @@ end
 
 --[[
 @property guildName: string
+
+The name of the guild to which this invite belongs.
 ]]
 function get.guildName(self)
 	return self._guild_name
@@ -58,6 +73,8 @@ end
 
 --[[
 @property channelId: string
+
+The Snowflake ID of the channel to which this belongs.
 ]]
 function get.channelId(self)
 	return self._channel_id
@@ -65,6 +82,8 @@ end
 
 --[[
 @property channelName: string
+
+The name of the channel to which this invite belongs.
 ]]
 function get.channelName(self)
 	return self._channel_name
@@ -72,6 +91,9 @@ end
 
 --[[
 @property channelType: number
+
+The type of the channel to which this invite belongs. Use the `channelType`
+enumeration for a human-readable representation.
 ]]
 function get.channelType(self)
 	return self._channel_type
@@ -79,6 +101,8 @@ end
 
 --[[
 @property guildIcon: string|nil
+
+The hash for the guild's custom icon, if one is set.
 ]]
 function get.guildIcon(self)
 	return self._guild_icon
@@ -86,6 +110,8 @@ end
 
 --[[
 @property guildSplash: string|nil
+
+The hash for the guild's custom splash, if one is set.
 ]]
 function get.guildSplash(self)
 	return self._guild_splash
@@ -93,6 +119,8 @@ end
 
 --[[
 @property guildIconURL: string|nil
+
+The URL that can be used to view the guild's icon, if one is set.
 ]]
 function get.guildIconURL(self)
 	local icon = self._guild_icon
@@ -101,6 +129,8 @@ end
 
 --[[
 @property guildSplashURL: string|nil
+
+The URL that can be used to view the guild's splash, if one is set.
 ]]
 function get.guildSplashURL(self)
 	local splash = self._guild_splash
@@ -109,6 +139,9 @@ end
 
 --[[
 @property inviter: User|nil
+
+The object of the user that created the inviter. This will not exist if the
+invite is a guild widget or a vanity invite.
 ]]
 function get.inviter(self)
 	return self._inviter
@@ -116,6 +149,9 @@ end
 
 --[[
 @property uses: number|nil
+
+How many times this invite has been used. This will not exist if the invite is
+accessed via `Client:getInvite`.
 ]]
 function get.uses(self)
 	return self._uses
@@ -123,6 +159,9 @@ end
 
 --[[
 @property maxUses: number|nil
+
+The maximum amount of times this invite can be used. This will not exist if the
+invite is accessed via `Client:getInvite`.
 ]]
 function get.maxUses(self)
 	return self._max_uses
@@ -130,6 +169,9 @@ end
 
 --[[
 @property maxAge: number|nil
+
+How long, in seconds, this invite lasts before it expires. This will not exist
+if the invite is accessed via `Client:getInvite`.
 ]]
 function get.maxAge(self)
 	return self._max_age
@@ -137,6 +179,9 @@ end
 
 --[[
 @property temporary: boolean|nil
+
+Whether the invite grants temporary membership. This will not exist if the
+invite is accessed via `Client:getInvite`.
 ]]
 function get.temporary(self)
 	return self._temporary
@@ -144,6 +189,10 @@ end
 
 --[[
 @property createdAt: string|nil
+
+The date and time at which the invite was created, represented as an ISO 8601
+string plus microseconds when available. This will not exist if the invite is
+accessed via `Client:getInvite`.
 ]]
 function get.createdAt(self)
 	return self._created_at
@@ -151,6 +200,9 @@ end
 
 --[[
 @property revoked: boolean|nil
+
+Whether the invite has been revoked. This will not exist if the invite is
+accessed via `Client:getInvite`.
 ]]
 function get.revoked(self)
 	return self._revoked

@@ -6,15 +6,25 @@ local DEFAULT_AVATARS = constants.DEFAULT_AVATARS
 
 local User, get = require('class')('User', Snowflake)
 
+--[[
+@class User x Snowflake
+
+Represents a single user of Discord, either a human or a bot, outside of any
+specific guild's context.
+]]
 function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 end
 
 --[[
 @method getAvatarURL
-@param size: number
-@param ext: string
+@param [size]: number
+@param [ext]: string
 @ret string
+
+Returns a URL that can be used to view the user's full avatar. If provided, the
+size must be a power of 2 while the extension must be a valid image format. If
+the user does not have a custom avatar, the default URL is returned.
 ]]
 function User:getAvatarURL(size, ext)
 	local avatar = self._avatar
@@ -34,6 +44,8 @@ end
 @method getDefaultAvatarURL
 @param size: number
 @ret string
+
+Returns a URL that can be used to view the user's default avatar.
 ]]
 function User:getDefaultAvatarURL(size)
 	local avatar = self.defaultAvatar
@@ -46,7 +58,11 @@ end
 
 --[[
 @method getPrivateChannel
+@tags http
 @ret PrivateChannel
+
+Returns a private channel that can be used to communicate with the user. If the
+channel is not cached, an HTTP request is made to open one.
 ]]
 function User:getPrivateChannel()
 	local id = self._id
@@ -66,8 +82,11 @@ end
 
 --[[
 @method send
+@tags http
 @param content: string|table
 @ret Message
+
+Equivalent to `$:getPrivateChannel():send(content)`
 ]]
 function User:send(content)
 	local channel, err = self:getPrivateChannel()
@@ -80,6 +99,8 @@ end
 
 --[[
 @property bot: boolean
+
+Whether this user is a bot.
 ]]
 function get.bot(self)
 	return self._bot or false
@@ -87,6 +108,8 @@ end
 
 --[[
 @property name: string
+
+Equivalent to `$.username`.
 ]]
 function get.name(self)
 	return self._username
@@ -94,6 +117,8 @@ end
 
 --[[
 @property username: string
+
+The name of the user. This should be between 2 and 32 characters in length.
 ]]
 function get.username(self)
 	return self._username
@@ -101,6 +126,9 @@ end
 
 --[[
 @property discriminator: string
+
+The discrimator of the user. This is a 4-digit string that is used to
+discriminate the user from other users with the same username.
 ]]
 function get.discriminator(self)
 	return self._discriminator
@@ -108,6 +136,8 @@ end
 
 --[[
 @property fullname: string
+
+The user's username and discriminator concatenated by an `#`.
 ]]
 function get.fullname(self)
 	return self._username .. '#' .. self._discriminator
@@ -115,6 +145,8 @@ end
 
 --[[
 @property avatar: string|nil
+
+The hash for the user's custom avatar, if one is set.
 ]]
 function get.avatar(self)
 	return self._avatar
@@ -122,6 +154,9 @@ end
 
 --[[
 @property defaultAvatar: number
+
+The user's default avatar. See the `devaultAvatar` enumeration for a
+human-readable representation.
 ]]
 function get.defaultAvatar(self)
 	return self._discriminator % DEFAULT_AVATARS
@@ -129,6 +164,8 @@ end
 
 --[[
 @property avatarURL: string
+
+Equivalent to the result of calling `$:getAvatarURL()`.
 ]]
 function get.avatarURL(self)
 	return self:getAvatarURL()
@@ -136,6 +173,8 @@ end
 
 --[[
 @property defaultAvatarURL: string
+
+Equivalent to the result of calling `$:getDefaultAvatarURL()`.
 ]]
 function get.defaultAvatarURL(self)
 	return self:getDefaultAvatarURL()
@@ -143,6 +182,9 @@ end
 
 --[[
 @property mentionString: string
+
+A string that, when included in a message content, may resolve as user
+notification in the official Discord client.
 ]]
 function get.mentionString(self)
 	return format('<@%s>', self._id)

@@ -8,6 +8,12 @@ local Resolver = require('client/Resolver')
 
 local GuildTextChannel, get = require('class')('GuildTextChannel', GuildChannel, TextChannel)
 
+--[[
+@class GuildTextChannel x GuildChannel TextChannel
+
+Represents a text channel in a Discord guild, where guild members and webhooks
+can send and receive messages.
+]]
 function GuildTextChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)
 	TextChannel.__init(self, data, parent)
@@ -19,16 +25,19 @@ function GuildTextChannel:_load(data)
 end
 
 --[[
-@method banUser
-@param id: User ID Resolveable
-@param reason: string
-@param days: number
-@ret boolean
+@method createWebhook
+@tags http
+@tags http
+@param name: string
+@ret Webhook
+
+Creates a webhook for this channel. The name must be between 2 and 32 characters
+in length.
 ]]
 function GuildTextChannel:createWebhook(name)
 	local data, err = self.client._api:createWebhook(self._id, {name = name})
 	if data then
-		return Webhook(data, self)
+		return Webhook(data, self.client)
 	else
 		return nil, err
 	end
@@ -36,7 +45,12 @@ end
 
 --[[
 @method getWebhooks
+@tags http
 @ret Cache
+
+Returns a newly constructed cache of all webhook objects for the channel. The
+cache and its objects are not automatically updated via gateway events. You must
+call this method again to get the updated objects.
 ]]
 function GuildTextChannel:getWebhooks()
 	local data, err = self.client._api:getChannelWebhooks(self._id)
@@ -49,7 +63,10 @@ end
 
 --[[
 @method bulkDelete
+@tags http
 @param Message ID Resolveables
+
+Bulk deletes multiple messages, from 2 to 100, from the channel.
 ]]
 function GuildTextChannel:bulkDelete(messages)
 	messages = Resolver.messageIds(messages)
@@ -63,8 +80,12 @@ end
 
 --[[
 @method setTopic
+@tags http
 @param topic: string
 @ret boolean
+
+Sets the channel's topic. This must be between 1 and 1024 characters. Pass `nil`
+to remove the topic.
 ]]
 function GuildTextChannel:setTopic(topic)
 	return self:_modify({topic = topic or json.null})
@@ -72,6 +93,8 @@ end
 
 --[[
 @property topic: string|nil
+
+The channel's topic. This should be between 1 and 1024 characters.
 ]]
 function get.topic(self)
 	return self._topic
