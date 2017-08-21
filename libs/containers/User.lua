@@ -1,4 +1,5 @@
 local Snowflake = require('containers/abstract/Snowflake')
+local FilteredIterable = require('iterables/FilteredIterable')
 local constants = require('constants')
 
 local format = string.format
@@ -188,6 +189,21 @@ notification in the official Discord client.
 ]]
 function get.mentionString(self)
 	return format('<@%s>', self._id)
+end
+
+--[[
+@property mutualGuilds: FilteredIterable
+
+A iterable cache of all guilds where this user shares a membership with the
+current user. The guild must be cached on the current client and the user's
+member object must be cached in that guild in order for it to appear here.
+]]
+function get.mutualGuilds(self)
+	if not self._mutual_guilds then
+		local id = self._id
+		self._mutual_guilds = FilteredIterable(self.client._guilds, function(g) return g._members:get(id) end)
+	end
+	return self._mutual_guilds
 end
 
 return User

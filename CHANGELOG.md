@@ -328,6 +328,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Renamed `getDefaultAvatarUrl` to `getDefaultAvatarURL`
 - Changed `defaultAvatar` hashes to numbers (use `enums.defaultAvatar`)
 - Changed `setAvatar` to accept a base64-resolvable
+- Changed `mutualGuilds` iterator function to a `FilteredIterable` instace
 - Added `fullname` property
 - Removed avatar default size of 1024 (pass an explicit size to `get[Default]AvatarURL` if a size is required)
 - Removed `kick`, `ban`, and `unban` methods (used `Guild` methods instead)
