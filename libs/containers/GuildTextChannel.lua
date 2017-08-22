@@ -2,6 +2,7 @@ local json = require('json')
 
 local GuildChannel = require('containers/abstract/GuildChannel')
 local TextChannel = require('containers/abstract/TextChannel')
+local FilteredIterable = require('iterables/FilteredIterable')
 local Webhook = require('containers/Webhook')
 local Cache = require('iterables/Cache')
 local Resolver = require('client/Resolver')
@@ -98,6 +99,23 @@ The channel's topic. This should be between 1 and 1024 characters.
 ]]
 function get.topic(self)
 	return self._topic
+end
+
+--[[
+@property members: FilteredIterable
+
+A filtered iterable of guild members that have permission to read this channel.
+If you want to check whether a specific member has permission to read this
+channel, it would be better to get the member object elsewhere and use
+`Member:hasPermission` rather than check whether the member exists here.
+]]
+function get.members(self)
+	if not self._members then
+		self._members = FilteredIterable(self._parent._members, function(m)
+			return m:hasPermission(self, 'readMessages')
+		end)
+	end
+	return self._members
 end
 
 return GuildTextChannel

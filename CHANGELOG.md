@@ -271,6 +271,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Changed `hasRole` method to return `true` for `@everyone` role
 - Added `getPermissions` method
 - Added `hasPermission` method
+- Added `members` `FilteredIterable` property
 
 #### Message
 - Replaced `reactions` properties and methods with directly accessible `Cache` property
@@ -317,6 +318,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Replaced `setMentionable` method with `enableMentioning` and `disableMentioning`
 - Changed `hoist` property to `hoisted`
 - Replaced `setPosition` method with `moveUp` and `moveDown` methods
+- Added `members` `FilteredIterable` property
 
 #### User
 - Removed `User:getMembership(guild)` (use `Guild:getMember(user)` instead)
@@ -347,6 +349,9 @@ The major goals of this rewrite were to add new or missing features and to impro
 - New class! See documentation.
 
 #### Cache
+- New class! See documentation.
+
+#### FilteredIterable
 - New class! See documentation.
 
 #### Iterable

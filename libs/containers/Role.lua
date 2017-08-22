@@ -3,6 +3,7 @@ local Snowflake = require('containers/abstract/Snowflake')
 local Color = require('utils/Color')
 local Permissions = require('utils/Permissions')
 local Resolver = require('client/Resolver')
+local FilteredIterable = require('iterables/FilteredIterable')
 
 local format = string.format
 local insert, sort = table.insert, table.sort
@@ -396,6 +397,23 @@ The guild in which this role exists. Equivalent to `$.parent`.
 ]]
 function get.guild(self)
 	return self._parent
+end
+
+--[[
+@property members: FilteredIterable
+
+A filtered iterable of guild members that have this role. If you want to check
+whether a specific member has this role, it would be better to get the member
+object elsewhere and use `Member:hasRole` rather than check whether the member
+exists here.
+]]
+function get.members(self)
+	if not self._members then
+		self._members = FilteredIterable(self._parent._members, function(m)
+			return m:hasRole(self)
+		end)
+	end
+	return self._members
 end
 
 return Role
