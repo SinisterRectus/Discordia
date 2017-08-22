@@ -19,6 +19,12 @@ local function clamp(n, mn, mx)
 	return min(max(n, mn), mx)
 end
 
+--[[
+@class Color
+
+Wrapper for 24-bit colors packed as a decimal value. See the static constructors
+for more information.
+]]
 function Color:__init(value)
 	value = tonumber(value)
 	self._value = value and band(value, 0xFFFFFF) or 0
@@ -80,6 +86,9 @@ end
 @static fromHex
 @param hex: string
 @ret Color
+
+Constructs a new Color object from a hexadecimal string. The string may or may
+not be prefixed by `#`; all other characters are interpreted as a hex string.
 ]]
 function Color.fromHex(hex)
 	return Color(tonumber(hex:match('#?(.*)'), 16))
@@ -91,6 +100,9 @@ end
 @param g: number
 @param b: number
 @ret Color
+
+Constructs a new Color object from RGB color values. Values are allowed to
+overflow, though one component will not overflow to the next component.
 ]]
 function Color.fromRGB(r, g, b)
 	r = band(lshift(r, 16), 0xFF0000)
@@ -148,6 +160,9 @@ end
 @param s: number
 @param v: number
 @ret Color
+
+Constructs a new Color object from HSV color values. Hue is allowed to overflow
+while saturation and value are clamped to [0, 1].
 ]]
 function Color.fromHSV(h, s, v)
 	h = h % 360
@@ -165,6 +180,9 @@ end
 @param s: number
 @param l: number
 @ret Color
+
+Constructs a new Color object from HSV color values. Hue is allowed to overflow
+while saturation and lightness are clamped to [0, 1].
 ]]
 function Color.fromHSL(h, s, l)
 	h = h % 360
@@ -179,6 +197,8 @@ end
 --[[
 @method toHex
 @ret string
+
+Returns the hexadecimal string that represents the color value.
 ]]
 function Color:toHex()
 	return format('#%06X', self._value)
@@ -187,6 +207,8 @@ end
 --[[
 @method toRGB
 @ret number, number, number
+
+Returns the red, green, and blue values that are packed into the color value.
 ]]
 function Color:toRGB()
 	return self.r, self.g, self.b
@@ -195,6 +217,8 @@ end
 --[[
 @method toHSV
 @ret number, number, number
+
+Returns the hue, saturation, and value that represents the color value.
 ]]
 function Color:toHSV()
 	local h, d, mx = toHue(self.r, self.g, self.b)
@@ -206,6 +230,8 @@ end
 --[[
 @method toHSL
 @ret number, number, number
+
+Returns the hue, saturation, and lightness that represents the color value.
 ]]
 function Color:toHSL()
 	local h, d, mx, mn = toHue(self.r, self.g, self.b)
@@ -216,6 +242,8 @@ end
 
 --[[
 @property value: number
+
+The raw decimal value that represents the color value.
 ]]
 function get.value(self)
 	return self._value
@@ -227,6 +255,8 @@ end
 
 --[[
 @property r: number
+
+The value that represents the color's red-level.
 ]]
 function get.r(self)
 	return getByte(self._value, 16)
@@ -234,6 +264,8 @@ end
 
 --[[
 @property g: number
+
+The value that represents the color's green-level.
 ]]
 function get.g(self)
 	return getByte(self._value, 8)
@@ -241,6 +273,8 @@ end
 
 --[[
 @property b: number
+
+The value that represents the color's blue-level.
 ]]
 function get.b(self)
 	return getByte(self._value, 0)
@@ -255,6 +289,8 @@ end
 --[[
 @method setRed
 @param r: number
+
+Sets the color's red-level.
 ]]
 function Color:setRed(r)
 	self._value = setByte(self._value, 16, r)
@@ -263,6 +299,8 @@ end
 --[[
 @method setGreen
 @param g: number
+
+Sets the color's green-level.
 ]]
 function Color:setGreen(g)
 	self._value = setByte(self._value, 8, g)
@@ -271,6 +309,8 @@ end
 --[[
 @method setBlue
 @param b: number
+
+Sets the color's blue level.
 ]]
 function Color:setBlue(b)
 	self._value = setByte(self._value, 0, b)
@@ -279,6 +319,8 @@ end
 --[[
 @method copy
 @ret Color
+
+Returns a new copy of the original color object.
 ]]
 function Color:copy()
 	return Color(self._value)

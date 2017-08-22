@@ -30,6 +30,15 @@ local function check(self, other)
 	end
 end
 
+--[[
+@class Date
+@param [seconds]: number
+@param [microseconds]: number
+
+Represents a single moment in time and provides utilities for converting
+to and from different date and time formats. Although microsecond precision is
+available, most formats are implemented with only second precision.
+]]
 function Date:__init(seconds, micro)
 
 	local f
@@ -101,8 +110,12 @@ end
 @static parseISO
 @param str: string
 @ret number, number
+
+Converts an ISO 8601 string into a Unix time in seconds. For compatability
+with Discord's timestamp format, microseconds are also provided as a second
+return value.
 ]]
-function Date.parseISO(str) -- ISO8601
+function Date.parseISO(str)
 	local year, month, day, hour, min, sec, other = str:match(
 		'(%d+)-(%d+)-(%d+).(%d+):(%d+):(%d+)(.*)'
 	)
@@ -117,8 +130,10 @@ end
 @static parseHeader
 @param str: string
 @ret number
+
+Converts an RFC 2822 string (an HTTP Date header) into a Unix time in seconds.
 ]]
-function Date.parseHeader(str) -- RFC2822
+function Date.parseHeader(str)
 	local day, month, year, hour, min, sec = str:match(
 		'%a+, (%d+) (%a+) (%d+) (%d+):(%d+):(%d+) GMT'
 	)
@@ -132,6 +147,10 @@ end
 @static parseSnowflake
 @param id: string
 @ret number
+
+Converts a Discord/Twitter Snowflake ID into a Unix time in seconds. Additional
+decimal points may be present, though only the first 3 (milliseconds) should be
+considered accurate.
 ]]
 function Date.parseSnowflake(id)
 	return (id / 2^22 + DISCORD_EPOCH) / MS_PER_S
@@ -141,6 +160,9 @@ end
 @static parseTable
 @param tbl: table
 @ret number
+
+Interprets a Lua date table as a local time and converts it to a Unix time in
+seconds. Equivalent to `os.time(tbl)`.
 ]]
 function Date.parseTable(tbl)
 	return time(tbl)
@@ -150,6 +172,9 @@ end
 @static parseTableUTC
 @param tbl: table
 @ret number
+
+Interprets a Lua date table as a UTC time and converts it to a Unix time in
+seconds. Equivalent to `os.time(tbl)` with a correction for UTC.
 ]]
 function Date.parseTableUTC(tbl)
 	return time(tbl) + offset()
@@ -159,6 +184,9 @@ end
 @static fromISO
 @param str: string
 @ret Date
+
+Constructs a new Date object from an ISO 8601 string. Equivalent to
+`Date(Date.parseISO(str))`.
 ]]
 function Date.fromISO(str)
 	return Date(Date.parseISO(str))
@@ -168,6 +196,9 @@ end
 @static fromHeader
 @param str: string
 @ret Date
+
+Constructs a new Date object from an RFC 2822 string. Equivalent to
+`Date(Date.parseHeader(str))`.
 ]]
 function Date.fromHeader(str)
 	return Date(Date.parseHeader(str))
@@ -177,6 +208,9 @@ end
 @static fromSnowflake
 @param id: string
 @ret Date
+
+Constructs a new Date object from a Discord/Twitter Snowflake ID. Equivalent to
+`Date(Date.parseSnowflake(id))`.
 ]]
 function Date.fromSnowflake(id)
 	return Date(Date.parseSnowflake(id))
@@ -186,6 +220,9 @@ end
 @static fromTable
 @param tbl: table
 @ret Date
+
+Constructs a new Date object from a Lua date table interpreted as a local time.
+Equivalent to `Date(Date.parseTable(tbl))`.
 ]]
 function Date.fromTable(tbl)
 	return Date(Date.parseTable(tbl))
@@ -195,6 +232,9 @@ end
 @static fromTableUTC
 @param tbl: table
 @ret Date
+
+Constructs a new Date object from a Lua date table interpreted as a UTC time.
+Equivalent to `Date(Date.parseTableUTC(tbl))`.
 ]]
 function Date.fromTableUTC(tbl)
 	return Date(Date.parseTableUTC(tbl))
@@ -204,6 +244,8 @@ end
 @static fromSeconds
 @param t: number
 @ret Date
+
+Constructs a new Date object from a Unix time in seconds.
 ]]
 function Date.fromSeconds(t)
 	return Date(t)
@@ -213,6 +255,8 @@ end
 @static fromMilliseconds
 @param t: number
 @ret Date
+
+Constructs a new Date object from a Unix time in milliseconds.
 ]]
 function Date.fromMilliseconds(t)
 	return Date(t / MS_PER_S)
@@ -222,6 +266,8 @@ end
 @static fromMicroseconds
 @param t: number
 @ret Date
+
+Constructs a new Date object from a Unix time in microseconds.
 ]]
 function Date.fromMicroseconds(t)
 	return Date(0, t)
@@ -229,9 +275,14 @@ end
 
 --[[
 @method toISO
-@param sep: string
-@param tz: string
+@param [sep]: string
+@param [tz]: string
 @ret string
+
+Returns an ISO 8601 string that represents the stored date and time. If `sep`
+and `tz` are both provided, then they are used as a custom separator and
+timezone; otherwise, `T` is used for the separator and `+00:00` is used for the
+timezone, plus microseconds if available.
 ]]
 function Date:toISO(sep, tz)
 	if sep and tz then
@@ -249,6 +300,8 @@ end
 --[[
 @method toHeader
 @ret string
+
+Returns an RFC 2822 string that represents the stored date and time.
 ]]
 function Date:toHeader()
 	return date('!%a, %d %b %Y %T GMT', self._s)
@@ -257,6 +310,9 @@ end
 --[[
 @method toTable
 @ret table
+
+Returns a Lua date table that represents the stored date and time as a local
+time. Equivalent to `os.date('*t', t)` where `s` is the Unix time in seconds.
 ]]
 function Date:toTable()
 	return date('*t', self._s)
@@ -265,6 +321,9 @@ end
 --[[
 @method toTableUTC
 @ret table
+
+Returns a Lua date table that represents the stored date and time as a UTC
+time. Equivalent to `os.date('!*t', t)` where `s` is the Unix time in seconds.
 ]]
 function Date:toTableUTC()
 	return date('!*t', self._s)
@@ -273,6 +332,8 @@ end
 --[[
 @method toSeconds
 @ret number
+
+Returns a Unix time in seconds that represents the stored date and time.
 ]]
 function Date:toSeconds()
 	return self._s + self._us / US_PER_S
@@ -281,6 +342,8 @@ end
 --[[
 @method toMilliseconds
 @ret number
+
+Returns a Unix time in milliseconds that represents the stored date and time.
 ]]
 function Date:toMilliseconds()
 	return self._s * MS_PER_S + self._us / US_PER_MS
@@ -289,6 +352,8 @@ end
 --[[
 @method toMicroseconds
 @ret number
+
+Returns a Unix time in microseconds that represents the stored date and time.
 ]]
 function Date:toMicroseconds()
 	return self._s * US_PER_S + self._us
@@ -297,6 +362,8 @@ end
 --[[
 @method toParts
 @ret number, number
+
+Returns the seconds and microseconds that are stored in the date object.
 ]]
 function Date:toParts()
 	return self._s, self._us
