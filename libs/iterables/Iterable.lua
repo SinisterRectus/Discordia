@@ -4,10 +4,16 @@ local insert, sort, pack = table.insert, table.sort, table.pack
 
 local Iterable = require('class')('Iterable')
 
---[[ NOTE:
-- this is more of a mixin, without an initializer
-- init and iter methods must be defined in each sub-class
-- len and get can be redefined in any sub-class
+--[[
+@abc Iterable
+
+Abstract base class that defines the base methods and/or properties for a
+general purpose data structure with features that are better suited for an
+object-oriented environment.
+
+Note: All sub-classes must implement their own `__init` and `iter` methods.
+Additionally, more efficient versions of `__len` and `get` methods can be
+redefined in sub-classes.
 ]]
 
 function Iterable:__len()
@@ -22,6 +28,9 @@ end
 @method get
 @param k: *
 @ret *
+
+Returns an individual object by key, where the key should match the result of
+calling `__hash` on the contained objects. Operates with up to O(n) complexity.
 ]]
 function Iterable:get(k) -- objects must be hashable
 	for obj in self:iter() do
@@ -36,6 +45,8 @@ end
 @method find
 @param fn: function
 @ret *
+
+Returns the first object that satisfies a predicate.
 ]]
 function Iterable:find(fn)
 	for obj in self:iter() do
@@ -50,6 +61,8 @@ end
 @method findAll
 @param fn: function
 @ret function
+
+Returns an iterator that returns all objects that satisfy a predicate.
 ]]
 function Iterable:findAll(fn)
 	return wrap(function()
@@ -64,6 +77,9 @@ end
 --[[
 @method forEach
 @param fn: function
+
+Iterates through all objects and calls a function `fn` that takes the
+objects as an argument.
 ]]
 function Iterable:forEach(fn)
 	for obj in self:iter() do
@@ -74,6 +90,8 @@ end
 --[[
 @method random
 @ret *
+
+Returns a random object that is contained in the iterable.
 ]]
 function Iterable:random()
 	local n = 1
@@ -90,6 +108,8 @@ end
 @method count
 @param fn: function
 @ret number
+
+Returns the amount of objects that satisfy a predicate.
 ]]
 function Iterable:count(fn)
 	local n = 0
@@ -141,8 +161,13 @@ end
 
 --[[
 @method toTable
-@param fn: function
+@param [fn]: function
+@param [sortBy]: string
 @ret table
+
+Returns a table that contains references to all objects. If a predicate is
+provided, then only objects that satisfy it will be included. If a `sortBy`
+string is provided, then the table is sorted by that particular property.
 ]]
 function Iterable:toTable(fn, sortBy)
 	local ret = {}
@@ -163,6 +188,10 @@ end
 @method select
 @param ...: *
 @ret table
+
+Similarly to an SQL query, this returns a sorted Lua table of rows where each
+row corresponds to each object in the iterable, and each value in the row is
+selected from the objects according to the arguments provided.
 ]]
 function Iterable:select(...)
 	local rows = {}

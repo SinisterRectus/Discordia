@@ -2,6 +2,13 @@ local Iterable = require('iterables/Iterable')
 
 local SecondaryCache = require('class')('SecondaryCache', Iterable)
 
+--[[
+@class SecondaryCache x Iterable
+
+Iterable class that wraps another cache. Objects added to or removed from a
+secondary cache are also automatically added to or removed from the primary
+cache that it wraps.
+]]
 function SecondaryCache:__init(array, primary)
 	local objects = {}
 	for _, data in ipairs(array) do
@@ -37,10 +44,26 @@ function SecondaryCache:_remove(data)
 	return obj
 end
 
+--[[
+@method get
+@param k: *
+@ret *
+
+Returns an individual object by key, where the key should match the result of
+calling `__hash` on the contained objects. Unlike the default version, this
+method operates with O(1) complexity.
+]]
 function SecondaryCache:get(k)
 	return self._objects[k]
 end
 
+--[[
+@method iter
+@ret function
+
+Returns an iterator that returns all contained object. The order of the objects
+is not guaranteed.
+]]
 function SecondaryCache:iter()
 	local objects, k, obj = self._objects
 	return function()

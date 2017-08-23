@@ -2,6 +2,9 @@ local Iterable = require('iterables/Iterable')
 
 local Cache = require('class')('Cache', Iterable)
 
+--[[
+@class Cache x Iterable
+]]
 function Cache:__init(array, constructor, parent)
 	local objects = {}
 	for _, data in ipairs(array) do
@@ -100,10 +103,26 @@ function Cache:_load(array, update)
 	end
 end
 
+--[[
+@method get
+@param k: *
+@ret *
+
+Returns an individual object by key, where the key should match the result of
+calling `__hash` on the contained objects. Unlike the default version, this
+method operates with O(1) complexity.
+]]
 function Cache:get(k)
 	return self._objects[k]
 end
 
+--[[
+@method iter
+@ret function
+
+Returns an iterator that returns all contained object. The order of the objects
+is not guaranteed.
+]]
 function Cache:iter()
 	local objects, k, obj = self._objects
 	return function()
