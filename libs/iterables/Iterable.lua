@@ -161,15 +161,15 @@ end
 
 --[[
 @method toTable
-@param [fn]: function
 @param [sortBy]: string
+@param [fn]: function
 @ret table
 
-Returns a table that contains references to all objects. If a predicate is
-provided, then only objects that satisfy it will be included. If a `sortBy`
-string is provided, then the table is sorted by that particular property.
+Returns a table that contains references to all objects. If a `sortBy` string is
+provided, then the table is sorted by that particular property. If a predicate
+is provided, then only objects that satisfy it will be included.
 ]]
-function Iterable:toTable(fn, sortBy)
+function Iterable:toTable(sortBy, fn)
 	local ret = {}
 	for obj in self:iter() do
 		if not fn or fn(obj) then
