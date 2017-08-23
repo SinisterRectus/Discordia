@@ -245,6 +245,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Moved `mentionString` from `GuildChannel` to `Channel`
 - Replaced `webhooks` property with `getWebhooks` method
 - Changed `createInvite` parameters from `(maxAge, maxUses, temporary, unique)` to `(payload)`
+- Added `enableNSFW` and `disableNSFW` methods
+- Added `nsfw` property
 
 #### GuildVoiceChannel
 - TODO

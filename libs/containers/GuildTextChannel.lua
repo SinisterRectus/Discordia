@@ -93,12 +93,43 @@ function GuildTextChannel:setTopic(topic)
 end
 
 --[[
+@method enableNSFW
+@ret boolean
+
+Enables the NSFW setting for the channel. NSFW channels are hidden from users
+until the user explicitly requests to view them.
+]]
+function GuildTextChannel:enableNSFW()
+	return self:_modify({nsfw = true})
+end
+
+--[[
+@method disableNSFW
+@ret boolean
+
+Disables the NSFW setting for the channel. NSFW channels are hidden from users
+until the user explicitly requests to view them.
+]]
+function GuildTextChannel:disableNSFW()
+	return self:_modify({nsfw = false})
+end
+
+--[[
 @property topic: string|nil
 
 The channel's topic. This should be between 1 and 1024 characters.
 ]]
 function get.topic(self)
 	return self._topic
+end
+
+--[[
+@property nsfw: boolean
+
+Whether this channel is marked as NSFW (not safe for work).
+]]
+function get.nsfw(self)
+	return self._nsfw or false
 end
 
 --[[
