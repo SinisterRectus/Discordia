@@ -80,6 +80,15 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Most types and levels are now enumerated as Lua numbers
 - Enumerated properties can be more easily represented using fields within the `enums` module (eg: `channelType.voice` and `verificationLevel.medium`)
 
+#### Extensions
+- Module is no longer automatically loaded into the global Lua modules (call the modules to load them instead)
+- Removed `printf` function
+- Combined `string.split` and `string.split2` into one `string.split`
+- Combined `string.padleft`, `string.padright`, and `string.padcenter` into one `string.pad`
+- Renamed `table.find` to `table.search`
+- Removed `table.hash`
+- Removed `table.transposed`
+
 ### Public API Changes
 
 #### Events

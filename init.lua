@@ -1,6 +1,7 @@
 return {
 	class = require('class'),
 	enums = require('enums'),
+	extensions = require('extensions'),
 	package = require('./package.lua'),
 	Client = require('client/Client'),
 	Clock = require('utils/Clock'),
