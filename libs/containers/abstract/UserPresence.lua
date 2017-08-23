@@ -1,4 +1,4 @@
-
+local User = require('containers/User')
 local Container = require('containers/abstract/Container')
 
 local UserPresence, get = require('class')('UserPresence', Container)
@@ -7,7 +7,9 @@ local UserPresence, get = require('class')('UserPresence', Container)
 @abc UserPresence x Container
 
 Abstract base class that defines the base methods and/or properties for
-classes that represent a user's current presence information.
+classes that represent a user's current presence information. Note that any
+method or property that exists for the User class is also available in the
+UserPresence class and its subclasses.
 ]]
 function UserPresence:__init(data, parent)
 	Container.__init(self, data, parent)
@@ -24,18 +26,6 @@ function UserPresence:_loadPresence(presence)
 	self._game_type = game and game.type
 	self._game_url = game and game.url
 	self._status = presence.status
-end
-
---[[
-@method send
-@tags http
-@param content: string|table
-@ret Message
-
-Equivalent to `$.user:send(content)`
-]]
-function UserPresence:send(content)
-	return self._user:send(content)
 end
 
 --[[
@@ -86,100 +76,16 @@ end
 
 -- user shortcuts
 
---[[
-@property id: string
-Equivalent to `$.user.id`.
-]]
-function get.id(self)
-	return self._user.id
+for k, v in pairs(User) do
+	UserPresence[k] = UserPresence[k] or function(self, ...)
+		return v(self._user, ...)
+	end
 end
 
---[[
-@property bot: boolean
-Equivalent to `$.user.bot`.
-]]
-function get.bot(self)
-	return self._user.bot
-end
-
---[[
-@property username: string
-Equivalent to `$.user.username`.
-]]
-function get.username(self)
-	return self._user.username
-end
-
---[[
-@property discriminator: string
-Equivalent to `$.user.discriminator`.
-]]
-function get.discriminator(self)
-	return self._user.discriminator
-end
-
---[[
-@property fullname: string
-Equivalent to `$.user.fullname`.
-]]
-function get.fullname(self)
-	return self._user.fullname
-end
-
---[[
-@property avatar: string|nil
-Equivalent to `$.user.avatar`.
-]]
-function get.avatar(self)
-	return self._user.avatar
-end
-
---[[
-@property defaultAvatar: number
-Equivalent to `$.user.defaultAvatar`.
-]]
-function get.defaultAvatar(self)
-	return self._user.defaultAvatar
-end
-
---[[
-@property avatarURL: string
-Equivalent to `$.user.avatarURL`.
-]]
-function get.avatarURL(self)
-	return self._user.avatarURL
-end
-
---[[
-@property defaultAvatarURL: string
-Equivalent to `$.user.defaultAvatarURL`.
-]]
-function get.defaultAvatarURL(self)
-	return self._user.defaultAvatarURL
-end
-
---[[
-@property mentionString: string
-Equivalent to `$.user.mentionString`.
-]]
-function get.mentionString(self)
-	return self._user.mentionString
-end
-
---[[
-@property createdAt: number
-Equivalent to `$.user.createdAt`.
-]]
-function get.createdAt(self)
-	return self._user.createdAt
-end
-
---[[
-@property timestamp: string
-Equivalent to `$.user.timestamp`.
-]]
-function get.timestamp(self)
-	return self._user.timestamp
+for k, v in pairs(User.__getters) do
+	get[k] = get[k] or function(self)
+		return v(self._user)
+	end
 end
 
 return UserPresence

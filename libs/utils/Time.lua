@@ -44,15 +44,20 @@ function Time:__init(value)
 	self._value = tonumber(value) or 0
 end
 
+local function addString(unit, tbl, ret)
+	if tbl[unit] == 0 then return end
+	return insert(ret, tbl[unit] .. ' ' .. unit)
+end
+
 function Time:__tostring()
 	local tbl = self:toTable()
 	local ret = {}
-	if tbl.weeks ~= 0 then insert(ret, tbl.weeks .. ' weeks') end
-	if tbl.days ~= 0 then insert(ret, tbl.days .. ' days') end
-	if tbl.hours ~= 0 then insert(ret, tbl.hours .. ' hours') end
-	if tbl.minutes ~= 0 then insert(ret, tbl.minutes .. ' minutes') end
-	if tbl.seconds ~= 0 then insert(ret, tbl.seconds .. ' seconds') end
-	if tbl.milliseconds ~= 0 then insert(ret, tbl.milliseconds .. ' milliseconds') end
+	addString('weeks', tbl, ret)
+	addString('days', tbl, ret)
+	addString('hours', tbl, ret)
+	addString('minutes', tbl, ret)
+	addString('seconds', tbl, ret)
+	addString('milliseconds', tbl, ret)
 	return 'Time: ' .. concat(ret, ', ')
 end
 

@@ -17,12 +17,15 @@ local running = coroutine.running
 
 local BASE_URL = "https://discordapp.com/api/v7"
 
-local BOUNDARY = 'Discordia' .. os.time()
-local BOUNDARY2 = '--' .. BOUNDARY
+local BOUNDARY1 = 'Discordia' .. os.time()
+local BOUNDARY2 = '--' .. BOUNDARY1
 local BOUNDARY3 = BOUNDARY2 .. '--'
 
 local JSON = 'application/json'
-local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY)
+local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY1)
+
+local majorRoutes = {guilds = true, channels = true}
+local payloadRequired = {PUT = true, PATCH = true, POST = true}
 
 local parseDate = Date.parseHeader
 
@@ -43,7 +46,9 @@ local function parseErrors(ret, errors, key)
 	return concat(ret, '\n\t')
 end
 
-local majors = {guilds = true, channels = true}
+local function sub(path)
+	return not majorRoutes[path] and path
+end
 
 local function route(method, endpoint)
 
@@ -54,9 +59,7 @@ local function route(method, endpoint)
 	end
 
 	-- remove the ID from minor routes
-	endpoint = endpoint:gsub('(%a+)/%d+', function(path)
-		return not majors[path] and path
-	end)
+	endpoint = endpoint:gsub('(%a+)/%d+', sub)
 
 	-- special case for message deletions
 	if method == 'DELETE' then
@@ -139,7 +142,7 @@ function API:request(method, endpoint, payload, query, files)
 	end
 
 	local req
-	if method:find('P') == 1 then
+	if payloadRequired[method] then
 		payload = payload and encode(payload) or '{}'
 		req = {}
 		for i, v in ipairs(self._headers) do
@@ -240,6 +243,11 @@ function API:commit(method, url, req, payload, retries)
 end
 
 -- start of auto-generated methods --
+
+function API:getGuildAuditLog(guild_id)
+	local endpoint = f(endpoints.GUILD_AUDIT_LOG, guild_id)
+	return self:request("GET", endpoint)
+end
 
 function API:getChannel(channel_id) -- not exposed, use cache
 	local endpoint = f(endpoints.CHANNEL, channel_id)

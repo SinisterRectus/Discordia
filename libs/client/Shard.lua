@@ -158,7 +158,7 @@ function Shard:handlePayloads(token)
 		local d = payload.d
 		local op = payload.op
 
-		if t then
+		if t ~= null then
 			self:debug('WebSocket OP %s : %s : %s', op, t, s)
 		else
 			self:debug('WebSocket OP %s', op)

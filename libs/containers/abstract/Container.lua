@@ -8,7 +8,7 @@ local Container, get = require('class')('Container')
 local types = {['string'] = true, ['number'] = true, ['boolean'] = true}
 
 local function load(self, data)
-	assert(type(data) == 'table') -- debug
+	-- assert(type(data) == 'table') -- debug
 	for k, v in pairs(data) do
 		if types[type(v)] then
 			self['_' .. k] = v
@@ -26,7 +26,7 @@ Discord objects and structures. Container classes are constructed internally
 with information received from Discord and should never be manually constructed.
 ]]
 function Container:__init(data, parent)
-	assert(type(parent) == 'table') -- debug
+	-- assert(type(parent) == 'table') -- debug
 	self._parent = parent
 	return load(self, data)
 end

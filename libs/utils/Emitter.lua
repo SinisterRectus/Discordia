@@ -109,10 +109,13 @@ function Emitter:emit(name, ...)
 			end
 		end
 	end
-	for i = #listeners, 1, -1 do
-		if not listeners[i] then
-			remove(listeners, i)
+	if listeners._removed then
+		for i = #listeners, 1, -1 do
+			if not listeners[i] then
+				remove(listeners, i)
+			end
 		end
+		listeners._removed = nil
 	end
 end
 
@@ -166,6 +169,7 @@ function Emitter:removeListener(name, fn)
 			listeners[i] = false
 		end
 	end
+	listeners._removed = true
 end
 
 --[[

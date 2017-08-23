@@ -59,7 +59,7 @@ function Guild:_makeAvailable(data)
 		end
 	end
 
-	self._features = data.features -- raw table of strings
+	self._features = data.features
 
 	return self:_loadMembers(data)
 
@@ -717,6 +717,15 @@ enumeration for a human-readable representation.
 ]]
 function get.explicitContentSetting(self)
 	return self._explicit_content_filter
+end
+
+--[[
+#property features: table
+
+Raw table of VIP features that are enabled for the guild.
+]]
+function get.features(self)
+	return self._features
 end
 
 --[[

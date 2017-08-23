@@ -41,9 +41,12 @@ end
 
 local function parseChannelMentions(content)
 	if not content:find('<#') then return end
-	local ids = {}
+	local ids, seen = {}, {}
 	for id in content:gmatch('<#(%d-)>') do
-		table.insert(ids, id)
+		if not seen[id] then
+			insert(ids, id)
+			seen[id] = true
+		end
 	end
 	return ids
 end
@@ -354,7 +357,8 @@ end
 --[[
 @property mentionedUsers: ArrayIterable
 
-An iterable array of all users that are mentioned in this message.
+An iterable array of all users that are mentioned in this message.  Object order
+is not guaranteed.
 ]]
 function get.mentionedUsers(self)
 	if not self._mentioned_users then
@@ -369,7 +373,8 @@ end
 
 An iterable array of known roles that are mentioned in this message, excluding
 the default everyone role. The message must be in a guild text channel and the
-roles must be cached in that channel's guild for them to appear here.
+roles must be cached in that channel's guild for them to appear here. Object
+order is not guaranteed.
 ]]
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
@@ -388,6 +393,7 @@ end
 
 An iterable array of all known channels that are mentioned in this message. If
 the client does not have the channel cached, then it will not appear here.
+Object order is not guaranteed.
 ]]
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then

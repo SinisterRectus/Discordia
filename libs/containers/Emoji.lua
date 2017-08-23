@@ -47,7 +47,7 @@ function get.guild(self)
 end
 
 --[[
-@property string: string
+@property mentionString: string
 
 A string that, when included in a message content, may resolve as an emoji image
 in the official Discord client.
@@ -87,7 +87,7 @@ end
 @property roles: ArrayIterable
 
 An iterable array of roles that may be required to use this emoji, generally
-related to integration-managed emojis.
+related to integration-managed emojis. Object order is not guaranteed.
 ]]
 function get.roles(self)
 	if not self._roles then

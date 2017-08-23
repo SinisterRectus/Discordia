@@ -131,8 +131,9 @@ return setmetatable({
 	function class:__newindex(k, v)
 		if class[k] or getters[k] then
 			return error(format('Cannot overwrite protected property: %s.%s', name, k))
+		elseif k:find('_', 1, true) ~= 1 then
+			return error(format('Cannot write property to object without leading underscore: %s.%s', name, k))
 		else
-			assert(k:find('_') == 1) -- debug
 			if not pool[k] then
 				n = n + 1
 				pool[k] = n
