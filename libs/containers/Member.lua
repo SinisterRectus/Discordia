@@ -287,10 +287,13 @@ function Member:removeRole(id)
 					break
 				end
 			end
-		end
-		if #roles == 0 then
-			self._roles_raw = nil
-			self._roles._array = nil
+			if #roles == 0 then
+				if self._roles then
+					self._roles._array = nil
+				else
+					self._roles_raw = nil
+				end
+			end
 		end
 		return true
 	else
