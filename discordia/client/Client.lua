@@ -276,7 +276,7 @@ local function setGameName(self, gameName)
 		if me then me._game = gameName and {name = gameName} end
 	end
 	for _, socket in pairs(self._sockets) do
-		socket:statusUpdate(self._idle_since, self._game_name)
+		socket:statusUpdate(self._idle_since, self._game_name, 1)
 	end
 end
 
