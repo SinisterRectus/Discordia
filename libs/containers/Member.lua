@@ -349,6 +349,27 @@ function Member:setNickname(nick)
 end
 
 --[[
+@method setVoiceChannel
+@tags http
+@param Channel ID Resolvable
+@ret boolean
+
+Moves the member to a new voice channel, but only if the member has an active
+voice connection in the current guild. Due to complexities in voice state
+handling, the member's `voiceChannel` property will update asynchronously via
+WebSocket; not as a result of the HTTP request.
+]]
+function Member:setVoiceChannel(id)
+	id = Resolver.channelId(id)
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id})
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+--[[
 @method mute
 @tags http
 @ret boolean
@@ -500,21 +521,34 @@ function get.joinedAt(self)
 end
 
 --[[
+@property voiceChannel: GuildVoiceChannel|nil
+
+The voice channel to which this member is connected in the current guild.
+]]
+function get.voiceChannel(self)
+	local guild = self._parent
+	local state = guild._voice_states[self:__hash()]
+	return state and guild._voice_channels:get(state.channel_id)
+end
+
+--[[
 @property muted: boolean
 
-Whether the member is muted in its guild.
+Whether the member is voice muted in its guild.
 ]]
 function get.muted(self)
-	return self._mute
+	local state = self._parent._voice_states[self:__hash()]
+	return state and (state.mute or state.self_mute) or self._mute
 end
 
 --[[
 @property deafened: boolean
 
-Whether the member is deafened in its guild.
+Whether the member is voice deafened in its guild.
 ]]
 function get.deafened(self)
-	return self._deaf
+	local state = self._parent._voice_states[self:__hash()]
+	return state and (state.deaf or state.self_deaf) or self._deaf
 end
 
 --[[

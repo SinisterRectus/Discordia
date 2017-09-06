@@ -107,6 +107,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Renamed `resumed` event to `shardResumed`
 - Removed `guildCreateUnavailable` event (check `guild.unavailable` on `guildCreate` instead)
 - Removed `typingStartUncached` event
+- Removed `mute` and `deaf` arguments from voice events (check `member.muted` and `member.deafened` instead)
 - Added `oldContent` as a second parameter to `messageUpdate` event
 - Changed `reactionAdd` and `reactionRemove` parameters from `(reaction, user)` to `(reaction, userId)`
 - Changed `reactionAddUncached` and `reactionRemoveUncached` parameters from raw `(data)` table to `(channel, messageId, userId)`
@@ -177,6 +178,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Replaced `invites` property with `getInvites` method
 - Replaced `permissionOverwrites` properties and methods with directly accessible `Cache` property
 - Replaced `setPosition` method with `moveUp` and `moveDown` methods
+- Changed `createInvite` parameters from `(maxAge, maxUses, temporary, unique)` to `(payload)`
 
 #### Snowflake
 - Added `__hash` method, which returns `id` property
@@ -244,7 +246,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Changed `bulkDelete` behavior (see documentation)
 - Moved `mentionString` from `GuildChannel` to `Channel`
 - Replaced `webhooks` property with `getWebhooks` method
-- Changed `createInvite` parameters from `(maxAge, maxUses, temporary, unique)` to `(payload)`
 - Added `enableNSFW` and `disableNSFW` methods
 - Added `nsfw` property
 

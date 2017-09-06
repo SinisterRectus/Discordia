@@ -1,7 +1,7 @@
 local Deque = require('class')('Deque')
 
 --[[
-@class
+@class Deque
 
 An implementation of a double-ended queue.
 ]]

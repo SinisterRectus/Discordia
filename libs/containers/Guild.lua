@@ -405,7 +405,7 @@ end
 Returns a newly constructed cache of all ban objects for the guild. The
 cache is not automatically updated via gateway events, but the internally
 referenced user objects may be updated. You must call this method again to
-guarantee that the objects are update to date.
+guarantee that the objects are up to date.
 ]]
 function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
@@ -469,7 +469,7 @@ end
 @tags http
 @ret boolean
 
-Removes the current from the guild.
+Removes the current user from the guild.
 ]]
 function Guild:leave()
 	local data, err = self.client._api:leaveGuild(self._id)

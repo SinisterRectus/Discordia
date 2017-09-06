@@ -1,7 +1,9 @@
 local enums = require('enums')
+local json = require('json')
 
 local channelType = enums.channelType
 local concat, insert = table.concat, table.insert
+local null = json.null
 
 local function warning(client, object, id, event)
 	return client:warning('Uncached %s (%s) on %s', object, id, event)
@@ -419,7 +421,37 @@ function EventHandler.USER_UPDATE(d, client)
 	return client:emit('userUpdate', client._user)
 end
 
-function EventHandler.VOICE_STATE_UPDATE() -- TODO
+function EventHandler.VOICE_STATE_UPDATE(d, client)
+	local guild = client._guilds:get(d.guild_id)
+	if not guild then return warning(client, 'Guild', d.guild_id, 'VOICE_STATE_UPDATE') end
+	local member = guild._members:get(d.user_id)
+	if not member then return warning(client, 'Member', d.user_id, 'VOICE_STATE_UPDATE') end
+	local states = guild._voice_states
+	local channels = guild._voice_channels
+	local state = states[d.user_id]
+	if state then
+		if d.channel_id ~= null then
+			states[d.user_id] = d
+			if d.channel_id == state.channel_id then
+				client:emit('voiceUpdate', member)
+			else
+				local old = channels:get(state.channel_id)
+				local new = channels:get(d.channel_id)
+				client:emit('voiceChannelLeave', member, old)
+				client:emit('voiceChannelJoin', member, new)
+			end
+		else
+			states[d.user_id] = nil
+			local old = channels:get(state.channel_id)
+			client:emit('voiceChannelLeave', member, old)
+			client:emit('voiceDisconnect', member)
+		end
+	else
+		states[d.user_id] = d
+		local new = channels:get(d.channel_id)
+		client:emit('voiceConnect', member)
+		client:emit('voiceChannelJoin', member, new)
+	end
 end
 
 function EventHandler.VOICE_SERVER_UPDATE() -- TODO
