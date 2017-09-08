@@ -110,7 +110,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Removed `mute` and `deaf` arguments from voice events (check `member.muted` and `member.deafened` instead)
 - Added `oldContent` as a second parameter to `messageUpdate` event
 - Changed `reactionAdd` and `reactionRemove` parameters from `(reaction, user)` to `(reaction, userId)`
-- Changed `reactionAddUncached` and `reactionRemoveUncached` parameters from raw `(data)` table to `(channel, messageId, userId)`
+- Changed `reactionAddUncached` and `reactionRemoveUncached` parameters from raw `(data)` table to `(channel, messageId, hash, userId)`
 - Changed `typingStart` parameters from `(user, channel, timestamp)` to raw `(userId, channelId, timestamp)` table
 - Changed `heartbeat` parameters from `(sequence, latency, shardId)` to `(shardId, latency)`
 - Changed `raw` parameters from `(tbl, str)` to `(str)` where `str` is a JSON string

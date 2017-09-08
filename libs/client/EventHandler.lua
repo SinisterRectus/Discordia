@@ -351,7 +351,8 @@ function EventHandler.MESSAGE_REACTION_ADD(d, client)
 		local reaction = message:_addReaction(d)
 		return client:emit('reactionAdd', reaction, d.user_id)
 	else
-		return client:emit('reactionAddUncached', channel, d.message_id, d.user_id)
+		local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
+		return client:emit('reactionAddUncached', channel, d.message_id, k, d.user_id)
 	end
 end
 
@@ -363,7 +364,8 @@ function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
 		local reaction = message:_removeReaction(d)
 		return client:emit('reactionRemove', reaction, d.user_id)
 	else
-		return client:emit('reactionRemoveUncached', channel, d.message_id, d.user_id)
+		local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
+		return client:emit('reactionRemoveUncached', channel, d.message_id, k, d.user_id)
 	end
 end
 
