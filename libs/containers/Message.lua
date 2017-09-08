@@ -7,6 +7,7 @@ local Reaction = require('containers/Reaction')
 local Resolver = require('client/Resolver')
 
 local insert, remove = table.insert, table.remove
+local null = json.null
 
 local Message, get = require('class')('Message', Snowflake)
 
@@ -98,7 +99,7 @@ function Message:_addReaction(d)
 	end
 
 	local emoji = d.emoji
-	local k = emoji.id or emoji.name
+	local k = emoji.id ~= null and emoji.id or emoji.name
 	local reaction = reactions:get(k)
 
 	if reaction then
@@ -120,7 +121,7 @@ function Message:_removeReaction(d)
 	local reactions = self._reactions
 
 	local emoji = d.emoji
-	local k = emoji.id or emoji.name
+	local k = emoji.id ~= null and emoji.id or emoji.name
 	local reaction = reactions:get(k)
 
 	reaction._count = reaction._count - 1
@@ -202,7 +203,7 @@ Sets the message's content. The message must be authored by the current user
 must be from 1 to 2000 characters in length.
 ]]
 function Message:setContent(content)
-	return self:_modify({content = content or json.null})
+	return self:_modify({content = content or null})
 end
 
 --[[
@@ -215,7 +216,7 @@ Sets the message's embed. The message must be authored by the current user.
 (ie: you cannot change the embed of messages sent by other users).
 ]]
 function Message:setEmbed(embed)
-	return self:_modify({embed = embed or json.null})
+	return self:_modify({embed = embed or null})
 end
 
 --[[

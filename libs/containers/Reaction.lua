@@ -1,7 +1,9 @@
+local json = require('json')
 local Container = require('containers/abstract/Container')
 local SecondaryCache = require('iterables/SecondaryCache')
 local Resolver = require('client/Resolver')
 
+local null = json.null
 local format = string.format
 
 local Reaction, get = require('class')('Reaction', Container)
@@ -19,7 +21,7 @@ function Reaction:__init(data, parent)
 end
 
 function Reaction:__hash()
-	return self._emoji_id or self._emoji_name
+	return self._emoji_id ~= null and self._emoji_id or self._emoji_name
 end
 
 --[[
