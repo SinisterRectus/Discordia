@@ -45,9 +45,9 @@ The major goals of this rewrite were to add new or missing features and to impro
 - The `Iterable` mixin provides methods such as `get`, `find`, `forEach`, etc
 - Classes that implement the `Iterable` mixin are:
 	- `Cache` - for main Discord objects (eg: guilds, channels, roles)
-	- `SecondaryCache` - for select references to objects that are stored in `WeakCaches` (eg: pinned messages, reaction users)
+	- `SecondaryCache` - for select references to objects that are cached elsewhere (eg: pinned messages)
 	- `ArrayIterable` - for objects that are better represented in an ordered form, and sometimes mapped (eg: member roles, mentioned users)
-	- `WeakCache` - for objects that are either never directly deleted or are temporarily referenced from other locations (eg: client users, channel messages)
+	- `WeakCache` - for objects that are either never directly deleted or are temporarily referenced from other locations (eg: channel messages)
 
 #### New Container Classes
 - `Ban` - represents a guild ban (provides a user object and reason)

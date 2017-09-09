@@ -387,20 +387,37 @@ function EventHandler.CHANNEL_PINS_UPDATE(d, client)
 end
 
 function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
+	local user = client._users:get(d.user.id)
+	if user then
+		user:_load(d.user)
+	end
 	if d.guild_id then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'PRESENCE_UPDATE') end
-		local member = guild._members:get(d.user.id)
-		if not member then return end -- joined_at pls
-		member:_loadPresence(d)
-		member._user:_load(d.user)
-		return client:emit('presenceUpdate', member)
+		local member
+		if d.status == 'offline' and guild._large and not client._options.cacheAllMembers then
+			member = guild._members:_delete(d.user.id)
+		else
+			member = guild._members:get(d.user.id)
+			if not member then
+				if d.user.username then
+					member = guild._members:_insert(d)
+				elseif user then
+					member = guild._members:_insert(d)
+					member._user = user
+				end
+			end
+		end
+		if member then
+			member:_loadPresence(d)
+			return client:emit('presenceUpdate', member)
+		end
 	else
 		local relationship = client._relationships:get(d.user.id)
-		if not relationship then return end
-		relationship:_loadPresence(d)
-		relationship._user:_load(d.user)
-		return client:emit('relationshipUpdate', relationship)
+		if relationship then
+			relationship:_loadPresence(d)
+			return client:emit('relationshipUpdate', relationship)
+		end
 	end
 end
 

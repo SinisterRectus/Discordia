@@ -18,7 +18,6 @@ local Webhook = require('containers/Webhook')
 local Relationship = require('containers/Relationship')
 
 local Cache = require('iterables/Cache')
-local WeakCache = require('iterables/WeakCache')
 local Emitter = require('utils/Emitter')
 local Logger = require('utils/Logger')
 local Mutex = require('utils/Mutex')
@@ -44,7 +43,7 @@ local defaultOptions = {
 	firstShard = 0,
 	lastShard = -1,
 	largeThreshold = 100,
-	fetchMembers = false,
+	cacheAllMembers = false,
 	autoReconnect = true,
 	compress = true,
 	bitrate = 64000,
@@ -101,7 +100,7 @@ function Client:__init(options)
 	self._shards = {}
 	self._api = API(self)
 	self._mutex = Mutex()
-	self._users = WeakCache({}, User, self)
+	self._users = Cache({}, User, self)
 	self._guilds = Cache({}, Guild, self)
 	self._group_channels = Cache({}, GroupChannel, self)
 	self._private_channels = Cache({}, PrivateChannel, self)
@@ -590,9 +589,9 @@ function get.guilds(self)
 end
 
 --[[
-@property user: WeakCache
+@property user: Cache
 
-An iterable weak cache of all users that are visible to the client. Users that
+An iterable cache of all users that are visible to the client. Users that
 are not referenced elsewhere are eventually garbage collected. To access a user
 that may exist but is not cached, use `Client:getUser`.
 ]]

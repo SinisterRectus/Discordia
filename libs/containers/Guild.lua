@@ -74,7 +74,7 @@ function Guild:_loadMembers(data)
 			member:_loadPresence(presence)
 		end
 	end
-	if self._large and self.client._options.fetchMembers then
+	if self._large and self.client._options.cacheAllMembers then
 		return self:requestMembers()
 	end
 end
@@ -95,7 +95,7 @@ end
 @ret boolean
 
 Asynchronously loads all members for this guild. You do not need to call this
-if the `fetchMembers` client option (and the `syncGuilds` option for
+if the `cacheAllMembers` client option (and the `syncGuilds` option for
 user-accounts) is enabled on start-up.
 ]]
 function Guild:requestMembers()
@@ -806,10 +806,10 @@ end
 @property members: Cache
 
 An iterable cache of all members that exist in this guild and have been
-already loaded. If the `fetchMembers` client option (and the `syncGuilds` option
-for user-accounts) is enabled on start-up, then all members will be cached.
-Otherwise, all members may not be cached. To access a member that may exist, but
-is not cached, use `Guild:getMember`.
+already loaded. If the `cacheAllMembers` client option (and the `syncGuilds`
+option for user-accounts) is enabled on start-up, then all members will be
+cached. Otherwise, offline members may not be cached. To access a member that
+may exist, but is not cached, use `Guild:getMember`.
 ]]
 function get.members(self)
 	return self._members

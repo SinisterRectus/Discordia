@@ -511,10 +511,11 @@ function get.nickname(self)
 end
 
 --[[
-@property joinedAt: string
+@property joinedAt: string|nil
 
 The date and time at which the current member joined the guild, represented as
-an ISO 8601 string plus microseconds when available.
+an ISO 8601 string plus microseconds when available. Member objects generated
+via presence updates lack this property.
 ]]
 function get.joinedAt(self)
 	return self._joined_at
