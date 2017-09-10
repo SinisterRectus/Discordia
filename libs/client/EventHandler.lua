@@ -125,18 +125,23 @@ end
 
 function EventHandler.CHANNEL_CREATE(d, client)
 	local channel
-	if d.type == channelType.text then
+	local t = d.type
+	if t == channelType.text then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
 		channel = guild._text_channels:_insert(d)
-	elseif d.type == channelType.voice then
+	elseif t == channelType.voice then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
 		channel = guild._voice_channels:_insert(d)
-	elseif d.type == channelType.private then
+	elseif t == channelType.private then
 		channel = client._private_channels:_insert(d)
-	elseif d.type == channelType.group then
+	elseif t == channelType.group then
 		channel = client._group_channels:_insert(d)
+	elseif t == channelType.category then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
+		channel = guild._categories:_insert(d)
 	else
 		return client:warning('Unhandled CHANNEL_CREATE (type %s)', d.type)
 	end
@@ -145,18 +150,23 @@ end
 
 function EventHandler.CHANNEL_UPDATE(d, client)
 	local channel
-	if d.type == channelType.text then
+	local t = d.type
+	if t == channelType.text then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
 		channel = guild._text_channels:_insert(d)
-	elseif d.type == channelType.voice then
+	elseif t == channelType.voice then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
 		channel = guild._voice_channels:_insert(d)
-	-- elseif d.type == channelType.private then -- private channels should never update
-		-- channel = client._private_channels:_insert(d)
-	elseif d.type == channelType.group then
+	elseif t == channelType.private then -- private channels should never update
+		channel = client._private_channels:_insert(d)
+	elseif t == channelType.group then
 		channel = client._group_channels:_insert(d)
+	elseif t == channelType.category then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
+		channel = guild._categories:_insert(d)
 	else
 		return client:warning('Unhandled CHANNEL_UPDATE (type %s)', d.type)
 	end
@@ -165,18 +175,23 @@ end
 
 function EventHandler.CHANNEL_DELETE(d, client)
 	local channel
-	if d.type == channelType.text then
+	local t = d.type
+	if t == channelType.text then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
 		channel = guild._text_channels:_remove(d)
-	elseif d.type == channelType.voice then
+	elseif t == channelType.voice then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
 		channel = guild._voice_channels:_remove(d)
-	elseif d.type == channelType.private then
+	elseif t == channelType.private then
 		channel = client._private_channels:_remove(d)
-	elseif d.type == channelType.group then
+	elseif t == channelType.group then
 		channel = client._group_channels:_remove(d)
+	elseif t == channelType.category then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
+		channel = guild._categories:_remove(d)
 	else
 		return client:warning('Unhandled CHANNEL_DELETE (type %s)', d.type)
 	end

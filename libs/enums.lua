@@ -30,10 +30,11 @@ enums.notificationSetting = enum {
 }
 
 enums.channelType = enum {
-	text    = 0,
-	private = 1,
-	voice   = 2,
-	group   = 3,
+	text     = 0,
+	private  = 1,
+	voice    = 2,
+	group    = 3,
+	category = 4,
 }
 
 enums.messageType = enum {

@@ -103,7 +103,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `relationshipUpdate` event
 - Added `info` event
 - Added `debug` event
-- Added group channel handling to `channelCreate`, `channelUpdate`, and `channelDelete`
+- Added group channel and category handling to `channelCreate`, `channelUpdate`, and `channelDelete`
 - Renamed `resumed` event to `shardResumed`
 - Removed `guildCreateUnavailable` event (check `guild.unavailable` on `guildCreate` instead)
 - Removed `typingStartUncached` event
@@ -175,6 +175,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `__eq` metamethod, which uses new `__hash` method(s)
 
 #### GuildChannel
+- Added `category` property
+- Added `setCategory` method
 - Replaced `invites` property with `getInvites` method
 - Replaced `permissionOverwrites` properties and methods with directly accessible `Cache` property
 - Replaced `setPosition` method with `moveUp` and `moveDown` methods
@@ -218,6 +220,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added optional `reason` argument to `kickUser`, `banUser`, and `unbanUser` methods
 - Added `sync` method
 - Added `requestMembers` method
+- Added `categories` `Cache` property
+- Added `createCategory` method
 - Renamed `iconUrl` to `iconURL`
 - Renamed `setAfkTimeout` to `setAFKTimeout`
 - Renamed `setAfkChannel` to `setAFKChannel`
@@ -241,6 +245,9 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added stand-alone `getRole` method, which accepts only a roleId-resolvable
 - Added stand-alone `getChannel` method, which accepts only a channelId-resolvable
 - Added stand-alone `getMember` method, which accepts only a userId-resolvable
+
+#### GuildChannelCategory
+- New class! See documentation.
 
 #### GuildTextChannel
 - Changed `bulkDelete` behavior (see documentation)

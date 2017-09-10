@@ -8,6 +8,7 @@ local Member = require('containers/Member')
 local Resolver = require('client/Resolver')
 local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
+local GuildChannelCategory = require('containers/GuildChannelCategory')
 local Snowflake = require('containers/abstract/Snowflake')
 
 local json = require('json')
@@ -32,6 +33,7 @@ function Guild:__init(data, parent)
 	self._members = Cache({}, Member, self)
 	self._text_channels = Cache({}, GuildTextChannel, self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, self)
+	self._categories = Cache({}, GuildChannelCategory, self)
 	if not data.unavailable then
 		return self:_makeAvailable(data)
 	end
@@ -51,11 +53,16 @@ function Guild:_makeAvailable(data)
 
 	local text_channels = self._text_channels
 	local voice_channels = self._voice_channels
+	local categories = self._categories
+
 	for _, channel in ipairs(data.channels) do
-		if channel.type == channelType.text then
+		local t = channel.type
+		if t == channelType.text then
 			text_channels:_insert(channel)
-		elseif channel.type == channelType.voice then
+		elseif t == channelType.voice then
 			voice_channels:_insert(channel)
+		elseif t == channelType.category then
+			categories:_insert(channel)
 		end
 	end
 
@@ -176,7 +183,7 @@ Gets a text or voice channel object by ID.
 ]]
 function Guild:getChannel(id)
 	id = Resolver.channelId(id)
-	return self._text_channels:get(id) or self._voice_channels:get(id)
+	return self._text_channels:get(id) or self._voice_channels:get(id) or self._categories:get(id)
 end
 
 --[[
@@ -210,6 +217,24 @@ function Guild:createVoiceChannel(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.voice})
 	if data then
 		return self._voice_channels:_insert(data)
+	else
+		return nil, err
+	end
+end
+
+--[[
+@method createCategory
+@tags http
+@param name: string
+@ret GuildChannelCategory
+
+Creates a channel category in this guild. The name must be between 2 and 100
+characters in length.
+]]
+function Guild:createCategory(name)
+	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.category})
+	if data then
+		return self._categories:_insert(data)
 	else
 		return nil, err
 	end
@@ -831,6 +856,15 @@ An iterable cache of all voice channels that exist in this guild.
 ]]
 function get.voiceChannels(self)
 	return self._voice_channels
+end
+
+--[[
+@property categories: Cache
+
+An iterable cache of all channel categories that exist in this guild.
+]]
+function get.categories(self)
+	return self._categories
 end
 
 return Guild
