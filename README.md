@@ -29,9 +29,12 @@ client:on('ready', function()
 end)
 
 client:on('messageCreate', function(message)
+	if message.author == client.user then return end
+	
 	if message.content == '!ping' then
-		message.channel:sendMessage('!pong')
+		message.channel:sendMessage('Pong!')
 	end
+	
 end)
 
 client:run('INSERT_TOKEN_HERE')
