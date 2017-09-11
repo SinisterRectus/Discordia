@@ -32,7 +32,7 @@ client:on('messageCreate', function(message)
 	if message.author == client.user then return end
 	
 	if message.content == '!ping' then
-		message.channel:sendMessage('Pong!')
+		message.channel:sendMessage('!pong')
 	end
 	
 end)
