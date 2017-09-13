@@ -331,7 +331,7 @@ end
 @param str2: string
 
 Returns the Levenshtein distance between two strings. A higher number indicates
-a greter distance.
+a greater distance.
 ]]
 function string.levenshtein(str1, str2)
 
