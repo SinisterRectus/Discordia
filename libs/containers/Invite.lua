@@ -140,7 +140,7 @@ end
 --[[
 @property inviter: User|nil
 
-The object of the user that created the inviter. This will not exist if the
+The object of the user that created the invite. This will not exist if the
 invite is a guild widget or a vanity invite.
 ]]
 function get.inviter(self)
