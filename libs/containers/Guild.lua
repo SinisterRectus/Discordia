@@ -289,7 +289,7 @@ end
 @param verificationLevel: number
 @ret boolean
 
-Sets the guild's verification leve settingl. See the `verificationLevel`
+Sets the guild's verification level setting. See the `verificationLevel`
 enumeration for acceptable values.
 ]]
 function Guild:setVerificationLevel(verification_level)
@@ -315,7 +315,7 @@ end
 @param explicitContentSetting: number
 @ret boolean
 
-Sets the guild's explicit content level setting. See the `explicitContentLevel`
+Sets the guild's explicit content level setting. See the `explicitContentLevel` enumeration for acceptable values.
 
 ]]
 function Guild:setExplicitContentSetting(explicit_content_filter)
@@ -353,7 +353,7 @@ end
 @param id: User ID Resolveable
 @ret boolean
 
-Transfers ownership of the guild to another user. Only the current guild user
+Transfers ownership of the guild to another user. Only the current guild owner
 can do this.
 ]]
 function Guild:setOwner(id)
