@@ -42,7 +42,7 @@ end
 --[[
 @property guild: Guild
 
-The guild in which this ban object exists. Equivalen to `$.parent`.
+The guild in which this ban object exists. Equivalent to `$.parent`.
 ]]
 function get.guild(self)
 	return self._parent
