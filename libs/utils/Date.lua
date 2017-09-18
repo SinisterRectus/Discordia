@@ -111,7 +111,7 @@ end
 @param str: string
 @ret number, number
 
-Converts an ISO 8601 string into a Unix time in seconds. For compatability
+Converts an ISO 8601 string into a Unix time in seconds. For compatibility
 with Discord's timestamp format, microseconds are also provided as a second
 return value.
 ]]
