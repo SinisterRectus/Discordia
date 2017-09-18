@@ -21,7 +21,7 @@ end
 @tags http
 @ret boolean
 
-Delets the permission overwrite. This can be undone by created a new version of
+Deletes the permission overwrite. This can be undone by created a new version of
 the same overwrite.
 ]]
 function PermissionOverwrite:delete()
