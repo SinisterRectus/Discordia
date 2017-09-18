@@ -8,6 +8,7 @@ local Member = require('containers/Member')
 local Resolver = require('client/Resolver')
 local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
+local GuildChannelCategory = require('containers/GuildChannelCategory')
 local Snowflake = require('containers/abstract/Snowflake')
 
 local json = require('json')
@@ -32,6 +33,7 @@ function Guild:__init(data, parent)
 	self._members = Cache({}, Member, self)
 	self._text_channels = Cache({}, GuildTextChannel, self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, self)
+	self._categories = Cache({}, GuildChannelCategory, self)
 	if not data.unavailable then
 		return self:_makeAvailable(data)
 	end
@@ -51,11 +53,16 @@ function Guild:_makeAvailable(data)
 
 	local text_channels = self._text_channels
 	local voice_channels = self._voice_channels
+	local categories = self._categories
+
 	for _, channel in ipairs(data.channels) do
-		if channel.type == channelType.text then
+		local t = channel.type
+		if t == channelType.text then
 			text_channels:_insert(channel)
-		elseif channel.type == channelType.voice then
+		elseif t == channelType.voice then
 			voice_channels:_insert(channel)
+		elseif t == channelType.category then
+			categories:_insert(channel)
 		end
 	end
 
@@ -74,7 +81,7 @@ function Guild:_loadMembers(data)
 			member:_loadPresence(presence)
 		end
 	end
-	if self._large and self.client._options.fetchMembers then
+	if self._large and self.client._options.cacheAllMembers then
 		return self:requestMembers()
 	end
 end
@@ -95,7 +102,7 @@ end
 @ret boolean
 
 Asynchronously loads all members for this guild. You do not need to call this
-if the `fetchMembers` client option (and the `syncGuilds` option for
+if the `cacheAllMembers` client option (and the `syncGuilds` option for
 user-accounts) is enabled on start-up.
 ]]
 function Guild:requestMembers()
@@ -176,7 +183,7 @@ Gets a text or voice channel object by ID.
 ]]
 function Guild:getChannel(id)
 	id = Resolver.channelId(id)
-	return self._text_channels:get(id) or self._voice_channels:get(id)
+	return self._text_channels:get(id) or self._voice_channels:get(id) or self._categories:get(id)
 end
 
 --[[
@@ -210,6 +217,24 @@ function Guild:createVoiceChannel(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.voice})
 	if data then
 		return self._voice_channels:_insert(data)
+	else
+		return nil, err
+	end
+end
+
+--[[
+@method createCategory
+@tags http
+@param name: string
+@ret GuildChannelCategory
+
+Creates a channel category in this guild. The name must be between 2 and 100
+characters in length.
+]]
+function Guild:createCategory(name)
+	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.category})
+	if data then
+		return self._categories:_insert(data)
 	else
 		return nil, err
 	end
@@ -405,7 +430,7 @@ end
 Returns a newly constructed cache of all ban objects for the guild. The
 cache is not automatically updated via gateway events, but the internally
 referenced user objects may be updated. You must call this method again to
-guarantee that the objects are update to date.
+guarantee that the objects are up to date.
 ]]
 function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
@@ -469,7 +494,7 @@ end
 @tags http
 @ret boolean
 
-Removes the current from the guild.
+Removes the current user from the guild.
 ]]
 function Guild:leave()
 	local data, err = self.client._api:leaveGuild(self._id)
@@ -806,10 +831,10 @@ end
 @property members: Cache
 
 An iterable cache of all members that exist in this guild and have been
-already loaded. If the `fetchMembers` client option (and the `syncGuilds` option
-for user-accounts) is enabled on start-up, then all members will be cached.
-Otherwise, all members may not be cached. To access a member that may exist, but
-is not cached, use `Guild:getMember`.
+already loaded. If the `cacheAllMembers` client option (and the `syncGuilds`
+option for user-accounts) is enabled on start-up, then all members will be
+cached. Otherwise, offline members may not be cached. To access a member that
+may exist, but is not cached, use `Guild:getMember`.
 ]]
 function get.members(self)
 	return self._members
@@ -831,6 +856,15 @@ An iterable cache of all voice channels that exist in this guild.
 ]]
 function get.voiceChannels(self)
 	return self._voice_channels
+end
+
+--[[
+@property categories: Cache
+
+An iterable cache of all channel categories that exist in this guild.
+]]
+function get.categories(self)
+	return self._categories
 end
 
 return Guild

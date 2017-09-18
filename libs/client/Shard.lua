@@ -218,6 +218,7 @@ end
 
 local function loop(self)
 	if self._waiting then
+		self._waiting = nil
 		self:warning('Previous heartbeat not acknowledged')
 		return wrap(self.disconnect)(self, true)
 	end

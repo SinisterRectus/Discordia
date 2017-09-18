@@ -308,6 +308,18 @@ function Date:toHeader()
 end
 
 --[[
+#method toSnowflake
+@ret string
+
+Returns a synthetic Discord Snowflake ID based on the stored date and time.
+Note that `Date.fromSnowflake(id):toSnowflake()` will most likely not return the
+original Snowflake.
+]]
+function Date:toSnowflake()
+	return format('%i', (self:toMilliseconds() - DISCORD_EPOCH) * 2^22)
+end
+
+--[[
 @method toTable
 @ret table
 

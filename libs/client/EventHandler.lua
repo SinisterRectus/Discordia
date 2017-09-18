@@ -1,7 +1,9 @@
 local enums = require('enums')
+local json = require('json')
 
 local channelType = enums.channelType
 local concat, insert = table.concat, table.insert
+local null = json.null
 
 local function warning(client, object, id, event)
 	return client:warning('Uncached %s (%s) on %s', object, id, event)
@@ -123,18 +125,23 @@ end
 
 function EventHandler.CHANNEL_CREATE(d, client)
 	local channel
-	if d.type == channelType.text then
+	local t = d.type
+	if t == channelType.text then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
 		channel = guild._text_channels:_insert(d)
-	elseif d.type == channelType.voice then
+	elseif t == channelType.voice then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
 		channel = guild._voice_channels:_insert(d)
-	elseif d.type == channelType.private then
+	elseif t == channelType.private then
 		channel = client._private_channels:_insert(d)
-	elseif d.type == channelType.group then
+	elseif t == channelType.group then
 		channel = client._group_channels:_insert(d)
+	elseif t == channelType.category then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
+		channel = guild._categories:_insert(d)
 	else
 		return client:warning('Unhandled CHANNEL_CREATE (type %s)', d.type)
 	end
@@ -143,18 +150,23 @@ end
 
 function EventHandler.CHANNEL_UPDATE(d, client)
 	local channel
-	if d.type == channelType.text then
+	local t = d.type
+	if t == channelType.text then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
 		channel = guild._text_channels:_insert(d)
-	elseif d.type == channelType.voice then
+	elseif t == channelType.voice then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
 		channel = guild._voice_channels:_insert(d)
-	-- elseif d.type == channelType.private then -- private channels should never update
-		-- channel = client._private_channels:_insert(d)
-	elseif d.type == channelType.group then
+	elseif t == channelType.private then -- private channels should never update
+		channel = client._private_channels:_insert(d)
+	elseif t == channelType.group then
 		channel = client._group_channels:_insert(d)
+	elseif t == channelType.category then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
+		channel = guild._categories:_insert(d)
 	else
 		return client:warning('Unhandled CHANNEL_UPDATE (type %s)', d.type)
 	end
@@ -163,18 +175,23 @@ end
 
 function EventHandler.CHANNEL_DELETE(d, client)
 	local channel
-	if d.type == channelType.text then
+	local t = d.type
+	if t == channelType.text then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
 		channel = guild._text_channels:_remove(d)
-	elseif d.type == channelType.voice then
+	elseif t == channelType.voice then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
 		channel = guild._voice_channels:_remove(d)
-	elseif d.type == channelType.private then
+	elseif t == channelType.private then
 		channel = client._private_channels:_remove(d)
-	elseif d.type == channelType.group then
+	elseif t == channelType.group then
 		channel = client._group_channels:_remove(d)
+	elseif t == channelType.category then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
+		channel = guild._categories:_remove(d)
 	else
 		return client:warning('Unhandled CHANNEL_DELETE (type %s)', d.type)
 	end
@@ -349,7 +366,8 @@ function EventHandler.MESSAGE_REACTION_ADD(d, client)
 		local reaction = message:_addReaction(d)
 		return client:emit('reactionAdd', reaction, d.user_id)
 	else
-		return client:emit('reactionAddUncached', channel, d.message_id, d.user_id)
+		local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
+		return client:emit('reactionAddUncached', channel, d.message_id, k, d.user_id)
 	end
 end
 
@@ -361,7 +379,8 @@ function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
 		local reaction = message:_removeReaction(d)
 		return client:emit('reactionRemove', reaction, d.user_id)
 	else
-		return client:emit('reactionRemoveUncached', channel, d.message_id, d.user_id)
+		local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
+		return client:emit('reactionRemoveUncached', channel, d.message_id, k, d.user_id)
 	end
 end
 
@@ -383,20 +402,37 @@ function EventHandler.CHANNEL_PINS_UPDATE(d, client)
 end
 
 function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
+	local user = client._users:get(d.user.id)
+	if user then
+		user:_load(d.user)
+	end
 	if d.guild_id then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'PRESENCE_UPDATE') end
-		local member = guild._members:get(d.user.id)
-		if not member then return end -- joined_at pls
-		member:_loadPresence(d)
-		member._user:_load(d.user)
-		return client:emit('presenceUpdate', member)
+		local member
+		if d.status == 'offline' and guild._large and not client._options.cacheAllMembers then
+			member = guild._members:_delete(d.user.id)
+		else
+			member = guild._members:get(d.user.id)
+			if not member then
+				if d.user.username then
+					member = guild._members:_insert(d)
+				elseif user then
+					member = guild._members:_insert(d)
+					member._user = user
+				end
+			end
+		end
+		if member then
+			member:_loadPresence(d)
+			return client:emit('presenceUpdate', member)
+		end
 	else
 		local relationship = client._relationships:get(d.user.id)
-		if not relationship then return end
-		relationship:_loadPresence(d)
-		relationship._user:_load(d.user)
-		return client:emit('relationshipUpdate', relationship)
+		if relationship then
+			relationship:_loadPresence(d)
+			return client:emit('relationshipUpdate', relationship)
+		end
 	end
 end
 
@@ -419,7 +455,37 @@ function EventHandler.USER_UPDATE(d, client)
 	return client:emit('userUpdate', client._user)
 end
 
-function EventHandler.VOICE_STATE_UPDATE() -- TODO
+function EventHandler.VOICE_STATE_UPDATE(d, client)
+	local guild = client._guilds:get(d.guild_id)
+	if not guild then return warning(client, 'Guild', d.guild_id, 'VOICE_STATE_UPDATE') end
+	local member = guild._members:get(d.user_id)
+	if not member then return warning(client, 'Member', d.user_id, 'VOICE_STATE_UPDATE') end
+	local states = guild._voice_states
+	local channels = guild._voice_channels
+	local state = states[d.user_id]
+	if state then
+		if d.channel_id ~= null then
+			states[d.user_id] = d
+			if d.channel_id == state.channel_id then
+				client:emit('voiceUpdate', member)
+			else
+				local old = channels:get(state.channel_id)
+				local new = channels:get(d.channel_id)
+				client:emit('voiceChannelLeave', member, old)
+				client:emit('voiceChannelJoin', member, new)
+			end
+		else
+			states[d.user_id] = nil
+			local old = channels:get(state.channel_id)
+			client:emit('voiceChannelLeave', member, old)
+			client:emit('voiceDisconnect', member)
+		end
+	else
+		states[d.user_id] = d
+		local new = channels:get(d.channel_id)
+		client:emit('voiceConnect', member)
+		client:emit('voiceChannelJoin', member, new)
+	end
 end
 
 function EventHandler.VOICE_SERVER_UPDATE() -- TODO

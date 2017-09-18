@@ -1,4 +1,7 @@
+local json = require('json')
 local Iterable = require('iterables/Iterable')
+
+local null = json.null
 
 local Cache = require('class')('Cache', Iterable)
 
@@ -43,7 +46,7 @@ local function hash(data)
 	elseif data.user then -- members
 		return data.user.id
 	elseif data.emoji then -- reactions
-		return data.emoji.id or data.emoji.name
+		return data.emoji.id ~= null and data.emoji.id or data.emoji.name
 	elseif data.code then -- invites
 		return data.code
 	else

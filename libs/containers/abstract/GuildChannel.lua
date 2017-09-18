@@ -5,6 +5,7 @@ local Channel = require('containers/abstract/Channel')
 local PermissionOverwrite = require('containers/PermissionOverwrite')
 local Invite = require('containers/Invite')
 local Cache = require('iterables/Cache')
+local Resolver = require('client/Resolver')
 
 local isInstance = class.isInstance
 local classes = class.classes
@@ -50,6 +51,18 @@ function GuildChannel:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[[
+@method setCategory
+@tags http
+@param id: Channel ID Resolvable
+
+Sets the channel's parent category.
+]]
+function GuildChannel:setCategory(id)
+	id = Resolver.channelId(id)
+	return self:_modify({parent_id = id or json.null})
+end
+
 local function sorter(a, b)
 	if a.position == b.position then
 		return tonumber(a.id) < tonumber(b.id)
@@ -61,10 +74,13 @@ end
 local function getSortedChannels(self)
 
 	local channels
-	if self._type == channelType.text then
+	local t = self._type
+	if t == channelType.text then
 		channels = self._parent._text_channels
-	else
+	elseif t == channelType.voice then
 		channels = self._parent._voice_channels
+	elseif t == channelType.category then
+		channels = self._parent._categories
 	end
 
 	local ret = {}
@@ -269,6 +285,15 @@ The guild in which this channel exists. Equivalent to `$.parent`.
 ]]
 function get.guild(self)
 	return self._parent
+end
+
+--[[
+@property category: GuildChannelCategory|nil
+
+The parent channel category that may contain this channel.
+]]
+function get.category(self)
+	return self._parent._categories:get(self._parent_id)
 end
 
 return GuildChannel

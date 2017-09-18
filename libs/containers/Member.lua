@@ -287,10 +287,13 @@ function Member:removeRole(id)
 					break
 				end
 			end
-		end
-		if #roles == 0 then
-			self._roles_raw = nil
-			self._roles._array = nil
+			if #roles == 0 then
+				if self._roles then
+					self._roles._array = nil
+				else
+					self._roles_raw = nil
+				end
+			end
 		end
 		return true
 	else
@@ -339,6 +342,27 @@ function Member:setNickname(nick)
 	end
 	if data then
 		self._nick = nick ~= '' and nick or nil
+		return true
+	else
+		return false, err
+	end
+end
+
+--[[
+@method setVoiceChannel
+@tags http
+@param Channel ID Resolvable
+@ret boolean
+
+Moves the member to a new voice channel, but only if the member has an active
+voice connection in the current guild. Due to complexities in voice state
+handling, the member's `voiceChannel` property will update asynchronously via
+WebSocket; not as a result of the HTTP request.
+]]
+function Member:setVoiceChannel(id)
+	id = Resolver.channelId(id)
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id})
+	if data then
 		return true
 	else
 		return false, err
@@ -487,31 +511,45 @@ function get.nickname(self)
 end
 
 --[[
-@property joinedAt: string
+@property joinedAt: string|nil
 
 The date and time at which the current member joined the guild, represented as
-an ISO 8601 string plus microseconds when available.
+an ISO 8601 string plus microseconds when available. Member objects generated
+via presence updates lack this property.
 ]]
 function get.joinedAt(self)
 	return self._joined_at
 end
 
 --[[
+@property voiceChannel: GuildVoiceChannel|nil
+
+The voice channel to which this member is connected in the current guild.
+]]
+function get.voiceChannel(self)
+	local guild = self._parent
+	local state = guild._voice_states[self:__hash()]
+	return state and guild._voice_channels:get(state.channel_id)
+end
+
+--[[
 @property muted: boolean
 
-Whether the member is muted in its guild.
+Whether the member is voice muted in its guild.
 ]]
 function get.muted(self)
-	return self._mute
+	local state = self._parent._voice_states[self:__hash()]
+	return state and (state.mute or state.self_mute) or self._mute
 end
 
 --[[
 @property deafened: boolean
 
-Whether the member is deafened in its guild.
+Whether the member is voice deafened in its guild.
 ]]
 function get.deafened(self)
-	return self._deaf
+	local state = self._parent._voice_states[self:__hash()]
+	return state and (state.deaf or state.self_deaf) or self._deaf
 end
 
 --[[
