@@ -258,8 +258,8 @@ end
 @param ...: Permissions Resolveable(s)
 @ret boolean
 
-Disables individual permissions for this role.This does not necessarily fully
-allow the permissions.
+Disables individual permissions for this role. This does not necessarily fully
+not allow the permissions.
 ]]
 function Role:disablePermissions(...)
 	local permissions = self:getPermissions()
@@ -287,7 +287,7 @@ end
 @ret boolean
 
 Disables all permissions for this role. This does not necessarily fully
-allow the permissions.
+not allow the permissions.
 ]]
 function Role:disableAllPermissions()
 	local permissions = self:getPermissions()
@@ -347,7 +347,7 @@ end
 --[[
 @property name: string
 
-The name of the role. This shoud be between 1 and 100 characters in length.
+The name of the role. This should be between 1 and 100 characters in length.
 ]]
 function get.name(self)
 	return self._name
