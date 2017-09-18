@@ -18,7 +18,7 @@ local Permissions, get = require('class')('Permissions')
 @class Permissions
 
 Wrapper for a bitfield that is more specifically used to represent Discord
-permissions. See the `permission` enumeration for acceptible permission values.
+permissions. See the `permission` enumeration for acceptable permission values.
 ]]
 function Permissions:__init(value)
 	self._value = tonumber(value) or 0
@@ -63,7 +63,7 @@ end
 @param ...: Permissions Resolveable(s)
 
 Enables a specific permission or permissions. See the `permission` enumeration
-for acceptible permission values.
+for acceptable permission values.
 ]]
 function Permissions:enable(...)
 	local value = self._value
@@ -79,7 +79,7 @@ end
 @param ...: Permissions Resolveable(s)
 
 Disables a specific permission or permissions. See the `permission` enumeration
-for acceptible permission values.
+for acceptable permission values.
 ]]
 function Permissions:disable(...)
 	local value = self._value
@@ -96,7 +96,7 @@ end
 @ret boolean
 
 Returns whether this set has a specific permission or permissions. See the
-`permission` enumeration for acceptible permission values.
+`permission` enumeration for acceptable permission values.
 ]]
 function Permissions:has(...)
 	local value = self._value
@@ -211,7 +211,7 @@ end
 @param [other]: Permissions
 @ret Permissions
 
-Returnsa new Permissions object that contains the permissions that are not in
+Returns a new Permissions object that contains the permissions that are not in
 `self`, but are in `other` (or the set of all permissions if omitted).
 ]]
 function Permissions:complement(other) -- in other not in self
