@@ -477,7 +477,7 @@ end
 --[[
 @property roles: ArrayIterable
 
-An iterable array of guild roles that the member has. This does not excplitly
+An iterable array of guild roles that the member has. This does not explicitly
 include the default everyone role. Object order is not guaranteed.
 ]]
 function get.roles(self)
