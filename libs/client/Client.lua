@@ -457,7 +457,7 @@ end
 @tags ws
 @param status: string
 
-Sets the current users's status on all shards that are managed by this client.
+Sets the current user's status on all shards that are managed by this client.
 Valid statuses are `online`, `idle`, `dnd`, and `invisible`.
 ]]
 function Client:setStatus(status)
@@ -480,7 +480,7 @@ end
 @tags ws
 @param game: string|table
 
-Sets the current users's game on all shards that are managed by this client. If
+Sets the current user's game on all shards that are managed by this client. If
 a string is passed, it is treated as the game name. If a table is passed, it
 must have a `name` field and may optionally have a `url` field. Pass `nil` to
 remove the game status.
