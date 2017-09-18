@@ -63,7 +63,7 @@ end
 @ret PrivateChannel
 
 Returns a private channel that can be used to communicate with the user. If the
-channel is not cached, an HTTP request is made to open one.
+channel is not cached an HTTP request is made to open one.
 ]]
 function User:getPrivateChannel()
 	local id = self._id
@@ -128,7 +128,7 @@ end
 --[[
 @property discriminator: string
 
-The discrimator of the user. This is a 4-digit string that is used to
+The discriminator of the user. This is a 4-digit string that is used to
 discriminate the user from other users with the same username.
 ]]
 function get.discriminator(self)
@@ -156,7 +156,7 @@ end
 --[[
 @property defaultAvatar: number
 
-The user's default avatar. See the `devaultAvatar` enumeration for a
+The user's default avatar. See the `defaultAvatar` enumeration for a
 human-readable representation.
 ]]
 function get.defaultAvatar(self)
