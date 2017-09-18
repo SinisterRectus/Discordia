@@ -183,7 +183,7 @@ end
 @ret Time
 
 Constructs a new Time object from a table of time values where the keys are
-defined in the construtors above (eg: `weeks`, `days`, `hours`).
+defined in the constructors above (eg: `weeks`, `days`, `hours`).
 ]]
 function Time.fromTable(t)
 	local n = 0
