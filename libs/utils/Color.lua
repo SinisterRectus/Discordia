@@ -181,7 +181,7 @@ end
 @param l: number
 @ret Color
 
-Constructs a new Color object from HSV color values. Hue is allowed to overflow
+Constructs a new Color object from HSL color values. Hue is allowed to overflow
 while saturation and lightness are clamped to [0, 1].
 ]]
 function Color.fromHSL(h, s, l)
