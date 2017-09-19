@@ -12,9 +12,17 @@ general purpose data structure with features that are better suited for an
 object-oriented environment.
 
 Note: All sub-classes must implement their own `__init` and `iter` methods.
-Additionally, more efficient versions of `__len` and `get` methods can be
-redefined in sub-classes.
+Additionally, more efficient versions of `__len`, `__pairs`, and `get` methods
+can be redefined in sub-classes.
 ]]
+
+function Iterable:__pairs()
+	return wrap(function()
+		for obj in self:iter() do
+			yield(obj:__hash(), obj)
+		end
+	end)
+end
 
 function Iterable:__len()
 	local n = 0

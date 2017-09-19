@@ -20,6 +20,10 @@ function Cache:__init(array, constructor, parent)
 	self._parent = parent
 end
 
+function Cache:__pairs()
+	return next, self._objects
+end
+
 function Cache:__len()
 	return self._count
 end

@@ -20,6 +20,10 @@ function SecondaryCache:__init(array, primary)
 	self._primary = primary
 end
 
+function SecondaryCache:__pairs()
+	return next, self._objects
+end
+
 function SecondaryCache:__len()
 	return self._count
 end
