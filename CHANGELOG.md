@@ -107,7 +107,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Removed `guildCreateUnavailable` event (check `guild.unavailable` on `guildCreate` instead)
 - Removed `typingStartUncached` event
 - Removed `mute` and `deaf` arguments from voice events (check `member.muted` and `member.deafened` instead)
-- Added `oldContent` as a second parameter to `messageUpdate` event
 - Changed `reactionAdd` and `reactionRemove` parameters from `(reaction, user)` to `(reaction, userId)`
 - Changed `reactionAddUncached` and `reactionRemoveUncached` parameters from raw `(data)` table to `(channel, messageId, hash, userId)`
 - Changed `typingStart` parameters from `(user, channel, timestamp)` to raw `(userId, channelId, timestamp)` table
@@ -296,7 +295,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Replaced `mentionedUsers` properties and methods with directly accessible `ArrayIterable` property
 - Replaced `mentionedRoles` properties and methods with directly accessible `ArrayIterable` property
 - Replaced `mentionedChannels` properties and methods with directly accessible `ArrayIterable` property
-- Removed `oldContent` property (use `messageUpdate` event instead)
+- Changed `oldContent` property from a string to a table of strings
+- Removed `editedTimestamp` property (use `oldContent` keys instead)
 - Moved `Message:getReactionUsers(emoji)` to `Reaction:getUsers()`
 - Added `type` property
 - Added `mentionsEveryone` property

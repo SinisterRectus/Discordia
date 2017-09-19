@@ -328,7 +328,7 @@ function EventHandler.MESSAGE_UPDATE(d, client) -- may not contain the whole mes
 	if message then
 		message:_setOldContent(d)
 		message:_load(d)
-		return client:emit('messageUpdate', message, message:_getOldContent(d))
+		return client:emit('messageUpdate', message)
 	else
 		return client:emit('messageUpdateUncached', channel, d.id)
 	end
