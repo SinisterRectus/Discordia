@@ -5,7 +5,7 @@ local Relationship, get = require('class')('Relationship', UserPresence)
 --[[
 @class Relationship x UserPresence
 
-Represents a relationships between the current user and another Discord user.
+Represents a relationship between the current user and another Discord user.
 This is generally either a friend or a blocked user. This class should only be
 relevant to user-accounts; bots cannot normally have relationships.
 ]]

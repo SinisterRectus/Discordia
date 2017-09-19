@@ -38,7 +38,7 @@ end
 @param icon: Base64 Resolveable
 @ret boolean
 
-Sets the channels's icon. To remove the icon, pass `nil`.
+Sets the channel's icon. To remove the icon, pass `nil`.
 ]]
 function GroupChannel:setIcon(icon)
 	icon = icon and Resolver.base64(icon)
@@ -139,7 +139,7 @@ end
 --[[
 @property iconURL: string|nil
 
-The URL that can be used to view the channels's icon, if one is set.
+The URL that can be used to view the channel's icon, if one is set.
 ]]
 function get.iconURL(self)
 	local icon = self._icon

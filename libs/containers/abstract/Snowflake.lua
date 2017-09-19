@@ -46,7 +46,7 @@ end
 The date and time at which this object was created by Discord, represented as
 an ISO 8601 string plus microseconds when available.
 
-Eqvuivalent to `Date.fromSnowflake($.id):toISO()`.
+Equivalent to `Date.fromSnowflake($.id):toISO()`.
 ]]
 function get.timestamp(self)
 	return Date.fromSnowflake(self._id):toISO()

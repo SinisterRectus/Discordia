@@ -41,7 +41,7 @@ end
 @method unlock
 
 If the mutex is active (if a coroutine is queued), this will dequeue and resume
-the next available coroutine; otherwise, this will deactive the mutex.
+the next available coroutine; otherwise, this will deactivate the mutex.
 ]]
 function Mutex:unlock()
 	if self:getCount() > 0 then

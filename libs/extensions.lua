@@ -71,7 +71,7 @@ end
 @ret table
 
 Returns a copy of the original table, recursively. If a table is encountered,
-it is resursively deep-copied. Metatables are not copied.
+it is recursively deep-copied. Metatables are not copied.
 ]]
 function table.deepcopy(tbl)
 	local ret = {}
@@ -302,7 +302,7 @@ end
 @param [plain]: boolean
 @ret boolean
 
-Returns whether a string starts swith a specified sub-string or pattern. The
+Returns whether a string starts with a specified sub-string or pattern. The
 `plain` parameter is the same as that used in Lua's `string.find`.
 ]]
 function string.startswith(str, pattern, plain)
@@ -317,7 +317,7 @@ end
 @param [plain]: boolean
 @ret boolean
 
-Returns whether a string ends swith a specified sub-string or pattern. The
+Returns whether a string ends with a specified sub-string or pattern. The
 `plain` parameter is the same as that used in Lua's `string.find`.
 ]]
 function string.endswith(str, pattern, plain)
