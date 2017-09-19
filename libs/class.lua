@@ -26,16 +26,6 @@ function default:__hash()
 	return self
 end
 
-function default:__pairs()
-	local getters, k, v = self.__getters
-	return function()
-		k, v = next(getters, k)
-		if v then
-			return k, v(self)
-		end
-	end
-end
-
 local function isClass(cls)
 	return classes[cls]
 end
