@@ -244,7 +244,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added stand-alone `getChannel` method, which accepts only a channelId-resolvable
 - Added stand-alone `getMember` method, which accepts only a userId-resolvable
 
-#### GuildChannelCategory
+#### GuildCategoryChannel
 - New class! See documentation.
 
 #### GuildTextChannel

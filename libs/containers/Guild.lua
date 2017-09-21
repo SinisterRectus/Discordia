@@ -8,7 +8,7 @@ local Member = require('containers/Member')
 local Resolver = require('client/Resolver')
 local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
-local GuildChannelCategory = require('containers/GuildChannelCategory')
+local GuildCategoryChannel = require('containers/GuildCategoryChannel')
 local Snowflake = require('containers/abstract/Snowflake')
 
 local json = require('json')
@@ -33,7 +33,7 @@ function Guild:__init(data, parent)
 	self._members = Cache({}, Member, self)
 	self._text_channels = Cache({}, GuildTextChannel, self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, self)
-	self._categories = Cache({}, GuildChannelCategory, self)
+	self._categories = Cache({}, GuildCategoryChannel, self)
 	if not data.unavailable then
 		return self:_makeAvailable(data)
 	end
@@ -226,7 +226,7 @@ end
 @method createCategory
 @tags http
 @param name: string
-@ret GuildChannelCategory
+@ret GuildCategoryChannel
 
 Creates a channel category in this guild. The name must be between 2 and 100
 characters in length.
@@ -668,8 +668,9 @@ end
 --[[
 @property mfaLevel: number
 
-The guild's multi-factor (or two-factor) verification level setting. See the
-`verificationLevel` enumeration for a human-readable representation.
+The guild's multi-factor (or two-factor) verification level setting. A value of
+0 indicates that MFA is not required; a value of 1 indicates that MFA is
+required for administrative actions.
 ]]
 function get.mfaLevel(self)
 	return self._mfa_level

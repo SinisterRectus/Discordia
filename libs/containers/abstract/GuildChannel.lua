@@ -288,7 +288,7 @@ function get.guild(self)
 end
 
 --[[
-@property category: GuildChannelCategory|nil
+@property category: GuildCategoryChannel|nil
 
 The parent channel category that may contain this channel.
 ]]
