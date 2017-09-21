@@ -90,12 +90,16 @@ return setmetatable({
 
 	local bases = {...}
 	local getters = {}
+	local setters = {}
 
 	for _, base in ipairs(bases) do
 		for k1, v1 in pairs(base) do
 			class[k1] = v1
 			for k2, v2 in pairs(base.__getters) do
 				getters[k2] = v2
+			end
+			for k2, v2 in pairs(base.__setters) do
+				setters[k2] = v2
 			end
 		end
 	end
@@ -104,6 +108,7 @@ return setmetatable({
 	class.__class = class
 	class.__bases = bases
 	class.__getters = getters
+	class.__setters = setters
 
 	local pool = {}
 	local n = #pool
@@ -119,7 +124,9 @@ return setmetatable({
 	end
 
 	function class:__newindex(k, v)
-		if class[k] or getters[k] then
+		if setters[k] then
+			return setters[k](self, v)
+		elseif class[k] or getters[k] then
 			return error(format('Cannot overwrite protected property: %s.%s', name, k))
 		elseif k:find('_', 1, true) ~= 1 then
 			return error(format('Cannot write property to object without leading underscore: %s.%s', name, k))
@@ -134,6 +141,6 @@ return setmetatable({
 
 	names[name] = class
 
-	return class, getters
+	return class, getters, setters
 
 end})
