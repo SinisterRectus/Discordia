@@ -9,12 +9,6 @@ local Resolver = require('client/Resolver')
 
 local GuildTextChannel, get = require('class')('GuildTextChannel', GuildChannel, TextChannel)
 
---[[
-@class GuildTextChannel x GuildChannel TextChannel
-
-Represents a text channel in a Discord guild, where guild members and webhooks
-can send and receive messages.
-]]
 function GuildTextChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)
 	TextChannel.__init(self, data, parent)
@@ -25,16 +19,6 @@ function GuildTextChannel:_load(data)
 	TextChannel._load(self, data)
 end
 
---[[
-@method createWebhook
-@tags http
-@tags http
-@param name: string
-@ret Webhook
-
-Creates a webhook for this channel. The name must be between 2 and 32 characters
-in length.
-]]
 function GuildTextChannel:createWebhook(name)
 	local data, err = self.client._api:createWebhook(self._id, {name = name})
 	if data then
@@ -44,15 +28,6 @@ function GuildTextChannel:createWebhook(name)
 	end
 end
 
---[[
-@method getWebhooks
-@tags http
-@ret Cache
-
-Returns a newly constructed cache of all webhook objects for the channel. The
-cache and its objects are not automatically updated via gateway events. You must
-call this method again to get the updated objects.
-]]
 function GuildTextChannel:getWebhooks()
 	local data, err = self.client._api:getChannelWebhooks(self._id)
 	if data then
@@ -62,13 +37,6 @@ function GuildTextChannel:getWebhooks()
 	end
 end
 
---[[
-@method bulkDelete
-@tags http
-@param Message ID Resolveables
-
-Bulk deletes multiple messages, from 2 to 100, from the channel.
-]]
 function GuildTextChannel:bulkDelete(messages)
 	messages = Resolver.messageIds(messages)
 	local data, err = self.client._api:bulkDeleteMessages(self._id, {messages = messages})
@@ -79,67 +47,26 @@ function GuildTextChannel:bulkDelete(messages)
 	end
 end
 
---[[
-@method setTopic
-@tags http
-@param topic: string
-@ret boolean
-
-Sets the channel's topic. This must be between 1 and 1024 characters. Pass `nil`
-to remove the topic.
-]]
 function GuildTextChannel:setTopic(topic)
 	return self:_modify({topic = topic or json.null})
 end
 
---[[
-@method enableNSFW
-@ret boolean
-
-Enables the NSFW setting for the channel. NSFW channels are hidden from users
-until the user explicitly requests to view them.
-]]
 function GuildTextChannel:enableNSFW()
 	return self:_modify({nsfw = true})
 end
 
---[[
-@method disableNSFW
-@ret boolean
-
-Disables the NSFW setting for the channel. NSFW channels are hidden from users
-until the user explicitly requests to view them.
-]]
 function GuildTextChannel:disableNSFW()
 	return self:_modify({nsfw = false})
 end
 
---[[
-@property topic: string|nil
-
-The channel's topic. This should be between 1 and 1024 characters.
-]]
 function get.topic(self)
 	return self._topic
 end
 
---[[
-@property nsfw: boolean
-
-Whether this channel is marked as NSFW (not safe for work).
-]]
 function get.nsfw(self)
 	return self._nsfw or false
 end
 
---[[
-@property members: FilteredIterable
-
-A filtered iterable of guild members that have permission to read this channel.
-If you want to check whether a specific member has permission to read this
-channel, it would be better to get the member object elsewhere and use
-`Member:hasPermission` rather than check whether the member exists here.
-]]
 function get.members(self)
 	if not self._members then
 		self._members = FilteredIterable(self._parent._members, function(m)

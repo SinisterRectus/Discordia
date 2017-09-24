@@ -255,7 +255,9 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added `nsfw` property
 
 #### GuildVoiceChannel
-- TODO
+- Removed `join` and `leave` methods until voice is re-written
+- Removed `connection` property until voice is re-written
+- Removed `members` properties and methods until voice is re-written
 
 #### Invite
 - Added `__hash` method, which returns `code` property
@@ -382,7 +384,7 @@ The major goals of this rewrite were to add new or missing features and to impro
 - New class! See documentation.
 
 #### Buffer
-- TODO
+- Removed class until voice is re-written
 
 #### Clock
 - No public changes
@@ -424,9 +426,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 
 #### Time
 - New class! See documentation.
-
-### Internal Changes
-- TODO
 
 
 ## 1.5.1

@@ -14,13 +14,6 @@ local permission = enums.permission
 
 local Member, get = class('Member', UserPresence)
 
---[[
-@class Member x UserPresence
-
-Represents a Discord guild member. Though one user may be a member in more than
-one guild, each presence is represented by a different member object associated
-with that guild.
-]]
 function Member:__init(data, parent)
 	UserPresence.__init(self, data, parent)
 	return self:_loadMore(data)
@@ -54,14 +47,6 @@ local function predicate(role)
 	return role._color > 0
 end
 
---[[
-@method getColor
-@ret Color
-
-Returns a color object that represents the member's color as determined by
-its highest colored role. If the member has no colored roles, then the default
-color with a value of 0 is returned.
-]]
 function Member:getColor()
 	local roles = {}
 	for role in self.roles:findAll(predicate) do
@@ -75,18 +60,6 @@ local function has(a, b, admin)
 	return band(a, b) > 0 or admin and band(a, permission.administrator) > 0
 end
 
---[[
-@method hasPermission
-@param [channel]: GuildChannel
-@param perm: Permission Resolveable
-@ret boolean
-
-Checks whether the member has a specific permission. If `channel` is omitted,
-then only guild-level permissions are checked. This is a relatively expensive
-operation. If you need to check multiple permissions at once, use the
-`getPermissions` method and check the resulting object.
-
-]]
 function Member:hasPermission(channel, perm)
 
 	if not perm then
@@ -170,15 +143,6 @@ function Member:hasPermission(channel, perm)
 
 end
 
---[[
-@method getPermissions
-@param [channel]: GuildChannel
-@ret Permissions
-
-Returns a permissions object that represents the member's total permissions for
-the guild, or for a specific channel if one is provided. If you just need to
-check one permission, use the `hasPermission` method.
-]]
 function Member:getPermissions(channel)
 
 	local guild = self.guild
@@ -239,15 +203,6 @@ function Member:getPermissions(channel)
 
 end
 
---[[
-@method addRole
-@tags http
-@param id: Role ID Resolveable
-@ret boolean
-
-Adds a role to the member. If the member already has the role, then no action is
-taken. Note that the everyone role cannot be explicitly added.
-]]
 function Member:addRole(id)
 	if self:hasRole(id) then return true end
 	id = Resolver.roleId(id)
@@ -265,15 +220,6 @@ function Member:addRole(id)
 	end
 end
 
---[[
-@method removeRole
-@tags http
-@param id: Role ID Resolveable
-@ret boolean
-
-Removes a role from the member. If the member does not have the role, then no
-action is taken. Note that the everyone role cannot be removed.
-]]
 function Member:removeRole(id)
 	if not self:hasRole(id) then return true end
 	id = Resolver.roleId(id)
@@ -301,14 +247,6 @@ function Member:removeRole(id)
 	end
 end
 
---[[
-@method hasRole
-@param id: Role ID Resolveable
-@ret boolean
-
-Checks whether the member has a specific role. This will return true for the
-guild's default role in addition to any explicitly assigned roles.
-]]
 function Member:hasRole(id)
 	id = Resolver.roleId(id)
 	if id == self._parent._id then return true end -- @everyone
@@ -323,15 +261,6 @@ function Member:hasRole(id)
 	return false
 end
 
---[[
-@method setNickname
-@tags http
-@param nickname: string
-@ret boolean
-
-Sets the member's nickname. This must be between 1 and 32 characters in length.
-Pass `nil` to remove the nickname.
-]]
 function Member:setNickname(nick)
 	nick = nick or ''
 	local data, err
@@ -348,17 +277,6 @@ function Member:setNickname(nick)
 	end
 end
 
---[[
-@method setVoiceChannel
-@tags http
-@param Channel ID Resolvable
-@ret boolean
-
-Moves the member to a new voice channel, but only if the member has an active
-voice connection in the current guild. Due to complexities in voice state
-handling, the member's `voiceChannel` property will update asynchronously via
-WebSocket; not as a result of the HTTP request.
-]]
 function Member:setVoiceChannel(id)
 	id = Resolver.channelId(id)
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id})
@@ -369,13 +287,6 @@ function Member:setVoiceChannel(id)
 	end
 end
 
---[[
-@method mute
-@tags http
-@ret boolean
-
-Mutes the member in its guild.
-]]
 function Member:mute()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = true})
 	if data then
@@ -386,13 +297,6 @@ function Member:mute()
 	end
 end
 
---[[
-@method unmute
-@tags http
-@ret boolean
-
-Unmutes the member in its guild.
-]]
 function Member:unmute()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = false})
 	if data then
@@ -403,13 +307,6 @@ function Member:unmute()
 	end
 end
 
---[[
-@method deafen
-@tags http
-@ret boolean
-
-Deafens the member in its guild.
-]]
 function Member:deafen()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = true})
 	if data then
@@ -420,13 +317,6 @@ function Member:deafen()
 	end
 end
 
---[[
-@method undeafen
-@tags http
-@ret boolean
-
-Undeafens the member in its guild.
-]]
 function Member:undeafen()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = false})
 	if data then
@@ -437,49 +327,18 @@ function Member:undeafen()
 	end
 end
 
---[[
-@method kick
-@tags http
-@param [reason]: string
-@ret boolean
-
-Equivalent to `$.guild:kickUser($, reason)
-]]
 function Member:kick(reason)
 	return self._parent:kickUser(self._user, reason)
 end
 
---[[
-@method ban
-@tags http
-@param [reason]: string
-@param [days]: number
-@ret boolean
-
-Equivalent to `$.guild:banUser($, reason, days)`
-]]
 function Member:ban(reason, days)
 	return self._parent:banUser(self._user, reason, days)
 end
 
---[[
-@method unban
-@tags http
-@param reason: string
-@ret boolean
-
-Equivalent to `$.guild:unbanUser($, reason)`
-]]
 function Member:unban(reason)
 	return self._parent:unbanUser(self._user, reason)
 end
 
---[[
-@property roles: ArrayIterable
-
-An iterable array of guild roles that the member has. This does not excplitly
-include the default everyone role. Object order is not guaranteed.
-]]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles
@@ -491,82 +350,38 @@ function get.roles(self)
 	return self._roles
 end
 
---[[
-@property name: string
-
-If the member has a nickname, then this will be equivalent to that nickname.
-Otherwise, this is equivalent to `$.user.username`.
-]]
 function get.name(self)
 	return self._nick or self._user._username
 end
 
---[[
-@property nickname: string|nil
-
-The member's nickname, if one is set.
-]]
 function get.nickname(self)
 	return self._nick
 end
 
---[[
-@property joinedAt: string|nil
-
-The date and time at which the current member joined the guild, represented as
-an ISO 8601 string plus microseconds when available. Member objects generated
-via presence updates lack this property.
-]]
 function get.joinedAt(self)
 	return self._joined_at
 end
 
---[[
-@property voiceChannel: GuildVoiceChannel|nil
-
-The voice channel to which this member is connected in the current guild.
-]]
 function get.voiceChannel(self)
 	local guild = self._parent
 	local state = guild._voice_states[self:__hash()]
 	return state and guild._voice_channels:get(state.channel_id)
 end
 
---[[
-@property muted: boolean
-
-Whether the member is voice muted in its guild.
-]]
 function get.muted(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.mute or state.self_mute) or self._mute
 end
 
---[[
-@property deafened: boolean
-
-Whether the member is voice deafened in its guild.
-]]
 function get.deafened(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.deaf or state.self_deaf) or self._deaf
 end
 
---[[
-@property guild: Guild
-
-The guild in which this member exists. Equivalent to `$.parent`.
-]]
 function get.guild(self)
 	return self._parent
 end
 
---[[
-@property highestRole: Role
-
-The highest positioned role that the member has. If the member has no
-explicit roles, then this is equivalent to `$.guild.defaultRole`.
-]]
 function get.highestRole(self)
 	local ret
 	for role in self.roles:iter() do

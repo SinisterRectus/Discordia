@@ -4,13 +4,6 @@ local Iterable = require('iterables/Iterable')
 
 local ArrayIterable = require('class')('ArrayIterable', Iterable)
 
---[[
-@class ArrayIterable x Iterable
-
-Iterable class that contains objects in a constant, ordered fashion, although
-the order may change if the internal array is modified. Some versions may
-use a map function to shape the objects before they are accessed.
-]]
 function ArrayIterable:__init(array, map)
 	self._array = array
 	self._map = map
@@ -29,12 +22,6 @@ function ArrayIterable:__len()
 	end
 end
 
---[[
-@method iter
-@ret function
-
-Returns an iterator that returns all contained objects in a consistent order.
-]]
 function ArrayIterable:iter()
 	local array = self._array
 	if not array then

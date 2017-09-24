@@ -4,17 +4,6 @@ local insert, sort, pack = table.insert, table.sort, table.pack
 
 local Iterable = require('class')('Iterable')
 
---[[
-@abc Iterable
-
-Abstract base class that defines the base methods and/or properties for a
-general purpose data structure with features that are better suited for an
-object-oriented environment.
-
-Note: All sub-classes must implement their own `__init` and `iter` methods.
-Additionally, more efficient versions of `__len`, `__pairs`, and `get` methods
-can be redefined in sub-classes.
-]]
 
 function Iterable:__pairs()
 	return wrap(function()
@@ -32,14 +21,6 @@ function Iterable:__len()
 	return n
 end
 
---[[
-@method get
-@param k: *
-@ret *
-
-Returns an individual object by key, where the key should match the result of
-calling `__hash` on the contained objects. Operates with up to O(n) complexity.
-]]
 function Iterable:get(k) -- objects must be hashable
 	for obj in self:iter() do
 		if obj:__hash() == k then
@@ -49,13 +30,6 @@ function Iterable:get(k) -- objects must be hashable
 	return nil
 end
 
---[[
-@method find
-@param fn: function
-@ret *
-
-Returns the first object that satisfies a predicate.
-]]
 function Iterable:find(fn)
 	for obj in self:iter() do
 		if fn(obj) then
@@ -65,13 +39,6 @@ function Iterable:find(fn)
 	return nil
 end
 
---[[
-@method findAll
-@param fn: function
-@ret function
-
-Returns an iterator that returns all objects that satisfy a predicate.
-]]
 function Iterable:findAll(fn)
 	return wrap(function()
 		for obj in self:iter() do
@@ -82,25 +49,12 @@ function Iterable:findAll(fn)
 	end)
 end
 
---[[
-@method forEach
-@param fn: function
-
-Iterates through all objects and calls a function `fn` that takes the
-objects as an argument.
-]]
 function Iterable:forEach(fn)
 	for obj in self:iter() do
 		fn(obj)
 	end
 end
 
---[[
-@method random
-@ret *
-
-Returns a random object that is contained in the iterable.
-]]
 function Iterable:random()
 	local n = 1
 	local rand = random(#self)
@@ -112,13 +66,6 @@ function Iterable:random()
 	end
 end
 
---[[
-@method count
-@param fn: function
-@ret number
-
-Returns the amount of objects that satisfy a predicate.
-]]
 function Iterable:count(fn)
 	local n = 0
 	for _ in self:findAll(fn) do
@@ -167,16 +114,6 @@ local function sorter(a, b)
 	return tostring(a) < tostring(b)
 end
 
---[[
-@method toTable
-@param [sortBy]: string
-@param [fn]: function
-@ret table
-
-Returns a table that contains references to all objects. If a `sortBy` string is
-provided, then the table is sorted by that particular property. If a predicate
-is provided, then only objects that satisfy it will be included.
-]]
 function Iterable:toTable(sortBy, fn)
 	local ret = {}
 	for obj in self:iter() do
@@ -192,15 +129,6 @@ function Iterable:toTable(sortBy, fn)
 	return ret
 end
 
---[[
-@method select
-@param ...: *
-@ret table
-
-Similarly to an SQL query, this returns a sorted Lua table of rows where each
-row corresponds to each object in the iterable, and each value in the row is
-selected from the objects according to the arguments provided.
-]]
 function Iterable:select(...)
 	local rows = {}
 	local keys = pack(...)
