@@ -14,4 +14,5 @@ return {
 	Permissions = require('utils/Permissions'),
 	Stopwatch = require('utils/Stopwatch'),
 	Time = require('utils/Time'),
+	storage = {},
 }
