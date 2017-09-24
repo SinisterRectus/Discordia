@@ -114,7 +114,7 @@ local function sorter(a, b)
 	return tostring(a) < tostring(b)
 end
 
-function Iterable:toTable(sortBy, fn)
+function Iterable:toArray(sortBy, fn)
 	local ret = {}
 	for obj in self:iter() do
 		if not fn or fn(obj) then
