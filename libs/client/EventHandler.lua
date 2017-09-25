@@ -377,6 +377,10 @@ function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
 	local message = channel._messages:get(d.message_id)
 	if message then
 		local reaction = message:_removeReaction(d)
+		if not reaction then -- uncached reaction?
+			local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
+			return warning(client, 'Reaction', k, 'MESSAGE_REACTION_REMOVE')
+		end
 		return client:emit('reactionRemove', reaction, d.user_id)
 	else
 		local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name

@@ -118,6 +118,8 @@ function Message:_removeReaction(d)
 	local k = emoji.id ~= null and emoji.id or emoji.name
 	local reaction = reactions:get(k)
 
+	if not reaction then return nil end -- uncached reaction?
+
 	reaction._count = reaction._count - 1
 	if d.user_id == self.client._user._id then
 		reaction._me = false
