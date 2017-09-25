@@ -30,11 +30,11 @@ end)
 
 client:on('messageCreate', function(message)
 	if message.content == '!ping' then
-		message.channel:sendMessage('Pong!')
+		message.channel:send('Pong!')
 	end
 end)
 
-client:run('INSERT_TOKEN_HERE')
+client:run('Bot INSERT_TOKEN_HERE')
 ```
 
 ### Documentation
@@ -43,7 +43,7 @@ Please visit this project's [Wiki](https://github.com/SinisterRectus/Discordia/w
 
 ### History
 
-The earliest version of Discordia, before it even had that name, was released as a [Just Cause 2 Multiplayer module](https://www.jc-mp.com/forums/index.php/topic,5936.0.html) on 7 March 2016. It utilized LuaSocket, LuaSec, and (eventually) Copas to provide basic REST functionality in a sandboxed Lua 5.2 environment. The goal was to bridge the game chat with a Discord client. Due to a lack of WSS support (at the time) and difficulties in developing a stable module, the Just Cause 2 Multiplayer project was put on hold in favor of a general-purpose Lua library for Discord. After finishing a relatively stable version of Discordia, the JC2MP bridge was re-designed to connect with Discordia via inter-process communication.
+The earliest version of Discordia, before it even had that name, was released as a [Just Cause 2 Multiplayer module](https://www.jc-mp.com/forums/index.php/topic,5936.0.html) on 7 March 2016. It utilized LuaSocket, LuaSec, and (eventually) Copas to provide basic REST functionality in a sandboxed Lua 5.2 environment. The goal was to bridge the game chat with a Discord client. Due to a lack of WSS support (at the time), the project was put on hold in favor of a general-purpose Lua library for Discord. After finishing a relatively stable version of Discordia, the JC2MP bridge was re-designed to connect with Discordia via inter-process communication.
 
 ### FAQs
 
