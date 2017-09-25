@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 - Not Finished
+## 2.0.0
 
 The major goals of this rewrite were to add new or missing features and to improve consistency and efficiency. A lot of changes were made to Discordia to achieve these goals; many of them are breaking. Please read the following changelog carefully and update your applications accordingly.
 
