@@ -10,7 +10,13 @@ local Reaction, get = require('class')('Reaction', Container)
 
 function Reaction:__init(data, parent)
 	Container.__init(self, data, parent)
-	self._emoji_id = data.emoji.id
+
+	-- The JSON decoder treats `null` as an empty table. If we have an empty table here it
+	-- is due to `null` being the emoji ID (therefor is a unicode emoji). Don't set the emojiID
+	if not( type( data.emoji.id ) == "table" and #data.emoji.id == 0 ) then
+		self._emoji_id = type( data.emoji.id ) == "table" and #data.emoji.id == 0
+	end
+
 	self._emoji_name = data.emoji.name
 end
 
