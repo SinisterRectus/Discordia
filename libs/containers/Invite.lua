@@ -1,18 +1,24 @@
 local Container = require('containers/abstract/Container')
+local json = require('json')
 
 local format = string.format
+local null = json.null
+
+local function load(v)
+	return v ~= null and v or nil
+end
 
 local Invite, get = require('class')('Invite', Container)
 
 function Invite:__init(data, parent)
 	Container.__init(self, data, parent)
-	self._guild_id = data.guild.id
-	self._channel_id = data.channel.id
-	self._guild_name = data.guild.name
-	self._guild_icon = data.guild_icon
-	self._guild_splash = data.guild_splash
-	self._channel_name = data.channel.name
-	self._channel_type = data.channel.type
+	self._guild_id = load(data.guild.id)
+	self._channel_id = load(data.channel.id)
+	self._guild_name = load(data.guild.name)
+	self._guild_icon = load(data.guild.icon)
+	self._guild_splash = load(data.guild.splash)
+	self._channel_name = load(data.channel.name)
+	self._channel_type = load(data.channel.type)
 	if data.inviter then
 		self._inviter = self.client._users:_insert(data.inviter)
 	end
