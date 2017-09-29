@@ -393,6 +393,13 @@ function EventHandler.MESSAGE_REACTION_REMOVE_ALL(d, client)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_REMOVE_ALL') end
 	local message = channel._messages:get(d.message_id)
 	if message then
+		local reactions = message._reactions
+		if reactions then
+			for reaction in reactions:iter() do
+				reaction._count = 0
+			end
+			message._reactions = nil
+		end
 		return client:emit('reactionRemoveAll', message)
 	else
 		return client:emit('reactionRemoveAllUncached', channel, d.message_id)
