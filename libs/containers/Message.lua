@@ -336,6 +336,10 @@ function get.editedTimestamp(self)
 	return self._edited_timestamp
 end
 
+function get.oldContent(self)
+	return self._old
+end
+
 function get.content(self)
 	return self._content
 end
