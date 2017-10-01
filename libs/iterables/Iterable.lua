@@ -115,13 +115,20 @@ local function sorter(a, b)
 end
 
 function Iterable:toArray(sortBy, fn)
+	local t1 = type(sortBy)
+	if t1 == 'string' then
+		fn = type(fn) == 'function' and fn
+	elseif t1 == 'function' then
+		fn = sortBy
+		sortBy = nil
+	end
 	local ret = {}
 	for obj in self:iter() do
 		if not fn or fn(obj) then
 			insert(ret, obj)
 		end
 	end
-	if type(sortBy) == 'string' then
+	if sortBy then
 		sort(ret, function(a, b)
 			return sorter(a[sortBy], b[sortBy])
 		end)
