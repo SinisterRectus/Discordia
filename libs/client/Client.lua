@@ -154,15 +154,15 @@ local function run(self, token)
 			if not gateway then
 				return self:error('Could not get gateway: ' .. err2)
 			end
-			url = gateway.url
-			count = gateway.shards
 
 			local app, err3 = api:getCurrentApplicationInformation()
 			if not app then
 				return self:error('Could not get application information: ' .. err3)
 			end
+
+			url = gateway.url
+			count = gateway.shards
 			owner = app.owner
-			self._owner = users:_insert(owner)
 
 			cache[user.id] = {owner = owner, shards = count, timestamp = now}
 
@@ -172,10 +172,10 @@ local function run(self, token)
 			if not gateway then
 				return self:error('Could not get gateway: ' .. err2)
 			end
+
 			url = gateway.url
 			count = 1
-
-			self._owner = self._user
+			owner = user
 
 			cache[user.id] = {timestamp = now}
 
@@ -186,6 +186,8 @@ local function run(self, token)
 		writeFileSync('gateway.json', encode(cache))
 
 	end
+
+	self._owner = users:_insert(owner)
 
 	if options.shardCount > 0 then
 		if count ~= options.shardCount then
