@@ -122,44 +122,69 @@ local function run(self, token)
 	end
 	self._user = users:_insert(user)
 
-	if user.bot then
-		local app, err2 = api:getCurrentApplicationInformation()
-		if not app then
-			return self:error('Could not get application information: ' .. err2)
-		end
-		self._owner = users:_insert(app.owner)
-	else
-		self._owner = self._user
-	end
-
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
 
-	local url, count
+	local now = time()
+	local url, count, owner
 
 	local cache = readFileSync('gateway.json')
 	cache = cache and decode(cache)
 
 	if cache then
 		local d = cache[user.id]
-		if d and difftime(time(), d.timestamp) < CACHE_AGE then
-			url, count = cache.url, d.shards or 1
+		if d and difftime(now, d.timestamp) < CACHE_AGE then
+			url = cache.url
+			if user.bot then
+				count = d.shards
+				owner = d.owner
+			else
+				count = 1
+				owner = user
+			end
 		end
 	else
 		cache = {}
 	end
 
-	if not url then
-		local d = user.bot and api:getGatewayBot() or api:getGateway()
-		if d then
-			url, count = d.url, d.shards or 1
-			cache.url = url
-			cache[user.id] = {timestamp = time(), shards = d.shards}
-			writeFileSync('gateway.json', encode(cache))
-		end
-	end
+	if not url or not owner then
 
-	if not url then
-		return self:error('Could not connect to gateway (no URL found)')
+		if user.bot then
+
+			local gateway, err2 = api:getGatewayBot()
+			if not gateway then
+				return self:error('Could not get gateway: ' .. err2)
+			end
+			url = gateway.url
+			count = gateway.shards
+
+			local app, err3 = api:getCurrentApplicationInformation()
+			if not app then
+				return self:error('Could not get application information: ' .. err3)
+			end
+			owner = app.owner
+			self._owner = users:_insert(owner)
+
+			cache[user.id] = {owner = owner, shards = count, timestamp = now}
+
+		else
+
+			local gateway, err2 = api:getGateway()
+			if not gateway then
+				return self:error('Could not get gateway: ' .. err2)
+			end
+			url = gateway.url
+			count = 1
+
+			self._owner = self._user
+
+			cache[user.id] = {timestamp = now}
+
+		end
+
+		cache.url = url
+
+		writeFileSync('gateway.json', encode(cache))
+
 	end
 
 	if options.shardCount > 0 then

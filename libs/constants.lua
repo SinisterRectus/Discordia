@@ -1,5 +1,5 @@
 return {
-	CACHE_AGE = 86400, -- seconds
+	CACHE_AGE = 3600, -- seconds
 	ID_DELAY = 5000, -- milliseconds
 	GATEWAY_DELAY = 500, -- milliseconds,
 	DISCORD_EPOCH = 1420070400000, -- milliseconds
