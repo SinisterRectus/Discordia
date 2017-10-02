@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.1
+- Added missing `Message.oldContent`, which was intended for 2.0.0
+- `Channel:bulkDelete` can now handle a minimum if 1 message instead of 2
+- `Iterable:toArray(fn)` is now an acceptible overload for `Iterable:toArray(sortBy, fn)`
+- Switched the base64 resolver to use OpenSSL instead of a pure Lua version
+- Client owner data is now cached on authentication (still named gateway.json)
+- Authentication cache now expires after 1 hour instead of 24 hours
+- Reactions are now properly uncached when MESSAGE_REACTIONS_REMOVE_ALL occurs
+- JSON `null` is now correctly handled for `Invites` and `Reactions`
+
 ## 2.0.0
 
 The major goals of this rewrite were to add new or missing features and to improve consistency and efficiency. A lot of changes were made to Discordia to achieve these goals; many of them are breaking. Please read the following changelog carefully and update your applications accordingly.
