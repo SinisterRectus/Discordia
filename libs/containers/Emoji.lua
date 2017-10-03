@@ -35,7 +35,7 @@ function get.guild(self)
 end
 
 function get.mentionString(self)
-	return format('<:%s:%s>', self._name, self._id)
+	return format('<:%s>', self.hash)
 end
 
 function get.url(self)
@@ -48,6 +48,10 @@ end
 
 function get.requireColons(self)
 	return self._require_colons
+end
+
+function get.hash(self)
+	return self._name .. ':' .. self._id
 end
 
 function get.roles(self)

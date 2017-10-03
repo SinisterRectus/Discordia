@@ -15,7 +15,7 @@ function Reaction:__init(data, parent)
 end
 
 function Reaction:__hash()
-	return self._emoji_id and self._emoji_id or self._emoji_name
+	return self._emoji_id or self._emoji_name
 end
 
 function Reaction:getUsers()
@@ -40,6 +40,14 @@ end
 
 function get.emojiName(self)
 	return self._emoji_name
+end
+
+function get.emojiHash(self)
+	if self._emoji_id then
+		return self._emoji_name .. ':' .. self._emoji_id
+	else
+		return self._emoji_name
+	end
 end
 
 function get.emojiURL(self)
