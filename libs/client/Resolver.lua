@@ -33,6 +33,8 @@ local function int(obj)
 		end
 	elseif t == 'number' then
 		return format('%i', obj)
+	elseif isInstance(obj, classes.Date) then
+		return obj:toSnowflake()
 	end
 end
 

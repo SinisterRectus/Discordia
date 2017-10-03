@@ -80,7 +80,7 @@ function Date:__add(other)
 	if not isInstance(other, Time) then
 		return error('Cannot perform operation with non-Time object')
 	end
-	return Date(self._s + other._s, self._us + other._us)
+	return Date(self:toSeconds() + other:toSeconds())
 end
 
 function Date:__sub(other)
@@ -88,7 +88,7 @@ function Date:__sub(other)
 		if isInstance(other, Date) then
 			return Time(abs(self:toMilliseconds() - other:toMilliseconds()))
 		elseif isInstance(other, Time) then
-			return Date(self._s - other._s, self._us - other._us)
+			return Date(self:toSeconds() - other:toSeconds())
 		else
 			return error('Cannot perform operation with non-Date/Time object')
 		end
