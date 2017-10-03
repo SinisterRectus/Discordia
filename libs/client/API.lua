@@ -369,6 +369,31 @@ function API:groupDMRemoveRecipient(channel_id, user_id) -- GroupChannel:removeR
 	return self:request("DELETE", endpoint)
 end
 
+function API:listGuildEmojis(guild_id) -- not exposed, use cache
+	local endpoint = f(endpoints.GUILD_EMOJIS, guild_id)
+	return self:request("GET", endpoint)
+end
+
+function API:getGuildEmoji(guild_id, emoji_id) -- not exposed, use cache
+	local endpoint = f(endpoints.GUILD_EMOJI, guild_id, emoji_id)
+	return self:request("GET", endpoint)
+end
+
+function API:createGuildEmoji(guild_id, payload) -- Guild:createEmoji
+	local endpoint = f(endpoints.GUILD_EMOJIS, guild_id)
+	return self:request("POST", endpoint, payload)
+end
+
+function API:modifyGuildEmoji(guild_id, emoji_id, payload) -- Emoji:_modify
+	local endpoint = f(endpoints.GUILD_EMOJI, guild_id, emoji_id)
+	return self:request("PATCH", endpoint, payload)
+end
+
+function API:deleteGuildEmoji(guild_id, emoji_id) -- Emoji:delete
+	local endpoint = f(endpoints.GUILD_EMOJI, guild_id, emoji_id)
+	return self:request("DELETE", endpoint)
+end
+
 function API:createGuild(payload) -- Client:createGuild
 	local endpoint = endpoints.GUILDS
 	return self:request("POST", endpoint, payload)

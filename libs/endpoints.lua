@@ -23,6 +23,8 @@ return {
 	GUILD_BANS                    = "/guilds/%s/bans",
 	GUILD_CHANNELS                = "/guilds/%s/channels",
 	GUILD_EMBED                   = "/guilds/%s/embed",
+	GUILD_EMOJI                   = "/guilds/%s/emojis/%s",
+	GUILD_EMOJIS                  = "/guilds/%s/emojis",
 	GUILD_INTEGRATION             = "/guilds/%s/integrations/%s",
 	GUILD_INTEGRATIONS            = "/guilds/%s/integrations",
 	GUILD_INTEGRATION_SYNC        = "/guilds/%s/integrations/%s/sync",
