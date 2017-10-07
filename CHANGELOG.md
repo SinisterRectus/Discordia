@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.1.0
+- Added Reaction.emojiHash and Emoji.hash properties
+- Added support for emoji endpoints and methods:
+	- Emoji:setName
+	- Emoji:delete
+	- Guild:createEmoji
+- Date instances are now valid Snowflake ID resolvables
+- Added `textChannels` and `voiceChannels` filtered iterables to `GuildCategoryChannel`
+- Added support for system channels
+	- Guild.systemChannel
+	- Guild.systemChannelId
+	- Guild:setSystemChannel
+
+
 ## 2.0.1
 - Added missing `Message.oldContent`, which was intended for 2.0.0
 - `GuildTextChannel:bulkDelete` can now handle a minimum of 1 message instead of 2
@@ -9,6 +23,7 @@
 - Authentication cache now expires after 1 hour instead of 24 hours
 - Reactions are now properly uncached when MESSAGE_REACTIONS_REMOVE_ALL occurs
 - JSON `null` is now correctly handled for `Invites` and `Reactions`
+
 
 ## 2.0.0
 
