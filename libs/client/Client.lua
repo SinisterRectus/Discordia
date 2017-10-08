@@ -335,14 +335,13 @@ function Client:getConnections()
 end
 
 local function updateStatus(self)
-	local shards = self._shards
 	local presence = self._presence
 	presence.afk = presence.afk or null
 	presence.game = presence.game or null
 	presence.since = presence.since or null
 	presence.status = presence.status or null
-	for i = 0, self._shard_count - 1 do
-		shards[i]:updateStatus(presence)
+	for _, shard in pairs(self._shards) do
+		shard:updateStatus(presence)
 	end
 end
 
