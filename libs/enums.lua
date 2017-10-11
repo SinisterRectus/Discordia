@@ -7,10 +7,26 @@ local function enum(tbl)
 		call[v] = k
 	end
 	return setmetatable({}, {
-		__call = function(_, k) return call[k] end,
-		__index = function(_, k) return tbl[k] end,
-		__pairs = function() return next, tbl end,
-		__newindex = function() return error('cannot overwrite enumeration') end,
+		__call = function(_, k)
+			if call[k] then
+				return call[k]
+			else
+				return error('invalid enumeration: ' .. k)
+			end
+		end,
+		__index = function(_, k)
+			if tbl[k] then
+				return tbl[k]
+			else
+				return error('invalid enumeration: ' .. k)
+			end
+		end,
+		__pairs = function()
+			return next, tbl
+		end,
+		__newindex = function()
+			return error('cannot overwrite enumeration')
+		end,
 	})
 end
 
@@ -104,6 +120,35 @@ enums.permission = enum {
 	manageRoles         = 0x10000000,
 	manageWebhooks      = 0x20000000,
 	manageEmojis        = 0x40000000,
+}
+
+enums.actionType = enum {
+	guildUpdate            = 1,
+	channelCreate          = 10,
+	channelUpdate          = 11,
+	channelDelete          = 12,
+	channelOverwriteCreate = 13,
+	channelOverwriteUpdate = 14,
+	channelOverwriteDelete = 15,
+	memberKick             = 20,
+	memberPrune            = 21,
+	memberBanAdd           = 22,
+	memberBanRemove        = 23,
+	memberUpdate           = 24,
+	memberRoleUpdate       = 25,
+	roleCreate             = 30,
+	roleUpdate             = 31,
+	roleDelete             = 32,
+	inviteCreate           = 40,
+	inviteUpdate           = 41,
+	inviteDelete           = 42,
+	webhookCreate          = 50,
+	webhookUpdate          = 51,
+	webhookDelete          = 52,
+	emojiCreate            = 60,
+	emojiUpdate            = 61,
+	emojiDelete            = 62,
+	messageDelete          = 72,
 }
 
 enums.logLevel = enum {

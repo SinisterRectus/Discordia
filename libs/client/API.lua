@@ -244,9 +244,9 @@ end
 
 -- start of auto-generated methods --
 
-function API:getGuildAuditLog(guild_id)
-	local endpoint = f(endpoints.GUILD_AUDIT_LOG, guild_id)
-	return self:request("GET", endpoint)
+function API:getGuildAuditLog(guild_id, query)
+	local endpoint = f(endpoints.GUILD_AUDIT_LOGS, guild_id)
+	return self:request("GET", endpoint, nil, query)
 end
 
 function API:getChannel(channel_id) -- not exposed, use cache

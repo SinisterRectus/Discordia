@@ -6,6 +6,7 @@ local Webhook = require('containers/Webhook')
 local Ban = require('containers/Ban')
 local Member = require('containers/Member')
 local Resolver = require('client/Resolver')
+local AuditLogEntry = require('containers/AuditLogEntry')
 local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
 local GuildCategoryChannel = require('containers/GuildCategoryChannel')
@@ -263,6 +264,24 @@ function Guild:getInvites()
 	local data, err = self.client._api:getGuildInvites(self._id)
 	if data then
 		return Cache(data, Invite, self.client)
+	else
+		return nil, err
+	end
+end
+
+function Guild:getAuditLogs(query)
+	if type(query) == 'table' then
+		query = {
+			limit = query.limit,
+			user_id = Resolver.userId(query.user),
+			before = Resolver.entryId(query.before),
+			action_type = Resolver.actionType(query.type),
+		}
+	end
+	local data, err = self.client._api:getGuildAuditLog(self._id, query)
+	if data then
+		self.client._users:_load(data.users)
+		return Cache(data.audit_log_entries, AuditLogEntry, self)
 	else
 		return nil, err
 	end

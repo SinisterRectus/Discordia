@@ -18,7 +18,7 @@ return {
 	GATEWAY_BOT                   = "/gateway/bot",
 	GUILD                         = "/guilds/%s",
 	GUILDS                        = "/guilds",
-	GUILD_AUDIT_LOG               = "/guilds/%s/audit-log",
+	GUILD_AUDIT_LOGS              = "/guilds/%s/audit-logs",
 	GUILD_BAN                     = "/guilds/%s/bans/%s",
 	GUILD_BANS                    = "/guilds/%s/bans",
 	GUILD_CHANNELS                = "/guilds/%s/channels",

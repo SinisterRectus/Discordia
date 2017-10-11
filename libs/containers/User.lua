@@ -102,7 +102,9 @@ end
 function get.mutualGuilds(self)
 	if not self._mutual_guilds then
 		local id = self._id
-		self._mutual_guilds = FilteredIterable(self.client._guilds, function(g) return g._members:get(id) end)
+		self._mutual_guilds = FilteredIterable(self.client._guilds, function(g)
+			return g._members:get(id)
+		end)
 	end
 	return self._mutual_guilds
 end
