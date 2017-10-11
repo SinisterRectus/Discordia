@@ -1,5 +1,8 @@
 local Snowflake = require('containers/abstract/Snowflake')
 
+local enums = require('enums')
+local actionType = enums.actionType
+
 local AuditLogEntry, get = require('class')('AuditLogEntry', Snowflake)
 
 function AuditLogEntry:__init(data, parent)
@@ -27,27 +30,120 @@ function AuditLogEntry:getBeforeAfter()
 	return before, after
 end
 
-function AuditLogEntry:getTarget()
-	local type = self._action_type
-	if type < 10 then
+local function unknown(self)
+	return nil, 'unknown audit log action type: ' .. self._action_type
+end
+
+local targets = setmetatable({
+
+	[actionType.guildUpdate] = function(self)
 		return self._parent
-	elseif type < 20 then
+	end,
+
+	[actionType.channelCreate] = function(self)
 		return self._parent:getChannel(self._target_id)
-	elseif type < 30 then
-		return self._parent:getMember(self._target_id)
-	elseif type < 40 then
-		return self._parent:getRole(self._target_id)
-	elseif type < 50 then
-		return nil -- invite
-	elseif type < 60 then
-		return self._parent._parent:getWebhook(self._target_id)
-	elseif type < 70 then
-		return self._parent:getEmoji(self._target_id)
-	elseif type < 80 then
+	end,
+
+	[actionType.channelUpdate] = function(self)
+		return self._parent:getChannel(self._target_id)
+	end,
+
+	[actionType.channelDelete] = function(self)
+		return self._parent:getChannel(self._target_id)
+	end,
+
+	[actionType.channelOverwriteCreate] = function(self)
+		return self._parent:getChannel(self._target_id)
+	end,
+
+	[actionType.channelOverwriteUpdate] = function(self)
+		return self._parent:getChannel(self._target_id)
+	end,
+
+	[actionType.channelOverwriteDelete] = function(self)
+		return self._parent:getChannel(self._target_id)
+	end,
+
+	[actionType.memberKick] = function(self)
 		return self._parent._parent:getUser(self._target_id)
-	else
-		return nil, 'Unknown audit log action type: ' .. type
-	end
+	end,
+
+	[actionType.memberPrune] = function()
+		return nil
+	end,
+
+	[actionType.memberBanAdd] = function(self)
+		return self._parent._parent:getUser(self._target_id)
+	end,
+
+	[actionType.memberBanRemove] = function(self)
+		return self._parent._parent:getUser(self._target_id)
+	end,
+
+	[actionType.memberUpdate] = function(self)
+		return self._parent:getMember(self._target_id)
+	end,
+
+	[actionType.memberRoleUpdate] = function(self)
+		return self._parent:getMember(self._target_id)
+	end,
+
+	[actionType.roleCreate] = function(self)
+		return self._parent:getRole(self._target_id)
+	end,
+
+	[actionType.roleUpdate] = function(self)
+		return self._parent:getRole(self._target_id)
+	end,
+
+	[actionType.roleDelete] = function(self)
+		return self._parent:getRole(self._target_id)
+	end,
+
+	[actionType.inviteCreate] = function()
+		return nil
+	end,
+
+	[actionType.inviteUpdate] = function()
+		return nil
+	end,
+
+	[actionType.inviteDelete] = function()
+		return nil
+	end,
+
+	[actionType.webhookCreate] = function(self)
+		return self._parent._parent._webhooks:get(self._target_id)
+	end,
+
+	[actionType.webhookUpdate] = function(self)
+		return self._parent._parent._webhooks:get(self._target_id)
+	end,
+
+	[actionType.webhookDelete] = function(self)
+		return self._parent._parent._webhooks:get(self._target_id)
+	end,
+
+	[actionType.emojiCreate] = function(self)
+		return self._parent:getEmoji(self._target_id)
+	end,
+
+	[actionType.emojiUpdate] = function(self)
+		return self._parent:getEmoji(self._target_id)
+	end,
+
+	[actionType.emojiDelete] = function(self)
+		return self._parent:getEmoji(self._target_id)
+	end,
+
+	[actionType.messageDelete] = function(self)
+		return self._parent._parent:getUser(self._target_id)
+	end,
+
+}, {__index = function() return unknown	end})
+
+function AuditLogEntry:getTarget()
+	return targets[self._action_type](self)
 end
 
 function AuditLogEntry:getUser()
@@ -68,6 +164,10 @@ end
 
 function get.actionType(self)
 	return self._action_type
+end
+
+function get.targetId(self)
+	return self._target_id
 end
 
 function get.reason(self)

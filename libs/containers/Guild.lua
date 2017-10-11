@@ -133,6 +133,11 @@ function Guild:getRole(id)
 	return self._roles:get(id)
 end
 
+function Guild:getEmoji(id)
+	id = Resolver.emojiId(id)
+	return self._emojis:get(id)
+end
+
 function Guild:getChannel(id)
 	id = Resolver.channelId(id)
 	return self._text_channels:get(id) or self._voice_channels:get(id) or self._categories:get(id)
@@ -281,6 +286,7 @@ function Guild:getAuditLogs(query)
 	local data, err = self.client._api:getGuildAuditLog(self._id, query)
 	if data then
 		self.client._users:_load(data.users)
+		self.client._webhooks:_load(data.webhooks)
 		return Cache(data.audit_log_entries, AuditLogEntry, self)
 	else
 		return nil, err

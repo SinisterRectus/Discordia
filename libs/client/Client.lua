@@ -18,6 +18,7 @@ local Webhook = require('containers/Webhook')
 local Relationship = require('containers/Relationship')
 
 local Cache = require('iterables/Cache')
+local WeakCache = require('iterables/WeakCache')
 local Emitter = require('utils/Emitter')
 local Logger = require('utils/Logger')
 local Mutex = require('utils/Mutex')
@@ -94,6 +95,7 @@ function Client:__init(options)
 	self._group_channels = Cache({}, GroupChannel, self)
 	self._private_channels = Cache({}, PrivateChannel, self)
 	self._relationships = Cache({}, Relationship, self)
+	self._webhooks = WeakCache({}, Webhook, self) -- used for audit logs
 	self._logger = Logger(options.logLevel, options.dateTime, options.logFile)
 	self._channel_map = {}
 end

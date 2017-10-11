@@ -75,6 +75,15 @@ function Resolver.roleId(obj)
 	return int(obj)
 end
 
+function Resolver.emojiId(obj)
+	if isInstance(obj, classes.Emoji) then
+		return obj.id
+	elseif isInstance(obj, classes.Reaction) then
+		return obj.emojiId
+	end
+	return tostring(obj)
+end
+
 function Resolver.guildId(obj)
 	if isInstance(obj, classes.Guild) then
 		return obj.id
