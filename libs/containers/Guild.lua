@@ -303,7 +303,7 @@ function Guild:getWebhooks()
 end
 
 function Guild:listVoiceRegions()
-	return self.client._api:getGuildVoiceRegions()
+	return self.client._api:getGuildVoiceRegions(self._id)
 end
 
 function Guild:leave()
