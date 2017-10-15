@@ -24,7 +24,7 @@ local BOUNDARY3 = BOUNDARY2 .. '--'
 local JSON = 'application/json'
 local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY1)
 
-local majorRoutes = {guilds = true, channels = true}
+local majorRoutes = {guilds = true, channels = true, webhooks = true}
 local payloadRequired = {PUT = true, PATCH = true, POST = true}
 
 local parseDate = Date.parseHeader
@@ -47,7 +47,7 @@ local function parseErrors(ret, errors, key)
 end
 
 local function sub(path)
-	return not majorRoutes[path] and path
+	return not majorRoutes[path] and path .. '/:id'
 end
 
 local function route(method, endpoint)
