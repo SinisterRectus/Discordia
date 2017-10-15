@@ -139,7 +139,7 @@ function Shard:handlePayloads(token)
 
 		if opcode == BINARY then
 
-			payload = inflate(payload, 15)
+			payload = inflate(payload, 1)
 
 		elseif opcode == CLOSE then
 
