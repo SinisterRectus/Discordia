@@ -13,6 +13,10 @@ end
 function PermissionOverwrite:delete()
 	local data, err = self.client._api:deleteChannelPermission(self._parent._id, self._id)
 	if data then
+		local cache = self._parent._permission_overwrites
+		if cache then
+			cache:_delete(self._id)
+		end
 		return true
 	else
 		return false, err
