@@ -53,9 +53,8 @@ end
 local function route(method, endpoint)
 
 	-- special case for reactions
-	local _, n = endpoint:find('reactions')
-	if n then
-		endpoint = endpoint:sub(1, n)
+	if endpoint:find('reactions') then
+		return 'reactions'
 	end
 
 	-- remove the ID from minor routes
