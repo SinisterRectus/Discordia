@@ -18,16 +18,30 @@ function Reaction:__hash()
 	return self._emoji_id or self._emoji_name
 end
 
-function Reaction:getUsers()
+local function getUsers(self, query)
 	local emoji = Resolver.emoji(self)
 	local message = self._parent
 	local channel = message._parent
-	local data, err = self.client._api:getReactions(channel._id, message._id, emoji)
+	local data, err = self.client._api:getReactions(channel._id, message._id, emoji, query)
 	if data then
 		return SecondaryCache(data, self.client._users)
 	else
 		return nil, err
 	end
+end
+
+function Reaction:getUsers(limit)
+	return getUsers(self, limit and {limit = limit})
+end
+
+function Reaction:getUsersBefore(id, limit)
+	id = Resolver.userId(id)
+	return getUsers(self, {before = id, limit = limit})
+end
+
+function Reaction:getUsersAfter(id, limit)
+	id = Resolver.userId(id)
+	return getUsers(self, {after = id, limit = limit})
 end
 
 function Reaction:delete(id)

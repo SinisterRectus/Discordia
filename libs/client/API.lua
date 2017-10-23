@@ -293,9 +293,9 @@ function API:deleteUserReaction(channel_id, message_id, emoji, user_id) -- Messa
 	return self:request("DELETE", endpoint)
 end
 
-function API:getReactions(channel_id, message_id, emoji) -- Reaction:getUsers
+function API:getReactions(channel_id, message_id, emoji, query) -- Reaction:getUsers
 	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION, channel_id, message_id, emoji)
-	return self:request("GET", endpoint)
+	return self:request("GET", endpoint, nil, query)
 end
 
 function API:deleteAllReactions(channel_id, message_id) -- Message:clearReactions
