@@ -205,6 +205,15 @@ function TextChannel:send(content)
 
 end
 
+function TextChannel:sendf(content, ...)
+	local data, err = self.client._api:createMessage(self._id, {content = format(content, ...)})
+	if data then
+		return self._messages:_insert(data)
+	else
+		return nil, err
+	end
+end
+
 function get.messages(self)
 	return self._messages
 end

@@ -59,6 +59,15 @@ function User:send(content)
 	end
 end
 
+function User:sendf(content, ...)
+	local channel, err = self:getPrivateChannel()
+	if channel then
+		return channel:sendf(content, ...)
+	else
+		return nil, err
+	end
+end
+
 function get.bot(self)
 	return self._bot or false
 end
