@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.2.0
+- Added audit log support
+	- Added Guild:getAuditLogs
+	- Added AuditLogEntry class
+	- Added actionType enumeration
+- Added Guild:getEmoji
+- Added support for Reaction:getUsers query
+- Added TextChannel:sendf shortcut
+- Objects deleted via HTTP are now synchronously uncached
+- Fixed Guild:listVoiceRegions
+- Ratelimit route tweaks
+	- ID paths are now properly substituted
+	- Webhooks are now treated as a major route
+	- Reactions are now treated as a global route
+- Fixed issue when setting status on manually-sharded bots
+- Fixed crash on guild initialization when voice states were not present
+
+
 ## 2.1.0
 - Added Reaction.emojiHash and Emoji.hash properties
 - Added support for emoji endpoints and methods:
