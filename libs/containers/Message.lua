@@ -5,6 +5,7 @@ local ArrayIterable = require('iterables/ArrayIterable')
 local Snowflake = require('containers/abstract/Snowflake')
 local Reaction = require('containers/Reaction')
 local Resolver = require('client/Resolver')
+local Channel = require('containers/abstract/Channel')
 
 local insert = table.insert
 local null = json.null
@@ -13,7 +14,7 @@ local Message, get = require('class')('Message', Snowflake)
 
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self._author = self.client._users:_insert(data.author)
+	self._author = self.client._users and self.client._users:_insert(data.author) or data.author
 	self._timestamp = nil -- waste of space; can be calculated from Snowflake ID
 	if data.reactions and #data.reactions > 0 then
 		self._reactions = Cache(data.reactions, Reaction, self)
@@ -80,7 +81,6 @@ function Message:_loadMore(data)
 	if data.attachments then
 		self._attachments = #data.attachments > 0 and data.attachments or nil
 	end
-
 end
 
 function Message:_addReaction(d)
@@ -145,7 +145,7 @@ function Message:_setOldContent(d)
 end
 
 function Message:_modify(payload)
-	local data, err = self.client._api:editMessage(self._parent._id, self._id, payload)
+	local data, err = self.client._api:editMessage(self._channel_id or self._parent._id, self._id, payload)
 	if data then
 		self:_setOldContent(data)
 		self:_load(data)
@@ -164,7 +164,7 @@ function Message:setEmbed(embed)
 end
 
 function Message:pin()
-	local data, err = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
+	local data, err = self.client._api:addPinnedChannelMessage(self._channel_id or self._parent._id, self._id)
 	if data then
 		self._pinned = true
 		return true
@@ -174,7 +174,7 @@ function Message:pin()
 end
 
 function Message:unpin()
-	local data, err = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
+	local data, err = self.client._api:deletePinnedChannelMessage(self._channel_id or self._parent._id, self._id)
 	if data then
 		self._pinned = false
 		return true
@@ -185,7 +185,7 @@ end
 
 function Message:addReaction(emoji)
 	emoji = Resolver.emoji(emoji)
-	local data, err = self.client._api:createReaction(self._parent._id, self._id, emoji)
+	local data, err = self.client._api:createReaction(self._channel_id or self._parent._id, self._id, emoji)
 	if data then
 		return true
 	else
@@ -198,9 +198,9 @@ function Message:removeReaction(emoji, id)
 	local data, err
 	if id then
 		id = Resolver.userId(id)
-		data, err = self.client._api:deleteUserReaction(self._parent._id, self._id, emoji, id)
+		data, err = self.client._api:deleteUserReaction(self._channel_id or self._parent._id, self._id, emoji, id)
 	else
-		data, err = self.client._api:deleteOwnReaction(self._parent._id, self._id, emoji)
+		data, err = self.client._api:deleteOwnReaction(self._channel_id or self._parent._id, self._id, emoji)
 	end
 	if data then
 		return true
@@ -210,7 +210,7 @@ function Message:removeReaction(emoji, id)
 end
 
 function Message:clearReactions()
-	local data, err = self.client._api:deleteAllReactions(self._parent._id, self._id)
+	local data, err = self.client._api:deleteAllReactions(self._channel_id or self._parent._id, self._id)
 	if data then
 		return true
 	else
@@ -219,7 +219,7 @@ function Message:clearReactions()
 end
 
 function Message:delete()
-	local data, err = self.client._api:deleteMessage(self._parent._id, self._id)
+	local data, err = self.client._api:deleteMessage(self._channel_id or self._parent._id, self._id)
 	if data then
 		local cache = self._parent._messages
 		if cache then
@@ -353,7 +353,18 @@ function get.author(self)
 end
 
 function get.channel(self)
-	return self._parent
+	if self._parent.id == self._channel_id then
+		return self._parent
+	else
+		local data, err = self._parent._api:getChannel(self._channel_id)
+		if data then
+			return Channel(data, self)
+		else
+			return nil, err
+		end
+		--self._parent:error("Unknown Channel Object from WebhookClient Instance.")
+		--return {}
+	end
 end
 
 function get.type(self)
@@ -377,7 +388,12 @@ function get.attachments(self)
 end
 
 function get.guild(self)
-	return self._parent.guild
+	if self._parent.guild then
+		return self._parent.guild
+	else	
+		self._parent:error("Unknown Guild Object from WebhookClient Instance.")
+		return {}
+	end
 end
 
 function get.member(self)
