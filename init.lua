@@ -15,4 +15,5 @@ return {
 	Stopwatch = require('utils/Stopwatch'),
 	Time = require('utils/Time'),
 	storage = {},
+	WebhookClient = require('client/WebhookClient')
 }
