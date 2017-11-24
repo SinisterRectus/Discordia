@@ -653,37 +653,37 @@ function API:getWebhookWithToken(webhook_id, webhook_token) -- not exposed, need
 	return self:request("GET", endpoint)
 end
 
-function API:modifyWebhook(webhook_id, payload) -- Webhook:_modify
+function API:modifyWebhook(webhook_id, payload) -- (WebhookClient/webhook):modify
 	local endpoint = f(endpoints.WEBHOOK, webhook_id)
 	return self:request("PATCH", endpoint, payload)
 end
 
-function API:modifyWebhookWithToken(webhook_id, webhook_token, payload) -- not exposed, needs webhook client
+function API:modifyWebhookWithToken(webhook_id, webhook_token, payload) -- (WebhookClient/webhook):modifyWebhookWithToken
 	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
 	return self:request("PATCH", endpoint, payload)
 end
 
-function API:deleteWebhook(webhook_id) -- Webhook:delete
+function API:deleteWebhook(webhook_id) -- (WebhookClient/Webhook):delete
 	local endpoint = f(endpoints.WEBHOOK, webhook_id)
 	return self:request("DELETE", endpoint)
 end
 
-function API:deleteWebhookWithToken(webhook_id, webhook_token) -- not exposed, needs webhook client
+function API:deleteWebhookWithToken(webhook_id, webhook_token) -- (WebhookClient/Webhook):deleteWebhookWithToken
 	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
 	return self:request("DELETE", endpoint)
 end
 
-function API:executeWebhook(webhook_id, webhook_token, payload, file) -- not exposed, needs webhook client
+function API:executeWebhook(webhook_id, webhook_token, payload, file) -- (WebhookClient/Webhook):send
 	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
 	return self:request("POST", endpoint .. "?wait=true", payload, nil, file)
 end
 
-function API:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload) -- not exposed, needs webhook client
+function API:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload) -- (WebhookClient/Webhook):executeSlackCompatibleWebhook
 	local endpoint = f(endpoints.WEBHOOK_TOKEN_SLACK, webhook_id, webhook_token)
 	return self:request("POST", endpoint, payload)
 end
 
-function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload) -- not exposed, needs webhook client
+function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload) -- (WebhookClient/Webhook):executeGitHubCompatibleWebhook
 	local endpoint = f(endpoints.WEBHOOK_TOKEN_GITHUB, webhook_id, webhook_token)
 	return self:request("POST", endpoint, payload)
 end
