@@ -679,9 +679,9 @@ function API:deleteWebhookWithToken(webhook_id, webhook_token) -- (WebhookClient
 	return self:request("DELETE", endpoint)
 end
 
-function API:executeWebhook(webhook_id, webhook_token, payload, file, query) -- (WebhookClient/Webhook):send
+function API:executeWebhook(webhook_id, webhook_token, payload, files, query) -- (WebhookClient/Webhook):send
 	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
-	return self:request("POST", endpoint, payload, query, file)
+	return self:request("POST", endpoint, payload, query, files)
 end
 
 function API:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload) -- (WebhookClient/Webhook):executeSlackCompatibleWebhook
