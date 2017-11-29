@@ -123,7 +123,6 @@ local function run(self, token)
 		return self:error('Could not authenticate, check token: ' .. err1)
 	end
 
-	_G.API = api;
 	self._user = users:_insert(user)
 
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
