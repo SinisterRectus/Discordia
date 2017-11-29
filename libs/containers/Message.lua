@@ -14,7 +14,7 @@ local Message, get = require('class')('Message', Snowflake)
 
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self._author = self.client._users and self.client._users:_insert(data.author) or data.author
+	self._author = self.client._users:_insert(data.author)
 	self._timestamp = nil -- waste of space; can be calculated from Snowflake ID
 	if data.reactions and #data.reactions > 0 then
 		self._reactions = Cache(data.reactions, Reaction, self)
@@ -358,12 +358,11 @@ function get.channel(self)
 	else
 		local data, err = self._parent._api:getChannel(self._channel_id)
 		if data then
-			return Channel(data, self)
+			self:_load(data)
+			return self._parent
 		else
 			return nil, err
 		end
-		--self._parent:error("Unknown Channel Object from WebhookClient Instance.")
-		--return {}
 	end
 end
 
@@ -390,9 +389,6 @@ end
 function get.guild(self)
 	if self._parent.guild then
 		return self._parent.guild
-	else	
-		self._parent:error("Unknown Guild Object from WebhookClient Instance.")
-		return {}
 	end
 end
 
