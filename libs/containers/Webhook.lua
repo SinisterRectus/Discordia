@@ -80,7 +80,7 @@ function get.name(self)
 end
 
 function get.avatar(self)
-	return self._avatar or Resolver.base64(self._avatar) or resolveImage(self._avatar, self._id)
+	return self._avatar
 end
 
 function get.avatarURL(self)
@@ -97,7 +97,7 @@ end
 
 
 -- Setters and Modifiers
-function Webhook:_modify(payload) -- stays for convenience
+function Webhook:_modify(payload)
 	local data, err = self.client._api:modifyWebhook(self._id, payload)
 	if data then
 		self:_load(data)
@@ -143,8 +143,10 @@ end
 
 -- Rest of functions
 function Webhook:send(content, options) -- return message
-	local file, tts = false, embeds
-	local wait = options and options.wait or false
+	local files, tts = false, embeds
+	local query = {
+		wait = options and options.wait or false
+	}
 	if options then
 		for key, value in pairs(options) do
 			self["_"..key] = value -- merge new options
@@ -155,7 +157,7 @@ function Webhook:send(content, options) -- return message
 			if err then
 				return nil, err
 			end
-			file = cntn
+			files = cntn
 		end
 
 		if options.tts then tts = options.tts end
@@ -168,7 +170,7 @@ function Webhook:send(content, options) -- return message
 		avatar_url = self._avatarURL,
 		tts = tts,
 		embeds = embeds
-	}, file)
+	}, files, query)
 
 	if data then
 		return true
