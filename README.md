@@ -10,7 +10,7 @@
 
 Discordia is a Lua wrapper for the official Discord API, and provides a high-level, object-oriented, event-driven interface for developing Discord bots. By using Lua's native coroutines, asynchronous HTTP and WebSocket communication is internally abstracted in a way that allows end-users to write blocking-style code without blocking I/O operations.
 
-Join the [Discord API community](https://discord.gg/0SBTUU1wZTWVpm07) to discuss Discordia and other Discord libraries!
+Join the [Discord API community](https://discord.gg/NKM3XmF) to discuss Discordia and other Discord libraries!
 
 ### Installation
 
