@@ -19,7 +19,7 @@ local readFileSync = fs.readFileSync
 local splitPath = pathjoin.splitPath
 
 local function resolveImage(avatar, id)
-	if avatar then
+	if avatar and id then
 		return format("https://cdn.discordapp.com/avatars/%s/%s.png", id, avatar)
 	end
 end
@@ -43,7 +43,7 @@ local Webhook, get = require('class')('Webhook', Snowflake)
 
 function Webhook:__init(data, parent)
 	Snowflake.__init(self, data, parent)
-	self._user = data.user and self.client._users:_insert(data.user)
+	self._user = data.user and self.client._users:_insert(data.user) -- DNE if getting by token
 end
 
 -- Getters
