@@ -65,7 +65,7 @@ local function parseOptions(customOptions)
 end
 
 local function resolveImage(avatar, id)
-	if avatar then
+	if avatar and id then
 		return format("https://cdn.discordapp.com/avatars/%s/%s.png", id, avatar)
 	end
 end
