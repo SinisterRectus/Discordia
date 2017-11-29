@@ -80,7 +80,6 @@ function Message:_loadMore(data)
 	if data.attachments then
 		self._attachments = #data.attachments > 0 and data.attachments or nil
 	end
-
 end
 
 function Message:_addReaction(d)
@@ -145,7 +144,7 @@ function Message:_setOldContent(d)
 end
 
 function Message:_modify(payload)
-	local data, err = self.client._api:editMessage(self._parent._id, self._id, payload)
+	local data, err = self.client._api:editMessage(self._channel_id or self._parent._id, self._id, payload)
 	if data then
 		self:_setOldContent(data)
 		self:_load(data)
@@ -164,7 +163,7 @@ function Message:setEmbed(embed)
 end
 
 function Message:pin()
-	local data, err = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
+	local data, err = self.client._api:addPinnedChannelMessage(self._channel_id or self._parent._id, self._id)
 	if data then
 		self._pinned = true
 		return true
@@ -174,7 +173,7 @@ function Message:pin()
 end
 
 function Message:unpin()
-	local data, err = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
+	local data, err = self.client._api:deletePinnedChannelMessage(self._channel_id or self._parent._id, self._id)
 	if data then
 		self._pinned = false
 		return true
@@ -185,7 +184,7 @@ end
 
 function Message:addReaction(emoji)
 	emoji = Resolver.emoji(emoji)
-	local data, err = self.client._api:createReaction(self._parent._id, self._id, emoji)
+	local data, err = self.client._api:createReaction(self._channel_id or self._parent._id, self._id, emoji)
 	if data then
 		return true
 	else
@@ -198,9 +197,9 @@ function Message:removeReaction(emoji, id)
 	local data, err
 	if id then
 		id = Resolver.userId(id)
-		data, err = self.client._api:deleteUserReaction(self._parent._id, self._id, emoji, id)
+		data, err = self.client._api:deleteUserReaction(self._channel_id or self._parent._id, self._id, emoji, id)
 	else
-		data, err = self.client._api:deleteOwnReaction(self._parent._id, self._id, emoji)
+		data, err = self.client._api:deleteOwnReaction(self._channel_id or self._parent._id, self._id, emoji)
 	end
 	if data then
 		return true
@@ -210,7 +209,7 @@ function Message:removeReaction(emoji, id)
 end
 
 function Message:clearReactions()
-	local data, err = self.client._api:deleteAllReactions(self._parent._id, self._id)
+	local data, err = self.client._api:deleteAllReactions(self._channel_id or self._parent._id, self._id)
 	if data then
 		return true
 	else
@@ -219,7 +218,7 @@ function Message:clearReactions()
 end
 
 function Message:delete()
-	local data, err = self.client._api:deleteMessage(self._parent._id, self._id)
+	local data, err = self.client._api:deleteMessage(self._channel_id or self._parent._id, self._id)
 	if data then
 		local cache = self._parent._messages
 		if cache then
