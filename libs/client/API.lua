@@ -23,6 +23,7 @@ local BOUNDARY3 = BOUNDARY2 .. '--'
 
 local JSON = 'application/json'
 local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY1)
+local USER_AGENT = f('DiscordBot (%s, %s)', package.homepage, package.version)
 
 local majorRoutes = {guilds = true, channels = true, webhooks = true}
 local payloadRequired = {PUT = true, PATCH = true, POST = true}
@@ -109,13 +110,16 @@ local API = require('class')('API')
 
 function API:__init(client)
 	self._client = client
+	self._headers = {
+		{'User-Agent', USER_AGENT}
+	}
 	self._mutexes = setmetatable({}, mutexMeta)
 end
 
 function API:authenticate(token)
 	self._headers = {
 		{'Authorization', token},
-		{'User-Agent', f('DiscordBot (%s, %s)', package.homepage, package.version)},
+		{'User-Agent', USER_AGENT},
 	}
 	return self:getCurrentUser()
 end
