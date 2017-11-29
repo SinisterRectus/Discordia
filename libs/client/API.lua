@@ -23,6 +23,7 @@ local BOUNDARY3 = BOUNDARY2 .. '--'
 
 local JSON = 'application/json'
 local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY1)
+local USER_AGENT = f('DiscordBot (%s, %s)', package.homepage, package.version)
 
 local majorRoutes = {guilds = true, channels = true, webhooks = true}
 local payloadRequired = {PUT = true, PATCH = true, POST = true}
@@ -109,20 +110,19 @@ local API = require('class')('API')
 
 function API:__init(client)
 	self._client = client
+	self._headers = {
+		{'User-Agent', USER_AGENT}
+	}
 	self._mutexes = setmetatable({}, mutexMeta)
 end
 
 function API:authenticate(token, isWebhookClient)
+	self._headers = {
+		{'Authorization', token},
+		{'User-Agent', USER_AGENT},
+	}
 	if not isWebhookClient then
-		self._headers = {
-			{'Authorization', token},
-			{'User-Agent', f('DiscordBot (%s, %s)', package.homepage, package.version)}
-		}
 		return self:getCurrentUser()
-	else
-		self._headers = {
-			{'User-Agent', f('DiscordBot (%s, %s)', package.homepage, package.version)}
-		}
 	end
 end
 
@@ -679,12 +679,9 @@ function API:deleteWebhookWithToken(webhook_id, webhook_token) -- (WebhookClient
 	return self:request("DELETE", endpoint)
 end
 
-function API:executeWebhook(webhook_id, webhook_token, payload, file, wait) -- (WebhookClient/Webhook):send
+function API:executeWebhook(webhook_id, webhook_token, payload, file, query) -- (WebhookClient/Webhook):send
 	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
-	if wait then
-		endpoint = endpoint .. "?wait=true"
-	end
-	return self:request("POST", endpoint, payload, nil, file)
+	return self:request("POST", endpoint, payload, query, file)
 end
 
 function API:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload) -- (WebhookClient/Webhook):executeSlackCompatibleWebhook
