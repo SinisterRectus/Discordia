@@ -18,12 +18,6 @@ local base64 = ssl.base64
 local readFileSync = fs.readFileSync
 local splitPath = pathjoin.splitPath
 
-local function resolveImage(avatar, id)
-	if avatar and id then
-		return format("https://cdn.discordapp.com/avatars/%s/%s.png", id, avatar)
-	end
-end
-
 local function parseFile(obj)
 	if type(obj) == 'string' then
 		local data, err = readFileSync(obj)
@@ -108,8 +102,7 @@ function Webhook:_modify(payload)
 end
 
 function Webhook:setAvatar(avatar)
-	self._avatarUrl = avatar
-	self._avatar = Resolver.base64(avatar) or resolveImage(avatar) or json.null
+	self._avatar = avatar and Resolver.base64(avatar) or json.null
 
 	local data, err = self:_modify({avatar = self._avatar})
 	if data then
