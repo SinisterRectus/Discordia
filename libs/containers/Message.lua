@@ -5,7 +5,6 @@ local ArrayIterable = require('iterables/ArrayIterable')
 local Snowflake = require('containers/abstract/Snowflake')
 local Reaction = require('containers/Reaction')
 local Resolver = require('client/Resolver')
-local Channel = require('containers/abstract/Channel')
 
 local insert = table.insert
 local null = json.null
