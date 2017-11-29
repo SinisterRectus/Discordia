@@ -208,7 +208,8 @@ end
 
 -- Rest of functions
 function WebhookClient:send(content, options) -- return message
-	local file
+	local file, wait
+	wait = options and options.wait or false
 	if options then
 		for key, value in pairs(options) do
 			self._options[key] = value -- merge new options
@@ -234,7 +235,7 @@ function WebhookClient:send(content, options) -- return message
 		avatar_url = webhookData.avatarURL,
 		tts = webhookData.tts,
 		embeds = webhookData.embeds
-	}, webhookData.file, options.wait)
+	}, webhookData.file, wait)
 
 	if data then
 		return true
