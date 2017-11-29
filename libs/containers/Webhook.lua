@@ -120,8 +120,6 @@ function Webhook:setAvatar(avatar)
 end
 
 function Webhook:setChannelId(channelId)
-	self._channel_id = channelId
-
 	local data, err = self:_modify({channel_id = channelId})
 	if data then
 		return true
@@ -131,8 +129,6 @@ function Webhook:setChannelId(channelId)
 end
 
 function Webhook:setName(name)
-	self._name = name
-
 	local data, err = self:_modify({name = name})
 	if data then
 		return true
@@ -181,15 +177,6 @@ end
 
 function Webhook:delete()
 	local data, err = self.client._api:deleteWebhook(self._id)
-	if data then
-		return true
-	else
-		return false, err
-	end
-end
-
-function Webhook:deleteWithToken()
-	local data, err = self.client._api:deleteWebhookWithToken(self._id, self._token)
 	if data then
 		return true
 	else
