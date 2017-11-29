@@ -112,12 +112,18 @@ function API:__init(client)
 	self._mutexes = setmetatable({}, mutexMeta)
 end
 
-function API:authenticate(token)
-	self._headers = {
-		{'Authorization', token},
-		{'User-Agent', f('DiscordBot (%s, %s)', package.homepage, package.version)},
-	}
-	return self:getCurrentUser()
+function API:authenticate(token, isWebhookClient)
+	if not isWebhookClient then
+		self._headers = {
+			{'Authorization', token},
+			{'User-Agent', f('DiscordBot (%s, %s)', package.homepage, package.version)}
+		}
+		return self:getCurrentUser()
+	else
+		self._headers = {
+			{'User-Agent', f('DiscordBot (%s, %s)', package.homepage, package.version)}
+		}
+	end
 end
 
 function API:request(method, endpoint, payload, query, files)
