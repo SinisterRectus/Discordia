@@ -70,7 +70,6 @@ local function resolveImage(avatar, id)
 	end
 end
 
-
 local function parseFile(obj)
 	if type(obj) == 'string' then
 		local data, err = readFileSync(obj)
@@ -157,6 +156,7 @@ end
 function WebhookClient:setAvatar(avatar)
 	self._options.avatarURL = avatar
 	avatar = Resolver.base64(avatar) or resolveImage(avatar) or null
+
 	local data, err = self:modify({avatar = avatar})
 	if data then
 		return true
@@ -167,8 +167,8 @@ end
 
 function WebhookClient:setChannelId(channelId)
 	self._options.channelId = channelId
-	local data, err = self:modify({channel_id = channelId})
 
+	local data, err = self:modify({channel_id = channelId})
 	if data then
 		return true
 	else
@@ -178,8 +178,8 @@ end
 
 function WebhookClient:setName(name)
 	self._options.name = name
-	local data, err = self:modify({name = name})
 
+	local data, err = self:modify({name = name})
 	if data then
 		return true
 	else
