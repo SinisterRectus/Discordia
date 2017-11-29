@@ -355,14 +355,6 @@ end
 function get.channel(self)
 	if self._parent.id == self._channel_id then
 		return self._parent
-	else
-		local data, err = self._parent._api:getChannel(self._channel_id)
-		if data then
-			self:_load(data)
-			return self._parent
-		else
-			return nil, err
-		end
 	end
 end
 
