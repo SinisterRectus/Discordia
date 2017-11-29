@@ -352,9 +352,7 @@ function get.author(self)
 end
 
 function get.channel(self)
-	if self._parent.id == self._channel_id then
-		return self._parent
-	end
+	return self._parent
 end
 
 function get.type(self)
@@ -378,9 +376,7 @@ function get.attachments(self)
 end
 
 function get.guild(self)
-	if self._parent.guild then
-		return self._parent.guild
-	end
+	return self._parent.guild
 end
 
 function get.member(self)
