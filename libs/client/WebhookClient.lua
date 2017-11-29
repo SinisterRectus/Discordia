@@ -208,8 +208,11 @@ end
 
 -- Rest of functions
 function WebhookClient:send(content, options) -- return message
-	local file, wait
-	wait = options and options.wait or false
+	local file
+	local query = {
+		wait = options and options.wait or false
+	}
+
 	if options then
 		for key, value in pairs(options) do
 			self._options[key] = value -- merge new options
