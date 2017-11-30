@@ -4,6 +4,7 @@ return {
 	extensions = require('extensions'),
 	package = require('./package.lua'),
 	Client = require('client/Client'),
+	WebhookClient = require('client/WebhookClient'),
 	Clock = require('utils/Clock'),
 	Color = require('utils/Color'),
 	Date = require('utils/Date'),
