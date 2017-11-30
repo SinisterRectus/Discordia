@@ -1,6 +1,5 @@
 local enums = require('enums')
 local json = require('json')
-local request = require("coro-http").request
 local ssl = require('openssl')
 local fs = require('fs')
 local pathjoin = require('pathjoin')
