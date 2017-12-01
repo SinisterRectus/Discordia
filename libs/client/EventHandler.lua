@@ -284,11 +284,16 @@ function EventHandler.GUILD_MEMBER_UPDATE(d, client)
 	return client:emit('memberUpdate', member)
 end
 
+local presence_fix = {}
 function EventHandler.GUILD_MEMBER_REMOVE(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_MEMBER_REMOVE') end
 	local member = guild._members:_remove(d)
 	guild._member_count = guild._member_count - 1
+	if client._options.cacheAllMembers then
+		presence_fix[guild.id] = presence_fix[guild.id] or {}
+		presence_fix[guild.id][d.user.id] = true
+	end
 	return client:emit('memberLeave', member)
 end
 
@@ -426,6 +431,14 @@ function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
 		else
 			member = guild._members:get(d.user.id)
 			if not member then
+				if client._options.cacheAllMembers then
+					presence_fix[guild.id] = presence_fix[guild.id] or {}
+					if presence_fix[guild.id][d.user.id] then
+						presence_fix[guild.id][d.user.id] = nil
+						client:debug('Ignoring PRESENCE_UPDATE for user \'%s\' in guild \'%s\'', d.user.id, guild.id)
+						return
+					end	
+				end
 				if d.user.username then
 					member = guild._members:_insert(d)
 				elseif user then
