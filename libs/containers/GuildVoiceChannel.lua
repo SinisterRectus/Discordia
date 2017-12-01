@@ -1,6 +1,7 @@
 local json = require('json')
 
 local GuildChannel = require('containers/abstract/GuildChannel')
+local TableIterable = require('iterables/TableIterable')
 
 local GuildVoiceChannel, get = require('class')('GuildVoiceChannel', GuildChannel)
 
@@ -22,6 +23,17 @@ end
 
 function get.userLimit(self)
 	return self._user_limit
+end
+
+function get.connectedMembers(self)
+	if not self._members then
+		local id = self._id
+		local members = self._parent._members
+		self._members = TableIterable(self._parent._voice_states, function(state)
+			return state.channel_id == id and members:get(state.user_id)
+		end)
+	end
+	return self._members
 end
 
 return GuildVoiceChannel
