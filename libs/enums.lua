@@ -77,6 +77,13 @@ enums.gameType = enum {
 	streaming = 1,
 }
 
+enums.activityType = enum {
+	default   = 0,
+	streaming = 1,
+	listening = 2,
+	watching  = 3,
+}
+
 enums.verificationLevel = enum {
 	none     = 0,
 	low      = 1,

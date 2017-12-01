@@ -382,6 +382,21 @@ function Client:setGame(game)
 	return updateStatus(self)
 end
 
+function Client:setActivity(t, name, url) -- NOTE: may not be the final version
+	local game
+	if type(t) == 'number' and type(name) == 'string' then
+		game = {
+			name = name,
+			type = t,
+			url = type(url) == 'string' and url or nil,
+		}
+	else
+		game = null
+	end
+	self._presence.game = game
+	return updateStatus(self)
+end
+
 function Client:setAFK(afk)
 	if type(afk) == 'boolean' then
 		self._presence.afk = afk
