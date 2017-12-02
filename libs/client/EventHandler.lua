@@ -269,7 +269,7 @@ function EventHandler.GUILD_EMOJIS_UPDATE(d, client)
 	return client:emit('emojisUpdate', guild)
 end
 
-local presence_fix = setmetatable({}, {__index = function(self, k) self[k] = {}; return self[k] end)
+local presence_fix = setmetatable({}, {__index = function(self, k) self[k] = {}; return self[k] end})
 function EventHandler.GUILD_MEMBER_ADD(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_MEMBER_ADD') end
