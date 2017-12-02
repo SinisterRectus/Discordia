@@ -63,11 +63,6 @@ local function parseOptions(customOptions)
 	end
 end
 
-local function resolveImage(avatar, id)
-	if avatar and id then
-		return format("https://cdn.discordapp.com/avatars/%s/%s.png", id, avatar)
-	end
-end
 
 local function parseFile(obj)
 	if type(obj) == 'string' then
@@ -109,7 +104,7 @@ function WebhookClient:__init(id, token, options)
 	end
 
 	if options then
-		self:modify(options)
+		self:_modify(options)
 		for k, v in pairs(options) do
 			self._options[k] = v
 		end
@@ -151,9 +146,7 @@ function get.token(self)
 end
 
 -- Setters and Modifiers
-function WebhookClient:modify(tbl) 
-	assert(type(tbl) == "table", "Invalid modify parameter. Table expected")
-
+function WebhookClient:_modify(tbl) 
 	for k, v in pairs(tbl) do
 		if k ~= "channelId" then -- You can not change the channelId
 			self._options[k] = v
@@ -171,18 +164,9 @@ function WebhookClient:modify(tbl)
 end
 
 function WebhookClient:setAvatar(avatar)
-	avatar = Resolver.base64(avatar) or resolveImage(avatar) or null
+	avatar = Resolver.base64(avatar) or null
 
-	local data, err = self:modify({avatar = avatar})
-	if data then
-		return true
-	else
-		return nil, err
-	end
-end
-
-function WebhookClient:setChannelId(channelId)
-	local data, err = self:modify({channel_id = channelId})
+	local data, err = self:_modify({avatar = avatar})
 	if data then
 		return true
 	else
@@ -191,7 +175,7 @@ function WebhookClient:setChannelId(channelId)
 end
 
 function WebhookClient:setName(name)
-	local data, err = self:modify({name = name})
+	local data, err = self:_modify({name = name})
 	if data then
 		return true
 	else
@@ -241,10 +225,6 @@ function WebhookClient:send(content, options) -- return message
 end
 
 function WebhookClient:delete()
-	return self:deleteWithToken()
-end
-
-function WebhookClient:deleteWithToken()
 	local data, err = self._api:deleteWebhookWithToken(self._options.id, self._options.token)
 	if data then
 		return true
