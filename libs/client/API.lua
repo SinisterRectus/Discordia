@@ -662,7 +662,7 @@ function API:modifyWebhook(webhook_id, payload) -- Webhook:_modify
 	return self:request("PATCH", endpoint, payload)
 end
 
-function API:modifyWebhookWithToken(webhook_id, webhook_token, payload) -- WebhookClient:modifyWebhookWithToken
+function API:modifyWebhookWithToken(webhook_id, webhook_token, payload) -- not exposed, needs webhook client
 	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
 	return self:request("PATCH", endpoint, payload)
 end
@@ -672,22 +672,22 @@ function API:deleteWebhook(webhook_id) -- Webhook:delete
 	return self:request("DELETE", endpoint)
 end
 
-function API:deleteWebhookWithToken(webhook_id, webhook_token) -- WebhookClient:deleteWebhookWithToken
+function API:deleteWebhookWithToken(webhook_id, webhook_token) -- not exposed, needs webhook client
 	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
 	return self:request("DELETE", endpoint)
 end
 
-function API:executeWebhook(webhook_id, webhook_token, payload, files, query) -- WebhookClient:send
+function API:executeWebhook(webhook_id, webhook_token, payload) -- not exposed, needs webhook client
 	local endpoint = f(endpoints.WEBHOOK_TOKEN, webhook_id, webhook_token)
-	return self:request("POST", endpoint, payload, query, files)
+	return self:request("POST", endpoint, payload)
 end
 
-function API:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload) -- WebhookClient:executeSlackCompatibleWebhook
+function API:executeSlackCompatibleWebhook(webhook_id, webhook_token, payload) -- not exposed, needs webhook client
 	local endpoint = f(endpoints.WEBHOOK_TOKEN_SLACK, webhook_id, webhook_token)
 	return self:request("POST", endpoint, payload)
 end
 
-function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload) -- WebhookClient:executeGitHubCompatibleWebhook
+function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload) -- not exposed, needs webhook client
 	local endpoint = f(endpoints.WEBHOOK_TOKEN_GITHUB, webhook_id, webhook_token)
 	return self:request("POST", endpoint, payload)
 end
