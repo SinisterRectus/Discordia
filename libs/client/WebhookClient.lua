@@ -223,7 +223,7 @@ function WebhookClient:send(content, options) -- return message
 	end
 end
 
-function WebhookClient:delete()
+function WebhookClient:deleteWebhook()
 	local data, err = self._api:deleteWebhookWithToken(self._options.id, self._options.token)
 	if data then
 		return true
