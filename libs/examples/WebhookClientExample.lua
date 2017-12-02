@@ -35,7 +35,7 @@ client:on("ready", function()
 		file = "HelloDiscord.ia"
 	})
 	
-	-- There's also delete, deleteWithToken, Slack compatible (executeSlackCompatible(body)) - Github compatible (executeGitHubCompatible(body)) webhook functions
+	-- There's also delete, Slack compatible (executeSlackCompatible(body)) - Github compatible (executeGitHubCompatible(body)) webhook functions
 
 --[[
 		Embedded message
