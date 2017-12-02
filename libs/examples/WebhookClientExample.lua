@@ -2,15 +2,15 @@ local discordia = require('discordia')
 local client = discordia.Client()
 local WebhookClient
 
+
 client:on("ready", function()
 	WebhookClient = discordia.WebhookClient("id", "token", {name = "Discordia's new era!"})
-
 	p("Getters")
 	print("token: " .. WebhookClient.token .. " from WebhookClient Instance.\n")
 
 	print("ID: " .. WebhookClient.id .. " from WebhookClient Instance.\n")
 
-	print("avatarURL: " .. WebhookClient.avatar .. " from WebhookClient Instance.\n")
+	print("avatar: " .. WebhookClient.avatar .. " from WebhookClient Instance.\n")
 
 	print("guildId: " .. WebhookClient.guildId .. " from WebhookClient Instance.\n")
 
