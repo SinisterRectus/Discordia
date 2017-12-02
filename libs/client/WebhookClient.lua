@@ -29,8 +29,8 @@ local defaultOptions = {
 	name = "",
 	avatarURL = "",
 	avatar = "",
-	channelId = "",
-	guildId = "",
+	channel_id = "",
+	guild_id = "",
 	id = "",
 	token = "",
 	_user = {}
@@ -104,7 +104,6 @@ function WebhookClient:__init(id, token, options)
 	end
 
 	if options then
-		self:_modify(options)
 		for k, v in pairs(options) do
 			self._options[k] = v
 		end
@@ -130,7 +129,7 @@ function get.channelId(self)
 end
 
 function get.guildId(self)
-	return self._options.guildId
+	return self._options.guild_id
 end
 
 function get.id(self)
@@ -146,7 +145,7 @@ function get.token(self)
 end
 
 -- Setters and Modifiers
-function WebhookClient:_modify(tbl) 
+function WebhookClient:_modify(tbl)
 	for k, v in pairs(tbl) do
 		if k ~= "channelId" then -- You can not change the channelId
 			self._options[k] = v
