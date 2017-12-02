@@ -657,7 +657,7 @@ function API:getWebhookWithToken(webhook_id, webhook_token) -- not exposed, need
 	return self:request("GET", endpoint)
 end
 
-function API:modifyWebhook(webhook_id, payload) -- WebhookClient:modify
+function API:modifyWebhook(webhook_id, payload) -- Webhook:_modify
 	local endpoint = f(endpoints.WEBHOOK, webhook_id)
 	return self:request("PATCH", endpoint, payload)
 end
@@ -667,7 +667,7 @@ function API:modifyWebhookWithToken(webhook_id, webhook_token, payload) -- Webho
 	return self:request("PATCH", endpoint, payload)
 end
 
-function API:deleteWebhook(webhook_id) -- WebhookClient:delete
+function API:deleteWebhook(webhook_id) -- Webhook:delete
 	local endpoint = f(endpoints.WEBHOOK, webhook_id)
 	return self:request("DELETE", endpoint)
 end
