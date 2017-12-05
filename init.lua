@@ -6,6 +6,7 @@ return {
 	Client = require('client/Client'),
 	Clock = require('utils/Clock'),
 	Color = require('utils/Color'),
+	Buffer = require('utils/Buffer'),
 	Date = require('utils/Date'),
 	Deque = require('utils/Deque'),
 	Emitter = require('utils/Emitter'),
