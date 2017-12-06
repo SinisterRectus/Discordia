@@ -367,7 +367,7 @@ function Guild:unbanUser(user, reason)
 end
 
 function get.shardId(self)
-	return floor(self._id / 2^22) % self.client._shard_count
+	return floor(self._id / 2^22) % self.client._total_shard_count
 end
 
 function get.name(self)

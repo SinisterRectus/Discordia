@@ -436,8 +436,8 @@ function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
 				if client._options.cacheAllMembers then
 					if presence_fix[guild.id][d.user.id] then
 						presence_fix[guild.id][d.user.id] = nil
-						return client:debug('Ignoring PRESENCE_UPDATE for user \'%s\' in guild \'%s\'', d.user.id, guild.id)
-					end	
+						return client:debug('Ignoring PRESENCE_UPDATE for user %q in guild %q', d.user.id, d.guild_id)
+					end
 				end
 				if d.user.username then
 					member = guild._members:_insert(d)

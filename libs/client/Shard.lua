@@ -290,7 +290,7 @@ function Shard:identify(token)
 		},
 		compress = options.compress,
 		large_threshold = options.largeThreshold,
-		shard = {self._id, client._shard_count},
+		shard = {self._id, client._total_shard_count},
 		presence = next(client._presence) and client._presence,
 	})
 
