@@ -103,9 +103,7 @@ end
 for name, level in pairs(logLevel) do
 	Client[name] = function(self, fmt, ...)
 		local msg = self._logger:log(level, fmt, ...)
-		if #self._listeners[name] > 0 then
-			return self:emit(name, msg or format(fmt, ...))
-		end
+		return self:emit(name, msg or format(fmt, ...))
 	end
 end
 
