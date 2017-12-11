@@ -5,12 +5,10 @@ local resume, running = coroutine.resume, coroutine.running
 local insert, remove = table.insert, table.remove
 local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
 
-local listenersMeta = {__mode = 'v'}
-
 local Emitter = require('class')('Emitter')
 
 function Emitter:__init()
-	self._listeners = setmetatable({}, listenersMeta)
+	self._listeners = {}
 end
 
 local function new(self, name, listener)
@@ -47,7 +45,7 @@ function Emitter:emit(name, ...)
 		if listener then
 			local fn = listener.fn
 			if listener.once then
-				self:removeListener(name, fn)
+				listeners[i] = false
 			end
 			if listener.sync then
 				fn(...)
@@ -61,6 +59,9 @@ function Emitter:emit(name, ...)
 			if not listeners[i] then
 				remove(listeners, i)
 			end
+		end
+		if #listeners == 0 then
+			self._listeners[name] = nil
 		end
 		listeners._removed = nil
 	end
