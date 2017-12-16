@@ -17,6 +17,11 @@ function GuildVoiceChannel:setUserLimit(user_limit)
 	return self:_modify({user_limit = user_limit or json.null})
 end
 
+function GuildVoiceChannel:join()
+	local guild = self._parent
+	return self.client._shards[guild.shardId]:updateVoice(guild._id, self._id)
+end
+
 function get.bitrate(self)
 	return self._bitrate
 end

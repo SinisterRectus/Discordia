@@ -30,7 +30,7 @@ local DISPATCH              = 0
 local HEARTBEAT             = 1
 local IDENTIFY              = 2
 local STATUS_UPDATE         = 3
--- local VOICE_STATE_UPDATE = 4 -- TODO
+local VOICE_STATE_UPDATE    = 4
 -- local VOICE_SERVER_PING = 5 -- TODO
 local RESUME                = 6
 local RECONNECT             = 7
@@ -45,10 +45,12 @@ local BINARY = 2
 local CLOSE  = 8
 
 local ignore = {
-	['MESSAGE_ACK'] = true,
+	['CALL_DELETE'] = true,
 	['CHANNEL_PINS_ACK'] = true,
-	['USER_SETTINGS_UPDATE'] = true,
 	['GUILD_INTEGRATIONS_UPDATE'] = true,
+	['MESSAGE_ACK'] = true,
+	['PRESENCES_REPLACE'] = true,
+	['USER_SETTINGS_UPDATE'] = true,
 }
 
 local Shard = require('class')('Shard', Emitter)
@@ -314,6 +316,15 @@ end
 
 function Shard:updateStatus(presence)
 	return send(self, STATUS_UPDATE, presence)
+end
+
+function Shard:updateVoice(guild_id, channel_id, self_mute, self_deaf)
+	return send(self, VOICE_STATE_UPDATE, {
+		guild_id = guild_id,
+		channel_id = channel_id or null,
+		self_mute = self_mute or false,
+		self_deaf = self_deaf or false,
+	})
 end
 
 function Shard:syncGuilds(ids)
