@@ -1,9 +1,5 @@
-local json = require('json')
 local User = require('containers/User')
-local Activity = require('containers/Activity')
 local Container = require('containers/abstract/Container')
-
-local null = json.null
 
 local UserPresence, get = require('class')('UserPresence', Container)
 
@@ -21,13 +17,6 @@ function UserPresence:_loadPresence(presence)
 	self._game_name = game and game.name
 	self._game_type = game and game.type
 	self._game_url = game and game.url
-	if game and game ~= null then
-		if self._activity then
-			self._activity:_load(game)
-		else
-			self._activity = Activity(game, self)
-		end
-	end
 	self._status = presence.status
 end
 
@@ -45,10 +34,6 @@ end
 
 function get.status(self)
 	return self._status or 'offline'
-end
-
-function get.activity(self)
-	return self._activity
 end
 
 function get.user(self)
