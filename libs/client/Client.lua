@@ -367,10 +367,12 @@ function Client:setGame(game)
 		game = {name = game, type = gameType.default}
 	elseif type(game) == 'table' then
 		if type(game.name) == 'string' then
-			if type(game.url) == 'string' then
-				game.type = gameType.streaming
-			else
-				game.type = gameType.default
+			if type(game.type) ~= 'number' then
+				if type(game.url) == 'string' then
+					game.type = gameType.streaming
+				else
+					game.type = gameType.default
+				end
 			end
 		else
 			game = null
