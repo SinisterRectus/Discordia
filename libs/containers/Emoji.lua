@@ -63,11 +63,13 @@ function get.guild(self)
 end
 
 function get.mentionString(self)
-	return self._animated and format('<a:%s>', self.hash) or format('<:%s>', self.hash)
+	local fmt = self._animated and '<a:%s>' or '<:%s>'
+	return format(fmt, self.hash)
 end
 
 function get.url(self)
-	return format('https://cdn.discordapp.com/emojis/%s.png', self._id)
+	local ext = self._animated and 'gif' or 'png'
+	return format('https://cdn.discordapp.com/emojis/%s.%s', self._id, ext)
 end
 
 function get.managed(self)
