@@ -63,7 +63,7 @@ function get.guild(self)
 end
 
 function get.mentionString(self)
-	return format('<:%s>', self.hash)
+	return self._animated and format('<a:%s>', self.hash) or format('<:%s>', self.hash)
 end
 
 function get.url(self)
@@ -80,6 +80,10 @@ end
 
 function get.hash(self)
 	return self._name .. ':' .. self._id
+end
+
+function get.animated(self)
+	return self._animated
 end
 
 function get.roles(self)
