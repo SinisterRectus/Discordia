@@ -68,6 +68,19 @@ function User:sendf(content, ...)
 	end
 end
 
+function User:__json(null)
+	return {
+		type = 'User',
+
+		id = self._id,
+
+		bot = self._bot,
+		username = self._username,
+		discriminator = self._discriminator,
+		avatar = self._avatar
+	}
+end
+
 function get.bot(self)
 	return self._bot or false
 end

@@ -366,6 +366,36 @@ function Guild:unbanUser(user, reason)
 	end
 end
 
+function Guild:__json(null)
+	return {
+		type = 'Guild',
+
+		id = self._id,
+
+		name = self._name,
+		icon = self._icon,
+		splash = self._splash or null,
+		large = self._large,
+		region = self._region,
+		mfa_level = self._mfa_level,
+		afk_timeout = self._afk_timeout or null,
+		member_count = self._member_count,
+		verification_level = self._verification_level,
+		default_message_notifications = self._default_message_notifications,
+		explicit_content_filter = self._explicit_content_filter,
+		features = self._features,
+		owner_id = self._owner_id,
+		afk_channel_id = self._afk_channel_id or null,
+		system_channel_id = self._system_channel_id,
+		roles = self._roles:__json(null),
+		emojis = self._emojis:__json(null),
+		members = self._members:__json(null),
+		text_channels = self._text_channels:__json(null),
+		voice_channels = self._voice_channels:__json(null),
+		categories = self._categories:__json(null)
+	}
+end
+
 function get.shardId(self)
 	return floor(self._id / 2^22) % self.client._total_shard_count
 end

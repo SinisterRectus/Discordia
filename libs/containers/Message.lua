@@ -235,6 +235,8 @@ function Message:reply(content)
 	return self._parent:send(content)
 end
 
+
+
 function get.reactions(self)
 	if not self._reactions then
 		self._reactions = Cache({}, Reaction, self)
@@ -318,6 +320,27 @@ function get.cleanContent(self)
 
 	return self._clean_content
 
+end
+
+function Message:__json(null)
+	return {
+		type = 'Message',
+
+		id = self._id,
+
+		mentions_everyone = self._mention_everyone,
+		pinned = self._pinned,
+		tts = self._tts,
+		nonce = self._nonce,
+		edited_timestamp = self._edited_timestamp or null,
+		old = self._old or null,
+		content = self._content,
+		author = self._author:__json(null),
+		channel = self._parent:__json(null),
+		message_type = self._type,
+		embeds = self._embeds,
+		attachments = self._attachments
+	}
 end
 
 function get.mentionsEveryone(self)

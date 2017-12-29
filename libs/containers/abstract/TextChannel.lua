@@ -214,6 +214,17 @@ function TextChannel:sendf(content, ...)
 	end
 end
 
+function TextChannel:__json(null)
+	return {
+		type = 'TextChannel',
+
+		channel_type = self._type,
+		id = self._id,
+
+		messages = self._messages:__json(null)
+	}
+end
+
 function get.messages(self)
 	return self._messages
 end

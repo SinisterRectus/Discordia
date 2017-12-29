@@ -11,6 +11,20 @@ function PrivateChannel:close()
 	return self:_delete()
 end
 
+function PrivateChannel:__json(null)
+	return {
+		type = 'PrivateChannel',
+
+		channel_type = self._type,
+		id = self._id,
+
+		messages = self._messages:__json(null),
+
+		name = self._recipient._username,
+		recipient = self._recipient:__json(null)
+	}
+end
+
 function get.name(self)
 	return self._recipient._username
 end

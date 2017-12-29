@@ -37,6 +37,21 @@ function Invite:delete()
 	end
 end
 
+function Invite:__json(null)
+	return {
+		type = 'Invite',
+
+		code = self._code,
+		guild_id = self._guild_id,
+		guild_name = self._guild_name,
+		channel_id = self._channel_id,
+		channel_name = self._channel_name,
+		channel_type = self._channel_type,
+		guild_icon = self._guild_icon,
+		guild_splash = self._guild_splash
+	}
+end
+
 function get.code(self)
 	return self._code
 end

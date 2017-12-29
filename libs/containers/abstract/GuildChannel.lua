@@ -170,6 +170,20 @@ function GuildChannel:delete()
 	return self:_delete()
 end
 
+function GuildChannel:__json(null)
+	return {
+		type = 'GuildChannel',
+
+		channel_type = self._type,
+		id = self._id,
+
+		permission_overwrites = self._permission_overwrites,
+		name = self._name,
+		position = self._position,
+		parent_id = self._parent_id or null
+	}
+end
+
 function get.permissionOverwrites(self)
 	return self._permission_overwrites
 end

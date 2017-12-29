@@ -32,6 +32,18 @@ function Container:__tostring()
 	return format('%s: %s', self.__name, self:__hash())
 end
 
+function Container:__tojson()
+	return json.encode(self.__json and self.__json(json.null) or self)
+end
+
+function Container:__json(null)
+	return {
+		type = 'Container',
+
+		client = (self._parent.client or self._parent):__json()
+	}
+end
+
 Container._load = load
 
 function get.client(self)

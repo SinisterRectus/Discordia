@@ -154,6 +154,21 @@ function AuditLogEntry:getMember()
 	return self._parent:getMember(self._user_id)
 end
 
+function AuditLogEntry:__json(null)
+	return {
+		type = 'AuditLogEntry',
+
+		id = self._id,
+
+		changes = self._changes,
+		options = self._options,
+		action_type = self._action_type,
+		target_id = self._target_id,
+		reason = self._reason or null,
+		guild = self._parent:__json(null)
+	}
+end
+
 function get.changes(self)
 	return self._changes
 end

@@ -8,6 +8,14 @@ function WeakCache:__init(array, constructor, parent)
 	setmetatable(self._objects, {__mode = 'v'})
 end
 
+function WeakCache:__json(null)
+	return {
+		type = 'WeakCache',
+
+		objects = self._objects
+	}
+end
+
 function WeakCache:__len() -- NOTE: _count is not accurate for weak caches
 	return Iterable.__len(self)
 end

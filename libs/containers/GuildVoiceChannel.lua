@@ -22,6 +22,26 @@ function GuildVoiceChannel:join()
 	return self.client._shards[guild.shardId]:updateVoice(guild._id, self._id)
 end
 
+function GuildVoiceChannel:__json(null)
+	return {
+		type = 'GuildVoiceChannel',
+
+		channel_type = self._type,
+		id = self._id,
+
+		permission_overwrites = self._permission_overwrites,
+		name = self._name,
+		position = self._position,
+		parent_id = self._parent_id or null,
+
+		bitrate = self._bitrate,
+		user_limit = self._user_limit,
+		members = (self._members or TableIterable(self._parent._voice_states, function(state)
+			return state.channel_id == id and members:get(state.user_id)
+		end)):__json(null)
+	}
+end
+
 function get.bitrate(self)
 	return self._bitrate
 end

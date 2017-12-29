@@ -20,6 +20,18 @@ function UserPresence:_loadPresence(presence)
 	self._status = presence.status
 end
 
+function UserPresence:__json(null)
+	return {
+		type = 'UserPresence',
+
+		game_name = self._game_name or null,
+		game_type = self._game_type or null,
+		game_url = self._game_url or null,
+		status = self._status or null,
+		user = self._user:__json(null)
+	}
+end
+
 function get.gameName(self)
 	return self._game_name
 end

@@ -185,6 +185,22 @@ function Role:getPermissions()
 	return Permissions(self._permissions)
 end
 
+function Role:__json(null)
+	return {
+		type = 'Role',
+
+		id = self._id,
+
+		hoist = self._hoist,
+		mentionable = self._mentionable,
+		managed = self._managed,
+		name = self._name,
+		position = self._position,
+		color = self._color,
+		permissions = self._permissions
+	}
+end
+
 function get.hoisted(self)
 	return self._hoist
 end

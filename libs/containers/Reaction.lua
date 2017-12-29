@@ -48,6 +48,17 @@ function Reaction:delete(id)
 	return self._parent:removeReaction(self, id)
 end
 
+function Reaction:__json(null)
+	return {
+		type = 'Reaction',
+
+		emoji_id = self._emoji_id,
+		emoji_name = self._emoji_name,
+		count = self._count,
+		message = self._parent:__json(null)
+	}
+end
+
 function get.emojiId(self)
 	return self._emoji_id
 end

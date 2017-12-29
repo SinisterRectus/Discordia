@@ -9,6 +9,19 @@ function TableIterable:__init(tbl, map)
 	self._map = map
 end
 
+function TableIterable:__json(null)
+	local tbl = {}
+	for k, v in pairs(self._tbl) do
+		tbl[k] = v
+	end
+
+	return {
+		type = 'TableIterable',
+
+		table = tbl
+	}
+end
+
 function TableIterable:iter()
 	local tbl = self._tbl
 	if not tbl then
