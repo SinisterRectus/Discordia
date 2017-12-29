@@ -512,7 +512,12 @@ function EventHandler.VOICE_STATE_UPDATE(d, client)
 	end
 end
 
-function EventHandler.VOICE_SERVER_UPDATE() -- TODO
+function EventHandler.VOICE_SERVER_UPDATE(d, client)
+	local guild = client._guilds:get(d.guild_id)
+	if not guild then return warning(client, 'Guild', d.guild_id, 'VOICE_SERVER_UPDATE') end
+	local state = guild._voice_states[client._user._id]
+	if not state then return client:warning('Voice state not initialized before VOICE_SERVER_UPDATE') end
+	return client._voice:_createVoiceConnection(d, state)
 end
 
 function EventHandler.WEBHOOKS_UPDATE(d, client) -- webhook object is not provided

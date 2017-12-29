@@ -23,6 +23,8 @@ local Emitter = require('utils/Emitter')
 local Logger = require('utils/Logger')
 local Mutex = require('utils/Mutex')
 
+local VoiceManager = require('voice/VoiceManager')
+
 local encode, decode, null = json.encode, json.decode, json.null
 local readFileSync, writeFileSync = fs.readFileSync, fs.writeFileSync
 
@@ -97,6 +99,7 @@ function Client:__init(options)
 	self._relationships = Cache({}, Relationship, self)
 	self._webhooks = WeakCache({}, Webhook, self) -- used for audit logs
 	self._logger = Logger(options.logLevel, options.dateTime, options.logFile)
+	self._voice = VoiceManager(self)
 	self._channel_map = {}
 end
 
@@ -439,6 +442,10 @@ end
 
 function get.relationships(self)
 	return self._relationships
+end
+
+function get.voice(self)
+	return self._voice
 end
 
 return Client

@@ -13,4 +13,6 @@ return {
 	MIN_PER_HOUR = 60,
 	HOUR_PER_DAY = 24,
 	DAY_PER_WEEK = 7,
+	GATEWAY_VERSION_VOICE = 3,
+	SUPPORTED_MODE = 'xsalsa20_poly1305',
 }
