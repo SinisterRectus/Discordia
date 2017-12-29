@@ -64,14 +64,14 @@ function GuildTextChannel:disableNSFW()
 	return self:_modify({nsfw = false})
 end
 
-function GuildTextChannel:__json(null)
+function GuildTextChannel:__serializeJSON(null)
 	return {
 		type = 'GuildTextChannel',
 
 		channel_type = self._type,
 		id = self._id,
 
-		permission_overwrites = self._permission_overwrites:__json(),
+		permission_overwrites = self._permission_overwrites:__serializeJSON(),
 		name = self._name,
 		position = self._position,
 		parent_id = self._parent_id or null,
@@ -80,7 +80,7 @@ function GuildTextChannel:__json(null)
 		nsfw = self._nsfw or false,
 		members = (self._members or FilteredIterable(self._parent._members, function(m)
 			return m:hasPermission(self, 'readMessages')
-		end)):__json(null)
+		end)):__serializeJSON(null)
 	}
 end
 

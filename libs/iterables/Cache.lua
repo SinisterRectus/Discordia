@@ -25,10 +25,10 @@ function Cache:__len()
 	return self._count
 end
 
-function Cache:__json(null)
+function Cache:__serializeJSON(null)
 	local objects = {}
 	for hash, obj in pairs(self._objects) do
-		objects[hash] = obj:__json()
+		objects[hash] = obj:__serializeJSON()
 	end
 
 	return {

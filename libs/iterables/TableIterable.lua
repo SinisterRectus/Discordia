@@ -9,7 +9,16 @@ function TableIterable:__init(tbl, map)
 	self._map = map
 end
 
-function TableIterable:__json(null)
+function TableIterable:__serializeJSON(null)
+	local tbl = {}
+	for k, v in pairs(self._tbl) do
+		if v.__serializeJSON then
+			tbl[k] = v:__serializeJSON(null)
+		else
+			tbl[k] = v
+		end
+	end
+
 	return {
 		type = 'TableIterable',
 

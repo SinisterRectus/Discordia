@@ -393,22 +393,22 @@ function Client:setAFK(afk)
 	return updateStatus(self)
 end
 
-function Client:__json(null)
+function Client:__serializeJSON(null)
 	return {
 		type = 'Client',
 		extends = 'Emitter',
 
 		shard_count = self._shard_count,
 		total_shard_count = self._total_shard_count,
-		user = self._user and self._user:__json() or null,
-		owner = self._owner and self._owner:__json() or null,
+		user = self._user and self._user:__serializeJSON() or null,
+		owner = self._owner and self._owner:__serializeJSON() or null,
 		verified = self._user and self._user._verified,
 		email = self._user and self._user._email or null,
-		guilds = self._guilds:__json(),
-		users = self._users:__json(),
-		private_channels = self._private_channels and self._private_channels:__json() or null,
-		group_channels = self._group_channels and self._group_channels:__json() or null,
-		relationships = self._relationships and self._relationships:__json() or null
+		guilds = self._guilds:__serializeJSON(),
+		users = self._users:__serializeJSON(),
+		private_channels = self._private_channels and self._private_channels:__serializeJSON() or null,
+		group_channels = self._group_channels and self._group_channels:__serializeJSON() or null,
+		relationships = self._relationships and self._relationships:__serializeJSON() or null
 	} 
 end
 

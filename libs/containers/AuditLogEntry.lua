@@ -154,7 +154,7 @@ function AuditLogEntry:getMember()
 	return self._parent:getMember(self._user_id)
 end
 
-function AuditLogEntry:__json(null)
+function AuditLogEntry:__serializeJSON(null)
 	return {
 		type = 'AuditLogEntry',
 
@@ -165,7 +165,7 @@ function AuditLogEntry:__json(null)
 		action_type = self._action_type,
 		target_id = self._target_id,
 		reason = self._reason or null,
-		guild = self._parent:__json(null)
+		guild = self._parent:__serializeJSON(null)
 	}
 end
 

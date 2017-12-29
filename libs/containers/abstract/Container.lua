@@ -32,11 +32,11 @@ function Container:__tostring()
 	return format('%s: %s', self.__name, self:__hash())
 end
 
-function Container:__json(null)
+function Container:__serializeJSON(null)
 	return {
 		type = 'Container',
 
-		client = (self._parent.client or self._parent):__json()
+		client = (self._parent.client or self._parent):__serializeJSON()
 	}
 end
 

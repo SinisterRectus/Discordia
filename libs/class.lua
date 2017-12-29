@@ -113,8 +113,8 @@ return setmetatable({
 	class.__getters = getters
 	class.__setters = setters
 
-	class.__tojson = function(self)
-		return json.encode(self.__json(self, json.null))
+	function class:__tojson()
+		return json.encode(self:__serializeJSON(json.null))
 	end
 
 	local pool = {}

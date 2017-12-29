@@ -322,7 +322,7 @@ function get.cleanContent(self)
 
 end
 
-function Message:__json(null)
+function Message:__serializeJSON(null)
 	return {
 		type = 'Message',
 
@@ -335,8 +335,8 @@ function Message:__json(null)
 		edited_timestamp = self._edited_timestamp or null,
 		old = self._old or null,
 		content = self._content,
-		author = self._author:__json(null),
-		channel = self._parent:__json(null),
+		author = self._author:__serializeJSON(null),
+		channel = self._parent:__serializeJSON(null),
 		message_type = self._type,
 		embeds = self._embeds,
 		attachments = self._attachments

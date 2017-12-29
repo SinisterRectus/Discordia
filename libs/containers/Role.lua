@@ -185,7 +185,7 @@ function Role:getPermissions()
 	return Permissions(self._permissions)
 end
 
-function Role:__json(null)
+function Role:__serializeJSON(null)
 	return {
 		type = 'Role',
 

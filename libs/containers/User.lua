@@ -68,7 +68,7 @@ function User:sendf(content, ...)
 	end
 end
 
-function User:__json(null)
+function User:__serializeJSON(null)
 	return {
 		type = 'User',
 

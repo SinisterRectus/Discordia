@@ -45,7 +45,7 @@ function Channel:_delete()
 	end
 end
 
-function Channel:__json(null)
+function Channel:__serializeJSON(null)
 	return {
 		type = 'Channel',
 

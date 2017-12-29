@@ -22,14 +22,14 @@ function ArrayIterable:__len()
 	end
 end
 
-function ArrayIterable:__json(null)
+function ArrayIterable:__serializeJSON(null, cahce)
 	local objects = {}
 	if self._map then
 		return wrap(function()
 			for _, v in ipairs(self._array) do
 				local obj = map(v)
 				if obj then
-					table.insert(objects, obj:__json())
+					table.insert(objects, obj:__serializeJSON())
 				end
 			end
 		end)

@@ -214,14 +214,14 @@ function TextChannel:sendf(content, ...)
 	end
 end
 
-function TextChannel:__json(null)
+function TextChannel:__serializeJSON(null)
 	return {
 		type = 'TextChannel',
 
 		channel_type = self._type,
 		id = self._id,
 
-		messages = self._messages:__json(null)
+		messages = self._messages:__serializeJSON(null)
 	}
 end
 

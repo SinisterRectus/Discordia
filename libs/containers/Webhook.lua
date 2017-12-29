@@ -49,7 +49,7 @@ function Webhook:delete()
 	end
 end
 
-function Webhook:__json(null)
+function Webhook:__serializeJSON(null)
 	return {
 		type = 'Webhook',
 

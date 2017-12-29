@@ -11,7 +11,7 @@ function Snowflake:__hash()
 	return self._id
 end
 
-function Snowflake:__json(null)
+function Snowflake:__serializeJSON(null)
 	return {
 		type = 'Snowflake',
 
