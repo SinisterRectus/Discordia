@@ -339,7 +339,16 @@ function Member:unban(reason)
 	return self._parent:unbanUser(self._user, reason)
 end
 
-function Member:__json(null)
+function Member:__serializeJSON(null)
+	local roles = {}
+	if self._roles then
+		for k, v in pairs(self._roles) do	
+			roles[k] = v:__serializeJSON(null)
+		end
+	else
+		roles = null
+	end
+
 	return {
 		type = 'Member',
 
@@ -347,9 +356,9 @@ function Member:__json(null)
 		game_type = self._game_type or null,
 		game_url = self._game_url or null,
 		status = self._status or null,
-		user = self._user:__json(null),
+		user = self._user:__serializeJSON(null),
 
-		roles = self._roles:__json(),
+		roles = roles,
 		nick = self._nick or null,
 		mute = self._mute,
 		deaf = self._deaf,

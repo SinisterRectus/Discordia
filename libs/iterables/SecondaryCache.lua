@@ -21,15 +21,15 @@ function SecondaryCache:__len()
 	return self._count
 end
 
-function SecondaryCache:__json(null)
+function SecondaryCache:__serializeJSON(null)
 	local objects = {}
 	for hash, obj in pairs(self._objects) do
-		objects[hash] = obj:__json()
+		objects[hash] = obj:__serializeJSON()
 	end
 
 	local primary = {}
 	for hash, obj in pairs(self._primary) do
-		primary[hash] = obj:__json()
+		primary[hash] = obj:__serializeJSON()
 	end
 	
 	return {

@@ -21,10 +21,10 @@ function Iterable:__len()
 	return n
 end
 
-function Iterable:__json(null)
+function Iterable:__serializeJSON(null)
 	local objects = {}
 	for obj in self:iter() do
-		table.insert(objects, obj:__json())
+		table.insert(objects, obj:__serializeJSON())
 	end
 
 	return {

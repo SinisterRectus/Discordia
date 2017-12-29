@@ -7,7 +7,7 @@ function GuildCategoryChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)
 end
 
-function GuildCategoryChannel:__json(null)
+function GuildCategoryChannel:__serializeJSON(null)
 	return {
 		type = 'GuildCategoryChannel',
 
@@ -21,10 +21,10 @@ function GuildCategoryChannel:__json(null)
 
 		text_channels = (self._text_channels or FilteredIterable(self._parent._text_channels, function(c)
 			return c._parent_id == id
-		end)):__json(null),
+		end)):__serializeJSON(null),
 		voice_channels = (self._voice_channels or FilteredIterable(self._parent._voice_channels, function(c)
 			return c._parent_id == id
-		end)):__json(null)
+		end)):__serializeJSON(null)
 	}
 end
 

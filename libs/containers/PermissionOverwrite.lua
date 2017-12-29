@@ -103,7 +103,7 @@ function PermissionOverwrite:clearAllPermissions()
 	return setPermissions(self, allowed._value, denied._value)
 end
 
-function PermissionOverwrite:__json(null)
+function PermissionOverwrite:__serializeJSON(null)
 	return {
 		type = 'PermissionOverwrite',
 

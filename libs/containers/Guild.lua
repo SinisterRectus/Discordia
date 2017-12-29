@@ -366,7 +366,7 @@ function Guild:unbanUser(user, reason)
 	end
 end
 
-function Guild:__json(null)
+function Guild:__serializeJSON(null)
 	return {
 		type = 'Guild',
 
@@ -387,12 +387,12 @@ function Guild:__json(null)
 		owner_id = self._owner_id,
 		afk_channel_id = self._afk_channel_id or null,
 		system_channel_id = self._system_channel_id,
-		roles = self._roles:__json(null),
-		emojis = self._emojis:__json(null),
-		members = self._members:__json(null),
-		text_channels = self._text_channels:__json(null),
-		voice_channels = self._voice_channels:__json(null),
-		categories = self._categories:__json(null)
+		roles = self._roles:__serializeJSON(null),
+		emojis = self._emojis:__serializeJSON(null),
+		members = self._members:__serializeJSON(null),
+		text_channels = self._text_channels:__serializeJSON(null),
+		voice_channels = self._voice_channels:__serializeJSON(null),
+		categories = self._categories:__serializeJSON(null)
 	}
 end
 

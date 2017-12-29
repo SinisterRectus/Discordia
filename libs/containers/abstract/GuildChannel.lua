@@ -170,7 +170,7 @@ function GuildChannel:delete()
 	return self:_delete()
 end
 
-function GuildChannel:__json(null)
+function GuildChannel:__serializeJSON(null)
 	return {
 		type = 'GuildChannel',
 

@@ -37,7 +37,7 @@ function Invite:delete()
 	end
 end
 
-function Invite:__json(null)
+function Invite:__serializeJSON(null)
 	return {
 		type = 'Invite',
 

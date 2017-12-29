@@ -11,17 +11,17 @@ function PrivateChannel:close()
 	return self:_delete()
 end
 
-function PrivateChannel:__json(null)
+function PrivateChannel:__serializeJSON(null)
 	return {
 		type = 'PrivateChannel',
 
 		channel_type = self._type,
 		id = self._id,
 
-		messages = self._messages:__json(null),
+		messages = self._messages:__serializeJSON(null),
 
 		name = self._recipient._username,
-		recipient = self._recipient:__json(null)
+		recipient = self._recipient:__serializeJSON(null)
 	}
 end
 

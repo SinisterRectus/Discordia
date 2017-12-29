@@ -54,14 +54,14 @@ function Emoji:delete()
 	end
 end
 
-function Emoji:__json(null)
+function Emoji:__serializeJSON(null)
 	return {
 		type = 'Emoji',
 
 		id = self._id,
 
 		name = self._name,
-		guild = self._parent:__json(null),
+		guild = self._parent:__serializeJSON(null),
 		managed = self._managed,
 		require_colons = self._require_colons,
 		animated = self._animated

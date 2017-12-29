@@ -22,7 +22,7 @@ function GuildVoiceChannel:join()
 	return self.client._shards[guild.shardId]:updateVoice(guild._id, self._id)
 end
 
-function GuildVoiceChannel:__json(null)
+function GuildVoiceChannel:__serializeJSON(null)
 	return {
 		type = 'GuildVoiceChannel',
 
@@ -38,7 +38,7 @@ function GuildVoiceChannel:__json(null)
 		user_limit = self._user_limit,
 		members = (self._members or TableIterable(self._parent._voice_states, function(state)
 			return state.channel_id == id and members:get(state.user_id)
-		end)):__json(null)
+		end)):__serializeJSON(null)
 	}
 end
 
