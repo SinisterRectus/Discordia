@@ -22,7 +22,7 @@ function ArrayIterable:__len()
 	end
 end
 
-function ArrayIterable:__serializeJSON(null, cahce)
+function ArrayIterable:__serializeJSON(null)
 	local objects = {}
 	if self._map then
 		return wrap(function()
