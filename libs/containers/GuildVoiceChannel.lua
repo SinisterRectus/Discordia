@@ -2,7 +2,7 @@ local json = require('json')
 
 local GuildChannel = require('containers/abstract/GuildChannel')
 local TableIterable = require('iterables/TableIterable')
-
+ 
 local GuildVoiceChannel, get = require('class')('GuildVoiceChannel', GuildChannel)
 
 function GuildVoiceChannel:__init(data, parent)

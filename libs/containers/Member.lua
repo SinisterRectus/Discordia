@@ -340,15 +340,6 @@ function Member:unban(reason)
 end
 
 function Member:__json(null)
-	local roles = {}
-	if self._roles then
-		for k, v in pairs(self._roles) do
-			roles[k] = v:__json()
-		end
-	else
-		roles = null
-	end
-
 	return {
 		type = 'Member',
 
@@ -358,7 +349,7 @@ function Member:__json(null)
 		status = self._status or null,
 		user = self._user:__json(null),
 
-		roles = roles,
+		roles = self._roles:__json(),
 		nick = self._nick or null,
 		mute = self._mute,
 		deaf = self._deaf,

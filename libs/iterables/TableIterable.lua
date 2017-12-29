@@ -10,15 +10,10 @@ function TableIterable:__init(tbl, map)
 end
 
 function TableIterable:__json(null)
-	local tbl = {}
-	for k, v in pairs(self._tbl) do
-		tbl[k] = v
-	end
-
 	return {
 		type = 'TableIterable',
 
-		table = tbl
+		table = self._tbl
 	}
 end
 

@@ -9,10 +9,15 @@ function WeakCache:__init(array, constructor, parent)
 end
 
 function WeakCache:__json(null)
+	local objects = {}
+	for hash, obj in pairs(self._objects) do
+		objects[hash] = obj:__json()
+	end
+
 	return {
 		type = 'WeakCache',
 
-		objects = self._objects
+		objects = objects
 	}
 end
 
