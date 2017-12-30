@@ -1,5 +1,6 @@
 local uv = require('uv')
 local json = require('json')
+local class = require('class')
 local miniz = require('miniz')
 local timer = require('timer')
 local websocket = require('coro-websocket')
@@ -8,9 +9,11 @@ local constants = require('constants')
 local Mutex = require('utils/Mutex')
 local Stopwatch = require('utils/Stopwatch')
 local VoiceConnection = require('voice/VoiceConnection')
+local GuildVoiceChannel = require('containers/GuildVoiceChannel')
 
 local inflate = miniz.inflate
 local encode, decode, null = json.encode, json.decode, json.null
+local isInstance = class.isInstance
 local format = string.format
 local ws_parseUrl, ws_connect = websocket.parseUrl, websocket.connect
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
@@ -50,14 +53,15 @@ local function getMode(modes)
 	end
 end
 
-local VoiceSocket = require('class')('VoiceSocket')
+local VoiceSocket = class('VoiceSocket')
 
 -- TODO: bring common code from here and Shard into one base Socket class
 
-function VoiceSocket:__init(d, session_id, manager)
-	self._session_id = session_id
+function VoiceSocket:__init(d, state, manager)
 	self._token = d.token
-	self._guild_id = d.guild_id
+	self._guild_id = state.guild_id
+	self._channel_id = state.channel_id
+	self._session_id = state.session_id
 	self._manager = manager
 	self._mutex = Mutex()
 	self._sw = Stopwatch()
@@ -77,6 +81,11 @@ function VoiceSocket:connect(url)
 		manager:info('Connected to %s', url)
 		self:handlePayloads()
 		manager:info('Disconnected')
+		if self._connection then
+			local connection = self._connection
+			self._connection = nil
+			manager:emit('disconnect', connection)
+		end
 	else
 		manager:error('Could not connect to %s (%s)', url, res)
 	end
@@ -110,16 +119,10 @@ function VoiceSocket:handlePayloads()
 		manager:emit('raw', payload)
 		payload = decode(payload, 1, null)
 
-		local s = payload.s
-		local t = payload.t
 		local d = payload.d
 		local op = payload.op
 
-		if t ~= null then
-			manager:debug('WebSocket OP %s : %s : %s', op, t, s)
-		else
-			manager:debug('WebSocket OP %s', op)
-		end
+		manager:debug('WebSocket OP %s', op)
 
 		if op == HELLO then
 
@@ -146,9 +149,15 @@ function VoiceSocket:handlePayloads()
 		elseif op == DESCRIPTION then
 
 			if d.mode == SUPPORTED_MODE then
-
-				VoiceConnection(d.secret_key)
-
+				local channel = manager._client:getChannel(self._channel_id)
+				if isInstance(channel, GuildVoiceChannel) then
+					local connection = VoiceConnection(d.secret_key, channel, manager)
+					self._connection = connection
+					manager:emit('connect', connection)
+				else
+					manager:error('Invalid voice channel: %s', self._channel_id)
+					self:disconnect()
+				end
 			else
 				manager:error('%q encryption method not available', SUPPORTED_MODE)
 				self:disconnect()
