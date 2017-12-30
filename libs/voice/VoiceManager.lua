@@ -20,8 +20,32 @@ function VoiceManager:__init(client)
 	self._client = client
 end
 
+function VoiceManager:loadOpus(path)
+	local opus, err = require('voice/opus')(path or 'opus')
+	if opus then
+		self._opus = opus
+	else
+		return self:error(err)
+	end
+end
+
+function VoiceManager:loadSodium(path)
+	local sodium, err = require('voice/sodium')(path or 'sodium')
+	if sodium then
+		self._sodium = sodium
+	else
+		return self:error(err)
+	end
+end
+
 function VoiceManager:_createVoiceConnection(d, state)
 	local socket = VoiceSocket(d, state.session_id, self)
+	if not self._opus then
+		return self:error('Cannot connect: libopus not loaded')
+	end
+	if not self._sodium then
+		return self:error('Cannot connect: libsodium not loaded')
+	end
 	local endpoint = d.endpoint:gsub(':%d*', '')
 	local url = 'wss://' .. endpoint
 	wrap(socket.connect)(socket, url)
