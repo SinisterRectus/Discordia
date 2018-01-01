@@ -46,9 +46,8 @@ function VoiceManager:_createVoiceConnection(d, state)
 		return self:error('Cannot connect: libsodium not loaded')
 	end
 	local socket = VoiceSocket(d, state, self)
-	local endpoint = d.endpoint:gsub(':%d*', '')
-	local url = 'wss://' .. endpoint
-	wrap(socket.connect)(socket, url)
+	local endpoint = d.endpoint:gsub(':%d*$', '')
+	wrap(socket.connect)(socket, 'wss://' .. endpoint)
 end
 
 return VoiceManager

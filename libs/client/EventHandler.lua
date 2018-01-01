@@ -487,24 +487,28 @@ function EventHandler.VOICE_STATE_UPDATE(d, client)
 	local states = guild._voice_states
 	local channels = guild._voice_channels
 	local state = states[d.user_id]
-	if state then
-		if d.channel_id ~= null then
+	if state then -- user is already connected
+		if d.channel_id ~= null then -- user has not disconnected
 			states[d.user_id] = d
-			if d.channel_id == state.channel_id then
+			if d.channel_id == state.channel_id then -- user did not change channels
 				client:emit('voiceUpdate', member)
-			else
+			else -- user changed channels
 				local old = channels:get(state.channel_id)
 				local new = channels:get(d.channel_id)
+				if d.user_id == client._user._id then -- user is current user
+					new._connection = old._connection
+					old._connection = nil
+				end
 				client:emit('voiceChannelLeave', member, old)
 				client:emit('voiceChannelJoin', member, new)
 			end
-		else
+		else -- user disconnected
 			states[d.user_id] = nil
 			local old = channels:get(state.channel_id)
 			client:emit('voiceChannelLeave', member, old)
 			client:emit('voiceDisconnect', member)
 		end
-	else
+	else -- user has connected
 		states[d.user_id] = d
 		local new = channels:get(d.channel_id)
 		client:emit('voiceConnect', member)

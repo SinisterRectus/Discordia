@@ -65,7 +65,6 @@ function VoiceSocket:__init(d, state, manager)
 	self._manager = manager
 	self._mutex = Mutex()
 	self._sw = Stopwatch()
-	self._id = nil -- TODO
 end
 
 function VoiceSocket:connect(url)
@@ -84,6 +83,7 @@ function VoiceSocket:connect(url)
 		if self._connection then
 			local connection = self._connection
 			self._connection = nil
+			connection._channel._connection = nil
 			manager:emit('disconnect', connection)
 		end
 	else
@@ -153,6 +153,7 @@ function VoiceSocket:handlePayloads()
 				if isInstance(channel, GuildVoiceChannel) then
 					local connection = VoiceConnection(d.secret_key, channel, manager)
 					self._connection = connection
+					channel._connection = connection
 					manager:emit('connect', connection)
 				else
 					manager:error('Invalid voice channel: %s', self._channel_id)
