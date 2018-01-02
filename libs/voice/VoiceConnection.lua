@@ -12,9 +12,9 @@ local key_t = ffi.typeof('const unsigned char[32]')
 
 local VoiceConnection, get = require('class')('VoiceConnection')
 
-function VoiceConnection:__init(key, channel, manager)
+function VoiceConnection:__init(key, state, manager)
 	self._key = key_t(key)
-	self._channel = channel
+	self._state = state
 	self._manager = manager
 	self._encoder = self._manager._opus.Encoder(SAMPLE_RATE, CHANNELS)
 	self:setBitrate(manager._client._options.bitrate)
@@ -30,17 +30,17 @@ function VoiceConnection:setBitrate(bitrate)
 end
 
 function VoiceConnection:close()
-	local guild = self._channel._parent
+	local guild = self.guild
 	local client = self._manager._client
 	return client._shards[guild.shardId]:updateVoice(guild._id)
 end
 
 function get.channel(self)
-	return self._channel
+	return self.guild._voice_channels:get(self._state.channel_id)
 end
 
 function get.guild(self)
-	return self._channel._parent
+	return self._manager._client._guilds:get(self._state.guild_id)
 end
 
 return VoiceConnection

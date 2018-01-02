@@ -5,15 +5,15 @@ local miniz = require('miniz')
 local timer = require('timer')
 local websocket = require('coro-websocket')
 local constants = require('constants')
+local enums = require('enums')
 
 local Mutex = require('utils/Mutex')
 local Stopwatch = require('utils/Stopwatch')
 local VoiceConnection = require('voice/VoiceConnection')
-local GuildVoiceChannel = require('containers/GuildVoiceChannel')
 
+local logLevel = enums.logLevel
 local inflate = miniz.inflate
 local encode, decode, null = json.encode, json.decode, json.null
-local isInstance = class.isInstance
 local format = string.format
 local ws_parseUrl, ws_connect = websocket.parseUrl, websocket.connect
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
@@ -55,21 +55,24 @@ end
 
 local VoiceSocket = class('VoiceSocket')
 
+for name in pairs(logLevel) do
+	VoiceSocket[name] = function(self, fmt, ...)
+		local client = self._client
+		return client[name](client, format('Voice : %s', fmt), ...)
+	end
+end
+
 -- TODO: bring common code from here and Shard into one base Socket class
 
-function VoiceSocket:__init(d, state, manager)
-	self._token = d.token
-	self._guild_id = state.guild_id
-	self._channel_id = state.channel_id
-	self._session_id = state.session_id
+function VoiceSocket:__init(state, manager)
+	self._state = state
 	self._manager = manager
+	self._client = manager._client
 	self._mutex = Mutex()
 	self._sw = Stopwatch()
 end
 
 function VoiceSocket:connect(url)
-
-	local manager = self._manager
 
 	local success, res, read, write = pcall(connect, url)
 
@@ -77,17 +80,16 @@ function VoiceSocket:connect(url)
 		self._read = read
 		self._write = write
 		self._reconnect = nil
-		manager:info('Connected to %s', url)
+		self:info('Connected to %s', url)
 		self:handlePayloads()
-		manager:info('Disconnected')
+		self:info('Disconnected')
 		if self._connection then
 			local connection = self._connection
 			self._connection = nil
-			connection._channel._connection = nil
-			manager:emit('disconnect', connection)
+			self._manager:emit('disconnect', connection)
 		end
 	else
-		manager:error('Could not connect to %s (%s)', url, res)
+		self:error('Could not connect to %s (%s)', url, res)
 	end
 
 	-- TODO: reconnecting and resuming
@@ -96,6 +98,7 @@ end
 
 function VoiceSocket:handlePayloads()
 
+	local state = self._state
 	local manager = self._manager
 
 	for message in self._read do
@@ -111,56 +114,49 @@ function VoiceSocket:handlePayloads()
 
 			local code, i = ('>H'):unpack(payload)
 			local msg = #payload > i and payload:sub(i) or 'Connection closed'
-			manager:warning('%i - %s', code, msg)
+			self:warning('%i - %s', code, msg)
 			break
 
 		end
 
-		manager:emit('raw', payload)
+		self._manager:emit('raw', payload)
 		payload = decode(payload, 1, null)
 
 		local d = payload.d
 		local op = payload.op
 
-		manager:debug('WebSocket OP %s', op)
+		self:debug('WebSocket OP %s', op)
 
 		if op == HELLO then
 
-			manager:info('Received HELLO')
+			self:info('Received HELLO')
 			self:startHeartbeat(d.heartbeat_interval * 0.75) -- NOTE: hotfix for API bug
 			self:identify()
 
 		elseif op == READY then
 
-			manager:info('Received READY')
-
+			self:info('Received READY')
 			local mode = getMode(d.modes)
 			if mode then
-				self:handshake(d.ip, d.port, d.ssrc, mode) -- NOTE: still getting IP in payload?
+				self._state.ssrc = d.ssrc
+				self:handshake(d.ip, d.port, mode) -- NOTE: still getting IP in payload?
 			else
-				manager:error('%q encryption method not available', SUPPORTED_MODE)
+				self:error('%q encryption method not available', SUPPORTED_MODE)
 				self:disconnect()
 			end
 
 		elseif op == RESUMED then
 
-			manager:info('Received RESUMED')
+			self:info('Received RESUMED')
 
 		elseif op == DESCRIPTION then
 
 			if d.mode == SUPPORTED_MODE then
-				local channel = manager._client:getChannel(self._channel_id)
-				if isInstance(channel, GuildVoiceChannel) then
-					local connection = VoiceConnection(d.secret_key, channel, manager)
-					self._connection = connection
-					channel._connection = connection
-					manager:emit('connect', connection)
-				else
-					manager:error('Invalid voice channel: %s', self._channel_id)
-					self:disconnect()
-				end
+				local connection = VoiceConnection(d.secret_key, state, manager)
+				self._connection = connection
+				manager:emit('connect', connection)
 			else
-				manager:error('%q encryption method not available', SUPPORTED_MODE)
+				self:error('%q encryption method not available', SUPPORTED_MODE)
 				self:disconnect()
 			end
 
@@ -170,7 +166,7 @@ function VoiceSocket:handlePayloads()
 
 		elseif op then
 
-			manager:warning('Unhandled WebSocket payload OP %i', op)
+			self:warning('Unhandled WebSocket payload OP %i', op)
 
 		end
 
@@ -212,19 +208,21 @@ function VoiceSocket:heartbeat()
 end
 
 function VoiceSocket:identify()
+	local state = self._state
 	return send(self, IDENTIFY, {
-		server_id = self._guild_id,
-		user_id = self._manager._client._user._id,
-		session_id = self._session_id,
-		token = self._token,
+		server_id = state.guild_id,
+		user_id = state.user_id,
+		session_id = state.session_id,
+		token = state.token,
 	})
 end
 
 function VoiceSocket:resume()
+	local state = self._state
 	return send(self, RESUME, {
-		server_id = self._guild_id,
-		session_id = self._session_id,
-		token = self._token,
+		server_id = state.guild_id,
+		session_id = state.session_id,
+		token = state.token,
 	})
 end
 
@@ -237,14 +235,13 @@ function VoiceSocket:disconnect(reconnect)
 	self._write = nil
 end
 
-function VoiceSocket:handshake(server_ip, server_port, ssrc, mode)
-	self._ssrc = ssrc
+function VoiceSocket:handshake(server_ip, server_port, mode)
 	local udp = uv.new_udp()
 	udp:recv_start(function(err, data)
 		assert(not err, err)
 		udp:recv_stop()
 		local a, b = data:sub(-2):byte(1, 2)
-		local client_ip = data:match('%C+')
+		local client_ip = data:match('....(%Z+)')
 		local client_port = a + b * 0x100
 		return wrap(self.selectProtocol)(self, client_ip, client_port, mode)
 	end)
@@ -266,7 +263,7 @@ function VoiceSocket:setSpeaking(speaking)
 	return send(self, SPEAKING, {
 		speaking = speaking,
 		delay = 0,
-		ssrc = self._ssrc,
+		ssrc = self._state.ssrc,
 	})
 end
 

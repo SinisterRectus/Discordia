@@ -1,19 +1,9 @@
 local VoiceSocket = require('voice/VoiceSocket')
 local Emitter = require('utils/Emitter')
-local enums = require('enums')
 
-local logLevel = enums.logLevel
-local format = string.format
 local wrap = coroutine.wrap
 
 local VoiceManager = require('class')('VoiceManager', Emitter)
-
-for name in pairs(logLevel) do
-	VoiceManager[name] = function(self, fmt, ...)
-		local client = self._client
-		return client[name](client, format('Voice : %s', fmt), ...)
-	end
-end
 
 function VoiceManager:__init(client)
 	Emitter.__init(self)
@@ -25,7 +15,7 @@ function VoiceManager:loadOpus(path)
 	if opus then
 		self._opus = opus
 	else
-		return self:error(err)
+		return self._client:error(err)
 	end
 end
 
@@ -34,19 +24,19 @@ function VoiceManager:loadSodium(path)
 	if sodium then
 		self._sodium = sodium
 	else
-		return self:error(err)
+		return self._client:error(err)
 	end
 end
 
-function VoiceManager:_createVoiceConnection(d, state)
+function VoiceManager:_createVoiceConnection(state)
 	if not self._opus then
-		return self:error('Cannot connect: libopus not loaded')
+		return self._client:error('Cannot connect to voice: libopus not loaded')
 	end
 	if not self._sodium then
-		return self:error('Cannot connect: libsodium not loaded')
+		return self._client:error('Cannot connect to voice: libsodium not loaded')
 	end
-	local socket = VoiceSocket(d, state, self)
-	local endpoint = d.endpoint:gsub(':%d*$', '')
+	local socket = VoiceSocket(state, self)
+	local endpoint = state.endpoint:gsub(':%d*$', '')
 	wrap(socket.connect)(socket, 'wss://' .. endpoint)
 end
 

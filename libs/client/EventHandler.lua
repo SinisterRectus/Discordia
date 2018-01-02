@@ -479,6 +479,10 @@ function EventHandler.USER_UPDATE(d, client)
 	return client:emit('userUpdate', client._user)
 end
 
+local function load(obj, d)
+	for k, v in pairs(d) do obj[k] = v end
+end
+
 function EventHandler.VOICE_STATE_UPDATE(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'VOICE_STATE_UPDATE') end
@@ -486,31 +490,29 @@ function EventHandler.VOICE_STATE_UPDATE(d, client)
 	if not member then return warning(client, 'Member', d.user_id, 'VOICE_STATE_UPDATE') end
 	local states = guild._voice_states
 	local channels = guild._voice_channels
+	local new_channel_id = d.channel_id
 	local state = states[d.user_id]
 	if state then -- user is already connected
-		if d.channel_id ~= null then -- user has not disconnected
-			states[d.user_id] = d
-			if d.channel_id == state.channel_id then -- user did not change channels
+		local old_channel_id = state.channel_id
+		load(state, d)
+		if new_channel_id ~= null then -- state changed, but user has not disconnected
+			if new_channel_id == old_channel_id then -- user did not change channels
 				client:emit('voiceUpdate', member)
 			else -- user changed channels
-				local old = channels:get(state.channel_id)
-				local new = channels:get(d.channel_id)
-				if d.user_id == client._user._id then -- user is current user
-					new._connection = old._connection
-					old._connection = nil
-				end
+				local old = channels:get(old_channel_id)
+				local new = channels:get(new_channel_id)
 				client:emit('voiceChannelLeave', member, old)
 				client:emit('voiceChannelJoin', member, new)
 			end
-		else -- user disconnected
+		else -- user has disconnected
 			states[d.user_id] = nil
-			local old = channels:get(state.channel_id)
+			local old = channels:get(old_channel_id)
 			client:emit('voiceChannelLeave', member, old)
 			client:emit('voiceDisconnect', member)
 		end
 	else -- user has connected
 		states[d.user_id] = d
-		local new = channels:get(d.channel_id)
+		local new = channels:get(new_channel_id)
 		client:emit('voiceConnect', member)
 		client:emit('voiceChannelJoin', member, new)
 	end
@@ -521,7 +523,8 @@ function EventHandler.VOICE_SERVER_UPDATE(d, client)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'VOICE_SERVER_UPDATE') end
 	local state = guild._voice_states[client._user._id]
 	if not state then return client:warning('Voice state not initialized before VOICE_SERVER_UPDATE') end
-	return client._voice:_createVoiceConnection(d, state)
+	load(state, d)
+	return client._voice:_createVoiceConnection(state)
 end
 
 function EventHandler.WEBHOOKS_UPDATE(d, client) -- webhook object is not provided
