@@ -45,6 +45,15 @@ function Channel:_delete()
 	end
 end
 
+function Channel:__serializeJSON(null)
+	return {
+		type = 'Channel',
+
+		channel_type = self._type,
+		id = self._id
+	}
+end
+
 function get.type(self)
 	return self._type
 end

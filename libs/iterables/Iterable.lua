@@ -21,6 +21,19 @@ function Iterable:__len()
 	return n
 end
 
+function Iterable:__serializeJSON(null)
+	local objects = {}
+	for obj in self:iter() do
+		table.insert(objects, obj:__serializeJSON())
+	end
+
+	return {
+		type = 'Iterable',
+
+		objects = objects
+	}
+end
+
 function Iterable:get(k) -- objects must be hashable
 	for obj in self:iter() do
 		if obj:__hash() == k then

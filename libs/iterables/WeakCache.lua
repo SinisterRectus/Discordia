@@ -8,6 +8,19 @@ function WeakCache:__init(array, constructor, parent)
 	setmetatable(self._objects, {__mode = 'v'})
 end
 
+function WeakCache:__serializeJSON(null)
+	local objects = {}
+	for hash, obj in pairs(self._objects) do
+		objects[hash] = obj:__serializeJSON()
+	end
+
+	return {
+		type = 'WeakCache',
+
+		objects = objects
+	}
+end
+
 function WeakCache:__len() -- NOTE: _count is not accurate for weak caches
 	return Iterable.__len(self)
 end

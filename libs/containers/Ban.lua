@@ -15,6 +15,16 @@ function Ban:delete()
 	return self._parent:unbanUser(self._user)
 end
 
+function Ban:__serializeJSON(null)
+	return {
+		type = 'Ban',
+
+		reason = self._reason or null,
+		guild = self._parent:__serializeJSON(null),
+		user = self._user:__serializeJSON(null)
+	}
+end
+
 function get.reason(self)
 	return self._reason
 end

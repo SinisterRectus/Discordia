@@ -49,6 +49,21 @@ function Webhook:delete()
 	end
 end
 
+function Webhook:__serializeJSON(null)
+	return {
+		type = 'Webhook',
+
+		id = self._id,
+
+		guild_id = self._guild_id,
+		channel_id = self._channel_id,
+		user = self._user,
+		token = self._token,
+		name = self._name,
+		avatar = self._avatar
+	}
+end
+
 function get.guildId(self)
 	return self._guild_id
 end

@@ -103,6 +103,18 @@ function PermissionOverwrite:clearAllPermissions()
 	return setPermissions(self, allowed._value, denied._value)
 end
 
+function PermissionOverwrite:__serializeJSON(null)
+	return {
+		type = 'PermissionOverwrite',
+
+		id = self._id,
+
+		permission_type = self._type,
+		allow = self._allow,
+		deny = self._deny
+	}
+end
+
 function get.type(self)
 	return self._type
 end

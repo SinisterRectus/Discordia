@@ -54,6 +54,20 @@ function Emoji:delete()
 	end
 end
 
+function Emoji:__serializeJSON(null)
+	return {
+		type = 'Emoji',
+
+		id = self._id,
+
+		name = self._name,
+		guild = self._parent:__serializeJSON(null),
+		managed = self._managed,
+		require_colons = self._require_colons,
+		animated = self._animated
+	}
+end
+
 function get.name(self)
 	return self._name
 end

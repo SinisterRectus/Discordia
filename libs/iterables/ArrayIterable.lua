@@ -22,6 +22,30 @@ function ArrayIterable:__len()
 	end
 end
 
+function ArrayIterable:__serializeJSON(null)
+	local objects = {}
+	if self._map then
+		return wrap(function()
+			for _, v in ipairs(self._array) do
+				local obj = map(v)
+				if obj then
+					table.insert(objects, obj:__serializeJSON())
+				end
+			end
+		end)
+	else
+		for i = 0, #self._array do
+			objects[i] = self._array[i]
+		end
+	end
+	
+	return {
+		type = 'ArrayIterable',
+
+		array = objects
+	}
+end
+
 function ArrayIterable:iter()
 	local array = self._array
 	if not array then

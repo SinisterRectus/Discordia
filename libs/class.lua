@@ -1,3 +1,5 @@
+local json = require('json')
+
 local format = string.format
 
 local meta = {}
@@ -25,6 +27,7 @@ end
 function default:__hash()
 	return self
 end
+
 
 local function isClass(cls)
 	return classes[cls]
@@ -109,6 +112,10 @@ return setmetatable({
 	class.__bases = bases
 	class.__getters = getters
 	class.__setters = setters
+
+	function class:__tojson()
+		return json.encode(self:__serializeJSON(json.null))
+	end
 
 	local pool = {}
 	local n = #pool

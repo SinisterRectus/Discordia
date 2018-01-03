@@ -46,6 +46,22 @@ function GroupChannel:leave()
 	return self:_delete()
 end
 
+function GroupChannel:__serializeJSON(null)
+	return {
+		type = 'GroupChannel',
+
+		channel_type = self._type,
+		id = self._id,
+
+		messages = self._messages:__serializeJSON(null),
+
+		recipients = self._recipients:__serializeJSON(null),
+		name = self._name,
+		owner_id = self._owner_id,
+		icon = self._icon
+	}
+end
+
 function get.recipients(self)
 	return self._recipients
 end
