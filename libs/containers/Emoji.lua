@@ -1,4 +1,5 @@
 local Snowflake = require('containers/abstract/Snowflake')
+local Resolver = require('client/Resolver')
 local ArrayIterable = require('iterables/ArrayIterable')
 local json = require('json')
 
@@ -52,6 +53,19 @@ function Emoji:delete()
 	else
 		return false, err
 	end
+end
+
+function Emoji:hasRole(id)
+	id = Resolver.roleId(id)
+	local roles = self._roles and self._roles._array or self._roles_raw
+	if roles then
+		for _, v in ipairs(roles) do
+			if v == id then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 function get.name(self)

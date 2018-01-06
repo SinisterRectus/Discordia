@@ -230,4 +230,13 @@ function get.members(self)
 	return self._members
 end
 
+function get.emojis(self)
+	if not self._emojis then
+		self._emojis = FilteredIterable(self._parent._emojis, function(e)
+			return e:hasRole(self)
+		end)
+	end
+	return self._emojis
+end
+
 return Role
