@@ -36,6 +36,7 @@ local time, difftime = os.time, os.difftime
 local format = string.format
 
 local CACHE_AGE = constants.CACHE_AGE
+local GATEWAY_VERSION = constants.GATEWAY_VERSION
 
 -- do not change these options here
 -- pass a custom table on client construction instead
@@ -124,6 +125,7 @@ local function run(self, token)
 		return self:error('Could not authenticate, check token: ' .. err1)
 	end
 	self._user = users:_insert(user)
+	self._token = token
 
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
 
@@ -227,8 +229,9 @@ local function run(self, token)
 		self._shards[id] = Shard(id, self)
 	end
 
+	local path = format('/?v=%i&encoding=json', GATEWAY_VERSION)
 	for _, shard in pairs(self._shards) do
-		wrap(shard.connect)(shard, url, token)
+		wrap(shard.connect)(shard, url, path)
 		shard:identifyWait()
 	end
 

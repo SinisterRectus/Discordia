@@ -1,27 +1,18 @@
 local uv = require('uv')
-local json = require('json')
 local class = require('class')
-local miniz = require('miniz')
 local timer = require('timer')
-local websocket = require('coro-websocket')
 local constants = require('constants')
 local enums = require('enums')
 
-local Mutex = require('utils/Mutex')
-local Stopwatch = require('utils/Stopwatch')
 local VoiceConnection = require('voice/VoiceConnection')
+local WebSocket = require('client/WebSocket')
 
 local logLevel = enums.logLevel
-local inflate = miniz.inflate
-local encode, decode, null = json.encode, json.decode, json.null
 local format = string.format
-local ws_parseUrl, ws_connect = websocket.parseUrl, websocket.connect
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 local wrap = coroutine.wrap
 local time = os.time
 
-local GATEWAY_DELAY = constants.GATEWAY_DELAY
-local GATEWAY_VERSION_VOICE = constants.GATEWAY_VERSION_VOICE
 local SUPPORTED_MODE = constants.SUPPORTED_MODE
 
 local IDENTIFY        = 0
@@ -35,16 +26,6 @@ local RESUME          = 7
 local HELLO           = 8
 local RESUMED         = 9
 
-local TEXT   = 1
-local BINARY = 2
-local CLOSE  = 8
-
-local function connect(url)
-	local options = assert(ws_parseUrl(url))
-	options.pathname = format('/?v=%i', GATEWAY_VERSION_VOICE)
-	return assert(ws_connect(options))
-end
-
 local function getMode(modes)
 	for _, v in ipairs(modes) do
 		if v == SUPPORTED_MODE then
@@ -53,7 +34,7 @@ local function getMode(modes)
 	end
 end
 
-local VoiceSocket = class('VoiceSocket')
+local VoiceSocket = class('VoiceSocket', WebSocket)
 
 for name in pairs(logLevel) do
 	VoiceSocket[name] = function(self, fmt, ...)
@@ -62,126 +43,76 @@ for name in pairs(logLevel) do
 	end
 end
 
--- TODO: bring common code from here and Shard into one base Socket class
-
 function VoiceSocket:__init(state, manager)
+	WebSocket.__init(self)
+	self._parent = manager
 	self._state = state
 	self._manager = manager
 	self._client = manager._client
-	self._mutex = Mutex()
-	self._sw = Stopwatch()
 end
 
-function VoiceSocket:connect(url)
-
-	local success, res, read, write = pcall(connect, url)
-
-	if success then
-		self._read = read
-		self._write = write
-		self._reconnect = nil
-		self:info('Connected to %s', url)
-		self:handlePayloads()
-		self:info('Disconnected')
-		if self._connection then
-			local connection = self._connection
-			self._connection = nil
-			self._manager:emit('disconnect', connection)
-		end
-	else
-		self:error('Could not connect to %s (%s)', url, res)
-	end
-
+function VoiceSocket:handleDisconnect()
 	-- TODO: reconnecting and resuming
-
+	if self._connection then
+		local connection = self._connection
+		self._connection = nil
+		self._manager:emit('disconnect', connection)
+	end
 end
 
-function VoiceSocket:handlePayloads()
+function VoiceSocket:handlePayload(payload)
 
 	local state = self._state
 	local manager = self._manager
 
-	for message in self._read do
+	local d = payload.d
+	local op = payload.op
 
-		local opcode = message.opcode
-		local payload = message.payload
+	self:debug('WebSocket OP %s', op)
 
-		if opcode == BINARY then
+	if op == HELLO then
 
-			payload = inflate(payload, 1)
+		self:info('Received HELLO')
+		self:startHeartbeat(d.heartbeat_interval * 0.75) -- NOTE: hotfix for API bug
+		self:identify()
 
-		elseif opcode == CLOSE then
+	elseif op == READY then
 
-			local code, i = ('>H'):unpack(payload)
-			local msg = #payload > i and payload:sub(i) or 'Connection closed'
-			self:warning('%i - %s', code, msg)
-			break
-
+		self:info('Received READY')
+		local mode = getMode(d.modes)
+		if mode then
+			self._state.ssrc = d.ssrc
+			self:handshake(d.ip, d.port, mode) -- NOTE: still getting IP in payload?
+		else
+			self:error('%q encryption method not available', SUPPORTED_MODE)
+			self:disconnect()
 		end
 
-		self._manager:emit('raw', payload)
-		payload = decode(payload, 1, null)
+	elseif op == RESUMED then
 
-		local d = payload.d
-		local op = payload.op
+		self:info('Received RESUMED')
 
-		self:debug('WebSocket OP %s', op)
+	elseif op == DESCRIPTION then
 
-		if op == HELLO then
-
-			self:info('Received HELLO')
-			self:startHeartbeat(d.heartbeat_interval * 0.75) -- NOTE: hotfix for API bug
-			self:identify()
-
-		elseif op == READY then
-
-			self:info('Received READY')
-			local mode = getMode(d.modes)
-			if mode then
-				self._state.ssrc = d.ssrc
-				self:handshake(d.ip, d.port, mode) -- NOTE: still getting IP in payload?
-			else
-				self:error('%q encryption method not available', SUPPORTED_MODE)
-				self:disconnect()
-			end
-
-		elseif op == RESUMED then
-
-			self:info('Received RESUMED')
-
-		elseif op == DESCRIPTION then
-
-			if d.mode == SUPPORTED_MODE then
-				local connection = VoiceConnection(d.secret_key, state, manager)
-				self._connection = connection
-				manager:emit('connect', connection)
-			else
-				self:error('%q encryption method not available', SUPPORTED_MODE)
-				self:disconnect()
-			end
-
-		elseif op == HEARTBEAT_ACK then
-
-			manager:emit('heartbeat', nil, self._sw.milliseconds) -- TODO: id
-
-		elseif op then
-
-			self:warning('Unhandled WebSocket payload OP %i', op)
-
+		if d.mode == SUPPORTED_MODE then
+			local connection = VoiceConnection(d.secret_key, state, manager)
+			self._connection = connection
+			manager:emit('connect', connection)
+		else
+			self:error('%q encryption method not available', SUPPORTED_MODE)
+			self:disconnect()
 		end
+
+	elseif op == HEARTBEAT_ACK then
+
+		manager:emit('heartbeat', nil, self._sw.milliseconds) -- TODO: id
+
+	elseif op then
+
+		self:warning('Unhandled WebSocket payload OP %i', op)
 
 	end
 
-end
-
-local function send(self, op, d)
-	if not self._write then
-		return false, 'Not connected to gateway'
-	end
-	self._mutex:lock()
-	local success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
-	self._mutex:unlockAfter(GATEWAY_DELAY)
-	return success, err
 end
 
 local function loop(self)
@@ -204,12 +135,12 @@ end
 
 function VoiceSocket:heartbeat()
 	self._sw:reset()
-	return send(self, HEARTBEAT, time())
+	return self:_send(HEARTBEAT, time())
 end
 
 function VoiceSocket:identify()
 	local state = self._state
-	return send(self, IDENTIFY, {
+	return self:_send(IDENTIFY, {
 		server_id = state.guild_id,
 		user_id = state.user_id,
 		session_id = state.session_id,
@@ -219,20 +150,11 @@ end
 
 function VoiceSocket:resume()
 	local state = self._state
-	return send(self, RESUME, {
+	return self:_send(RESUME, {
 		server_id = state.guild_id,
 		session_id = state.session_id,
 		token = state.token,
 	})
-end
-
-function VoiceSocket:disconnect(reconnect)
-	if not self._write then return end
-	self._reconnect = not not reconnect
-	self:stopHeartbeat()
-	self._write()
-	self._read = nil
-	self._write = nil
 end
 
 function VoiceSocket:handshake(server_ip, server_port, mode)
@@ -249,7 +171,7 @@ function VoiceSocket:handshake(server_ip, server_port, mode)
 end
 
 function VoiceSocket:selectProtocol(address, port, mode)
-	return send(self, SELECT_PROTOCOL, {
+	return self:_send(SELECT_PROTOCOL, {
 		protocol = 'udp',
 		data = {
 			address = address,
@@ -260,7 +182,7 @@ function VoiceSocket:selectProtocol(address, port, mode)
 end
 
 function VoiceSocket:setSpeaking(speaking)
-	return send(self, SPEAKING, {
+	return self:_send(SPEAKING, {
 		speaking = speaking,
 		delay = 0,
 		ssrc = self._state.ssrc,
