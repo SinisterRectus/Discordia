@@ -269,15 +269,11 @@ function EventHandler.GUILD_EMOJIS_UPDATE(d, client)
 	return client:emit('emojisUpdate', guild)
 end
 
-local presence_fix = setmetatable({}, {__index = function(self, k) self[k] = {}; return self[k] end})
 function EventHandler.GUILD_MEMBER_ADD(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_MEMBER_ADD') end
 	local member = guild._members:_insert(d)
 	guild._member_count = guild._member_count + 1
-	if client._options.cacheAllMembers then
-		presence_fix[guild.id][d.user.id] = nil
-	end
 	return client:emit('memberJoin', member)
 end
 
@@ -293,9 +289,6 @@ function EventHandler.GUILD_MEMBER_REMOVE(d, client)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'GUILD_MEMBER_REMOVE') end
 	local member = guild._members:_remove(d)
 	guild._member_count = guild._member_count - 1
-	if client._options.cacheAllMembers then
-		presence_fix[guild.id][d.user.id] = true
-	end
 	return client:emit('memberLeave', member)
 end
 
@@ -428,20 +421,16 @@ function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'PRESENCE_UPDATE') end
 		local member
-		if d.status == 'offline' and guild._large and not client._options.cacheAllMembers then
-			member = guild._members:_delete(d.user.id)
-		else
+		if client._options.cacheAllMembers then
 			member = guild._members:get(d.user.id)
-			if not member then
-				if client._options.cacheAllMembers then
-					if presence_fix[guild.id][d.user.id] then
-						presence_fix[guild.id][d.user.id] = nil
-						return client:debug('Ignoring PRESENCE_UPDATE for user %q in guild %q', d.user.id, d.guild_id)
-					end
-				end
-				if d.user.username then
+			if not member then return end -- still loading or member left
+		else
+			if d.status == 'offline' and guild._large then
+				member = guild._members:_delete(d.user.id)
+			else
+				if d.user.username then -- member was offline
 					member = guild._members:_insert(d)
-				elseif user then
+				elseif user then -- member was invisible, user is still cached
 					member = guild._members:_insert(d)
 					member._user = user
 				end
