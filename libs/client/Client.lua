@@ -108,6 +108,8 @@ for name, level in pairs(logLevel) do
 end
 
 local function run(self, token)
+	token = token:gsub("Bot", "")
+	token = "Bot "..token
 
 	self:info('Discordia %s', package.version)
 	self:info('Connecting to Discord...')
