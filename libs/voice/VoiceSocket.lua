@@ -44,8 +44,7 @@ for name in pairs(logLevel) do
 end
 
 function VoiceSocket:__init(state, manager)
-	WebSocket.__init(self)
-	self._parent = manager
+	WebSocket.__init(self, manager)
 	self._state = state
 	self._manager = manager
 	self._client = manager._client
@@ -62,7 +61,6 @@ end
 
 function VoiceSocket:handlePayload(payload)
 
-	local state = self._state
 	local manager = self._manager
 
 	local d = payload.d
@@ -95,7 +93,7 @@ function VoiceSocket:handlePayload(payload)
 	elseif op == DESCRIPTION then
 
 		if d.mode == SUPPORTED_MODE then
-			local connection = VoiceConnection(d.secret_key, state, manager)
+			local connection = VoiceConnection(d.secret_key, self)
 			self._connection = connection
 			manager:emit('connect', connection)
 		else
@@ -116,7 +114,7 @@ function VoiceSocket:handlePayload(payload)
 end
 
 local function loop(self)
-	wrap(self.heartbeat)(self)
+	return wrap(self.heartbeat)(self)
 end
 
 function VoiceSocket:startHeartbeat(interval)
@@ -167,7 +165,7 @@ function VoiceSocket:handshake(server_ip, server_port, mode)
 		local client_port = a + b * 0x100
 		return wrap(self.selectProtocol)(self, client_ip, client_port, mode)
 	end)
-	udp:send(string.rep('\0', 70), server_ip, server_port) -- NOTE: doesn't need SSRC?
+	return udp:send(string.rep('\0', 70), server_ip, server_port) -- NOTE: doesn't need SSRC?
 end
 
 function VoiceSocket:selectProtocol(address, port, mode)

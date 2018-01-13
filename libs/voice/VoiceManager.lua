@@ -43,7 +43,7 @@ function VoiceManager:_createVoiceConnection(state)
 	local socket = VoiceSocket(state, self)
 	local url = 'wss://' .. state.endpoint:gsub(':%d*$', '')
 	local path = format('/?v=%i', GATEWAY_VERSION_VOICE)
-	wrap(socket.connect)(socket, url, path)
+	return wrap(socket.connect)(socket, url, path)
 end
 
 return VoiceManager

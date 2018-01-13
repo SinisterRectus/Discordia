@@ -44,8 +44,7 @@ local ignore = {
 local Shard = require('class')('Shard', WebSocket)
 
 function Shard:__init(id, client)
-	WebSocket.__init(self)
-	self._parent = client
+	WebSocket.__init(self, client)
 	self._id = id
 	self._client = client
 	self._backoff = 1000
@@ -159,7 +158,7 @@ local function loop(self)
 		return wrap(self.disconnect)(self, true)
 	end
 	decrementReconnectTime(self)
-	wrap(self.heartbeat)(self)
+	return wrap(self.heartbeat)(self)
 end
 
 function Shard:startHeartbeat(interval)

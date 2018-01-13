@@ -25,8 +25,9 @@ end
 
 local WebSocket = require('class')('WebSocket', Emitter)
 
-function WebSocket:__init()
+function WebSocket:__init(parent)
 	Emitter.__init(self)
+	self._parent = parent
 	self._mutex = Mutex()
 	self._sw = Stopwatch()
 end
