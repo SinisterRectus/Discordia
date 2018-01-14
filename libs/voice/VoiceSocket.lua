@@ -157,6 +157,9 @@ end
 
 function VoiceSocket:handshake(server_ip, server_port, mode)
 	local udp = uv.new_udp()
+	self._udp = udp
+	self._ip = server_ip
+	self._port = server_port
 	udp:recv_start(function(err, data)
 		assert(not err, err)
 		udp:recv_stop()
