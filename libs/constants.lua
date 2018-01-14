@@ -14,5 +14,5 @@ return {
 	HOUR_PER_DAY = 24,
 	DAY_PER_WEEK = 7,
 	GATEWAY_VERSION_VOICE = 3,
-	SUPPORTED_MODE = 'xsalsa20_poly1305',
+	ENCRYPTION_MODE = 'xsalsa20_poly1305',
 }

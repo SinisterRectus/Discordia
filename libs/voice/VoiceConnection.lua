@@ -1,6 +1,8 @@
 local Buffer = require('utils/Buffer')
 
+local uv = require('uv')
 local ffi = require('ffi')
+local constants = require('constants')
 
 local CHANNELS = 2
 local SAMPLE_RATE = 48000
@@ -11,9 +13,26 @@ local MAX_SEQUENCE = 0xFFFF
 local MAX_TIMESTAMP = 0xFFFFFFFF
 local FRAME_DURATION = 20 -- ms
 local FRAME_SIZE = SAMPLE_RATE * FRAME_DURATION / 1000
+local PCM_LEN = FRAME_SIZE * CHANNELS
+local PCM_SIZE = PCM_LEN * 2
+
+local MS_PER_NS = 1 / (constants.NS_PER_US * constants.US_PER_MS)
 
 local min, max = math.min, math.max
 local band = bit.band
+local hrtime = uv.hrtime
+
+-- timer.sleep is redefined here to avoid a memory leak in the luvit module
+local function sleep(delay)
+	local thread = coroutine.running()
+	local t = uv.new_timer()
+	t:start(delay, 0, function()
+		t:stop()
+		t:close()
+		return assert(coroutine.resume(thread))
+	end)
+	return coroutine.yield()
+end
 
 local key_t = ffi.typeof('const unsigned char[32]')
 
@@ -56,7 +75,7 @@ function VoiceConnection:setBitrate(bitrate)
 	return self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
 end
 
-function VoiceConnection:_send(data, len)
+function VoiceConnection:_prepare(data, len)
 
 	local header = self._header
 	local seq = self._seq
@@ -76,7 +95,44 @@ function VoiceConnection:_send(data, len)
 	packet:write(header, 0, 12)
 	packet:write(encrypted, 12, encrypted_len)
 
-	return self._udp:send(tostring(packet), self._ip, self._port)
+	return tostring(packet)
+
+	-- or --
+	-- return header:read(12) .. ffi.string(encrypted, encrypted_len) -- TODO: benchmark
+	-- or --
+	-- string.pack / string.unpack -- TODO: benchmark
+
+end
+
+function VoiceConnection:_play(source, duration)
+
+	if self._closed then return end
+
+	self._socket:setSpeaking(true)
+
+	local elapsed = 0
+	local t = hrtime()
+	local udp, ip, port = self._udp, self._ip, self._port
+
+	while elapsed < (duration or math.huge) do
+
+		local pcm = source()
+		if not pcm then break end
+
+		local data, len = self._encoder:encode(pcm, PCM_LEN, FRAME_SIZE, PCM_SIZE)
+		if not data then break end
+
+		local packet = self:_prepare(data, len)
+		if not packet then break end
+
+		udp:send(packet, ip, port)
+
+		elapsed = elapsed + FRAME_DURATION
+		sleep(max(elapsed - (hrtime() - t) * MS_PER_NS, 0))
+
+	end
+
+	self._socket:setSpeaking(false)
 
 end
 

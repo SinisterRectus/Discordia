@@ -12,8 +12,9 @@ local format = string.format
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 local wrap = coroutine.wrap
 local time = os.time
+local rep = string.rep
 
-local SUPPORTED_MODE = constants.SUPPORTED_MODE
+local ENCRYPTION_MODE = constants.ENCRYPTION_MODE
 
 local IDENTIFY        = 0
 local SELECT_PROTOCOL = 1
@@ -26,10 +27,10 @@ local RESUME          = 7
 local HELLO           = 8
 local RESUMED         = 9
 
-local function getMode(modes)
+local function checkMode(modes)
 	for _, v in ipairs(modes) do
-		if v == SUPPORTED_MODE then
-			return v
+		if v == ENCRYPTION_MODE then
+			return true
 		end
 	end
 end
@@ -52,8 +53,9 @@ end
 
 function VoiceSocket:handleDisconnect()
 	-- TODO: reconnecting and resuming
-	if self._connection then
-		local connection = self._connection
+	local connection = self._connection
+	if connection then
+		connection._closed = true
 		self._connection = nil
 		self._manager:emit('disconnect', connection)
 	end
@@ -77,12 +79,11 @@ function VoiceSocket:handlePayload(payload)
 	elseif op == READY then
 
 		self:info('Received READY')
-		local mode = getMode(d.modes)
-		if mode then
+		if checkMode(d.modes) then
 			self._state.ssrc = d.ssrc
-			self:handshake(d.ip, d.port, mode) -- NOTE: still getting IP in payload?
+			self:handshake(d.ip, d.port)
 		else
-			self:error('%q encryption method not available', SUPPORTED_MODE)
+			self:error('%q encryption mode not available', ENCRYPTION_MODE)
 			self:disconnect()
 		end
 
@@ -92,12 +93,12 @@ function VoiceSocket:handlePayload(payload)
 
 	elseif op == DESCRIPTION then
 
-		if d.mode == SUPPORTED_MODE then
+		if d.mode == ENCRYPTION_MODE then
 			local connection = VoiceConnection(d.secret_key, self)
 			self._connection = connection
 			manager:emit('connect', connection)
 		else
-			self:error('%q encryption method not available', SUPPORTED_MODE)
+			self:error('%q encryption mode not available', ENCRYPTION_MODE)
 			self:disconnect()
 		end
 
@@ -155,7 +156,7 @@ function VoiceSocket:resume()
 	})
 end
 
-function VoiceSocket:handshake(server_ip, server_port, mode)
+function VoiceSocket:handshake(server_ip, server_port)
 	local udp = uv.new_udp()
 	self._udp = udp
 	self._ip = server_ip
@@ -166,18 +167,18 @@ function VoiceSocket:handshake(server_ip, server_port, mode)
 		local a, b = data:sub(-2):byte(1, 2)
 		local client_ip = data:match('....(%Z+)')
 		local client_port = a + b * 0x100
-		return wrap(self.selectProtocol)(self, client_ip, client_port, mode)
+		return wrap(self.selectProtocol)(self, client_ip, client_port)
 	end)
-	return udp:send(string.rep('\0', 70), server_ip, server_port) -- NOTE: doesn't need SSRC?
+	return udp:send(rep('\0', 70), server_ip, server_port) -- NOTE: ssrc not required?
 end
 
-function VoiceSocket:selectProtocol(address, port, mode)
+function VoiceSocket:selectProtocol(address, port)
 	return self:_send(SELECT_PROTOCOL, {
 		protocol = 'udp',
 		data = {
 			address = address,
 			port = port,
-			mode = mode,
+			mode = ENCRYPTION_MODE,
 		}
 	})
 end
