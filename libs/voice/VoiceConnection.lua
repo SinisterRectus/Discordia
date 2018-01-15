@@ -55,7 +55,6 @@ function VoiceConnection:__init(key, socket)
 	self._seq = 0
 	self._timestamp = 0
 
-	self._encrypt = self._manager._sodium.encrypt
 	self._encoder = self._manager._opus.Encoder(SAMPLE_RATE, CHANNELS)
 	self:setBitrate(self._client._options.bitrate)
 
@@ -70,22 +69,6 @@ function VoiceConnection:setBitrate(bitrate)
 	return self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
 end
 
-function VoiceConnection:_prepare(data, len)
-
-	local seq = self._seq
-	local timestamp = self._timestamp
-
-	local header = pack(HEADER, 0x80, 0x78, seq, timestamp, self._state.ssrc)
-
-	self._seq = band(seq + 1, MAX_SEQUENCE)
-	self._timestamp = band(timestamp + FRAME_SIZE, MAX_TIMESTAMP)
-
-	local encrypted, encrypted_len = self._encrypt(data, len, header .. PADDING, self._key)
-
-	return header .. ffi_string(encrypted, encrypted_len)
-
-end
-
 function VoiceConnection:_play(source, duration)
 
 	if self._closed then return end
@@ -93,21 +76,33 @@ function VoiceConnection:_play(source, duration)
 	self._socket:setSpeaking(true)
 
 	local elapsed = 0
-	local t = hrtime()
 	local udp, ip, port = self._udp, self._ip, self._port
+	local ssrc, key = self._state.ssrc, self._key
+	local encoder = self._encoder
+	local encrypt = self._manager._sodium.encrypt
+
+	local t = hrtime()
 
 	while elapsed < (duration or math.huge) do
 
-		local pcm = source()
+		local pcm = source(PCM_LEN)
 		if not pcm then break end
 
-		local data, len = self._encoder:encode(pcm, PCM_LEN, FRAME_SIZE, PCM_SIZE)
+		local data, len = encoder:encode(pcm, PCM_LEN, FRAME_SIZE, PCM_SIZE)
 		if not data then break end
 
-		local packet = self:_prepare(data, len)
-		if not packet then break end
+		local seq = self._seq
+		local timestamp = self._timestamp
 
-		udp:send(packet, ip, port)
+		local header = pack(HEADER, 0x80, 0x78, seq, timestamp, ssrc)
+
+		self._seq = band(seq + 1, MAX_SEQUENCE)
+		self._timestamp = band(timestamp + FRAME_SIZE, MAX_TIMESTAMP)
+
+		local encrypted, encrypted_len = encrypt(data, len, header .. PADDING, key)
+		if not encrypted then break end
+
+		udp:send(header .. ffi_string(encrypted, encrypted_len), ip, port)
 
 		elapsed = elapsed + FRAME_DURATION
 		sleep(max(elapsed - (hrtime() - t) * MS_PER_NS, 0))

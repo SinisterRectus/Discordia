@@ -12,9 +12,10 @@ local format = string.format
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 local wrap = coroutine.wrap
 local time = os.time
-local rep = string.rep
+local unpack = string.unpack -- luacheck: ignore
 
 local ENCRYPTION_MODE = constants.ENCRYPTION_MODE
+local PADDING = string.rep('\0', 70)
 
 local IDENTIFY        = 0
 local SELECT_PROTOCOL = 1
@@ -164,12 +165,11 @@ function VoiceSocket:handshake(server_ip, server_port)
 	udp:recv_start(function(err, data)
 		assert(not err, err)
 		udp:recv_stop()
-		local a, b = data:sub(-2):byte(1, 2)
-		local client_ip = data:match('....(%Z+)')
-		local client_port = a + b * 0x100
+		local client_ip = unpack('xxxxz', data)
+		local client_port = unpack('<H', data:sub(-2))
 		return wrap(self.selectProtocol)(self, client_ip, client_port)
 	end)
-	return udp:send(rep('\0', 70), server_ip, server_port) -- NOTE: ssrc not required?
+	return udp:send(PADDING, server_ip, server_port)
 end
 
 function VoiceSocket:selectProtocol(address, port)
