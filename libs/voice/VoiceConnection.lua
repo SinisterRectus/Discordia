@@ -1,5 +1,3 @@
-local Buffer = require('utils/Buffer')
-
 local uv = require('uv')
 local ffi = require('ffi')
 local constants = require('constants')
@@ -15,12 +13,16 @@ local FRAME_DURATION = 20 -- ms
 local FRAME_SIZE = SAMPLE_RATE * FRAME_DURATION / 1000
 local PCM_LEN = FRAME_SIZE * CHANNELS
 local PCM_SIZE = PCM_LEN * 2
+local HEADER = '>BBI2I4I4'
+local PADDING = string.rep('\0', 12)
 
 local MS_PER_NS = 1 / (constants.NS_PER_US * constants.US_PER_MS)
 
 local min, max = math.min, math.max
 local band = bit.band
 local hrtime = uv.hrtime
+local ffi_string = ffi.string
+local pack = string.pack -- luacheck: ignore
 
 -- timer.sleep is redefined here to avoid a memory leak in the luvit module
 local function sleep(delay)
@@ -57,13 +59,6 @@ function VoiceConnection:__init(key, socket)
 	self._encoder = self._manager._opus.Encoder(SAMPLE_RATE, CHANNELS)
 	self:setBitrate(self._client._options.bitrate)
 
-	local header = Buffer(24)
-	header:writeInt8(0, 0x80)
-	header:writeInt8(1, 0x78)
-	header:writeUInt32BE(8, self._state.ssrc)
-
-	self._header = header
-
 end
 
 function VoiceConnection:getBitrate()
@@ -77,30 +72,17 @@ end
 
 function VoiceConnection:_prepare(data, len)
 
-	local header = self._header
 	local seq = self._seq
 	local timestamp = self._timestamp
 
-	header:writeUInt16BE(2, seq)
-	header:writeUInt32BE(4, timestamp)
+	local header = pack(HEADER, 0x80, 0x78, seq, timestamp, self._state.ssrc)
 
 	self._seq = band(seq + 1, MAX_SEQUENCE)
 	self._timestamp = band(timestamp + FRAME_SIZE, MAX_TIMESTAMP)
 
-	header = header._cdata
-	local encrypted, encrypted_len = self._encrypt(data, len, header, self._key)
-	encrypted_len = tonumber(encrypted_len)
+	local encrypted, encrypted_len = self._encrypt(data, len, header .. PADDING, self._key)
 
-	local packet = Buffer(12 + encrypted_len)
-	packet:write(header, 0, 12)
-	packet:write(encrypted, 12, encrypted_len)
-
-	return tostring(packet)
-
-	-- or --
-	-- return header:read(12) .. ffi.string(encrypted, encrypted_len) -- TODO: benchmark
-	-- or --
-	-- string.pack / string.unpack -- TODO: benchmark
+	return header .. ffi_string(encrypted, encrypted_len)
 
 end
 
