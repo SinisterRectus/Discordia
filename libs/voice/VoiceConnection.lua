@@ -1,30 +1,30 @@
+local PCMString = require('voice/streams/PCMString')
+local PCMGenerator = require('voice/streams/PCMGenerator')
+local PCMFile = require('voice/streams/PCMFile')
+
 local uv = require('uv')
 local ffi = require('ffi')
 local constants = require('constants')
 
 local CHANNELS = 2
-local SAMPLE_RATE = 48000
-local MIN_BITRATE = 8000
-local MAX_BITRATE = 128000
+local SAMPLE_RATE = 48000 -- Hz
+local MIN_BITRATE = 8000 -- kbps
+local MAX_BITRATE = 128000 -- kbps
 
 local MAX_SEQUENCE = 0xFFFF
 local MAX_TIMESTAMP = 0xFFFFFFFF
-local FRAME_DURATION = 20 -- ms
-local FRAME_SIZE = SAMPLE_RATE * FRAME_DURATION / 1000
-local PCM_LEN = FRAME_SIZE * CHANNELS
-local PCM_SIZE = PCM_LEN * 2
+
 local HEADER_FMT = '>BBI2I4I4'
 local PADDING = string.rep('\0', 12)
-local PCM_FMT = string.rep('<h', PCM_LEN)
 
 local MS_PER_NS = 1 / (constants.NS_PER_US * constants.US_PER_MS)
+local MS_PER_S = constants.MS_PER_S
 
 local min, max = math.min, math.max
 local band = bit.band
 local hrtime = uv.hrtime
 local ffi_string = ffi.string
-local pack, unpack = string.pack, string.unpack -- luacheck: ignore
-local remove = table.remove
+local pack = string.pack -- luacheck: ignore
 
 -- timer.sleep is redefined here to avoid a memory leak in the luvit module
 local function sleep(delay)
@@ -58,7 +58,10 @@ function VoiceConnection:__init(key, socket)
 	self._timestamp = 0
 
 	self._encoder = self._manager._opus.Encoder(SAMPLE_RATE, CHANNELS)
-	self:setBitrate(self._client._options.bitrate)
+
+	local options = self._client._options
+	self:setBitrate(options.bitrate)
+	self:setFrameDuration(options.frameDuration)
 
 end
 
@@ -67,11 +70,20 @@ function VoiceConnection:getBitrate()
 end
 
 function VoiceConnection:setBitrate(bitrate)
+	bitrate = tonumber(bitrate) or self._client._options.bitrate
 	bitrate = min(max(bitrate, MIN_BITRATE), MAX_BITRATE)
 	return self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
 end
 
-function VoiceConnection:_play(source, duration)
+function VoiceConnection:getFrameDuration()
+	return self._duration
+end
+
+function VoiceConnection:setFrameDuration(duration)
+	self._duration = tonumber(duration) or self._client._options.frameDuration
+end
+
+function VoiceConnection:_play(stream, duration)
 
 	self._socket:setSpeaking(true)
 
@@ -81,14 +93,18 @@ function VoiceConnection:_play(source, duration)
 	local encoder = self._encoder
 	local encrypt = self._manager._sodium.encrypt
 
+	local frame_duration = self._duration
+	local frame_size = SAMPLE_RATE * frame_duration / MS_PER_S
+	local pcm_len = frame_size * CHANNELS
+
 	local t = hrtime()
 
 	while elapsed < (duration or math.huge) do
 
-		local pcm = source()
+		local pcm = stream:read(pcm_len)
 		if not pcm then break end
 
-		local data, len = encoder:encode(pcm, PCM_LEN, FRAME_SIZE, PCM_SIZE)
+		local data, len = encoder:encode(pcm, pcm_len, frame_size, pcm_len * 2)
 		if not data then break end
 
 		local seq = self._seq
@@ -97,14 +113,14 @@ function VoiceConnection:_play(source, duration)
 		local header = pack(HEADER_FMT, 0x80, 0x78, seq, timestamp, ssrc)
 
 		self._seq = band(seq + 1, MAX_SEQUENCE)
-		self._timestamp = band(timestamp + FRAME_SIZE, MAX_TIMESTAMP)
+		self._timestamp = band(timestamp + frame_size, MAX_TIMESTAMP)
 
 		local encrypted, encrypted_len = encrypt(data, len, header .. PADDING, key)
 		if not encrypted then break end
 
 		udp:send(header .. ffi_string(encrypted, encrypted_len), ip, port)
 
-		elapsed = elapsed + FRAME_DURATION
+		elapsed = elapsed + frame_duration
 		sleep(max(elapsed - (hrtime() - t) * MS_PER_NS, 0))
 
 	end
@@ -119,41 +135,16 @@ function VoiceConnection:play(source, duration)
 		return nil, 'Cannot play audio on a closed connection'
 	end
 
-	local wrapped
-	local typ = type(source)
-
-	if typ == 'string' then
-
-		local i = 1
-		local len = #source
-		function wrapped()
-			local j = i + PCM_SIZE
-			if j < len then
-				local pcm = source:sub(i, j - 1)
-				i = j
-				pcm = {unpack(PCM_FMT, pcm)}
-				remove(pcm)
-				return pcm
-			end
-		end
-
-	elseif typ == 'function' then
-
-		function wrapped()
-			local pcm = {}
-			for i = 1, PCM_LEN, 2 do
-				pcm[i], pcm[i + 1] = source()
-			end
-			return pcm
-		end
-
-	else
-
-		return error('Invalid audio source type: ' .. typ, 2)
-
+	local stream
+	if type(source) == 'string' then
+		stream = PCMString(source)
+	elseif type(source) == 'function' then
+		stream = PCMGenerator(source)
+	elseif io.type(source) == 'file' then
+		stream = PCMFile(source)
 	end
 
-	return self:_play(wrapped, duration)
+	return self:_play(stream, duration)
 
 end
 
