@@ -44,7 +44,7 @@ function WebSocket:connect(url, path)
 		local parent = self._parent
 		for message in self._read do
 			local payload, str = self:parseMessage(message)
-			if not payload then return end
+			if not payload then break end
 			parent:emit('raw', str)
 			self:handlePayload(payload)
 		end

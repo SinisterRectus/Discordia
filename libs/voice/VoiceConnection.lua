@@ -8,8 +8,12 @@ local constants = require('constants')
 
 local CHANNELS = 2
 local SAMPLE_RATE = 48000 -- Hz
-local MIN_BITRATE = 8000 -- kbps
-local MAX_BITRATE = 128000 -- kbps
+
+local MIN_BITRATE = 8000 -- bps
+local MAX_BITRATE = 128000 -- bps
+
+local MIN_DURATION = 5 -- ms
+local MAX_DURATION = 60 -- ms
 
 local MAX_SEQUENCE = 0xFFFF
 local MAX_TIMESTAMP = 0xFFFFFFFF
@@ -70,9 +74,11 @@ function VoiceConnection:getBitrate()
 end
 
 function VoiceConnection:setBitrate(bitrate)
-	bitrate = tonumber(bitrate) or self._client._options.bitrate
-	bitrate = min(max(bitrate, MIN_BITRATE), MAX_BITRATE)
-	return self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
+	bitrate = tonumber(bitrate)
+	if bitrate then
+		bitrate = min(max(bitrate, MIN_BITRATE), MAX_BITRATE)
+		return self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
+	end
 end
 
 function VoiceConnection:getFrameDuration()
@@ -80,7 +86,11 @@ function VoiceConnection:getFrameDuration()
 end
 
 function VoiceConnection:setFrameDuration(duration)
-	self._duration = tonumber(duration) or self._client._options.frameDuration
+	duration = tonumber(duration)
+	if duration then
+		duration = min(max(duration, MIN_DURATION), MAX_DURATION)
+		self._duration = duration
+	end
 end
 
 function VoiceConnection:_play(stream, duration)
@@ -129,7 +139,7 @@ function VoiceConnection:_play(stream, duration)
 
 end
 
-function VoiceConnection:play(source, duration)
+function VoiceConnection:playPCM(source, duration)
 
 	if self._closed then
 		return nil, 'Cannot play audio on a closed connection'
