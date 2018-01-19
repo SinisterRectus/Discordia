@@ -14,6 +14,7 @@ local Role, get = require('class')('Role', Snowflake)
 
 function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)
+	self.client._role_map[self._id] = parent
 end
 
 function Role:_modify(payload)

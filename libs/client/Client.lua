@@ -97,6 +97,8 @@ function Client:__init(options)
 	self._relationships = Cache({}, Relationship, self)
 	self._webhooks = WeakCache({}, Webhook, self) -- used for audit logs
 	self._logger = Logger(options.logLevel, options.dateTime, options.logFile)
+	self._role_map = {}
+	self._emoji_map = {}
 	self._channel_map = {}
 end
 

@@ -267,10 +267,10 @@ end
 
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
-		local guild = self.guild
-		local roles = guild and guild._roles
+		local client = self.client
 		self._mentioned_roles = ArrayIterable(self._mentioned_roles_raw, function(id)
-			return roles:get(id)
+			local guild = client._role_map[id]
+			return guild and guild._roles:get(id)
 		end)
 		self._mentioned_roles_raw = nil
 	end
@@ -279,10 +279,10 @@ end
 
 function get.mentionedEmojis(self)
 	if not self._mentioned_emojis then
-		local guild = self.guild
-		local emojis = guild and guild._emojis
+		local client = self.client
 		self._mentioned_emojis = ArrayIterable(self._mentioned_emojis_raw, function(id)
-			return emojis:get(id)
+			local guild = client._emoji_map[id]
+			return guild and guild._emojis:get(id)
 		end)
 		self._mentioned_emojis_raw = nil
 	end

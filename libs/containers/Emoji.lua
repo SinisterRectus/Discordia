@@ -9,6 +9,7 @@ local Emoji, get = require('class')('Emoji', Snowflake)
 
 function Emoji:__init(data, parent)
 	Snowflake.__init(self, data, parent)
+	self.client._emoji_map[self._id] = parent
 	return self:_loadMore(data)
 end
 
