@@ -1,6 +1,7 @@
 local PCMString = require('voice/streams/PCMString')
 local PCMGenerator = require('voice/streams/PCMGenerator')
 local PCMFile = require('voice/streams/PCMFile')
+local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
 local ffi = require('ffi')
@@ -158,9 +159,22 @@ function VoiceConnection:playPCM(source, duration)
 
 end
 
+function VoiceConnection:playFFmpeg(path, duration)
+
+	if self._closed then
+		return nil, 'Cannot play audio on a closed connection'
+	end
+
+	local stream = FFmpegProcess(path, SAMPLE_RATE, CHANNELS)
+	self:_play(stream, duration)
+	return stream:close()
+
+end
+
 function VoiceConnection:close()
-	local guild = self.guild
-	return guild and self._client._shards[guild.shardId]:updateVoice(guild._id)
+	return self._socket:disconnect()
+	-- local guild = self.guild
+	-- return guild and self._client._shards[guild.shardId]:updateVoice(guild._id)
 end
 
 function get.channel(self)

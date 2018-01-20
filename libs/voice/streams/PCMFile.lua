@@ -12,8 +12,7 @@ function PCMFile:read(n)
 	local size = n * 2
 	local pcm = self._file:read(size)
 	if #pcm == size then
-		local fmt = rep('<i2', n)
-		pcm = {unpack(fmt, pcm)}
+		pcm = {unpack(rep('<i2', n), pcm)}
 		remove(pcm)
 		return pcm
 	end
