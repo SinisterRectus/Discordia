@@ -1,6 +1,5 @@
 local PCMString = require('voice/streams/PCMString')
 local PCMGenerator = require('voice/streams/PCMGenerator')
-local PCMFile = require('voice/streams/PCMFile')
 local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
@@ -94,6 +93,27 @@ function VoiceConnection:setFrameDuration(duration)
 	end
 end
 
+---- debugging
+local start = 10
+local t0, m0
+local t_sum, m_sum, n = 0, 0, 0
+local function open()
+	collectgarbage()
+	m0 = collectgarbage('count')
+	t0 = hrtime()
+end
+local function close()
+	local dt = ((hrtime() - t0) * MS_PER_NS)
+	local dm = (collectgarbage('count') - m0)
+	n = n + 1
+	if n > start then
+		t_sum = t_sum + dt
+		m_sum = m_sum + dm
+		print(dt, dm, t_sum / (n - start), m_sum / (n - start))
+	end
+end
+---- debugging
+
 function VoiceConnection:_play(stream, duration)
 
 	self._socket:setSpeaking(true)
@@ -151,8 +171,6 @@ function VoiceConnection:playPCM(source, duration)
 		stream = PCMString(source)
 	elseif type(source) == 'function' then
 		stream = PCMGenerator(source)
-	elseif io.type(source) == 'file' then
-		stream = PCMFile(source)
 	end
 
 	return self:_play(stream, duration)

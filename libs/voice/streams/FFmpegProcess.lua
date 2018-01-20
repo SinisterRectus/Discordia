@@ -7,6 +7,13 @@ local yield, resume, running = coroutine.yield, coroutine.resume, coroutine.runn
 
 local function onExit() end
 
+local fmt = setmetatable({}, {
+	__index = function(self, n)
+		self[n] = '<' .. rep('i2', n)
+		return self[n]
+	end
+})
+
 local FFmpegProcess = require('class')('FFmpegProcess')
 
 function FFmpegProcess:__init(path, rate, channels)
@@ -50,9 +57,9 @@ function FFmpegProcess:read(n)
 
 	if #buffer >= bytes then
 		self._buffer = buffer:sub(bytes + 1)
-		local chunk = {unpack(rep('<i2', n), buffer)}
-		remove(chunk)
-		return chunk
+		local pcm = {unpack(fmt[n], buffer)}
+		remove(pcm)
+		return pcm
 	end
 
 end
