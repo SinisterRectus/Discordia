@@ -11,9 +11,10 @@ local SAMPLE_RATE = 48000 -- Hz
 
 local MIN_BITRATE = 8000 -- bps
 local MAX_BITRATE = 128000 -- bps
-
 local MIN_DURATION = 5 -- ms
 local MAX_DURATION = 60 -- ms
+local MIN_COMPLEXITY = 0
+local MAX_COMPLEXITY = 10
 
 local MAX_SEQUENCE = 0xFFFF
 local MAX_TIMESTAMP = 0xFFFFFFFF
@@ -42,6 +43,11 @@ local function sleep(delay)
 	return coroutine.yield()
 end
 
+local function check(n, mn, mx)
+	n = tonumber(n)
+	return n and min(max(n, mn), mx)
+end
+
 local key_t = ffi.typeof('const unsigned char[32]')
 
 local VoiceConnection, get = require('class')('VoiceConnection')
@@ -66,6 +72,7 @@ function VoiceConnection:__init(key, socket)
 	local options = self._client._options
 	self:setBitrate(options.bitrate)
 	self:setFrameDuration(options.frameDuration)
+	self:setComplexity(5)
 
 end
 
@@ -74,22 +81,31 @@ function VoiceConnection:getBitrate()
 end
 
 function VoiceConnection:setBitrate(bitrate)
-	bitrate = tonumber(bitrate)
+	bitrate = check(bitrate, MIN_BITRATE, MAX_BITRATE)
 	if bitrate then
-		bitrate = min(max(bitrate, MIN_BITRATE), MAX_BITRATE)
 		return self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
 	end
 end
 
 function VoiceConnection:getFrameDuration()
-	return self._duration
+	return self._frame_duration
 end
 
 function VoiceConnection:setFrameDuration(duration)
-	duration = tonumber(duration)
+	duration = check(duration, MIN_DURATION, MAX_DURATION)
 	if duration then
-		duration = min(max(duration, MIN_DURATION), MAX_DURATION)
-		self._duration = duration
+		self._frame_duration = duration
+	end
+end
+
+function VoiceConnection:getComplexity()
+	return self._encoder:get(self._manager._opus.GET_COMPLEXITY_REQUEST)
+end
+
+function VoiceConnection:setComplexity(complexity)
+	complexity = check(complexity, MIN_COMPLEXITY, MAX_COMPLEXITY)
+	if complexity then
+		return self._encoder:set(self._manager._opus.SET_COMPLEXITY_REQUEST, complexity)
 	end
 end
 
@@ -118,19 +134,21 @@ function VoiceConnection:_play(stream, duration)
 
 	self._socket:setSpeaking(true)
 
+	duration = tonumber(duration) or math.huge
+
 	local elapsed = 0
 	local udp, ip, port = self._udp, self._ip, self._port
 	local ssrc, key = self._state.ssrc, self._key
 	local encoder = self._encoder
 	local encrypt = self._manager._sodium.encrypt
 
-	local frame_duration = self._duration
+	local frame_duration = self._frame_duration
 	local frame_size = SAMPLE_RATE * frame_duration / MS_PER_S
 	local pcm_len = frame_size * CHANNELS
 
 	local t = hrtime()
 
-	while elapsed < (duration or math.huge) do
+	while elapsed < duration do
 
 		local pcm = stream:read(pcm_len)
 		if not pcm then break end

@@ -46,7 +46,9 @@ function WebSocket:connect(url, path)
 			local payload, str = self:parseMessage(message)
 			if not payload then break end
 			parent:emit('raw', str)
-			self:handlePayload(payload)
+			if self.handlePayload then -- virtual method
+				self:handlePayload(payload)
+			end
 		end
 		self:info('Disconnected')
 	else
