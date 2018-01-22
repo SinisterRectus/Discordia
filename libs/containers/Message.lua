@@ -47,8 +47,8 @@ local function parseMentions(content)
 			elseif symbol == ':' then
 				insert(emojis, id)
 			end
+			seen[id] = true
 		end
-		seen[id] = true
 	end
 	return users, roles, channels, emojis
 
@@ -270,7 +270,7 @@ function get.mentionedRoles(self)
 		local client = self.client
 		self._mentioned_roles = ArrayIterable(self._mentioned_roles_raw, function(id)
 			local guild = client._role_map[id]
-			return guild and guild._roles:get(id)
+			return guild and guild._roles:get(id) or nil
 		end)
 		self._mentioned_roles_raw = nil
 	end

@@ -11,7 +11,7 @@ end
 
 function ArrayIterable:__len()
 	local array = self._array
-	if not array then
+	if not array or #array == 0 then
 		return 0
 	end
 	local map = self._map
@@ -22,9 +22,47 @@ function ArrayIterable:__len()
 	end
 end
 
+function ArrayIterable:first()
+	local array = self._array
+	if not array or #array == 0 then
+		return nil
+	end
+	local map = self._map
+	if map then
+		for i = 1, #array, 1 do
+			local v = array[i]
+			local obj = v and map(v)
+			if obj then
+				return obj
+			end
+		end
+	else
+		return array[1]
+	end
+end
+
+function ArrayIterable:last()
+	local array = self._array
+	if not array or #array == 0 then
+		return nil
+	end
+	local map = self._map
+	if map then
+		for i = #array, 1, -1 do
+			local v = array[i]
+			local obj = v and map(v)
+			if obj then
+				return obj
+			end
+		end
+	else
+		return array[#array]
+	end
+end
+
 function ArrayIterable:iter()
 	local array = self._array
-	if not array then
+	if not array or #array == 0 then
 		return function() -- new closure for consistency
 			return nil
 		end
