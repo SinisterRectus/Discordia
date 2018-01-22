@@ -112,6 +112,20 @@ function Resolver.messageIds(objs)
 	return ret
 end
 
+function Resolver.roleIds(objs)
+	local ret = {}
+	if isInstance(objs, classes.Iterable) then
+		for obj in objs:iter() do
+			insert(ret, Resolver.roleId(obj))
+		end
+	elseif type(objs) == 'table' then
+		for _, obj in pairs(objs) do
+			insert(ret, Resolver.roleId(obj))
+		end
+	end
+	return ret
+end
+
 function Resolver.emoji(obj)
 	if isInstance(obj, classes.Emoji) then
 		return obj.hash

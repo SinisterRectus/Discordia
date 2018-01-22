@@ -43,6 +43,11 @@ function Emoji:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+function Emoji:setRoles(roles)
+	roles = Resolver.roleIds(roles)
+	return self:_modify({roles = roles or json.null})
+end
+
 function Emoji:delete()
 	local data, err = self.client._api:deleteGuildEmoji(self._parent._id, self._id)
 	if data then
