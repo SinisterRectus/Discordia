@@ -64,8 +64,8 @@ function VoiceConnection:__init(key, socket)
 	self._manager = socket._manager
 	self._client = socket._client
 
-	self._seq = 0
-	self._timestamp = 0
+	self._s = 0
+	self._t = 0
 
 	self._encoder = self._manager._opus.Encoder(SAMPLE_RATE, CHANNELS)
 
@@ -110,22 +110,22 @@ function VoiceConnection:setComplexity(complexity)
 end
 
 ---- debugging
-local start = 10
+local skip = 10
 local t0, m0
-local t_sum, m_sum, n = 0, 0, 0
+local t_sum, m_sum, count = 0, 0, 0
 local function open()
-	collectgarbage()
+	-- collectgarbage()
 	m0 = collectgarbage('count')
 	t0 = hrtime()
 end
 local function close()
 	local dt = ((hrtime() - t0) * MS_PER_NS)
 	local dm = (collectgarbage('count') - m0)
-	n = n + 1
-	if n > start then
+	count = count + 1
+	if count > skip then
 		t_sum = t_sum + dt
 		m_sum = m_sum + dm
-		print(dt, dm, t_sum / (n - start), m_sum / (n - start))
+		print(dt, dm, t_sum / (count - skip), m_sum / (count - skip))
 	end
 end
 ---- debugging
@@ -146,7 +146,7 @@ function VoiceConnection:_play(stream, duration)
 	local frame_size = SAMPLE_RATE * frame_duration / MS_PER_S
 	local pcm_len = frame_size * CHANNELS
 
-	local t = hrtime()
+	local start = hrtime()
 
 	while elapsed < duration do
 
@@ -156,13 +156,14 @@ function VoiceConnection:_play(stream, duration)
 		local data, len = encoder:encode(pcm, pcm_len, frame_size, pcm_len * 2)
 		if not data then break end
 
-		local seq = self._seq
-		local timestamp = self._timestamp
+		local s, t = self._s, self._t
+		local header = pack(HEADER_FMT, 0x80, 0x78, s, t, ssrc)
 
-		local header = pack(HEADER_FMT, 0x80, 0x78, seq, timestamp, ssrc)
+		s = s + 1
+		t = t + frame_size
 
-		self._seq = band(seq + 1, MAX_SEQUENCE)
-		self._timestamp = band(timestamp + frame_size, MAX_TIMESTAMP)
+		self._s = s > MAX_SEQUENCE and 0 or s
+		self._t = t > MAX_TIMESTAMP and 0 or t
 
 		local encrypted, encrypted_len = encrypt(data, len, header .. PADDING, key)
 		if not encrypted then break end
@@ -170,7 +171,7 @@ function VoiceConnection:_play(stream, duration)
 		udp:send(header .. ffi_string(encrypted, encrypted_len), ip, port)
 
 		elapsed = elapsed + frame_duration
-		sleep(max(elapsed - (hrtime() - t) * MS_PER_NS, 0))
+		sleep(max(elapsed - (hrtime() - start) * MS_PER_NS, 0))
 
 	end
 
