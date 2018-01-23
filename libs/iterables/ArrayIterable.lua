@@ -2,7 +2,7 @@ local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Iterable = require('iterables/Iterable')
 
-local ArrayIterable = require('class')('ArrayIterable', Iterable)
+local ArrayIterable, get = require('class')('ArrayIterable', Iterable)
 
 function ArrayIterable:__init(array, map)
 	self._array = array
@@ -22,7 +22,7 @@ function ArrayIterable:__len()
 	end
 end
 
-function ArrayIterable:first()
+function get.first(self)
 	local array = self._array
 	if not array or #array == 0 then
 		return nil
@@ -41,7 +41,7 @@ function ArrayIterable:first()
 	end
 end
 
-function ArrayIterable:last()
+function get.last(self)
 	local array = self._array
 	if not array or #array == 0 then
 		return nil
