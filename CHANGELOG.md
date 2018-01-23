@@ -1,15 +1,48 @@
 # Changelog
 
+## 2.3.0
+- Emoji improvements:
+	- Added `Emoji:hasRole`
+	- Added `Emoji:setRoles`
+	- `Emoji.mentionString` will now provide the animated version `<a:name:id>` for animated emojis
+	- `Emoji.url` will now provide a `.gif` URL for animated emojis
+	- Added `Emoji.animated` boolean property
+- Message mention improvements:
+	- Mentions are now iterated in the order that they appear in the message content
+	- Replicated mentions are still ignored as before
+	- Added `Message.mentionedEmojis` (for custom emojis only)
+	- Known cross-guild role and emoji mentions are now resolvable
+	- Role mentions will now resolve even if the role is technically not mentionable
+	- Emojis are now parsed in `Message.cleanContent`
+	- Added `ArrayIterable.first` and `ArrayIterable.last` properties (eg: `message.mentionedUsers.first`)
+- `Client:setGame` now supports arbitrary game/activity types
+- Added `gameType.listening` enumeration
+- Added `GuildVoiceChannel:join` (only joins the channel, no voice connection is made)
+- Adjusted shard counting:
+	- `Client.shardCount` was corrected to represent the number of shards that the single client instance is running
+	- `Client.totalShardCount` was added to represent the total number of shards that the bot is running across all clients
+	- The client option `shardCount` will remain unchanged; it still represents the total number of shards across all clients
+- Added `GuildVoiceChannel.connectedMembers` iterable property
+- Added `Time:toString` to obtain a natural-language time duration with proper grammatical number
+- Other changes
+	- Some internal `Emitter` class tweaks
+	- Added `TableIterable` class (used internally)
+	- HTTP User-Agent is now set during initialization instead of authentication
+	- Fixed nil concatenation in enum module
+	- Default class instance `__tostring` now provides only the class type
+	- Fixed over-caching of members
+
+
 ## 2.2.0
 - Added audit log support
-	- Added Guild:getAuditLogs
-	- Added AuditLogEntry class
-	- Added actionType enumeration
-- Added Guild:getEmoji
-- Added support for Reaction:getUsers query
-- Added TextChannel:sendf shortcut
+	- Added `Guild:getAuditLogs`
+	- Added `AuditLogEntry` class
+	- Added `actionType` enumeration
+- Added `Guild:getEmoji`
+- Added support for `Reaction:getUsers` query
+- Added `TextChannel:sendf` shortcut
 - Objects deleted via HTTP are now synchronously uncached
-- Fixed Guild:listVoiceRegions
+- Fixed `Guild:listVoiceRegions`
 - Ratelimit route tweaks
 	- ID paths are now properly substituted
 	- Webhooks are now treated as a major route
@@ -19,17 +52,17 @@
 
 
 ## 2.1.0
-- Added Reaction.emojiHash and Emoji.hash properties
+- Added `Reaction.emojiHash` and `Emoji.hash` properties
 - Added support for emoji endpoints and methods:
-	- Emoji:setName
-	- Emoji:delete
-	- Guild:createEmoji
+	- `Emoji:setName`
+	- `Emoji:delete`
+	- `Guild:createEmoji`
 - Date instances are now valid Snowflake ID resolvables
 - Added `textChannels` and `voiceChannels` filtered iterables to `GuildCategoryChannel`
 - Added support for system channels
-	- Guild.systemChannel
-	- Guild.systemChannelId
-	- Guild:setSystemChannel
+	- `Guild.systemChannel`
+	- `Guild.systemChannelId`
+	- `Guild:setSystemChannel`
 
 
 ## 2.0.1

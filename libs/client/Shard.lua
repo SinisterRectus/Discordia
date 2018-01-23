@@ -104,7 +104,6 @@ function Shard:connect(url, token)
 		self:info('Connected to %s', url)
 		self:handlePayloads(token)
 		self:info('Disconnected')
-		self._client:emit('shardDisconnect', self._id)
 	else
 		self:error('Could not connect to %s (%s)', url, res) -- TODO: get new url?
 	end
