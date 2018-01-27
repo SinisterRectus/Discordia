@@ -3,6 +3,8 @@ local json = require('json')
 local GuildChannel = require('containers/abstract/GuildChannel')
 local TableIterable = require('iterables/TableIterable')
 
+local running, yield = coroutine.running, coroutine.yield
+
 local GuildVoiceChannel, get = require('class')('GuildVoiceChannel', GuildChannel)
 
 function GuildVoiceChannel:__init(data, parent)
@@ -18,8 +20,20 @@ function GuildVoiceChannel:setUserLimit(user_limit)
 end
 
 function GuildVoiceChannel:join()
+
 	local guild = self._parent
-	return self.client._shards[guild.shardId]:updateVoice(guild._id, self._id)
+	local client = guild._parent
+	local id = self._id
+
+	local success, err = client._shards[guild.shardId]:updateVoice(guild._id, id)
+
+	if not success then
+		return nil, err
+	else
+		client._voice._waiting[id] = running()
+		return yield()
+	end
+
 end
 
 function get.bitrate(self)

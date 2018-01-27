@@ -13,6 +13,7 @@ local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 local wrap = coroutine.wrap
 local time = os.time
 local unpack = string.unpack -- luacheck: ignore
+local resume = coroutine.resume
 
 local ENCRYPTION_MODE = constants.ENCRYPTION_MODE
 local PADDING = string.rep('\0', 70)
@@ -52,8 +53,19 @@ function VoiceSocket:__init(state, manager)
 	self._client = manager._client
 end
 
+function VoiceSocket:continue(...)
+	local waiting = self._manager._waiting
+	local id = self._state.channel_id
+	local thread = waiting[id]
+	if thread then
+		waiting[id] = nil
+		assert(resume(thread, ...))
+	end
+end
+
 function VoiceSocket:handleDisconnect()
 	-- TODO: reconnecting and resuming
+	self:continue(nil, 'Voice disconnected')
 	local connection = self._connection
 	if connection then
 		connection._closed = true
@@ -97,6 +109,7 @@ function VoiceSocket:handlePayload(payload)
 		if d.mode == ENCRYPTION_MODE then
 			local connection = VoiceConnection(d.secret_key, self)
 			self._connection = connection
+			self:continue(connection)
 			manager:emit('connect', connection)
 		else
 			self:error('%q encryption mode not available', ENCRYPTION_MODE)
