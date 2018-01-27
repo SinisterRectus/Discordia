@@ -24,14 +24,14 @@ function VoiceManager:loadSodium(path)
 	self._sodium = require('voice/sodium')(path or 'sodium')
 end
 
-function VoiceManager:_createVoiceConnection(state)
+function VoiceManager:_prepareConnection(state, connection)
 	if not self._opus then
 		return self._client:error('Cannot connect to voice: libopus not loaded')
 	end
 	if not self._sodium then
 		return self._client:error('Cannot connect to voice: libsodium not loaded')
 	end
-	local socket = VoiceSocket(state, self)
+	local socket = VoiceSocket(state, connection, self)
 	local url = 'wss://' .. state.endpoint:gsub(':%d*$', '')
 	local path = format('/?v=%i', GATEWAY_VERSION_VOICE)
 	return wrap(socket.connect)(socket, url, path)

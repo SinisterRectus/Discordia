@@ -4,7 +4,6 @@ local timer = require('timer')
 local constants = require('constants')
 local enums = require('enums')
 
-local VoiceConnection = require('voice/VoiceConnection')
 local WebSocket = require('client/WebSocket')
 
 local logLevel = enums.logLevel
@@ -13,7 +12,6 @@ local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 local wrap = coroutine.wrap
 local time = os.time
 local unpack = string.unpack -- luacheck: ignore
-local resume = coroutine.resume
 
 local ENCRYPTION_MODE = constants.ENCRYPTION_MODE
 local PADDING = string.rep('\0', 70)
@@ -46,32 +44,17 @@ for name in pairs(logLevel) do
 	end
 end
 
-function VoiceSocket:__init(state, manager)
+function VoiceSocket:__init(state, connection, manager)
 	WebSocket.__init(self, manager)
 	self._state = state
 	self._manager = manager
 	self._client = manager._client
-end
-
-function VoiceSocket:continue(...)
-	local waiting = self._manager._waiting
-	local id = self._state.channel_id
-	local thread = waiting[id]
-	if thread then
-		waiting[id] = nil
-		assert(resume(thread, ...))
-	end
+	self._connection = connection
 end
 
 function VoiceSocket:handleDisconnect()
 	-- TODO: reconnecting and resuming
-	self:continue(nil, 'Voice disconnected')
-	local connection = self._connection
-	if connection then
-		connection._closed = true
-		self._connection = nil
-		self._manager:emit('disconnect', connection)
-	end
+	self._connection:_cleanup()
 end
 
 function VoiceSocket:handlePayload(payload)
@@ -107,10 +90,7 @@ function VoiceSocket:handlePayload(payload)
 	elseif op == DESCRIPTION then
 
 		if d.mode == ENCRYPTION_MODE then
-			local connection = VoiceConnection(d.secret_key, self)
-			self._connection = connection
-			self:continue(connection)
-			manager:emit('connect', connection)
+			self._connection:_prepare(d.secret_key, self)
 		else
 			self:error('%q encryption mode not available', ENCRYPTION_MODE)
 			self:disconnect()

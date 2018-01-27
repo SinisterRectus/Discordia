@@ -1,6 +1,7 @@
 local PCMString = require('voice/streams/PCMString')
 local PCMGenerator = require('voice/streams/PCMGenerator')
 local FFmpegProcess = require('voice/streams/FFmpegProcess')
+local Emitter = require('utils/Emitter')
 
 local uv = require('uv')
 local ffi = require('ffi')
@@ -26,7 +27,6 @@ local MS_PER_NS = 1 / (constants.NS_PER_US * constants.US_PER_MS)
 local MS_PER_S = constants.MS_PER_S
 
 local min, max = math.min, math.max
-local band = bit.band
 local hrtime = uv.hrtime
 local ffi_string = ffi.string
 local pack = string.pack -- luacheck: ignore
@@ -50,12 +50,16 @@ end
 
 local key_t = ffi.typeof('const unsigned char[32]')
 
-local VoiceConnection, get = require('class')('VoiceConnection')
+local VoiceConnection, get = require('class')('VoiceConnection', Emitter)
 
-function VoiceConnection:__init(key, socket)
+function VoiceConnection:__init(channel)
+	Emitter.__init(self)
+	self._channel = channel
+end
+
+function VoiceConnection:_prepare(key, socket)
 
 	self._key = key_t(key)
-
 	self._socket = socket
 	self._ip = socket._ip
 	self._port = socket._port
@@ -74,6 +78,14 @@ function VoiceConnection:__init(key, socket)
 	self:setFrameDuration(options.frameDuration)
 	self:setComplexity(5)
 
+	self._ready = true
+	self:emit('ready')
+
+end
+
+function VoiceConnection:_cleanup()
+	self._ready = nil
+	self:emit('disconnect')
 end
 
 function VoiceConnection:getBitrate()
@@ -113,12 +125,12 @@ end
 local skip = 10
 local t0, m0
 local t_sum, m_sum, count = 0, 0, 0
-local function open()
+local function open() -- luacheck: ignore
 	-- collectgarbage()
 	m0 = collectgarbage('count')
 	t0 = hrtime()
 end
-local function close()
+local function close() -- luacheck: ignore
 	local dt = ((hrtime() - t0) * MS_PER_NS)
 	local dm = (collectgarbage('count') - m0)
 	count = count + 1
@@ -181,8 +193,8 @@ end
 
 function VoiceConnection:playPCM(source, duration)
 
-	if self._closed then
-		return nil, 'Cannot play audio on a closed connection'
+	if not self._ready then
+		return nil, 'Connection is not ready'
 	end
 
 	local stream
@@ -198,8 +210,8 @@ end
 
 function VoiceConnection:playFFmpeg(path, duration)
 
-	if self._closed then
-		return nil, 'Cannot play audio on a closed connection'
+	if not self._ready then
+		return nil, 'Connection is not ready'
 	end
 
 	local stream = FFmpegProcess(path, SAMPLE_RATE, CHANNELS)
@@ -209,18 +221,15 @@ function VoiceConnection:playFFmpeg(path, duration)
 end
 
 function VoiceConnection:close()
-	return self._socket:disconnect()
-	-- local guild = self.guild
-	-- return guild and self._client._shards[guild.shardId]:updateVoice(guild._id)
+	if self._socket then
+		self._socket:disconnect()
+	end
+	local guild = self._channel._parent
+	return self._client._shards[guild.shardId]:updateVoice(guild._id)
 end
 
 function get.channel(self)
-	local guild = self.guild
-	return guild and guild._voice_channels:get(self._state.channel_id)
-end
-
-function get.guild(self)
-	return self._client._guilds:get(self._state.guild_id)
+	return self._channel
 end
 
 return VoiceConnection
