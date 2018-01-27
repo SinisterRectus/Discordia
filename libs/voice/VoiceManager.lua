@@ -17,21 +17,11 @@ function VoiceManager:__init(client)
 end
 
 function VoiceManager:loadOpus(path)
-	local opus, err = require('voice/opus')(path or 'opus')
-	if opus then
-		self._opus = opus
-	else
-		return self._client:error(err)
-	end
+	self._opus = require('voice/opus')(path or 'opus')
 end
 
 function VoiceManager:loadSodium(path)
-	local sodium, err = require('voice/sodium')(path or 'sodium')
-	if sodium then
-		self._sodium = sodium
-	else
-		return self._client:error(err)
-	end
+	self._sodium = require('voice/sodium')(path or 'sodium')
 end
 
 function VoiceManager:_createVoiceConnection(state)

@@ -8,7 +8,7 @@ local ffi = require('ffi')
 
 loaded, lib = pcall(ffi.load, path)
 if not loaded then
-	return nil, lib
+	return error(lib, 2)
 end
 
 local new = ffi.new
