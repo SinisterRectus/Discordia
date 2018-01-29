@@ -9,11 +9,11 @@ local constants = require('constants')
 
 local CHANNELS = 2
 local SAMPLE_RATE = 48000 -- Hz
+local FRAME_DURATION = 20 -- ms
+local COMPLEXITY = 5
 
 local MIN_BITRATE = 8000 -- bps
 local MAX_BITRATE = 128000 -- bps
-local MIN_DURATION = 5 -- ms
-local MAX_DURATION = 60 -- ms
 local MIN_COMPLEXITY = 0
 local MAX_COMPLEXITY = 10
 
@@ -26,10 +26,11 @@ local PADDING = string.rep('\0', 12)
 local MS_PER_NS = 1 / (constants.NS_PER_US * constants.US_PER_MS)
 local MS_PER_S = constants.MS_PER_S
 
-local min, max = math.min, math.max
+local max = math.max
 local hrtime = uv.hrtime
 local ffi_string = ffi.string
 local pack = string.pack -- luacheck: ignore
+local format = string.format
 
 -- timer.sleep is redefined here to avoid a memory leak in the luvit module
 local function sleep(delay)
@@ -44,8 +45,10 @@ local function sleep(delay)
 end
 
 local function check(n, mn, mx)
-	n = tonumber(n)
-	return n and min(max(n, mn), mx)
+	if not tonumber(n) or n < mn or n > mx then
+		return error(format('Value must be a number between %s and %s', mn, mx), 2)
+	end
+	return n
 end
 
 local key_t = ffi.typeof('const unsigned char[32]')
@@ -73,10 +76,8 @@ function VoiceConnection:_prepare(key, socket)
 
 	self._encoder = self._manager._opus.Encoder(SAMPLE_RATE, CHANNELS)
 
-	local options = self._client._options
-	self:setBitrate(options.bitrate)
-	self:setFrameDuration(options.frameDuration)
-	self:setComplexity(5)
+	self:setBitrate(self._client._options.bitrate)
+	self:setComplexity(COMPLEXITY)
 
 	self._ready = true
 	self:emit('ready')
@@ -94,20 +95,7 @@ end
 
 function VoiceConnection:setBitrate(bitrate)
 	bitrate = check(bitrate, MIN_BITRATE, MAX_BITRATE)
-	if bitrate then
-		return self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
-	end
-end
-
-function VoiceConnection:getFrameDuration()
-	return self._frame_duration
-end
-
-function VoiceConnection:setFrameDuration(duration)
-	duration = check(duration, MIN_DURATION, MAX_DURATION)
-	if duration then
-		self._frame_duration = duration
-	end
+	self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
 end
 
 function VoiceConnection:getComplexity()
@@ -116,9 +104,7 @@ end
 
 function VoiceConnection:setComplexity(complexity)
 	complexity = check(complexity, MIN_COMPLEXITY, MAX_COMPLEXITY)
-	if complexity then
-		return self._encoder:set(self._manager._opus.SET_COMPLEXITY_REQUEST, complexity)
-	end
+	self._encoder:set(self._manager._opus.SET_COMPLEXITY_REQUEST, complexity)
 end
 
 ---- debugging
@@ -154,8 +140,7 @@ function VoiceConnection:_play(stream, duration)
 	local encoder = self._encoder
 	local encrypt = self._manager._sodium.encrypt
 
-	local frame_duration = self._frame_duration
-	local frame_size = SAMPLE_RATE * frame_duration / MS_PER_S
+	local frame_size = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
 	local pcm_len = frame_size * CHANNELS
 
 	local start = hrtime()
@@ -182,7 +167,7 @@ function VoiceConnection:_play(stream, duration)
 
 		udp:send(header .. ffi_string(encrypted, encrypted_len), ip, port)
 
-		elapsed = elapsed + frame_duration
+		elapsed = elapsed + FRAME_DURATION
 		sleep(max(elapsed - (hrtime() - start) * MS_PER_NS, 0))
 
 	end

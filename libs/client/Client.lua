@@ -51,7 +51,6 @@ local defaultOptions = {
 	autoReconnect = true,
 	compress = true,
 	bitrate = 64000,
-	frameDuration = 20,
 	logFile = 'discordia.log',
 	logLevel = logLevel.info,
 	dateTime = '%F %T',

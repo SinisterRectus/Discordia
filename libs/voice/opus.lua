@@ -132,6 +132,10 @@ local function throw(code)
 	return error(string.format('[%s] %s', version, message))
 end
 
+local function check(value)
+	return value >= opus.OK and value or throw(value)
+end
+
 local Encoder = {}
 Encoder.__index = Encoder
 
@@ -141,11 +145,9 @@ function Encoder:__new(sample_rate, channels, app) -- luacheck: ignore self
 
 	local err = int_ptr_t()
 	local state = lib.opus_encoder_create(sample_rate, channels, app, err)
-	err = err[0]
-	if err < opus.OK then return throw(err) end
+	check(err[0])
 
-	err = lib.opus_encoder_init(state, sample_rate, channels, app)
-	if err < opus.OK then return throw(err) end
+	check(lib.opus_encoder_init(state, sample_rate, channels, app))
 
 	return gc(state, lib.opus_encoder_destroy)
 
@@ -157,25 +159,21 @@ function Encoder:encode(input, input_len, frame_size, max_data_bytes)
 	local data = new('unsigned char[?]', max_data_bytes)
 
 	local ret = lib.opus_encode(self, pcm, frame_size, data, max_data_bytes)
-	if ret < opus.OK then return throw(ret) end
 
-	return data, ret
+	return data, check(ret)
 
 end
 
 function Encoder:get(id)
 	local ret = opus_int32_ptr_t()
 	lib.opus_encoder_ctl(self, id, ret)
-	ret = ret[0]
-	if ret < opus.OK then return throw(ret) end
-	return ret
+	return check(ret[0])
 end
 
 function Encoder:set(id, value)
 	if type(value) ~= 'number' then return throw(opus.BAD_ARG) end
 	local ret = lib.opus_encoder_ctl(self, id, opus_int32_t(value))
-	if ret < opus.OK then return throw(ret) end
-	return ret
+	return check(ret)
 end
 
 opus.Encoder = ffi.metatype('OpusEncoder', Encoder)
