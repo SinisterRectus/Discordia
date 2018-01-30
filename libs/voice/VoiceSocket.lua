@@ -76,7 +76,7 @@ function VoiceSocket:handlePayload(payload)
 
 		self:info('Received READY')
 		if checkMode(d.modes) then
-			self._state.ssrc = d.ssrc
+			self._ssrc = d.ssrc
 			self:handshake(d.ip, d.port)
 		else
 			self:error('%q encryption mode not available', ENCRYPTION_MODE)
@@ -159,7 +159,7 @@ function VoiceSocket:handshake(server_ip, server_port)
 		assert(not err, err)
 		udp:recv_stop()
 		local client_ip = unpack('xxxxz', data)
-		local client_port = unpack('<H', data:sub(-2))
+		local client_port = unpack('<I2', data, -2)
 		return wrap(self.selectProtocol)(self, client_ip, client_port)
 	end)
 	return udp:send(PADDING, server_ip, server_port)
@@ -180,7 +180,7 @@ function VoiceSocket:setSpeaking(speaking)
 	return self:_send(SPEAKING, {
 		speaking = speaking,
 		delay = 0,
-		ssrc = self._state.ssrc,
+		ssrc = self._ssrc,
 	})
 end
 

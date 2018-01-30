@@ -501,6 +501,19 @@ function EventHandler.VOICE_STATE_UPDATE(d, client)
 			else -- user changed channels
 				local old = channels:get(old_channel_id)
 				local new = channels:get(new_channel_id)
+				if d.user_id == client._user._id then -- move connection to new channel
+					local connection = old._connection
+					if connection then
+						new._connection = connection
+						old._connection = nil
+						connection._channel = new
+						if connection._pending then -- channel:join was called
+							connection._pending = nil
+							connection:emit('ready')
+						end
+						connection:emit('channelChange')
+					end
+				end
 				client:emit('voiceChannelLeave', member, old)
 				client:emit('voiceChannelJoin', member, new)
 			end

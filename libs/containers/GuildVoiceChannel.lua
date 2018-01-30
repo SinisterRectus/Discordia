@@ -38,10 +38,18 @@ function GuildVoiceChannel:join()
 
 	if not success then
 		return nil, err
-	else
-		self._connection = VoiceConnection(self)
-		return self._connection
 	end
+
+	connection = guild._connection
+
+	if not connection then
+		connection = VoiceConnection(self)
+		guild._connection = connection
+	end
+
+	self._connection = connection
+	connection._pending = true
+	return connection
 
 end
 

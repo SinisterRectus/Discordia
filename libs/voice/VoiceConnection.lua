@@ -67,7 +67,7 @@ function VoiceConnection:_prepare(key, socket)
 	self._ip = socket._ip
 	self._port = socket._port
 	self._udp = socket._udp
-	self._state = socket._state
+	self._ssrc = socket._ssrc
 	self._manager = socket._manager
 	self._client = socket._client
 
@@ -80,12 +80,16 @@ function VoiceConnection:_prepare(key, socket)
 	self:setComplexity(COMPLEXITY)
 
 	self._ready = true
+	self._pending = nil
 	self:emit('ready')
 
 end
 
 function VoiceConnection:_cleanup()
 	self._ready = nil
+	self._pending = nil
+	self._channel._parent._connection = nil
+	self._channel._connection = nil
 	self:emit('disconnect')
 end
 
@@ -136,7 +140,7 @@ function VoiceConnection:_play(stream, duration)
 
 	local elapsed = 0
 	local udp, ip, port = self._udp, self._ip, self._port
-	local ssrc, key = self._state.ssrc, self._key
+	local ssrc, key = self._ssrc, self._key
 	local encoder = self._encoder
 	local encrypt = self._manager._sodium.encrypt
 
