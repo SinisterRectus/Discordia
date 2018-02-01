@@ -20,6 +20,7 @@ typedef uint16_t opus_uint16;
 typedef uint32_t opus_uint32;
 
 typedef struct OpusEncoder OpusEncoder;
+typedef struct OpusDecoder OpusDecoder;
 
 const char *opus_strerror(int error);
 const char *opus_get_version_string(void);
@@ -44,6 +45,30 @@ opus_int32 opus_encode_float(
 	int frame_size,
 	unsigned char *data,
 	opus_int32 max_data_bytes
+);
+
+OpusDecoder *opus_decoder_create(opus_int32 Fs, int channels, int *error);
+int opus_decoder_init(OpusDecoder *st, opus_int32 Fs, int channels);
+int opus_decoder_get_size(int channels);
+int opus_decoder_ctl(OpusDecoder *st, int request, ...);
+void opus_decoder_destroy(OpusDecoder *st);
+
+int opus_decode(
+	OpusDecoder *st,
+	const unsigned char *data,
+	opus_int32 len,
+	opus_int16 *pcm,
+	int frame_size,
+	int decode_fec
+);
+
+int opus_decode_float(
+	OpusDecoder *st,
+	const unsigned char *data,
+	opus_int32 len,
+	float *pcm,
+	int frame_size,
+	int decode_fec
 );
 ]]
 
@@ -177,6 +202,45 @@ function Encoder:set(id, value)
 end
 
 opus.Encoder = ffi.metatype('OpusEncoder', Encoder)
+
+local Decoder = {}
+Decoder.__index = Decoder
+
+function Decoder:__new(sample_rate, channels) -- luacheck: ignore self
+
+	local err = int_ptr_t()
+	local state = lib.opus_decoder_create(sample_rate, channels, err)
+	check(err[0])
+
+	check(lib.opus_decoder_init(state, sample_rate, channels))
+
+	return gc(state, lib.opus_decoder_destroy)
+
+end
+
+function Decoder:decode(data, len, frame_size, output_len)
+
+	local pcm = new('opus_int16[?]', output_len)
+
+	local ret = lib.opus_decode(self, data, len, pcm, frame_size, 0)
+
+	return pcm, check(ret)
+
+end
+
+function Decoder:get(id)
+	local ret = opus_int32_ptr_t()
+	lib.opus_decoder_ctl(self, id, ret)
+	return check(ret[0])
+end
+
+function Decoder:set(id, value)
+	if type(value) ~= 'number' then return throw(opus.BAD_ARG) end
+	local ret = lib.opus_decoder_ctl(self, id, opus_int32_t(value))
+	return check(ret)
+end
+
+opus.Decoder = ffi.metatype('OpusDecoder', Decoder)
 
 return opus
 
