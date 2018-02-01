@@ -1,4 +1,6 @@
+local null = require('json').null
 local User = require('containers/User')
+local Activity = require('containers/Activity')
 local Container = require('containers/abstract/Container')
 
 local UserPresence, get = require('class')('UserPresence', Container)
@@ -12,24 +14,39 @@ function UserPresence:__hash()
 	return self._user._id
 end
 
+local activities = setmetatable({}, {__mode = 'v'})
+
 function UserPresence:_loadPresence(presence)
-	local game = presence.game
-	self._game_name = game and game.name
-	self._game_type = game and game.type
-	self._game_url = game and game.url
 	self._status = presence.status
+	local game = presence.game
+	if game == null then
+		self._activity = nil
+	elseif game then
+		if self._activity then
+			self._activity:_load(game)
+		else
+			local activity = activities[self:__hash()]
+			if activity then
+				activity:_load(game)
+			else
+				activity = Activity(game, self)
+				activities[self:__hash()] = activity
+			end
+			self._activity = activity
+		end
+	end
 end
 
 function get.gameName(self)
-	return self._game_name
+	return self._activity and self._activity._name
 end
 
 function get.gameType(self)
-	return self._game_type
+	return self._activity and self._activity._type
 end
 
 function get.gameURL(self)
-	return self._game_url
+	return self._activity and self._activity._url
 end
 
 function get.status(self)
@@ -38,6 +55,10 @@ end
 
 function get.user(self)
 	return self._user
+end
+
+function get.activity(self)
+	return self._activity
 end
 
 -- user shortcuts
