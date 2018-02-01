@@ -1,7 +1,6 @@
 local PCMString = require('voice/streams/PCMString')
 local PCMGenerator = require('voice/streams/PCMGenerator')
 local FFmpegProcess = require('voice/streams/FFmpegProcess')
-local Emitter = require('utils/Emitter')
 
 local uv = require('uv')
 local ffi = require('ffi')
@@ -31,17 +30,19 @@ local hrtime = uv.hrtime
 local ffi_string = ffi.string
 local pack = string.pack -- luacheck: ignore
 local format = string.format
+local insert = table.insert
+local running, resume, yield = coroutine.running, coroutine.resume, coroutine.yield
 
 -- timer.sleep is redefined here to avoid a memory leak in the luvit module
 local function sleep(delay)
-	local thread = coroutine.running()
+	local thread = running()
 	local t = uv.new_timer()
 	t:start(delay, 0, function()
 		t:stop()
 		t:close()
-		return assert(coroutine.resume(thread))
+		return assert(resume(thread))
 	end)
-	return coroutine.yield()
+	return yield()
 end
 
 local function check(n, mn, mx)
@@ -53,11 +54,11 @@ end
 
 local key_t = ffi.typeof('const unsigned char[32]')
 
-local VoiceConnection, get = require('class')('VoiceConnection', Emitter)
+local VoiceConnection, get = require('class')('VoiceConnection')
 
 function VoiceConnection:__init(channel)
-	Emitter.__init(self)
 	self._channel = channel
+	self._pending = {}
 end
 
 function VoiceConnection:_prepare(key, socket)
@@ -80,17 +81,28 @@ function VoiceConnection:_prepare(key, socket)
 	self:setComplexity(COMPLEXITY)
 
 	self._ready = true
-	self._pending = nil
-	self:emit('ready')
+	self:_continue(true)
 
+end
+
+function VoiceConnection:_await()
+	local thread = running()
+	insert(self._pending, thread)
+	return yield()
+end
+
+function VoiceConnection:_continue(success, err)
+	for i, thread in ipairs(self._pending) do
+		self._pending[i] = nil
+		assert(resume(thread, success, err))
+	end
 end
 
 function VoiceConnection:_cleanup()
 	self._ready = nil
-	self._pending = nil
 	self._channel._parent._connection = nil
 	self._channel._connection = nil
-	self:emit('disconnect')
+	self:_continue(nil, 'connection closed')
 end
 
 function VoiceConnection:getBitrate()

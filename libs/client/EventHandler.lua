@@ -507,11 +507,7 @@ function EventHandler.VOICE_STATE_UPDATE(d, client)
 						new._connection = connection
 						old._connection = nil
 						connection._channel = new
-						if connection._pending then -- channel:join was called
-							connection._pending = nil
-							connection:emit('ready')
-						end
-						connection:emit('channelChange')
+						connection:_continue(true)
 					end
 				end
 				client:emit('voiceChannelLeave', member, old)

@@ -1,11 +1,8 @@
 local json = require('json')
-local timer = require('timer')
 
 local GuildChannel = require('containers/abstract/GuildChannel')
 local VoiceConnection = require('voice/VoiceConnection')
 local TableIterable = require('iterables/TableIterable')
-
-local setImmediate = timer.setImmediate
 
 local GuildVoiceChannel, get = require('class')('GuildVoiceChannel', GuildChannel)
 
@@ -23,33 +20,45 @@ end
 
 function GuildVoiceChannel:join()
 
+	local success, err
+
 	local connection = self._connection
+
 	if connection then
+
 		if connection._ready then
-			setImmediate(connection.emit, connection, 'ready')
+			return connection
 		end
-		return connection
+
+	else
+
+		local guild = self._parent
+		local client = guild._parent
+
+		success, err = client._shards[guild.shardId]:updateVoice(guild._id, self._id)
+
+		if not success then
+			return nil, err
+		end
+
+		connection = guild._connection
+
+		if not connection then
+			connection = VoiceConnection(self)
+			guild._connection = connection
+		end
+
+		self._connection = connection
+
 	end
 
-	local guild = self._parent
-	local client = guild._parent
+	success, err = connection:_await()
 
-	local success, err = client._shards[guild.shardId]:updateVoice(guild._id, self._id)
-
-	if not success then
+	if success then
+		return connection
+	else
 		return nil, err
 	end
-
-	connection = guild._connection
-
-	if not connection then
-		connection = VoiceConnection(self)
-		guild._connection = connection
-	end
-
-	self._connection = connection
-	connection._pending = true
-	return connection
 
 end
 

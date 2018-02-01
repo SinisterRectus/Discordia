@@ -13,7 +13,6 @@ local VoiceManager = require('class')('VoiceManager', Emitter)
 function VoiceManager:__init(client)
 	Emitter.__init(self)
 	self._client = client
-	self._waiting = {}
 end
 
 function VoiceManager:loadOpus(path)
