@@ -5,6 +5,8 @@ local FFmpegProcess = require('voice/streams/FFmpegProcess')
 local uv = require('uv')
 local ffi = require('ffi')
 local constants = require('constants')
+local opus = require('voice/opus')
+local sodium = require('voice/sodium')
 
 local CHANNELS = 2
 local SAMPLE_RATE = 48000 -- Hz
@@ -75,7 +77,7 @@ function VoiceConnection:_prepare(key, socket)
 	self._s = 0
 	self._t = 0
 
-	self._encoder = self._manager._opus.Encoder(SAMPLE_RATE, CHANNELS)
+	self._encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
 
 	self:setBitrate(self._client._options.bitrate)
 	self:setComplexity(COMPLEXITY)
@@ -106,21 +108,21 @@ function VoiceConnection:_cleanup()
 end
 
 function VoiceConnection:getBitrate()
-	return self._encoder:get(self._manager._opus.GET_BITRATE_REQUEST)
+	return self._encoder:get(opus.GET_BITRATE_REQUEST)
 end
 
 function VoiceConnection:setBitrate(bitrate)
 	bitrate = check(bitrate, MIN_BITRATE, MAX_BITRATE)
-	self._encoder:set(self._manager._opus.SET_BITRATE_REQUEST, bitrate)
+	self._encoder:set(opus.SET_BITRATE_REQUEST, bitrate)
 end
 
 function VoiceConnection:getComplexity()
-	return self._encoder:get(self._manager._opus.GET_COMPLEXITY_REQUEST)
+	return self._encoder:get(opus.GET_COMPLEXITY_REQUEST)
 end
 
 function VoiceConnection:setComplexity(complexity)
 	complexity = check(complexity, MIN_COMPLEXITY, MAX_COMPLEXITY)
-	self._encoder:set(self._manager._opus.SET_COMPLEXITY_REQUEST, complexity)
+	self._encoder:set(opus.SET_COMPLEXITY_REQUEST, complexity)
 end
 
 ---- debugging
@@ -154,7 +156,7 @@ function VoiceConnection:_play(stream, duration)
 	local udp, ip, port = self._udp, self._ip, self._port
 	local ssrc, key = self._ssrc, self._key
 	local encoder = self._encoder
-	local encrypt = self._manager._sodium.encrypt
+	local encrypt = sodium.encrypt
 
 	local frame_size = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
 	local pcm_len = frame_size * CHANNELS

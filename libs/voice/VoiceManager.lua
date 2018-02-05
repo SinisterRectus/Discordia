@@ -1,6 +1,8 @@
 local VoiceSocket = require('voice/VoiceSocket')
 local Emitter = require('utils/Emitter')
 
+local opus = require('voice/opus')
+local sodium = require('voice/sodium')
 local constants = require('constants')
 
 local wrap = coroutine.wrap
@@ -15,19 +17,11 @@ function VoiceManager:__init(client)
 	self._client = client
 end
 
-function VoiceManager:loadOpus(path)
-	self._opus = require('voice/opus')(path or 'opus')
-end
-
-function VoiceManager:loadSodium(path)
-	self._sodium = require('voice/sodium')(path or 'sodium')
-end
-
 function VoiceManager:_prepareConnection(state, connection)
-	if not self._opus then
+	if not opus then
 		return self._client:error('Cannot connect to voice: libopus not loaded')
 	end
-	if not self._sodium then
+	if not sodium then
 		return self._client:error('Cannot connect to voice: libsodium not loaded')
 	end
 	local socket = VoiceSocket(state, connection, self)

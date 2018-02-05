@@ -1,14 +1,8 @@
-local loaded, lib
-
-return setmetatable({}, {__call = function(opus, path)
-
-if loaded then return opus end
-
 local ffi = require('ffi')
 
-loaded, lib = pcall(ffi.load, path)
+local loaded, lib = pcall(ffi.load, 'opus')
 if not loaded then
-	return error(lib, 2)
+	return nil, lib
 end
 
 local new, typeof, gc = ffi.new, ffi.typeof, ffi.gc
@@ -71,6 +65,8 @@ int opus_decode_float(
 	int decode_fec
 );
 ]]
+
+local opus = {}
 
 opus.OK                                   = 0
 opus.BAD_ARG                              = -1
@@ -243,5 +239,3 @@ end
 opus.Decoder = ffi.metatype('OpusDecoder', Decoder)
 
 return opus
-
-end})

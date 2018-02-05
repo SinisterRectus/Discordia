@@ -1,14 +1,8 @@
-local loaded, lib
-
-return setmetatable({}, {__call = function(sodium, path)
-
-if loaded then return sodium end
-
 local ffi = require('ffi')
 
-loaded, lib = pcall(ffi.load, path)
+local loaded, lib = pcall(ffi.load, 'sodium')
 if not loaded then
-	return error(lib, 2)
+	return nil, lib
 end
 
 local new = ffi.new
@@ -67,9 +61,7 @@ local function decrypt(encrypted, encrypted_len, nonce, key)
 
 end
 
-sodium.encrypt = encrypt
-sodium.decrypt = decrypt
-
-return sodium
-
-end})
+return {
+	encrypt = encrypt,
+	decrypt = decrypt,
+}
