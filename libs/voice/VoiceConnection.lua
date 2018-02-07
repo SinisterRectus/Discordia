@@ -186,7 +186,17 @@ function VoiceConnection:_play(stream, duration)
 		udp:send(header .. ffi_string(encrypted, encrypted_len), ip, port)
 
 		elapsed = elapsed + FRAME_DURATION
-		sleep(max(elapsed - (hrtime() - start) * MS_PER_NS, 0))
+		local delay = elapsed - (hrtime() - start) * MS_PER_NS
+		sleep(max(delay, 0))
+
+		while self._paused do
+			self._paused = running()
+			local pause = hrtime()
+			yield()
+			start = start + hrtime() - pause
+		end
+
+		if self._stopped then break	end
 
 	end
 
@@ -221,6 +231,23 @@ function VoiceConnection:playFFmpeg(path, duration)
 	self:_play(stream, duration)
 	return stream:close()
 
+end
+
+function VoiceConnection:pauseStream()
+	self._paused = true
+end
+
+function VoiceConnection:resumeStream()
+	local paused = self._paused
+	self._paused = nil
+	if type(paused) == 'thread' then
+		return assert(resume(paused))
+	end
+end
+
+function VoiceConnection:stopStream()
+	self._stopped = true
+	return self:resumeStream()
 end
 
 function VoiceConnection:close()
