@@ -112,7 +112,9 @@ end
 local function run(self, token)
 
 	self:info('Discordia %s', package.version)
-	self:info('Connecting to Discord...')
+	self:info('Connecting to Discord as bot...')	
+	token = token:gsub("Bot ","")
+	token = "Bot "..token
 
 	local api = self._api
 	local users = self._users
