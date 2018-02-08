@@ -1,7 +1,6 @@
 local uv = require('uv')
 local class = require('class')
 local timer = require('timer')
-local constants = require('constants')
 local enums = require('enums')
 
 local WebSocket = require('client/WebSocket')
@@ -13,7 +12,7 @@ local wrap = coroutine.wrap
 local time = os.time
 local unpack = string.unpack -- luacheck: ignore
 
-local ENCRYPTION_MODE = constants.ENCRYPTION_MODE
+local ENCRYPTION_MODES = {'xsalsa20_poly1305_suffix',	'xsalsa20_poly1305', 'plain'}
 local PADDING = string.rep('\0', 70)
 
 local IDENTIFY        = 0
@@ -28,9 +27,13 @@ local HELLO           = 8
 local RESUMED         = 9
 
 local function checkMode(modes)
-	for _, v in ipairs(modes) do
-		if v == ENCRYPTION_MODE then
-			return true
+	for i, v in ipairs(modes) do
+		modes[v] = true
+		modes[i] = nil
+	end
+	for _, mode in ipairs(ENCRYPTION_MODES) do
+		if modes[mode] then
+			return mode
 		end
 	end
 end
@@ -75,11 +78,13 @@ function VoiceSocket:handlePayload(payload)
 	elseif op == READY then
 
 		self:info('Received READY')
-		if checkMode(d.modes) then
+		local mode = checkMode(d.modes)
+		if mode then
+			self._mode = mode
 			self._ssrc = d.ssrc
 			self:handshake(d.ip, d.port)
 		else
-			self:error('%q encryption mode not available', ENCRYPTION_MODE)
+			self:error('No supported encryption mode available')
 			self:disconnect()
 		end
 
@@ -89,10 +94,10 @@ function VoiceSocket:handlePayload(payload)
 
 	elseif op == DESCRIPTION then
 
-		if d.mode == ENCRYPTION_MODE then
+		if d.mode == self._mode then
 			self._connection:_prepare(d.secret_key, self)
 		else
-			self:error('%q encryption mode not available', ENCRYPTION_MODE)
+			self:error('%q encryption mode not available', self._mode)
 			self:disconnect()
 		end
 
@@ -171,7 +176,7 @@ function VoiceSocket:selectProtocol(address, port)
 		data = {
 			address = address,
 			port = port,
-			mode = ENCRYPTION_MODE,
+			mode = self._mode,
 		}
 	})
 end

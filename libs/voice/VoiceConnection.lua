@@ -71,6 +71,7 @@ function VoiceConnection:_prepare(key, socket)
 	self._port = socket._port
 	self._udp = socket._udp
 	self._ssrc = socket._ssrc
+	self._mode = socket._mode
 	self._manager = socket._manager
 	self._client = socket._client
 
@@ -154,9 +155,8 @@ function VoiceConnection:_play(stream, duration)
 
 	local elapsed = 0
 	local udp, ip, port = self._udp, self._ip, self._port
-	local ssrc, key = self._ssrc, self._key
+	local ssrc, mode, key = self._ssrc, self._mode, self._key
 	local encoder = self._encoder
-	local encrypt = sodium.encrypt
 
 	local frame_size = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
 	local pcm_len = frame_size * CHANNELS
@@ -164,6 +164,8 @@ function VoiceConnection:_play(stream, duration)
 	local start = hrtime()
 
 	while elapsed < duration do
+
+		open()
 
 		local pcm = stream:read(pcm_len)
 		if not pcm then break end
@@ -180,13 +182,31 @@ function VoiceConnection:_play(stream, duration)
 		self._s = s > MAX_SEQUENCE and 0 or s
 		self._t = t > MAX_TIMESTAMP and 0 or t
 
-		local encrypted, encrypted_len = encrypt(data, len, header .. PADDING, key)
-		if not encrypted then break end
+		local packet
+		if mode == 'xsalsa20_poly1305_suffix' then
 
-		udp:send(header .. ffi_string(encrypted, encrypted_len), ip, port)
+			local nonce, nonce_len = sodium.randombytes(sodium.NONCEBYTES)
+			local encrypted, encrypted_len = sodium.encrypt(data, len, nonce, key)
+			if not encrypted then break end
+			packet = ffi_string(encrypted, encrypted_len) .. ffi_string(nonce, nonce_len)
+
+		elseif mode == 'xsalsa20_poly1305' then
+
+			local encrypted, encrypted_len = sodium.encrypt(data, len, header .. PADDING, key)
+			if not encrypted then break end
+			packet = ffi_string(encrypted, encrypted_len)
+
+		else
+
+			packet = ffi_string(data, len)
+
+		end
+
+		udp:send(header .. packet, ip, port)
 
 		elapsed = elapsed + FRAME_DURATION
 		local delay = elapsed - (hrtime() - start) * MS_PER_NS
+		close()
 		sleep(max(delay, 0))
 
 		while self._paused do

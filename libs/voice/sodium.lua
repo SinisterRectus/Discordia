@@ -31,13 +31,18 @@ int crypto_secretbox_open_easy(
 	const unsigned char *n,
 	const unsigned char *k
 );
+
+void randombytes(unsigned char* const buf, const unsigned long long buf_len);
 ]]
 
-local MACBYTES = lib.crypto_secretbox_macbytes()
+local sodium = {}
 
-local function encrypt(decrypted, decrypted_len, nonce, key)
+sodium.MACBYTES = lib.crypto_secretbox_macbytes()
+sodium.NONCEBYTES = lib.crypto_secretbox_noncebytes()
 
-	local encrypted_len = decrypted_len + MACBYTES
+function sodium.encrypt(decrypted, decrypted_len, nonce, key)
+
+	local encrypted_len = decrypted_len + sodium.MACBYTES
 	local encrypted = new('unsigned char[?]', encrypted_len)
 
 	if lib.crypto_secretbox_easy(encrypted, decrypted, decrypted_len, nonce, key) < 0 then
@@ -48,9 +53,9 @@ local function encrypt(decrypted, decrypted_len, nonce, key)
 
 end
 
-local function decrypt(encrypted, encrypted_len, nonce, key)
+function sodium.decrypt(encrypted, encrypted_len, nonce, key)
 
-	local decrypted_len = encrypted_len - MACBYTES
+	local decrypted_len = encrypted_len - sodium.MACBYTES
 	local decrypted = new('unsigned char[?]', decrypted_len)
 
 	if lib.crypto_secretbox_open_easy(decrypted, encrypted, encrypted_len, nonce, key) < 0 then
@@ -61,7 +66,10 @@ local function decrypt(encrypted, encrypted_len, nonce, key)
 
 end
 
-return {
-	encrypt = encrypt,
-	decrypt = decrypt,
-}
+function sodium.randombytes(len)
+	local buffer = new('unsigned char[?] const', len)
+	lib.randombytes(buffer, len)
+	return buffer, len
+end
+
+return sodium
