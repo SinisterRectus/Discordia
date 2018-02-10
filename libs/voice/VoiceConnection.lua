@@ -54,8 +54,6 @@ local function check(n, mn, mx)
 	return n
 end
 
-local key_t = ffi.typeof('const unsigned char[32]')
-
 local VoiceConnection, get = require('class')('VoiceConnection')
 
 function VoiceConnection:__init(channel)
@@ -65,7 +63,7 @@ end
 
 function VoiceConnection:_prepare(key, socket)
 
-	self._key = key_t(key)
+	self._key = sodium.key(key)
 	self._socket = socket
 	self._ip = socket._ip
 	self._port = socket._port
@@ -165,8 +163,6 @@ function VoiceConnection:_play(stream, duration)
 
 	while elapsed < duration do
 
-		open()
-
 		local pcm = stream:read(pcm_len)
 		if not pcm then break end
 
@@ -184,29 +180,22 @@ function VoiceConnection:_play(stream, duration)
 
 		local packet
 		if mode == 'xsalsa20_poly1305_suffix' then
-
-			local nonce, nonce_len = sodium.randombytes(sodium.NONCEBYTES)
+			local nonce, nonce_len = sodium.nonce()
 			local encrypted, encrypted_len = sodium.encrypt(data, len, nonce, key)
 			if not encrypted then break end
 			packet = ffi_string(encrypted, encrypted_len) .. ffi_string(nonce, nonce_len)
-
 		elseif mode == 'xsalsa20_poly1305' then
-
 			local encrypted, encrypted_len = sodium.encrypt(data, len, header .. PADDING, key)
 			if not encrypted then break end
 			packet = ffi_string(encrypted, encrypted_len)
-
 		else
-
 			packet = ffi_string(data, len)
-
 		end
 
 		udp:send(header .. packet, ip, port)
 
 		elapsed = elapsed + FRAME_DURATION
 		local delay = elapsed - (hrtime() - start) * MS_PER_NS
-		close()
 		sleep(max(delay, 0))
 
 		while self._paused do

@@ -6,6 +6,8 @@ if not loaded then
 end
 
 local new = ffi.new
+local typeof = ffi.typeof
+local format = string.format
 
 ffi.cdef[[
 const char *sodium_version_string(void);
@@ -37,12 +39,26 @@ void randombytes(unsigned char* const buf, const unsigned long long buf_len);
 
 local sodium = {}
 
-sodium.MACBYTES = lib.crypto_secretbox_macbytes()
-sodium.NONCEBYTES = lib.crypto_secretbox_noncebytes()
+local MACBYTES = lib.crypto_secretbox_macbytes()
+local NONCEBYTES = lib.crypto_secretbox_noncebytes()
+local KEYBYTES = lib.crypto_secretbox_keybytes()
+
+local key_t = typeof(format('const unsigned char[%i]', tonumber(KEYBYTES)))
+local nonce_t = typeof(format('unsigned char[%i] const', tonumber(NONCEBYTES)))
+
+function sodium.key(key)
+	return key_t(key)
+end
+
+function sodium.nonce()
+	local nonce = nonce_t()
+	lib.randombytes(nonce, NONCEBYTES)
+	return nonce, NONCEBYTES
+end
 
 function sodium.encrypt(decrypted, decrypted_len, nonce, key)
 
-	local encrypted_len = decrypted_len + sodium.MACBYTES
+	local encrypted_len = decrypted_len + MACBYTES
 	local encrypted = new('unsigned char[?]', encrypted_len)
 
 	if lib.crypto_secretbox_easy(encrypted, decrypted, decrypted_len, nonce, key) < 0 then
@@ -55,7 +71,7 @@ end
 
 function sodium.decrypt(encrypted, encrypted_len, nonce, key)
 
-	local decrypted_len = encrypted_len - sodium.MACBYTES
+	local decrypted_len = encrypted_len - MACBYTES
 	local decrypted = new('unsigned char[?]', decrypted_len)
 
 	if lib.crypto_secretbox_open_easy(decrypted, encrypted, encrypted_len, nonce, key) < 0 then
@@ -64,12 +80,6 @@ function sodium.decrypt(encrypted, encrypted_len, nonce, key)
 
 	return decrypted, decrypted_len
 
-end
-
-function sodium.randombytes(len)
-	local buffer = new('unsigned char[?] const', len)
-	lib.randombytes(buffer, len)
-	return buffer, len
 end
 
 return sodium
