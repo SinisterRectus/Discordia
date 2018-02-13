@@ -27,10 +27,12 @@ function Activity:_loadMore(data)
 	self._party_max = party and party.size and party.size[2]
 end
 
-function Activity:_unload()
-	for k in pairs(self) do
-		self[k] = nil
-	end
+function get.start(self)
+	return self._start
+end
+
+function get.stop(self)
+	return self._stop
 end
 
 function get.name(self)
