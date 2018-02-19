@@ -3,6 +3,7 @@ local PCMGenerator = require('voice/streams/PCMGenerator')
 local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
+local timer = require('timer')
 local ffi = require('ffi')
 local constants = require('constants')
 local opus = require('voice/opus')
@@ -34,6 +35,7 @@ local pack = string.pack -- luacheck: ignore
 local format = string.format
 local insert = table.insert
 local running, resume, yield = coroutine.running, coroutine.resume, coroutine.yield
+local setImmediate = timer.setImmediate
 
 -- timer.sleep is redefined here to avoid a memory leak in the luvit module
 local function sleep(delay)
@@ -211,6 +213,14 @@ function VoiceConnection:_play(stream, duration)
 
 	self._socket:setSpeaking(false)
 
+	if self._stopped then
+		local thread = self._stopped
+		self._stopped = nil
+		setImmediate(function()
+			return assert(resume(thread))
+		end)
+	end
+
 end
 
 function VoiceConnection:playPCM(source, duration)
@@ -255,8 +265,9 @@ function VoiceConnection:resumeStream()
 end
 
 function VoiceConnection:stopStream()
-	self._stopped = true
-	return self:resumeStream()
+	self._stopped = running()
+	self:resumeStream()
+	return yield()
 end
 
 function VoiceConnection:close()
