@@ -87,11 +87,13 @@ function WebSocket:parseMessage(message)
 end
 
 function WebSocket:_send(op, d)
-	if not self._write then
-		return false, 'Not connected to gateway'
-	end
 	self._mutex:lock()
-	local success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
+	local success, err
+	if self._write then
+		success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
+	else
+		success, err = false, 'Not connected to gateway'
+	end
 	self._mutex:unlockAfter(GATEWAY_DELAY)
 	return success, err
 end
