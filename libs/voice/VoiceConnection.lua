@@ -3,7 +3,6 @@ local PCMGenerator = require('voice/streams/PCMGenerator')
 local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
-local timer = require('timer')
 local ffi = require('ffi')
 local constants = require('constants')
 local opus = require('voice/opus')
@@ -35,7 +34,6 @@ local pack = string.pack -- luacheck: ignore
 local format = string.format
 local insert = table.insert
 local running, resume, yield = coroutine.running, coroutine.resume, coroutine.yield
-local setImmediate = timer.setImmediate
 
 -- timer.sleep is redefined here to avoid a memory leak in the luvit module
 local function sleep(delay)
@@ -47,6 +45,15 @@ local function sleep(delay)
 		return assert(resume(thread))
 	end)
 	return yield()
+end
+
+local function asyncResume(thread)
+	local t = uv.new_timer()
+	t:start(0, 0, function()
+		t:stop()
+		t:close()
+		return assert(resume(thread))
+	end)
 end
 
 local function check(n, mn, mx)
@@ -149,7 +156,7 @@ end
 
 function VoiceConnection:_play(stream, duration)
 
-	self._socket:setSpeaking(true)
+	self:_setSpeaking(true)
 
 	duration = tonumber(duration) or math.huge
 
@@ -190,27 +197,32 @@ function VoiceConnection:_play(stream, duration)
 		local delay = elapsed - (hrtime() - start) * MS_PER_NS
 		sleep(max(delay, 0))
 
-		while self._paused do
+		if self._paused then
+			asyncResume(self._paused)
 			self._paused = running()
 			local pause = hrtime()
 			yield()
 			start = start + hrtime() - pause
+			asyncResume(self._resumed)
+			self._resumed = nil
 		end
 
 		if self._stopped then break	end
 
 	end
 
-	self._socket:setSpeaking(false)
+	self:_setSpeaking(false)
 
 	if self._stopped then
-		local thread = self._stopped
+		asyncResume(self._stopped)
 		self._stopped = nil
-		setImmediate(function()
-			return assert(resume(thread))
-		end)
 	end
 
+end
+
+function VoiceConnection:_setSpeaking(speaking)
+	self._speaking = speaking
+	return self._socket:setSpeaking(speaking)
 end
 
 function VoiceConnection:playPCM(source, duration)
@@ -243,18 +255,24 @@ function VoiceConnection:playFFmpeg(path, duration)
 end
 
 function VoiceConnection:pauseStream()
-	self._paused = true
+	if not self._speaking then return end
+	if self._paused then return end
+	self._paused = running()
+	return yield()
 end
 
 function VoiceConnection:resumeStream()
-	local paused = self._paused
+	if not self._speaking then return end
+	if not self._paused then return end
+	asyncResume(self._paused)
 	self._paused = nil
-	if type(paused) == 'thread' then
-		return assert(resume(paused))
-	end
+	self._resumed = running()
+	return yield()
 end
 
 function VoiceConnection:stopStream()
+	if not self._speaking then return end
+	if self._stopped then return end
 	self._stopped = running()
 	self:resumeStream()
 	return yield()

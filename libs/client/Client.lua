@@ -447,8 +447,4 @@ function get.relationships(self)
 	return self._relationships
 end
 
-function get.voice(self)
-	return self._voice
-end
-
 return Client
