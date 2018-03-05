@@ -1,4 +1,5 @@
 local Snowflake = require('containers/abstract/Snowflake')
+local Resolver = require('client/Resolver')
 local ArrayIterable = require('iterables/ArrayIterable')
 local json = require('json')
 
@@ -8,6 +9,7 @@ local Emoji, get = require('class')('Emoji', Snowflake)
 
 function Emoji:__init(data, parent)
 	Snowflake.__init(self, data, parent)
+	self.client._emoji_map[self._id] = parent
 	return self:_loadMore(data)
 end
 
@@ -41,6 +43,11 @@ function Emoji:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+function Emoji:setRoles(roles)
+	roles = Resolver.roleIds(roles)
+	return self:_modify({roles = roles or json.null})
+end
+
 function Emoji:delete()
 	local data, err = self.client._api:deleteGuildEmoji(self._parent._id, self._id)
 	if data then
@@ -52,6 +59,19 @@ function Emoji:delete()
 	else
 		return false, err
 	end
+end
+
+function Emoji:hasRole(id)
+	id = Resolver.roleId(id)
+	local roles = self._roles and self._roles._array or self._roles_raw
+	if roles then
+		for _, v in ipairs(roles) do
+			if v == id then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 function get.name(self)

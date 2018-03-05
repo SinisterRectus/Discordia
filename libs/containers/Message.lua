@@ -26,49 +26,61 @@ function Message:_load(data)
 	return self:_loadMore(data)
 end
 
-local function parseUserMentions(mentions, cache)
-	if #mentions == 0 then return end
-	for i, user in ipairs(mentions) do
-		mentions[i] =  cache:_insert(user)
-	end
-	return mentions
-end
+local function parseMentions(content)
 
-local function parseChannelMentions(content)
-	if not content:find('<#') then return end
-	local ids, seen = {}, {}
-	for id in content:gmatch('<#(%d-)>') do
+	local i = content:find('<')
+	if not i then return end
+	local j = content:find('>', i)
+	if not j then return end
+
+	local users, roles, channels, emojis = {}, {}, {}, {}
+	local seen = {}
+
+	for symbol, id in content:gmatch('<.-(%p+)(%d+)>') do
 		if not seen[id] then
-			insert(ids, id)
+			if symbol == '@&' then
+				insert(roles, id)
+			elseif symbol == '@' or symbol == '@!' then
+				insert(users, id)
+			elseif symbol == '#' then
+				insert(channels, id)
+			elseif symbol == ':' then
+				insert(emojis, id)
+			end
 			seen[id] = true
 		end
 	end
-	return ids
+	return users, roles, channels, emojis
+
 end
 
 function Message:_loadMore(data)
 
 	if data.mentions then
-		local mentions = parseUserMentions(data.mentions, self.client._users)
-		if self._mentioned_users then
-			self._mentioned_users._array = mentions
-		else
-			self._mentioned_users_raw = mentions
-		end
-	end
-
-	if data.mention_roles then
-		local mentions = #data.mention_roles > 0 and data.mention_roles or nil
-		if self._mentioned_roles then
-			self._mentioned_roles._array = mentions
-		else
-			self._mentioned_roles_raw = mentions
-		end
+		self.client._users:_load(data.mentions)
 	end
 
 	if data.content then
+		local users, roles, channels, emojis = parseMentions(data.content)
+		if self._mentioned_users then
+			self._mentioned_users._array = users
+		else
+			self._mentioned_users_raw = users
+		end
+		if self._mentioned_roles then
+			self._mentioned_roles._array = roles
+		else
+			self._mentioned_roles_raw = roles
+		end
 		if self._mentioned_channels then
-			self._mentioned_channels._array = parseChannelMentions(data.content)
+			self._mentioned_channels._array = channels
+		else
+			self._mentioned_channels_raw = channels
+		end
+		if self._mentioned_emojis then
+			self._mentioned_emojis._array = emojis
+		else
+			self._mentioned_emojis_raw = emojis
 		end
 		self._clean_content = nil
 	end
@@ -244,7 +256,10 @@ end
 
 function get.mentionedUsers(self)
 	if not self._mentioned_users then
-		self._mentioned_users = ArrayIterable(self._mentioned_users_raw)
+		local users = self.client._users
+		self._mentioned_users = ArrayIterable(self._mentioned_users_raw, function(id)
+			return users:get(id)
+		end)
 		self._mentioned_users_raw = nil
 	end
 	return self._mentioned_users
@@ -252,21 +267,32 @@ end
 
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
-		local guild = self.guild
-		local roles = guild and guild._roles
+		local client = self.client
 		self._mentioned_roles = ArrayIterable(self._mentioned_roles_raw, function(id)
-			return roles:get(id)
+			local guild = client._role_map[id]
+			return guild and guild._roles:get(id) or nil
 		end)
 		self._mentioned_roles_raw = nil
 	end
 	return self._mentioned_roles
 end
 
+function get.mentionedEmojis(self)
+	if not self._mentioned_emojis then
+		local client = self.client
+		self._mentioned_emojis = ArrayIterable(self._mentioned_emojis_raw, function(id)
+			local guild = client._emoji_map[id]
+			return guild and guild._emojis:get(id)
+		end)
+		self._mentioned_emojis_raw = nil
+	end
+	return self._mentioned_emojis
+end
+
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then
-		local ids = parseChannelMentions(self._content)
 		local client = self.client
-		self._mentioned_channels = ArrayIterable(ids, function(id)
+		self._mentioned_channels = ArrayIterable(self._mentioned_channels_raw, function(id)
 			local guild = client._channel_map[id]
 			if guild then
 				return guild._text_channels:get(id) or guild._voice_channels:get(id) or guild._categories:get(id)
@@ -274,6 +300,7 @@ function get.mentionedChannels(self)
 				return client._private_channels:get(id) or client._group_channels:get(id)
 			end
 		end)
+		self._mentioned_channels_raw = nil
 	end
 	return self._mentioned_channels
 end
@@ -311,6 +338,7 @@ function get.cleanContent(self)
 			:gsub('<@!?(%d+)>', users)
 			:gsub('<@&(%d+)>', roles)
 			:gsub('<#(%d+)>', channels)
+			:gsub('<a?(:.+:)%d+>', '%1')
 			:gsub('@everyone', everyone)
 			:gsub('@here', here)
 
