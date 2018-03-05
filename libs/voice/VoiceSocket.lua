@@ -12,7 +12,7 @@ local wrap = coroutine.wrap
 local time = os.time
 local unpack = string.unpack -- luacheck: ignore
 
-local ENCRYPTION_MODES = {'xsalsa20_poly1305_suffix',	'xsalsa20_poly1305', 'plain'}
+local ENCRYPTION_MODE = 'xsalsa20_poly1305'
 local PADDING = string.rep('\0', 70)
 
 local IDENTIFY        = 0
@@ -27,12 +27,8 @@ local HELLO           = 8
 local RESUMED         = 9
 
 local function checkMode(modes)
-	for i, v in ipairs(modes) do
-		modes[v] = true
-		modes[i] = nil
-	end
-	for _, mode in ipairs(ENCRYPTION_MODES) do
-		if modes[mode] then
+	for _, mode in ipairs(modes) do
+		if mode == ENCRYPTION_MODE then
 			return mode
 		end
 	end
