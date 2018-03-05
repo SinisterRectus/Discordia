@@ -1,6 +1,7 @@
 local json = require('json')
 
 local GuildChannel = require('containers/abstract/GuildChannel')
+local VoiceConnection = require('voice/VoiceConnection')
 local TableIterable = require('iterables/TableIterable')
 
 local GuildVoiceChannel, get = require('class')('GuildVoiceChannel', GuildChannel)
@@ -18,8 +19,47 @@ function GuildVoiceChannel:setUserLimit(user_limit)
 end
 
 function GuildVoiceChannel:join()
-	local guild = self._parent
-	return self.client._shards[guild.shardId]:updateVoice(guild._id, self._id)
+
+	local success, err
+
+	local connection = self._connection
+
+	if connection then
+
+		if connection._ready then
+			return connection
+		end
+
+	else
+
+		local guild = self._parent
+		local client = guild._parent
+
+		success, err = client._shards[guild.shardId]:updateVoice(guild._id, self._id)
+
+		if not success then
+			return nil, err
+		end
+
+		connection = guild._connection
+
+		if not connection then
+			connection = VoiceConnection(self)
+			guild._connection = connection
+		end
+
+		self._connection = connection
+
+	end
+
+	success, err = connection:_await()
+
+	if success then
+		return connection
+	else
+		return nil, err
+	end
+
 end
 
 function get.bitrate(self)

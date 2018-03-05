@@ -23,6 +23,8 @@ local Emitter = require('utils/Emitter')
 local Logger = require('utils/Logger')
 local Mutex = require('utils/Mutex')
 
+local VoiceManager = require('voice/VoiceManager')
+
 local encode, decode, null = json.encode, json.decode, json.null
 local readFileSync, writeFileSync = fs.readFileSync, fs.writeFileSync
 
@@ -34,6 +36,7 @@ local time, difftime = os.time, os.difftime
 local format = string.format
 
 local CACHE_AGE = constants.CACHE_AGE
+local GATEWAY_VERSION = constants.GATEWAY_VERSION
 
 -- do not change these options here
 -- pass a custom table on client construction instead
@@ -97,6 +100,7 @@ function Client:__init(options)
 	self._relationships = Cache({}, Relationship, self)
 	self._webhooks = WeakCache({}, Webhook, self) -- used for audit logs
 	self._logger = Logger(options.logLevel, options.dateTime, options.logFile)
+	self._voice = VoiceManager(self)
 	self._role_map = {}
 	self._emoji_map = {}
 	self._channel_map = {}
@@ -123,6 +127,7 @@ local function run(self, token)
 		return self:error('Could not authenticate, check token: ' .. err1)
 	end
 	self._user = users:_insert(user)
+	self._token = token
 
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
 
@@ -226,8 +231,9 @@ local function run(self, token)
 		self._shards[id] = Shard(id, self)
 	end
 
+	local path = format('/?v=%i&encoding=json', GATEWAY_VERSION)
 	for _, shard in pairs(self._shards) do
-		wrap(shard.connect)(shard, url, token)
+		wrap(shard.connect)(shard, url, path)
 		shard:identifyWait()
 	end
 

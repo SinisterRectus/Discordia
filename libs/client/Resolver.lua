@@ -1,4 +1,5 @@
 local fs = require('fs')
+local ffi = require('ffi')
 local ssl = require('openssl')
 local class = require('class')
 local enums = require('enums')
@@ -15,20 +16,15 @@ local format = string.format
 
 local Resolver = {}
 
-local int64_t, uint64_t, istype
-local function loadffi()
-	local ffi = require('ffi')
-	istype = ffi.istype
-	int64_t = ffi.typeof('int64_t')
-	uint64_t = ffi.typeof('uint64_t')
-end
+local istype = ffi.istype
+local int64_t = ffi.typeof('int64_t')
+local uint64_t = ffi.typeof('uint64_t')
 
 local function int(obj)
 	local t = type(obj)
 	if t == 'string' and tonumber(obj) then
 		return obj
 	elseif t == 'cdata' then
-		if not istype then loadffi() end
 		if istype(int64_t, obj) or istype(uint64_t, obj) then
 			return tostring(obj):match('%d*')
 		end
