@@ -156,6 +156,7 @@ end
 
 function VoiceConnection:_play(stream, duration)
 
+	self:stopStream()
 	self:_setSpeaking(true)
 
 	duration = tonumber(duration) or math.huge
