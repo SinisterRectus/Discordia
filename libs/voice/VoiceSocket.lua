@@ -101,6 +101,10 @@ function VoiceSocket:handlePayload(payload)
 
 		manager:emit('heartbeat', nil, self._sw.milliseconds) -- TODO: id
 
+	elseif op == SPEAKING then
+
+		-- TODO
+
 	elseif op then
 
 		self:warning('Unhandled WebSocket payload OP %i', op)
