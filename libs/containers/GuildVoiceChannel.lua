@@ -81,4 +81,8 @@ function get.connectedMembers(self)
 	return self._members
 end
 
+function get.connection(self)
+	return self._connection
+end
+
 return GuildVoiceChannel
