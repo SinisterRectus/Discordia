@@ -38,7 +38,7 @@ local function parseErrors(ret, errors, key)
 			end
 		else
 			if key then
-				parseErrors(ret, v, f(k:find("^[%a_][%a%d_]*$") and '%s.%s' or '%s[%q]', key, k))
+				parseErrors(ret, v, f(k:find("^[%a_][%a%d_]*$") and '%s.%s' or tonumber(k) and '%s[%d]' or '%s[%q]', key, k))
 			else
 				parseErrors(ret, v, k)
 			end
