@@ -20,7 +20,7 @@ end
 function table.deepcount(tbl)
 	local n = 0
 	for _, v in pairs(tbl) do
-		n = type(v) == 'table' and n + table.deepcount(tbl) or n + 1
+		n = type(v) == 'table' and n + table.deepcount(v) or n + 1
 	end
 	return n
 end
