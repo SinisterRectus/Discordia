@@ -170,7 +170,7 @@ function Date:toISO(sep, tz)
 		if self._us == 0 then
 			return date('!%FT%T', self._s) .. '+00:00'
 		else
-			return date('!%FT%T', self._s) .. format('.%6i', self._us) .. '+00:00'
+			return date('!%FT%T', self._s) .. format('.%06i+00:00', self._us)
 		end
 	end
 end
