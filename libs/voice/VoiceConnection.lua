@@ -98,21 +98,39 @@ end
 function VoiceConnection:_await()
 	local thread = running()
 	insert(self._pending, thread)
+	if not self._timeout then
+		local t = uv.new_timer()
+		t:start(10000, 0, function()
+			t:stop()
+			t:close()
+			if not self._ready then
+				local id = self._channel and self._channel._id
+				return self:_cleanup(format('voice connection for channel %s failed to initialize', id))
+			end
+		end)
+		self._timeout = t
+	end
 	return yield()
 end
 
 function VoiceConnection:_continue(success, err)
+	local t = self._timeout
+	if t then
+		t:stop()
+		t:close()
+		self._timeout = nil
+	end
 	for i, thread in ipairs(self._pending) do
 		self._pending[i] = nil
 		assert(resume(thread, success, err))
 	end
 end
 
-function VoiceConnection:_cleanup()
+function VoiceConnection:_cleanup(err)
 	self._ready = nil
 	self._channel._parent._connection = nil
 	self._channel._connection = nil
-	self:_continue(nil, 'connection closed')
+	self:_continue(nil, err or 'connection closed')
 end
 
 function VoiceConnection:getBitrate()
