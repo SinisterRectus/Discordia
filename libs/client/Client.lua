@@ -336,6 +336,18 @@ function Client:getChannel(id)
 	end
 end
 
+function Client:getRole(id)
+	id = Resolver.roleId(id)
+	local guild = self._role_map[id]
+	return guild and guild._roles:get(id)
+end
+
+function Client:getEmoji(id)
+	id = Resolver.emojiId(id)
+	local guild = self._emoji_map[id]
+	return guild and guild._emojis:get(id)
+end
+
 function Client:listVoiceRegions()
 	return self._api:listVoiceRegions()
 end
