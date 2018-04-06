@@ -2,6 +2,8 @@ local hrtime = require('uv').hrtime
 local constants = require('constants')
 local Time = require('utils/Time')
 
+local format = string.format
+
 local MS_PER_NS = 1 / (constants.NS_PER_US * constants.US_PER_MS)
 
 local Stopwatch, get = require('class')('Stopwatch')
@@ -10,6 +12,10 @@ function Stopwatch:__init(stopped)
 	local t = hrtime()
 	self._initial = t
 	self._final = stopped and t or nil
+end
+
+function Stopwatch:__tostring()
+	return format('Stopwatch: %s ms', self.milliseconds)
 end
 
 function Stopwatch:stop()

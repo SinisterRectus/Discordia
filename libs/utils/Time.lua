@@ -58,7 +58,7 @@ function Time:toString()
 	addString('minutes', tbl, ret)
 	addString('seconds', tbl, ret)
 	addString('milliseconds', tbl, ret)
-	return concat(ret, ', ')
+	return #ret > 0 and concat(ret, ', ') or '0 milliseconds'
 end
 
 function Time:__eq(other) check(self, other)
