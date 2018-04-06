@@ -62,6 +62,25 @@ local function profile()
 	return ret
 end
 
+local types = {['string'] = true, ['number'] = true, ['boolean'] = true}
+
+local function serialize(obj)
+	local ret = {}
+	if isObject(obj) then
+		for k, v in pairs(obj.__getters) do
+			v = v(obj)
+			if types[type(v)] then
+				ret[k] = v
+			elseif v then
+				ret[k] = tostring(v)
+			end
+		end
+		return ret
+	else
+		return tostring(obj)
+	end
+end
+
 local rawtype = type
 local function type(obj)
 	return isObject(obj) and obj.__name or rawtype(obj)
@@ -76,6 +95,7 @@ return setmetatable({
 	isInstance = isInstance,
 	type = type,
 	profile = profile,
+	serialize = serialize,
 
 }, {__call = function(_, name, ...)
 
