@@ -108,7 +108,8 @@ return setmetatable({
 	end
 
 	local bases = {...}
-	local getters = {}
+	local getters = {self = function(self) return self end}
+	getters.itself = getters.self
 	local setters = {}
 
 	for _, base in ipairs(bases) do
