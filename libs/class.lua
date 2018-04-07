@@ -64,20 +64,19 @@ end
 
 local types = {['string'] = true, ['number'] = true, ['boolean'] = true}
 
+local function _getPrimitive(v)
+	return types[type(v)] and v or v ~= nil and tostring(v) or nil
+end
+
 local function serialize(obj)
-	local ret = {}
 	if isObject(obj) then
+		local ret = {}
 		for k, v in pairs(obj.__getters) do
-			v = v(obj)
-			if types[type(v)] then
-				ret[k] = v
-			elseif v then
-				ret[k] = tostring(v)
-			end
+			ret[k] = _getPrimitive(v(obj))
 		end
 		return ret
 	else
-		return tostring(obj)
+		return _getPrimitive(obj)
 	end
 end
 
