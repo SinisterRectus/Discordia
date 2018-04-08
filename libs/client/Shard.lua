@@ -74,6 +74,7 @@ local function decrementReconnectTime(self)
 end
 
 function Shard:handleDisconnect(url, path)
+	self._client:emit('shardDisconnect', self._id)
 	if self._reconnect then
 		self:info('Reconnecting...')
 		return self:connect(url, path)
