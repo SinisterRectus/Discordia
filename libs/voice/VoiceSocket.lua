@@ -103,7 +103,11 @@ function VoiceSocket:handlePayload(payload)
 
 	elseif op == SPEAKING then
 
-		-- TODO
+		return -- TODO
+
+	elseif op == 12 or op == 13 then
+
+		return -- ignore
 
 	elseif op then
 
