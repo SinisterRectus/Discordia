@@ -425,7 +425,7 @@ function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
 			member = guild._members:get(d.user.id)
 			if not member then return end -- still loading or member left
 		else
-			if d.status == 'offline' and guild._large then
+			if d.status == 'offline' then -- uncache offline members
 				member = guild._members:_delete(d.user.id)
 			else
 				if d.user.username then -- member was offline
