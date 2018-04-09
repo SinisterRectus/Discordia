@@ -1,4 +1,5 @@
 local PCMString = require('voice/streams/PCMString')
+local PCMStream = require('voice/streams/PCMStream')
 local PCMGenerator = require('voice/streams/PCMGenerator')
 local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
@@ -103,6 +104,7 @@ function VoiceConnection:_await()
 		t:start(10000, 0, function()
 			t:stop()
 			t:close()
+			self._timeout = nil
 			if not self._ready then
 				local id = self._channel and self._channel._id
 				return self:_cleanup(format('voice connection for channel %s failed to initialize', id))
@@ -242,6 +244,22 @@ end
 function VoiceConnection:_setSpeaking(speaking)
 	self._speaking = speaking
 	return self._socket:setSpeaking(speaking)
+end
+
+function VoiceConnection:playStream(source, duration)
+
+	if not self._ready then
+		return nil, 'Connection is not ready'
+	end
+
+	if not type(source.read) == 'function' then
+		return error('Voice source does not appear to be readable')
+	end
+
+	local stream = PCMStream(source)
+
+	return self:_play(stream, duration)
+
 end
 
 function VoiceConnection:playPCM(source, duration)
