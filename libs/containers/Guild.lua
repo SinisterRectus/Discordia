@@ -39,12 +39,13 @@ function Guild:_makeAvailable(data)
 
 	self._roles:_load(data.roles)
 	self._emojis:_load(data.emojis)
+	self._features = data.features
 
-	if data.voice_states then
-		local states = self._voice_states
-		for _, state in ipairs(data.voice_states) do
-			states[state.user_id] = state
-		end
+	if not data.channels then return end -- incomplete guild
+
+	local states = self._voice_states
+	for _, state in ipairs(data.voice_states) do
+		states[state.user_id] = state
 	end
 
 	local text_channels = self._text_channels
@@ -61,8 +62,6 @@ function Guild:_makeAvailable(data)
 			categories:_insert(channel)
 		end
 	end
-
-	self._features = data.features
 
 	return self:_loadMembers(data)
 
