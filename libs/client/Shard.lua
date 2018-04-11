@@ -141,7 +141,6 @@ function Shard:handlePayload(payload)
 
 	elseif op == HEARTBEAT_ACK then
 
-		self._waiting = nil
 		client:emit('heartbeat', self._id, self._sw.milliseconds)
 
 	elseif op then
@@ -153,11 +152,6 @@ function Shard:handlePayload(payload)
 end
 
 local function loop(self)
-	if self._waiting then
-		self._waiting = nil
-		self:warning('Previous heartbeat not acknowledged')
-		return wrap(self.disconnect)(self, true)
-	end
 	decrementReconnectTime(self)
 	return wrap(self.heartbeat)(self)
 end
@@ -184,7 +178,6 @@ end
 
 function Shard:heartbeat()
 	self._sw:reset()
-	self._waiting = true
 	return self:_send(HEARTBEAT, self._seq or json.null)
 end
 
