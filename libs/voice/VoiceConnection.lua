@@ -189,6 +189,7 @@ function VoiceConnection:_play(stream, duration)
 	local frame_size = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
 	local pcm_len = frame_size * CHANNELS
 
+	local start
 	local init = true
 
 	while elapsed < duration do
