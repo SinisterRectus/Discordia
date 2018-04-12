@@ -216,7 +216,7 @@ function VoiceConnection:_play(stream, duration)
 
 		if init then
 			start = hrtime()
-			first = false
+			init = false
 		end
 		elapsed = elapsed + FRAME_DURATION
 		local delay = elapsed - (hrtime() - start) * MS_PER_NS
