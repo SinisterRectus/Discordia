@@ -126,6 +126,11 @@ end
 
 function API:request(method, endpoint, payload, query, files)
 
+	local _, main = running()
+	if main then
+		return error('Cannot make HTTP request outside of a coroutine', 2)
+	end
+
 	local url = BASE_URL .. endpoint
 
 	if query and next(query) then
