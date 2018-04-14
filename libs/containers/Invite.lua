@@ -107,4 +107,12 @@ function get.revoked(self)
 	return self._revoked
 end
 
+function get.approximatePresenceCount(self)
+	return self._approximate_presence_count
+end
+
+function get.approximateMemberCount(self)
+	return self._approximate_member_count
+end
+
 return Invite

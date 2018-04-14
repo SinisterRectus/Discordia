@@ -310,8 +310,8 @@ function Client:getWebhook(id)
 	end
 end
 
-function Client:getInvite(code)
-	local data, err = self._api:getInvite(code)
+function Client:getInvite(code, counts)
+	local data, err = self._api:getInvite(code, counts and {with_counts = true})
 	if data then
 		return Invite(data, self)
 	else

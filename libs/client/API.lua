@@ -567,9 +567,9 @@ function API:modifyGuildEmbed(guild_id, payload) -- not exposed, maybe in the fu
 	return self:request("PATCH", endpoint, payload)
 end
 
-function API:getInvite(invite_code) -- Client:getInvite
+function API:getInvite(invite_code, query) -- Client:getInvite
 	local endpoint = f(endpoints.INVITE, invite_code)
-	return self:request("GET", endpoint)
+	return self:request("GET", endpoint, nil, query)
 end
 
 function API:deleteInvite(invite_code) -- Invite:delete
