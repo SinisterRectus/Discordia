@@ -38,14 +38,17 @@ function UserPresence:_loadPresence(presence)
 end
 
 function get.gameName(self)
+	self.client:_deprecated(self.__name, 'gameName', 'activity.name')
 	return self._activity and self._activity._name
 end
 
 function get.gameType(self)
+	self.client:_deprecated(self.__name, 'gameType', 'activity.type')
 	return self._activity and self._activity._type
 end
 
 function get.gameURL(self)
+	self.client:_deprecated(self.__name, 'gameURL', 'activity.url')
 	return self._activity and self._activity._url
 end
 

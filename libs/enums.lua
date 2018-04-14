@@ -72,7 +72,13 @@ enums.relationshipType = enum {
 	pendingOutgoing = 4,
 }
 
-enums.gameType = enum {
+enums.activityType = enum {
+	default   = 0,
+	streaming = 1,
+	listening = 2,
+}
+
+enums.gameType = enum { -- NOTE: deprecated; use activityType
 	default   = 0,
 	streaming = 1,
 	listening = 2,
