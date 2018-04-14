@@ -113,6 +113,19 @@ for name, level in pairs(logLevel) do
 	end
 end
 
+function Client:_deprecated(clsName, before, after)
+	local info = debug.getinfo(3)
+	return self:warning(
+		'%s:%s: %s.%s is deprecated; use %s.%s instead',
+		info.short_src,
+		info.currentline,
+		clsName,
+		before,
+		clsName,
+		after
+	)
+end
+
 local function run(self, token)
 
 	self:info('Discordia %s', package.version)

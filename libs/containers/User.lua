@@ -84,7 +84,12 @@ function get.discriminator(self)
 	return self._discriminator
 end
 
+function get.tag(self)
+	return self._username .. '#' .. self._discriminator
+end
+
 function get.fullname(self)
+	self.client:_deprecated(self.__name, 'fullname', 'tag')
 	return self._username .. '#' .. self._discriminator
 end
 
