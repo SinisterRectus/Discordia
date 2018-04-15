@@ -154,23 +154,20 @@ function VoiceConnection:setComplexity(complexity)
 end
 
 ---- debugging
-local skip = 10
 local t0, m0
-local t_sum, m_sum, count = 0, 0, 0
+local t_sum, m_sum, n = 0, 0, 0
 local function open() -- luacheck: ignore
 	-- collectgarbage()
 	m0 = collectgarbage('count')
 	t0 = hrtime()
 end
 local function close() -- luacheck: ignore
-	local dt = ((hrtime() - t0) * MS_PER_NS)
-	local dm = (collectgarbage('count') - m0)
-	count = count + 1
-	if count > skip then
-		t_sum = t_sum + dt
-		m_sum = m_sum + dm
-		print(dt, dm, t_sum / (count - skip), m_sum / (count - skip))
-	end
+	local dt = (hrtime() - t0) * MS_PER_NS
+	local dm = collectgarbage('count') - m0
+	n = n + 1
+	t_sum = t_sum + dt
+	m_sum = m_sum + dm
+	print(format('dt: %g | dm: %g | avg dt: %g | avg dm: %g', dt, dm, t_sum / n, m_sum / n))
 end
 ---- debugging
 
