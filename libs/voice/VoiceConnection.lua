@@ -243,33 +243,23 @@ function VoiceConnection:_setSpeaking(speaking)
 	return self._socket:setSpeaking(speaking)
 end
 
-function VoiceConnection:playStream(source, duration)
-
-	if not self._ready then
-		return nil, 'Connection is not ready'
-	end
-
-	if not type(source.read) == 'function' then
-		return error('Voice source does not appear to be readable')
-	end
-
-	local stream = PCMStream(source)
-
-	return self:_play(stream, duration)
-
-end
-
 function VoiceConnection:playPCM(source, duration)
 
 	if not self._ready then
 		return nil, 'Connection is not ready'
 	end
 
+	local t = type(source)
+
 	local stream
-	if type(source) == 'string' then
+	if t == 'string' then
 		stream = PCMString(source)
-	elseif type(source) == 'function' then
+	elseif t == 'function' then
 		stream = PCMGenerator(source)
+	elseif t == 'table' or t == 'userdata' and type(source.read) == 'function' then
+		stream = PCMStream(source)
+	else
+		return error('Invalid audio source: ' .. tostring(source))
 	end
 
 	return self:_play(stream, duration)
