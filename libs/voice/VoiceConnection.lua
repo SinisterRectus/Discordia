@@ -186,7 +186,8 @@ function VoiceConnection:_play(stream, duration)
 	local frame_size = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
 	local pcm_len = frame_size * CHANNELS
 
-	local start = hrtime()
+	local start
+	local init = true
 
 	while elapsed < duration do
 
@@ -211,6 +212,10 @@ function VoiceConnection:_play(stream, duration)
 		local packet = header .. ffi_string(encrypted, encrypted_len)
 		udp:send(packet, ip, port)
 
+		if init then
+			start = hrtime()
+			init = false
+		end
 		elapsed = elapsed + FRAME_DURATION
 		local delay = elapsed - (hrtime() - start) * MS_PER_NS
 		sleep(max(delay, 0))
