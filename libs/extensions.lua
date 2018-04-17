@@ -1,3 +1,20 @@
+--[[ NOTE:
+These standard library extensions are NOT used in Discordia. They are here as a
+convenience for those who wish to use them.
+
+There are multiple ways to implement some of these commonly used functions.
+Please pay attention to the implementations used here and make sure that they
+match your expectations.
+
+You may freely add to, remove, or edit any of the code here without any effect
+on the rest of the library. If you do make changes, do be careful when sharing
+your expectations with other users.
+
+You can inject these extensions into the standard Lua global tables by
+calling either the main module (ex: discordia.extensions()) or each sub-module
+(ex: discordia.extensions.string())
+]]
+
 local sort, concat = table.sort, table.concat
 local insert, remove = table.insert, table.remove
 local byte, char = string.byte, string.char
@@ -5,7 +22,6 @@ local gmatch, match = string.gmatch, string.match
 local rep, find, sub = string.rep, string.find, string.sub
 local min, max, random = math.min, math.max, math.random
 local ceil, floor = math.ceil, math.floor
-
 
 local table = {}
 
@@ -187,7 +203,7 @@ function string.levenshtein(str1, str2)
 	for i = 1, len1 do
 		for j = 1, len2 do
 			local cost = byte(str1, i) == byte(str2, j) and 0 or 1
-  			matrix[i][j] = min(matrix[i-1][j] + 1, matrix[i][j-1] + 1, matrix[i-1][j-1] + cost)
+			matrix[i][j] = min(matrix[i-1][j] + 1, matrix[i][j-1] + 1, matrix[i-1][j-1] + cost)
 		end
 	end
 
