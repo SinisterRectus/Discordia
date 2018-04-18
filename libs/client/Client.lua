@@ -238,7 +238,7 @@ local function run(self, token)
 	end
 
 	self._total_shard_count = count
-	self._shard_count = last - first
+	self._shard_count = d
 
 	for id = first, last do
 		self._shards[id] = Shard(id, self)
