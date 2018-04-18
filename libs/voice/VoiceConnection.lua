@@ -1,7 +1,6 @@
 local PCMString = require('voice/streams/PCMString')
 local PCMStream = require('voice/streams/PCMStream')
 local PCMGenerator = require('voice/streams/PCMGenerator')
-local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
 local ffi = require('ffi')
@@ -129,6 +128,7 @@ function VoiceConnection:_continue(success, err)
 end
 
 function VoiceConnection:_cleanup(err)
+	self:stopStream()
 	self._ready = nil
 	self._channel._parent._connection = nil
 	self._channel._connection = nil
@@ -256,7 +256,7 @@ function VoiceConnection:playPCM(source, duration)
 		stream = PCMString(source)
 	elseif t == 'function' then
 		stream = PCMGenerator(source)
-	elseif t == 'table' or t == 'userdata' and type(source.read) == 'function' then
+	elseif (t == 'table' or t == 'userdata') and type(source.read) == 'function' then
 		stream = PCMStream(source)
 	else
 		return error('Invalid audio source: ' .. tostring(source))
@@ -272,9 +272,12 @@ function VoiceConnection:playFFmpeg(path, duration)
 		return nil, 'Connection is not ready'
 	end
 
-	local stream = FFmpegProcess(path, SAMPLE_RATE, CHANNELS)
+	local cmd = format('ffmpeg -i %q -ar %i -ac %i -f s16le pipe:1 -loglevel warning', path, SAMPLE_RATE, CHANNELS)
+	local source = assert(io.popen(cmd))
+	local stream = PCMStream(source)
+
 	self:_play(stream, duration)
-	return stream:close()
+	source:close()
 
 end
 
