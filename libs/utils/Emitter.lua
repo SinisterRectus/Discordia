@@ -106,9 +106,10 @@ function Emitter:removeAllListeners(name)
 	self._listeners[name] = nil
 end
 
-function Emitter:waitFor(name, timeout)
+function Emitter:waitFor(name, timeout, predicate)
 	local thread = running()
 	local fn = self:onceSync(name, function(...)
+		if predicate and not predicate(...) then return end
 		if timeout then
 			clearTimeout(timeout)
 		end
