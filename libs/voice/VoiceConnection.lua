@@ -1,6 +1,7 @@
 local PCMString = require('voice/streams/PCMString')
 local PCMStream = require('voice/streams/PCMStream')
 local PCMGenerator = require('voice/streams/PCMGenerator')
+local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
 local ffi = require('ffi')
@@ -272,12 +273,10 @@ function VoiceConnection:playFFmpeg(path, duration)
 		return nil, 'Connection is not ready'
 	end
 
-	local cmd = format('ffmpeg -i %q -ar %i -ac %i -f s16le pipe:1 -loglevel warning', path, SAMPLE_RATE, CHANNELS)
-	local source = assert(io.popen(cmd))
-	local stream = PCMStream(source)
+	local stream = FFmpegProcess(path, SAMPLE_RATE, CHANNELS)
 
 	self:_play(stream, duration)
-	source:close()
+	stream:close()
 
 end
 
