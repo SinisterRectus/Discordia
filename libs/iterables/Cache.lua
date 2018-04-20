@@ -38,10 +38,8 @@ local function remove(self, k, obj)
 end
 
 local function hash(data)
-	local meta = getmetatable(data)
-	if not meta or meta.__jsontype ~= 'object' then
-		return nil, 'data must be a json object'
-	end
+	-- local meta = getmetatable(data) -- debug
+	-- assert(meta and meta.__jsontype == 'object') -- debug
 	if data.id then -- snowflakes
 		return data.id
 	elseif data.user then -- members
