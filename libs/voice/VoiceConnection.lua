@@ -1,7 +1,6 @@
 local PCMString = require('voice/streams/PCMString')
 local PCMStream = require('voice/streams/PCMStream')
 local PCMGenerator = require('voice/streams/PCMGenerator')
-local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
 local ffi = require('ffi')
@@ -264,19 +263,6 @@ function VoiceConnection:playPCM(source, duration)
 	end
 
 	return self:_play(stream, duration)
-
-end
-
-function VoiceConnection:playFFmpeg(path, duration)
-
-	if not self._ready then
-		return nil, 'Connection is not ready'
-	end
-
-	local stream = FFmpegProcess(path, SAMPLE_RATE, CHANNELS)
-
-	self:_play(stream, duration)
-	stream:close()
 
 end
 
