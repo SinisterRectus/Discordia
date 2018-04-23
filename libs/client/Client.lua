@@ -104,6 +104,7 @@ function Client:__init(options)
 	self._role_map = {}
 	self._emoji_map = {}
 	self._channel_map = {}
+	self._events = require('client/EventHandler')
 end
 
 for name, level in pairs(logLevel) do
