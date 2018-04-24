@@ -62,4 +62,4 @@ How can I contribute?
 - Pull requests are welcomed, but please check with the library author before starting a major implementation. Contributions to the Wiki are helpful, too.
 
 Are there other Discord libraries?
-- Absolutely. Check the official [libraries](https://discordapp.com/developers/docs/topics/libraries) page of the Discord API documentation or the unofficial Discord API server linked above.
+- Absolutely. Check the official [libraries](https://discordapp.com/developers/docs/topics/community-resources) page of the Discord API documentation or the unofficial Discord API server linked above.
