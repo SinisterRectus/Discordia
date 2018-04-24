@@ -18,6 +18,7 @@ client:on("messageCreate", function(message)
 		message.channel:send {
 			file = {"lines.txt", table.concat(lines, "\n")} -- concatenate the lines table and reply with a new line per message with a lines.txt file
 		}
+		lines = {} -- empty the lines table
 	else -- if the lines command is NOT activated
 		table.insert(lines, content) -- append the message
 	end
