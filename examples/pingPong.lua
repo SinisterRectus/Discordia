@@ -8,7 +8,6 @@ end)
 
 client:on("messageCreate", function(message)
 	local content = message.content
-	local author = message.author
 
 	if content == "!ping" then
 		message:reply("Pong!")
