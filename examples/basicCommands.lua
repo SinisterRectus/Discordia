@@ -10,8 +10,6 @@ end)
 
 client:on("messageCreate", function(message)
 	local content = message.content
-	local author = message.author
-
 	local args = content:split(" ") -- split all arguments into a table
 
 	if args[1] == "!ping" then
