@@ -31,7 +31,7 @@ local function getUsers(self, query)
 end
 
 function Reaction:getUsers(limit)
-	return getUsers(self, limit and {limit = limit})
+	return getUsers(self, {limit = limit})
 end
 
 function Reaction:getUsersBefore(id, limit)
