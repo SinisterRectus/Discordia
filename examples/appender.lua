@@ -3,12 +3,12 @@ local client = discordia.Client()
 
 local lines = {} -- blank table of messages
 
-
 client:on("ready", function() -- bot is ready
 	print("Logged in as " .. client.user.username)
 end)
 
 client:on("messageCreate", function(message)
+
 	local content = message.content
 	local author = message.author
 
@@ -16,14 +16,13 @@ client:on("messageCreate", function(message)
 
 	if content == "!lines" then -- if the lines command is activated
 		message.channel:send {
-			file = {"lines.txt", table.concat(lines, "\n")} -- concatenate the lines table and reply with a new line per message with a lines.txt file
+			file = {"lines.txt", table.concat(lines, "\n")} -- concatenate and send the collected lines in a file
 		}
 		lines = {} -- empty the lines table
 	else -- if the lines command is NOT activated
-		table.insert(lines, content) -- append the message
+		table.insert(lines, content) -- append the message as a new line
 	end
-	
-end)
 
+end)
 
 client:run("Bot BOT_TOKEN") -- replace BOT_TOKEN with your bot token

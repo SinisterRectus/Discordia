@@ -7,6 +7,7 @@ client:on("ready", function() -- bot is ready
 end)
 
 client:on("messageCreate", function(message)
+
 	local content = message.content
 	local author = message.author
 
@@ -40,6 +41,5 @@ client:on("messageCreate", function(message)
 	end
 
 end)
-
 
 client:run("Bot BOT_TOKEN") -- replace BOT_TOKEN with your bot token
