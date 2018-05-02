@@ -36,7 +36,7 @@ local function parseMentions(content)
 	local users, roles, channels, emojis = {}, {}, {}, {}
 	local seen = {}
 
-	for symbol, id in content:gmatch('<%P?(%p+)[^:]-%p?(%d+)>') do
+	for symbol, id in content:gmatch('<%P?(%p+)[%w_]-%p?(%d+)>') do
 		if not seen[id] then
 			if symbol == '@&' then
 				insert(roles, id)
