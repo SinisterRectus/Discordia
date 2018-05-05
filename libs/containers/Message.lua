@@ -10,7 +10,7 @@ local insert = table.insert
 local null = json.null
 
 local lpeg = require"lpeg"
-local P, V, C, Ct, S, Carg, Cc, l = lpeg.P, lpeg.V, lpeg.C, lpeg.Ct, lpeg.S, lpeg.Carg, lpeg.Cc, {} 
+local P, V, C, S, Carg, l = lpeg.P, lpeg.V, lpeg.C, lpeg.S, lpeg.Carg, {} 
 lpeg.locale(l)
 
 local Message, get = require('class')('Message', Snowflake)
@@ -34,14 +34,15 @@ local open = P"<" -- create the generic pattern objects
 local close = P">"
 local cid = C(l.digit^1)
 local emoji_name = (("_" + l.alnum)  - ":")^1
-
+local rset = rawset
+local function add_mention(seen, tbl, id) if not seen[id] then return rset(seen, id, true) and insert(tbl, id) end end
 local mention_types = {
-    emoji = Carg(1) * ":" * emoji_name * ":" * cid / insert, 
-    animoji = Carg(1) * "a:" * emoji_name * ":" * cid / insert,
-    user = Carg(2) * "@" * cid / insert,
-    nick = Carg(2) * "@!" * cid / insert,
-    role = Carg(3) * "@&" * cid / insert,
-    channel = Carg(4) * "#" * cid / insert,
+    emoji = Carg(1) * Carg(2) * ":" * emoji_name * ":" * cid / add_mention, 
+    animoji = Carg(1) * Carg(2) * "a:" * emoji_name * ":" * cid / add_mention,
+    user = Carg(1) * Carg(3) * "@" * cid / add_mention,
+    nick = Carg(1) * Carg(3) * "@!" * cid / add_mention,
+    role = Carg(1) * Carg(4) * "@&" * cid / add_mention,
+    channel = Carg(1) * Carg(5) * "#" * cid / add_mention,
 }
 local predicate = #(open * S[[a@#:]] * (S[[:!&]] + l.alnum)) --a predicate pattern to allow us to quit early
 
@@ -57,11 +58,15 @@ local mention_patt = open * (
 mention_patt = P{predicate * mention_patt + 1 * V(1)}^1-- a recursive definition that matches multiple mentions which can appear anywhre in the text.
 
 local function parseMentions(text) 
+    local seen = {}
 	local emoji = {}
 	local users = {}
 	local roles = {}
-	local channels = {}
-    mention_patt:match(text, 1, emoji, users, roles, channels)
+    local channels = {}
+    local start = text:find('<', 1, true)
+    if start then 
+        mention_patt:match(text, start, seen, emoji, users, roles, channels)
+    end
     return emoji, users, roles, channels
 end
 
