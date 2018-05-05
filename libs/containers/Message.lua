@@ -1,4 +1,5 @@
 local json = require('json')
+local lpeg = require('lpeg')
 local constants = require('constants')
 local Cache = require('iterables/Cache')
 local ArrayIterable = require('iterables/ArrayIterable')
@@ -7,9 +8,9 @@ local Reaction = require('containers/Reaction')
 local Resolver = require('client/Resolver')
 
 local insert = table.insert
+local rset = rawset
 local null = json.null
 
-local lpeg = require"lpeg"
 local P, V, C, S, Carg, l = lpeg.P, lpeg.V, lpeg.C, lpeg.S, lpeg.Carg, {} 
 lpeg.locale(l)
 
@@ -34,8 +35,8 @@ local open = P"<" -- create the generic pattern objects
 local close = P">"
 local cid = C(l.digit^1)
 local emoji_name = (("_" + l.alnum)  - ":")^1
-local rset = rawset
 local function add_mention(seen, tbl, id) if not seen[id] then return rset(seen, id, true) and insert(tbl, id) end end
+
 local mention_types = {
     emoji = Carg(1) * Carg(2) * ":" * emoji_name * ":" * cid / add_mention, 
     animoji = Carg(1) * Carg(2) * "a:" * emoji_name * ":" * cid / add_mention,
@@ -44,6 +45,7 @@ local mention_types = {
     role = Carg(1) * Carg(4) * "@&" * cid / add_mention,
     channel = Carg(1) * Carg(5) * "#" * cid / add_mention,
 }
+
 local predicate = #(open * S[[a@#:]] * (S[[:!&]] + l.alnum)) --a predicate pattern to allow us to quit early
 
 local mention_patt = open * (
