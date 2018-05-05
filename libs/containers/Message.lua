@@ -9,6 +9,10 @@ local Resolver = require('client/Resolver')
 local insert = table.insert
 local null = json.null
 
+local lpeg = require"lpeg"
+local P, V, C, Ct, S, Carg, Cc, l = lpeg.P, lpeg.V, lpeg.C, lpeg.Ct, lpeg.S, lpeg.Carg, lpeg.Cc, {} 
+lpeg.locale(l)
+
 local Message, get = require('class')('Message', Snowflake)
 
 function Message:__init(data, parent)
@@ -26,32 +30,39 @@ function Message:_load(data)
 	return self:_loadMore(data)
 end
 
-local function parseMentions(content)
+local open = P"<" -- create the generic pattern objects
+local close = P">"
+local cid = C(l.digit^1)
+local emoji_name = (("_" + l.alnum)  - ":")^1
 
-	local i = content:find('<')
-	if not i then return end
-	local j = content:find('>', i)
-	if not j then return end
+local mention_types = {
+    emoji = Carg(1) * ":" * emoji_name * ":" * cid / insert, 
+    animoji = Carg(1) * "a:" * emoji_name * ":" * cid / insert,
+    user = Carg(2) * "@" * cid / insert,
+    nick = Carg(2) * "@!" * cid / insert,
+    role = Carg(3) * "@&" * cid / insert,
+    channel = Carg(4) * "#" * cid / insert,
+}
+local predicate = #(open * S[[a@#:]] * (S[[:!&]] + l.alnum)) --a predicate pattern to allow us to quit early
 
-	local users, roles, channels, emojis = {}, {}, {}, {}
-	local seen = {}
+local mention_patt = open * (
+    mention_types.emoji + 
+    mention_types.animoji + 
+    mention_types.user + 
+    mention_types.nick + 
+    mention_types.role + 
+    mention_types.channel
+) * close
 
-	for symbol, id in content:gmatch('<.-(%p+)(%d+)>') do
-		if not seen[id] then
-			if symbol == '@&' then
-				insert(roles, id)
-			elseif symbol == '@' or symbol == '@!' then
-				insert(users, id)
-			elseif symbol == '#' then
-				insert(channels, id)
-			elseif symbol == ':' then
-				insert(emojis, id)
-			end
-			seen[id] = true
-		end
-	end
-	return users, roles, channels, emojis
+mention_patt = P{predicate * mention_patt + 1 * V(1)}^1-- a recursive definition that matches multiple mentions which can appear anywhre in the text.
 
+local function parseMentions(text) 
+	local emoji = {}
+	local users = {}
+	local roles = {}
+	local channels = {}
+    mention_patt:match(text, 1, emoji, users, roles, channels)
+    return emoji, users, roles, channels
 end
 
 function Message:_loadMore(data)
@@ -61,7 +72,7 @@ function Message:_loadMore(data)
 	end
 
 	if data.content then
-		local users, roles, channels, emojis = parseMentions(data.content)
+		local emoji, users, roles, channels = parseMentions(data.content)
 		if self._mentioned_users then
 			self._mentioned_users._array = users
 		else
@@ -78,9 +89,9 @@ function Message:_loadMore(data)
 			self._mentioned_channels_raw = channels
 		end
 		if self._mentioned_emojis then
-			self._mentioned_emojis._array = emojis
+			self._mentioned_emojis._array = emoji
 		else
-			self._mentioned_emojis_raw = emojis
+			self._mentioned_emojis_raw = emoji
 		end
 		self._clean_content = nil
 	end
