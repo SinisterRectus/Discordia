@@ -1,3 +1,5 @@
+--[=[@c PermissionOverwrite x Snowflake desc]=]
+
 local Snowflake = require('containers/abstract/Snowflake')
 local Permissions = require('utils/Permissions')
 local Resolver = require('client/Resolver')
@@ -10,6 +12,12 @@ function PermissionOverwrite:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:delete()
 	local data, err = self.client._api:deleteChannelPermission(self._parent._id, self._id)
 	if data then
@@ -23,6 +31,12 @@ function PermissionOverwrite:delete()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:getObject()
 	local guild = self._parent._parent
 	if self._type == 'role' then
@@ -47,78 +61,143 @@ local function setPermissions(self, allow, deny)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:getAllowedPermissions()
 	return Permissions(self._allow)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:getDeniedPermissions()
 	return Permissions(self._deny)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:setAllowedPermissions(allowed)
 	local allow = Resolver.permissions(allowed)
 	local deny = band(bnot(allow), self._deny) -- un-deny the allowed permissions
 	return setPermissions(self, allow, deny)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:setDeniedPermissions(denied)
 	local deny = Resolver.permissions(denied)
 	local allow = band(bnot(deny), self._allow) -- un-allow the denied permissions
 	return setPermissions(self, allow, deny)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:allowPermissions(...)
 	local allowed, denied = getPermissions(self)
 	allowed:enable(...); denied:disable(...)
 	return setPermissions(self, allowed._value, denied._value)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:denyPermissions(...)
 	local allowed, denied = getPermissions(self)
 	allowed:disable(...); denied:enable(...)
 	return setPermissions(self, allowed._value, denied._value)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:clearPermissions(...)
 	local allowed, denied = getPermissions(self)
 	allowed:disable(...); denied:disable(...)
 	return setPermissions(self, allowed._value, denied._value)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:allowAllPermissions()
 	local allowed, denied = getPermissions(self)
 	allowed:enableAll(); denied:disableAll()
 	return setPermissions(self, allowed._value, denied._value)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:denyAllPermissions()
 	local allowed, denied = getPermissions(self)
 	allowed:disableAll(); denied:enableAll()
 	return setPermissions(self, allowed._value, denied._value)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function PermissionOverwrite:clearAllPermissions()
 	local allowed, denied = getPermissions(self)
 	allowed:disableAll(); denied:disableAll()
 	return setPermissions(self, allowed._value, denied._value)
 end
 
+--[=[@p type type desc]=]
 function get.type(self)
 	return self._type
 end
 
+--[=[@p channel type desc]=]
 function get.channel(self)
 	return self._parent
 end
 
+--[=[@p guild type desc]=]
 function get.guild(self)
 	return self._parent._parent
 end
 
+--[=[@p allowedPermissions type desc]=]
 function get.allowedPermissions(self)
 	return self._allow
 end
 
+--[=[@p deniedPermissions type desc]=]
 function get.deniedPermissions(self)
 	return self._deny
 end

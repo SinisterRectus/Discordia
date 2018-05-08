@@ -1,3 +1,5 @@
+--[=[@abc Container desc]=]
+
 local json = require('json')
 
 local null = json.null
@@ -34,10 +36,12 @@ end
 
 Container._load = load
 
+--[=[@p client type desc]=]
 function get.client(self)
 	return self._parent.client or self._parent
 end
 
+--[=[@p parent type desc]=]
 function get.parent(self)
 	return self._parent
 end

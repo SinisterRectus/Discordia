@@ -1,3 +1,5 @@
+--[=[@c TableIterable x Iterable desc]=]
+
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Iterable = require('iterables/Iterable')
@@ -9,6 +11,12 @@ function TableIterable:__init(tbl, map)
 	self._map = map
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function TableIterable:iter()
 	local tbl = self._tbl
 	if not tbl then

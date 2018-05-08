@@ -1,3 +1,5 @@
+--[=[@c GuildTextChannel x GuildChannel x TextChannel desc]=]
+
 local json = require('json')
 
 local GuildChannel = require('containers/abstract/GuildChannel')
@@ -19,6 +21,12 @@ function GuildTextChannel:_load(data)
 	TextChannel._load(self, data)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GuildTextChannel:createWebhook(name)
 	local data, err = self.client._api:createWebhook(self._id, {name = name})
 	if data then
@@ -28,6 +36,12 @@ function GuildTextChannel:createWebhook(name)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GuildTextChannel:getWebhooks()
 	local data, err = self.client._api:getChannelWebhooks(self._id)
 	if data then
@@ -37,6 +51,12 @@ function GuildTextChannel:getWebhooks()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GuildTextChannel:bulkDelete(messages)
 	messages = Resolver.messageIds(messages)
 	local data, err
@@ -52,26 +72,47 @@ function GuildTextChannel:bulkDelete(messages)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GuildTextChannel:setTopic(topic)
 	return self:_modify({topic = topic or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GuildTextChannel:enableNSFW()
 	return self:_modify({nsfw = true})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GuildTextChannel:disableNSFW()
 	return self:_modify({nsfw = false})
 end
 
+--[=[@p topic type desc]=]
 function get.topic(self)
 	return self._topic
 end
 
+--[=[@p nsfw type desc]=]
 function get.nsfw(self)
 	return self._nsfw or false
 end
 
+--[=[@p members type desc]=]
 function get.members(self)
 	if not self._members then
 		self._members = FilteredIterable(self._parent._members, function(m)

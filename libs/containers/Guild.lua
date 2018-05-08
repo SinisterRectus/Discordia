@@ -1,3 +1,5 @@
+--[=[@c Guild x Snowflake desc]=]
+
 local Cache = require('iterables/Cache')
 local Role = require('containers/Role')
 local Emoji = require('containers/Emoji')
@@ -91,6 +93,12 @@ function Guild:_modify(payload)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:requestMembers()
 	local shard = self.client._shards[self.shardId]
 	if not shard then
@@ -102,6 +110,12 @@ function Guild:requestMembers()
 	return shard:requestGuildMembers(self._id)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:sync()
 	local shard = self.client._shards[self.shardId]
 	if not shard then
@@ -113,6 +127,12 @@ function Guild:sync()
 	return shard:syncGuilds({self._id})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getMember(id)
 	id = Resolver.userId(id)
 	local member = self._members:get(id)
@@ -128,21 +148,45 @@ function Guild:getMember(id)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getRole(id)
 	id = Resolver.roleId(id)
 	return self._roles:get(id)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getEmoji(id)
 	id = Resolver.emojiId(id)
 	return self._emojis:get(id)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getChannel(id)
 	id = Resolver.channelId(id)
 	return self._text_channels:get(id) or self._voice_channels:get(id) or self._categories:get(id)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:createTextChannel(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.text})
 	if data then
@@ -152,6 +196,12 @@ function Guild:createTextChannel(name)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:createVoiceChannel(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.voice})
 	if data then
@@ -161,6 +211,12 @@ function Guild:createVoiceChannel(name)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:createCategory(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.category})
 	if data then
@@ -170,6 +226,12 @@ function Guild:createCategory(name)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:createRole(name)
 	local data, err = self.client._api:createGuildRole(self._id, {name = name})
 	if data then
@@ -179,6 +241,12 @@ function Guild:createRole(name)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:createEmoji(name, image)
 	image = Resolver.base64(image)
 	local data, err = self.client._api:createGuildEmoji(self._id, {name = name, image = image})
@@ -189,55 +257,127 @@ function Guild:createEmoji(name, image)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setRegion(region)
 	return self:_modify({region = region or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setVerificationLevel(verification_level)
 	return self:_modify({verification_level = verification_level or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setNotificationSetting(default_message_notifications)
 	return self:_modify({default_message_notifications = default_message_notifications or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setExplicitContentSetting(explicit_content_filter)
 	return self:_modify({explicit_content_filter = explicit_content_filter or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setAFKTimeout(afk_timeout)
 	return self:_modify({afk_timeout = afk_timeout or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setAFKChannel(id)
 	id = id and Resolver.channelId(id)
 	return self:_modify({afk_channel_id = id or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setSystemChannel(id)
 	id = id and Resolver.channelId(id)
 	return self:_modify({system_channel_id = id or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setOwner(id)
 	id = id and Resolver.userId(id)
 	return self:_modify({owner_id = id or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setIcon(icon)
 	icon = icon and Resolver.base64(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:setSplash(splash)
 	splash = splash and Resolver.base64(splash)
 	return self:_modify({splash = splash or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getPruneCount(days)
 	local data, err = self.client._api:getGuildPruneCount(self._id, days and {days = days} or nil)
 	if data then
@@ -247,6 +387,12 @@ function Guild:getPruneCount(days)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:pruneMembers(days)
 	local data, err = self.client._api:beginGuildPrune(self._id, nil, days and {days = days} or nil)
 	if data then
@@ -256,6 +402,12 @@ function Guild:pruneMembers(days)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
 	if data then
@@ -265,6 +417,12 @@ function Guild:getBans()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getInvites()
 	local data, err = self.client._api:getGuildInvites(self._id)
 	if data then
@@ -274,6 +432,12 @@ function Guild:getInvites()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getAuditLogs(query)
 	if type(query) == 'table' then
 		query = {
@@ -293,6 +457,12 @@ function Guild:getAuditLogs(query)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:getWebhooks()
 	local data, err = self.client._api:getGuildWebhooks(self._id)
 	if data then
@@ -302,10 +472,22 @@ function Guild:getWebhooks()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:listVoiceRegions()
 	return self.client._api:getGuildVoiceRegions(self._id)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:leave()
 	local data, err = self.client._api:leaveGuild(self._id)
 	if data then
@@ -315,6 +497,12 @@ function Guild:leave()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:delete()
 	local data, err = self.client._api:deleteGuild(self._id)
 	if data then
@@ -328,6 +516,12 @@ function Guild:delete()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:kickUser(id, reason)
 	id = Resolver.userId(id)
 	local query = reason and {reason = reason}
@@ -339,6 +533,12 @@ function Guild:kickUser(id, reason)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:banUser(user, reason, days)
 	local query = reason and {reason = reason}
 	if days then
@@ -354,6 +554,12 @@ function Guild:banUser(user, reason, days)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Guild:unbanUser(user, reason)
 	user = Resolver.userId(user)
 	local query = reason and {reason = reason}
@@ -365,128 +571,159 @@ function Guild:unbanUser(user, reason)
 	end
 end
 
+--[=[@p shardId type desc]=]
 function get.shardId(self)
 	return floor(self._id / 2^22) % self.client._total_shard_count
 end
 
+--[=[@p name type desc]=]
 function get.name(self)
 	return self._name
 end
 
+--[=[@p icon type desc]=]
 function get.icon(self)
 	return self._icon
 end
 
+--[=[@p iconURL type desc]=]
 function get.iconURL(self)
 	local icon = self._icon
 	return icon and format('https://cdn.discordapp.com/icons/%s/%s.png', self._id, icon)
 end
 
+--[=[@p splash type desc]=]
 function get.splash(self)
 	return self._splash
 end
 
+--[=[@p splashURL type desc]=]
 function get.splashURL(self)
 	local splash = self._splash
 	return splash and format('https://cdn.discordapp.com/splashs/%s/%s.png', self._id, splash)
 end
 
+--[=[@p large type desc]=]
 function get.large(self)
 	return self._large
 end
 
+--[=[@p region type desc]=]
 function get.region(self)
 	return self._region
 end
 
+--[=[@p mfaLevel type desc]=]
 function get.mfaLevel(self)
 	return self._mfa_level
 end
 
+--[=[@p joinedAt type desc]=]
 function get.joinedAt(self)
 	return self._joined_at
 end
 
+--[=[@p afkTimeout type desc]=]
 function get.afkTimeout(self)
 	return self._afk_timeout
 end
 
+--[=[@p unavailable type desc]=]
 function get.unavailable(self)
 	return self._unavailable or false
 end
 
+--[=[@p totalMemberCount type desc]=]
 function get.totalMemberCount(self)
 	return self._member_count
 end
 
+--[=[@p verificationLevel type desc]=]
 function get.verificationLevel(self)
 	return self._verification_level
 end
 
+--[=[@p notificationSetting type desc]=]
 function get.notificationSetting(self)
 	return self._default_message_notifications
 end
 
+--[=[@p explicitContentSetting type desc]=]
 function get.explicitContentSetting(self)
 	return self._explicit_content_filter
 end
 
+--[=[@p features type desc]=]
 function get.features(self)
 	return self._features
 end
 
+--[=[@p me type desc]=]
 function get.me(self)
 	return self._members:get(self.client._user._id)
 end
 
+--[=[@p owner type desc]=]
 function get.owner(self)
 	return self._members:get(self._owner_id)
 end
 
+--[=[@p ownerId type desc]=]
 function get.ownerId(self)
 	return self._owner_id
 end
 
+--[=[@p afkChannelId type desc]=]
 function get.afkChannelId(self)
 	return self._afk_channel_id
 end
 
+--[=[@p afkChannel type desc]=]
 function get.afkChannel(self)
 	return self._voice_channels:get(self._afk_channel_id)
 end
 
+--[=[@p systemChannelId type desc]=]
 function get.systemChannelId(self)
 	return self._system_channel_id
 end
 
+--[=[@p systemChannel type desc]=]
 function get.systemChannel(self)
 	return self._text_channels:get(self._system_channel_id)
 end
 
+--[=[@p defaultRole type desc]=]
 function get.defaultRole(self)
 	return self._roles:get(self._id)
 end
 
+--[=[@p roles type desc]=]
 function get.roles(self)
 	return self._roles
 end
 
+--[=[@p emojis type desc]=]
 function get.emojis(self)
 	return self._emojis
 end
 
+--[=[@p members type desc]=]
 function get.members(self)
 	return self._members
 end
 
+--[=[@p textChannels type desc]=]
 function get.textChannels(self)
 	return self._text_channels
 end
 
+--[=[@p voiceChannels type desc]=]
 function get.voiceChannels(self)
 	return self._voice_channels
 end
 
+--[=[@p categories type desc]=]
 function get.categories(self)
 	return self._categories
 end

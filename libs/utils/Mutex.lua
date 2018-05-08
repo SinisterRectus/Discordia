@@ -1,3 +1,5 @@
+--[=[@c Mutex desc]=]
+
 local Deque = require('./Deque')
 local timer = require('timer')
 
@@ -13,6 +15,12 @@ function Mutex:__init()
 	self._active = false
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Mutex:lock(prepend)
 	if self._active then
 		if prepend then
@@ -25,6 +33,12 @@ function Mutex:lock(prepend)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Mutex:unlock()
 	if self:getCount() > 0 then
 		return assert(resume(self:popLeft()))
@@ -33,6 +47,12 @@ function Mutex:unlock()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 local unlock = Mutex.unlock
 function Mutex:unlockAfter(delay)
 	return setTimeout(delay, unlock, self)

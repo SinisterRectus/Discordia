@@ -1,3 +1,5 @@
+--[=[@c Message x Snowflake desc]=]
+
 local json = require('json')
 local constants = require('constants')
 local Cache = require('iterables/Cache')
@@ -167,14 +169,32 @@ function Message:_modify(payload)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:setContent(content)
 	return self:_modify({content = content or null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:setEmbed(embed)
 	return self:_modify({embed = embed or null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:pin()
 	local data, err = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
 	if data then
@@ -185,6 +205,12 @@ function Message:pin()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:unpin()
 	local data, err = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
 	if data then
@@ -195,6 +221,12 @@ function Message:unpin()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:addReaction(emoji)
 	emoji = Resolver.emoji(emoji)
 	local data, err = self.client._api:createReaction(self._parent._id, self._id, emoji)
@@ -205,6 +237,12 @@ function Message:addReaction(emoji)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:removeReaction(emoji, id)
 	emoji = Resolver.emoji(emoji)
 	local data, err
@@ -221,6 +259,12 @@ function Message:removeReaction(emoji, id)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:clearReactions()
 	local data, err = self.client._api:deleteAllReactions(self._parent._id, self._id)
 	if data then
@@ -230,6 +274,12 @@ function Message:clearReactions()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:delete()
 	local data, err = self.client._api:deleteMessage(self._parent._id, self._id)
 	if data then
@@ -243,10 +293,17 @@ function Message:delete()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Message:reply(content)
 	return self._parent:send(content)
 end
 
+--[=[@p reactions type desc]=]
 function get.reactions(self)
 	if not self._reactions then
 		self._reactions = Cache({}, Reaction, self)
@@ -254,6 +311,7 @@ function get.reactions(self)
 	return self._reactions
 end
 
+--[=[@p mentionedUsers type desc]=]
 function get.mentionedUsers(self)
 	if not self._mentioned_users then
 		local users = self.client._users
@@ -265,6 +323,7 @@ function get.mentionedUsers(self)
 	return self._mentioned_users
 end
 
+--[=[@p mentionedRoles type desc]=]
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
 		local client = self.client
@@ -277,6 +336,7 @@ function get.mentionedRoles(self)
 	return self._mentioned_roles
 end
 
+--[=[@p mentionedEmojis type desc]=]
 function get.mentionedEmojis(self)
 	if not self._mentioned_emojis then
 		local client = self.client
@@ -289,6 +349,7 @@ function get.mentionedEmojis(self)
 	return self._mentioned_emojis
 end
 
+--[=[@p mentionedChannels type desc]=]
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then
 		local client = self.client
@@ -311,6 +372,7 @@ local channelsMeta = {__index = function(_, k) return '#' .. k end}
 local everyone = '@' .. constants.ZWSP .. 'everyone'
 local here = '@' .. constants.ZWSP .. 'here'
 
+--[=[@p cleanContent type desc]=]
 function get.cleanContent(self)
 
 	if not self._clean_content then
@@ -348,66 +410,82 @@ function get.cleanContent(self)
 
 end
 
+--[=[@p mentionsEveryone type desc]=]
 function get.mentionsEveryone(self)
 	return self._mention_everyone
 end
 
+--[=[@p pinned type desc]=]
 function get.pinned(self)
 	return self._pinned
 end
 
+--[=[@p tts type desc]=]
 function get.tts(self)
 	return self._tts
 end
 
+--[=[@p nonce type desc]=]
 function get.nonce(self)
 	return self._nonce
 end
 
+--[=[@p editedTimestamp type desc]=]
 function get.editedTimestamp(self)
 	return self._edited_timestamp
 end
 
+--[=[@p oldContent type desc]=]
 function get.oldContent(self)
 	return self._old
 end
 
+--[=[@p content type desc]=]
 function get.content(self)
 	return self._content
 end
 
+--[=[@p author type desc]=]
 function get.author(self)
 	return self._author
 end
 
+--[=[@p channel type desc]=]
 function get.channel(self)
 	return self._parent
 end
 
+--[=[@p type type desc]=]
 function get.type(self)
 	return self._type
 end
 
+--[=[@p embed type desc]=]
 function get.embed(self)
 	return self._embeds and self._embeds[1]
 end
 
+--[=[@p attachment type desc]=]
 function get.attachment(self)
 	return self._attachments and self._attachments[1]
 end
 
+--[=[@p embeds type desc]=]
 function get.embeds(self)
 	return self._embeds
 end
 
+--[=[@p attachments type desc]=]
 function get.attachments(self)
 	return self._attachments
 end
 
+--[=[@p guild type desc]=]
 function get.guild(self)
 	return self._parent.guild
 end
 
+--[=[@p member type desc]=]
 function get.member(self)
 	local guild = self.guild
 	return guild and guild._members:get(self._author._id)

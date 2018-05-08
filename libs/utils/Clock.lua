@@ -1,3 +1,5 @@
+--[=[@c Clock x Emitter desc]=]
+
 local timer = require('timer')
 local Emitter = require('utils/Emitter')
 
@@ -10,6 +12,12 @@ function Clock:__init()
 	Emitter.__init(self)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Clock:start(utc)
 	if self._interval then return end
 	local fmt = utc and '!*t' or '*t'
@@ -25,6 +33,12 @@ function Clock:start(utc)
 	end)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Clock:stop()
 	if not self._interval then return end
 	clearInterval(self._interval)

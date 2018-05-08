@@ -1,3 +1,5 @@
+--[=[@c WeakCache x Cache desc]=]
+
 local Cache = require('iterables/Cache')
 local Iterable = require('iterables/Iterable')
 

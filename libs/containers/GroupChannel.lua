@@ -1,3 +1,5 @@
+--[=[@c GroupChannel x TextChannel desc]=]
+
 local json = require('json')
 
 local TextChannel = require('containers/abstract/TextChannel')
@@ -13,15 +15,33 @@ function GroupChannel:__init(data, parent)
 	self._recipients = SecondaryCache(data.recipients, self.client._users)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GroupChannel:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GroupChannel:setIcon(icon)
 	icon = icon and Resolver.base64(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GroupChannel:addRecipient(id)
 	id = Resolver.userId(id)
 	local data, err = self.client._api:groupDMAddRecipient(self._id, id)
@@ -32,6 +52,12 @@ function GroupChannel:addRecipient(id)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GroupChannel:removeRecipient(id)
 	id = Resolver.userId(id)
 	local data, err = self.client._api:groupDMRemoveRecipient(self._id, id)
@@ -42,30 +68,42 @@ function GroupChannel:removeRecipient(id)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function GroupChannel:leave()
 	return self:_delete()
 end
 
+--[=[@p recipients type desc]=]
 function get.recipients(self)
 	return self._recipients
 end
 
+--[=[@p name type desc]=]
 function get.name(self)
 	return self._name
 end
 
+--[=[@p ownerId type desc]=]
 function get.ownerId(self)
 	return self._owner_id
 end
 
+--[=[@p owner type desc]=]
 function get.owner(self)
 	return self._recipients:get(self._owner_id)
 end
 
+--[=[@p icon type desc]=]
 function get.icon(self)
 	return self._icon
 end
 
+--[=[@p iconURL type desc]=]
 function get.iconURL(self)
 	local icon = self._icon
 	return icon and format('https://cdn.discordapp.com/channel-icons/%s/%s.png', self._id, icon)

@@ -1,3 +1,5 @@
+--[=[@c SecondaryCache x Iterable desc]=]
+
 local Iterable = require('iterables/Iterable')
 
 local SecondaryCache = require('class')('SecondaryCache', Iterable)
@@ -41,10 +43,22 @@ function SecondaryCache:_remove(data)
 	return obj
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function SecondaryCache:get(k)
 	return self._objects[k]
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function SecondaryCache:iter()
 	local objects, k, obj = self._objects
 	return function()

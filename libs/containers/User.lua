@@ -1,3 +1,5 @@
+--[=[@c User x Snowflake desc]=]
+
 local Snowflake = require('containers/abstract/Snowflake')
 local FilteredIterable = require('iterables/FilteredIterable')
 local constants = require('constants')
@@ -11,6 +13,12 @@ function User:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function User:getAvatarURL(size, ext)
 	local avatar = self._avatar
 	if avatar then
@@ -25,6 +33,12 @@ function User:getAvatarURL(size, ext)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function User:getDefaultAvatarURL(size)
 	local avatar = self.defaultAvatar
 	if size then
@@ -34,6 +48,12 @@ function User:getDefaultAvatarURL(size)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function User:getPrivateChannel()
 	local id = self._id
 	local client = self.client
@@ -50,6 +70,12 @@ function User:getPrivateChannel()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function User:send(content)
 	local channel, err = self:getPrivateChannel()
 	if channel then
@@ -59,6 +85,12 @@ function User:send(content)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function User:sendf(content, ...)
 	local channel, err = self:getPrivateChannel()
 	if channel then
@@ -68,51 +100,63 @@ function User:sendf(content, ...)
 	end
 end
 
+--[=[@p bot type desc]=]
 function get.bot(self)
 	return self._bot or false
 end
 
+--[=[@p name type desc]=]
 function get.name(self)
 	return self._username
 end
 
+--[=[@p username type desc]=]
 function get.username(self)
 	return self._username
 end
 
+--[=[@p discriminator type desc]=]
 function get.discriminator(self)
 	return self._discriminator
 end
 
+--[=[@p tag type desc]=]
 function get.tag(self)
 	return self._username .. '#' .. self._discriminator
 end
 
+--[=[@p fullname type desc]=]
 function get.fullname(self)
 	self.client:_deprecated(self.__name, 'fullname', 'tag')
 	return self._username .. '#' .. self._discriminator
 end
 
+--[=[@p avatar type desc]=]
 function get.avatar(self)
 	return self._avatar
 end
 
+--[=[@p defaultAvatar type desc]=]
 function get.defaultAvatar(self)
 	return self._discriminator % DEFAULT_AVATARS
 end
 
+--[=[@p avatarURL type desc]=]
 function get.avatarURL(self)
 	return self:getAvatarURL()
 end
 
+--[=[@p defaultAvatarURL type desc]=]
 function get.defaultAvatarURL(self)
 	return self:getDefaultAvatarURL()
 end
 
+--[=[@p mentionString type desc]=]
 function get.mentionString(self)
 	return format('<@%s>', self._id)
 end
 
+--[=[@p mutualGuilds type desc]=]
 function get.mutualGuilds(self)
 	if not self._mutual_guilds then
 		local id = self._id

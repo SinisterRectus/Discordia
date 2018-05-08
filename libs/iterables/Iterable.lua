@@ -1,9 +1,10 @@
+--[=[@abc Iterable desc]=]
+
 local random = math.random
 local wrap, yield = coroutine.wrap, coroutine.yield
 local insert, sort, pack = table.insert, table.sort, table.pack
 
 local Iterable = require('class')('Iterable')
-
 
 function Iterable:__pairs()
 	return wrap(function()
@@ -21,6 +22,12 @@ function Iterable:__len()
 	return n
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Iterable:get(k) -- objects must be hashable
 	for obj in self:iter() do
 		if obj:__hash() == k then
@@ -30,6 +37,12 @@ function Iterable:get(k) -- objects must be hashable
 	return nil
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Iterable:find(fn)
 	for obj in self:iter() do
 		if fn(obj) then
@@ -39,6 +52,12 @@ function Iterable:find(fn)
 	return nil
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Iterable:findAll(fn)
 	return wrap(function()
 		for obj in self:iter() do
@@ -49,12 +68,24 @@ function Iterable:findAll(fn)
 	end)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Iterable:forEach(fn)
 	for obj in self:iter() do
 		fn(obj)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Iterable:random()
 	local n = 1
 	local rand = random(#self)
@@ -66,6 +97,12 @@ function Iterable:random()
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Iterable:count(fn)
 	local n = 0
 	for _ in self:findAll(fn) do
@@ -114,6 +151,12 @@ local function sorter(a, b)
 	return tostring(a) < tostring(b)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Iterable:toArray(sortBy, fn)
 	local t1 = type(sortBy)
 	if t1 == 'string' then
@@ -136,6 +179,12 @@ function Iterable:toArray(sortBy, fn)
 	return ret
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Iterable:select(...)
 	local rows = {}
 	local keys = pack(...)

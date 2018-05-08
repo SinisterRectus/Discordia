@@ -1,3 +1,5 @@
+--[=[@c Webhook x Snowflake desc]=]
+
 local json = require('json')
 local enums = require('enums')
 local Snowflake = require('containers/abstract/Snowflake')
@@ -23,23 +25,53 @@ function Webhook:_modify(payload)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Webhook:getAvatarURL(size, ext)
 	return User.getAvatarURL(self, size, ext)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Webhook:getDefaultAvatarURL(size)
 	return User.getDefaultAvatarURL(self, size)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Webhook:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Webhook:setAvatar(avatar)
 	avatar = avatar and Resolver.base64(avatar)
 	return self:_modify({avatar = avatar or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Webhook:delete()
 	local data, err = self.client._api:deleteWebhook(self._id)
 	if data then
@@ -49,38 +81,47 @@ function Webhook:delete()
 	end
 end
 
+--[=[@p guildId type desc]=]
 function get.guildId(self)
 	return self._guild_id
 end
 
+--[=[@p channelId type desc]=]
 function get.channelId(self)
 	return self._channel_id
 end
 
+--[=[@p user type desc]=]
 function get.user(self)
 	return self._user
 end
 
+--[=[@p token type desc]=]
 function get.token(self)
 	return self._token
 end
 
+--[=[@p name type desc]=]
 function get.name(self)
 	return self._name
 end
 
+--[=[@p avatar type desc]=]
 function get.avatar(self)
 	return self._avatar
 end
 
+--[=[@p avatarURL type desc]=]
 function get.avatarURL(self)
 	return self:getAvatarURL()
 end
 
+--[=[@p defaultAvatar type desc]=]
 function get.defaultAvatar()
 	return defaultAvatar.blurple
 end
 
+--[=[@p defaultAvatarURL type desc]=]
 function get.defaultAvatarURL(self)
 	return self:getDefaultAvatarURL()
 end

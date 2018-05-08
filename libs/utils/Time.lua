@@ -1,3 +1,5 @@
+--[=[@c Time desc]=]
+
 local class = require('class')
 local constants = require('constants')
 
@@ -49,6 +51,12 @@ function Time:__tostring()
 	return 'Time: ' .. self:toString()
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Time:toString()
 	local tbl = self:toTable()
 	local ret = {}
@@ -140,30 +148,72 @@ function Time.fromTable(t)
 	return Time(n)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Time:toWeeks()
 	return self:toMilliseconds() / MS_PER_WEEK
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Time:toDays()
 	return self:toMilliseconds() / MS_PER_DAY
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Time:toHours()
 	return self:toMilliseconds() / MS_PER_HOUR
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Time:toMinutes()
 	return self:toMilliseconds() / MS_PER_MIN
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Time:toSeconds()
 	return self:toMilliseconds() / MS_PER_S
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Time:toMilliseconds()
 	return self._value
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Time:toTable()
 	local v = self._value
 	return {

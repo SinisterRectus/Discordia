@@ -1,3 +1,5 @@
+--[=[@c Role x Snowflake desc]=]
+
 local json = require('json')
 local Snowflake = require('containers/abstract/Snowflake')
 local Color = require('utils/Color')
@@ -27,6 +29,12 @@ function Role:_modify(payload)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:delete()
 	local data, err = self.client._api:deleteGuildRole(self._parent._id, self._id)
 	if data then
@@ -72,7 +80,13 @@ local function setSortedRoles(self, roles)
 	end
 end
 
-function Role:moveDown(n)
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
+function Role:moveDown(n) -- TODO: fix attempt to move roles that cannot be moved
 
 	n = tonumber(n) or 1
 	if n < 0 then
@@ -98,7 +112,13 @@ function Role:moveDown(n)
 
 end
 
-function Role:moveUp(n)
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
+function Role:moveUp(n) -- TODO: fix attempt to move roles that cannot be moved
 
 	n = tonumber(n) or 1
 	if n < 0 then
@@ -124,104 +144,192 @@ function Role:moveUp(n)
 
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:setColor(color)
 	color = color and Resolver.color(color)
 	return self:_modify({color = color or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:setPermissions(permissions)
 	permissions = permissions and Resolver.permissions(permissions)
 	return self:_modify({permissions = permissions or json.null})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:hoist()
 	return self:_modify({hoist = true})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:unhoist()
 	return self:_modify({hoist = false})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:enableMentioning()
 	return self:_modify({mentionable = true})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:disableMentioning()
 	return self:_modify({mentionable = false})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:enablePermissions(...)
 	local permissions = self:getPermissions()
 	permissions:enable(...)
 	return self:setPermissions(permissions)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:disablePermissions(...)
 	local permissions = self:getPermissions()
 	permissions:disable(...)
 	return self:setPermissions(permissions)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:enableAllPermissions()
 	local permissions = self:getPermissions()
 	permissions:enableAll()
 	return self:setPermissions(permissions)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:disableAllPermissions()
 	local permissions = self:getPermissions()
 	permissions:disableAll()
 	return self:setPermissions(permissions)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:getColor()
 	return Color(self._color)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Role:getPermissions()
 	return Permissions(self._permissions)
 end
 
+--[=[@p hoisted type desc]=]
 function get.hoisted(self)
 	return self._hoist
 end
 
+--[=[@p mentionable type desc]=]
 function get.mentionable(self)
 	return self._mentionable
 end
 
+--[=[@p managed type desc]=]
 function get.managed(self)
 	return self._managed
 end
 
+--[=[@p name type desc]=]
 function get.name(self)
 	return self._name
 end
 
+--[=[@p position type desc]=]
 function get.position(self)
 	return self._position
 end
 
+--[=[@p color type desc]=]
 function get.color(self)
 	return self._color
 end
 
+--[=[@p permissions type desc]=]
 function get.permissions(self)
 	return self._permissions
 end
 
+--[=[@p mentionString type desc]=]
 function get.mentionString(self)
 	return format('<@&%s>', self._id)
 end
 
+--[=[@p guild type desc]=]
 function get.guild(self)
 	return self._parent
 end
 
+--[=[@p members type desc]=]
 function get.members(self)
 	if not self._members then
 		self._members = FilteredIterable(self._parent._members, function(m)
@@ -231,6 +339,7 @@ function get.members(self)
 	return self._members
 end
 
+--[=[@p emojis type desc]=]
 function get.emojis(self)
 	if not self._emojis then
 		self._emojis = FilteredIterable(self._parent._emojis, function(e)

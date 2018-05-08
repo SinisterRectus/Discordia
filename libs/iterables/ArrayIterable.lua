@@ -1,3 +1,5 @@
+--[=[@c ArrayIterable x Iterable desc]=]
+
 local wrap, yield = coroutine.wrap, coroutine.yield
 
 local Iterable = require('iterables/Iterable')
@@ -22,6 +24,7 @@ function ArrayIterable:__len()
 	end
 end
 
+--[=[@p first type desc]=]
 function get.first(self)
 	local array = self._array
 	if not array or #array == 0 then
@@ -41,6 +44,7 @@ function get.first(self)
 	end
 end
 
+--[=[@p last type desc]=]
 function get.last(self)
 	local array = self._array
 	if not array or #array == 0 then
@@ -60,6 +64,12 @@ function get.last(self)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function ArrayIterable:iter()
 	local array = self._array
 	if not array or #array == 0 then

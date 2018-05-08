@@ -1,3 +1,5 @@
+--[=[@c Activity desc]=]
+
 local Container = require('containers/abstract/Container')
 
 local Activity, get = require('class')('Activity')
@@ -27,62 +29,77 @@ function Activity:_loadMore(data)
 	self._party_max = party and party.size and party.size[2]
 end
 
+--[=[@p start type desc]=]
 function get.start(self)
 	return self._start
 end
 
+--[=[@p stop type desc]=]
 function get.stop(self)
 	return self._stop
 end
 
+--[=[@p name type desc]=]
 function get.name(self)
 	return self._name
 end
 
+--[=[@p type type desc]=]
 function get.type(self)
 	return self._type
 end
 
+--[=[@p url type desc]=]
 function get.url(self)
 	return self._url
 end
 
+--[=[@p applicationId type desc]=]
 function get.applicationId(self)
 	return self._application_id
 end
 
+--[=[@p state type desc]=]
 function get.state(self)
 	return self._state
 end
 
+--[=[@p details type desc]=]
 function get.details(self)
 	return self._details
 end
 
+--[=[@p textSmall type desc]=]
 function get.textSmall(self)
 	return self._small_text
 end
 
+--[=[@p textLarge type desc]=]
 function get.textLarge(self)
 	return self._large_text
 end
 
+--[=[@p imageSmall type desc]=]
 function get.imageSmall(self)
 	return self._small_image
 end
 
+--[=[@p imageLarge type desc]=]
 function get.imageLarge(self)
 	return self._large_image
 end
 
+--[=[@p partyId type desc]=]
 function get.partyId(self)
 	return self._party_id
 end
 
+--[=[@p partySize type desc]=]
 function get.partySize(self)
 	return self._party_size
 end
 
+--[=[@p partyMax type desc]=]
 function get.partyMax(self)
 	return self._party_max
 end

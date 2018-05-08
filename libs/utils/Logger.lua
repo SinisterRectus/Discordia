@@ -1,3 +1,5 @@
+--[=[@c Logger desc]=]
+
 local fs = require('fs')
 
 local date = os.date
@@ -36,6 +38,12 @@ function Logger:__init(level, dateTime, file)
 	self._file = file and openSync(file, 'a')
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Logger:log(level, msg, ...)
 
 	if self._level < level then return end

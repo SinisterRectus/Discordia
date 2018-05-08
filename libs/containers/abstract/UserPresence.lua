@@ -1,3 +1,5 @@
+--[=[@abc UserPresence x Container desc]=]
+
 local null = require('json').null
 local User = require('containers/User')
 local Activity = require('containers/Activity')
@@ -52,14 +54,17 @@ function get.gameURL(self)
 	return self._activity and self._activity._url
 end
 
+--[=[@p status type desc]=]
 function get.status(self)
 	return self._status or 'offline'
 end
 
+--[=[@p user type desc]=]
 function get.user(self)
 	return self._user
 end
 
+--[=[@p activity type desc]=]
 function get.activity(self)
 	return self._activity
 end

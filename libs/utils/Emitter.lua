@@ -1,3 +1,5 @@
+--[=[@c Emitter desc]=]
+
 local timer = require('timer')
 
 local wrap, yield = coroutine.wrap, coroutine.yield
@@ -21,22 +23,52 @@ local function new(self, name, listener)
 	return listener.fn
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:on(name, fn)
 	return new(self, name, {fn = fn})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:once(name, fn)
 	return new(self, name, {fn = fn, once = true})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:onSync(name, fn)
 	return new(self, name, {fn = fn, sync = true})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:onceSync(name, fn)
 	return new(self, name, {fn = fn, once = true, sync = true})
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:emit(name, ...)
 	local listeners = self._listeners[name]
 	if not listeners then return end
@@ -67,6 +99,12 @@ function Emitter:emit(name, ...)
 	end
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:getListeners(name)
 	local listeners = self._listeners[name]
 	if not listeners then return function() end end
@@ -79,6 +117,12 @@ function Emitter:getListeners(name)
 	end)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:getListenerCount(name)
 	local listeners = self._listeners[name]
 	if not listeners then return 0 end
@@ -91,6 +135,12 @@ function Emitter:getListenerCount(name)
 	return n
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:removeListener(name, fn)
 	local listeners = self._listeners[name]
 	if not listeners then return end
@@ -102,10 +152,22 @@ function Emitter:removeListener(name, fn)
 	listeners._removed = true
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:removeAllListeners(name)
 	self._listeners[name] = nil
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function Emitter:waitFor(name, timeout, predicate)
 	local thread = running()
 	local fn = self:onceSync(name, function(...)

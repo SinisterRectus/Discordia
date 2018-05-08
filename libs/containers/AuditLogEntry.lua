@@ -1,3 +1,5 @@
+--[=[@c AuditLogEntry x Snowflake desc]=]
+
 local Snowflake = require('containers/abstract/Snowflake')
 
 local enums = require('enums')
@@ -22,6 +24,12 @@ function AuditLogEntry:__init(data, parent)
 	self._options = data.options
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function AuditLogEntry:getBeforeAfter()
 	local before, after = {}, {}
 	for k, change in pairs(self._changes) do
@@ -142,38 +150,62 @@ local targets = setmetatable({
 
 }, {__index = function() return unknown	end})
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function AuditLogEntry:getTarget()
 	return targets[self._action_type](self)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function AuditLogEntry:getUser()
 	return self._parent._parent:getUser(self._user_id)
 end
 
+--[=[
+@m name
+@p name type
+@r type
+@d desc
+]=]
 function AuditLogEntry:getMember()
 	return self._parent:getMember(self._user_id)
 end
 
+--[=[@p changes type desc]=]
 function get.changes(self)
 	return self._changes
 end
 
+--[=[@p options type desc]=]
 function get.options(self)
 	return self._options
 end
 
+--[=[@p actionType type desc]=]
 function get.actionType(self)
 	return self._action_type
 end
 
+--[=[@p targetId type desc]=]
 function get.targetId(self)
 	return self._target_id
 end
 
+--[=[@p reason type desc]=]
 function get.reason(self)
 	return self._reason
 end
 
+--[=[@p guild type desc]=]
 function get.guild(self)
 	return self._parent
 end
