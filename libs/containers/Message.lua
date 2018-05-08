@@ -28,32 +28,16 @@ function Message:_load(data)
 	return self:_loadMore(data)
 end
 
-local function parseMentions(content)
-
-	local i = content:find('<')
-	if not i then return end
-	local j = content:find('>', i)
-	if not j then return end
-
-	local users, roles, channels, emojis = {}, {}, {}, {}
-	local seen = {}
-
-	for symbol, id in content:gmatch('<.-(%p+)(%d+)>') do
+local function parseMentions(content, pattern)
+	if not content:find('%b<>') then return end
+	local mentions, seen = {}, {}
+	for id in content:gmatch(pattern) do
 		if not seen[id] then
-			if symbol == '@&' then
-				insert(roles, id)
-			elseif symbol == '@' or symbol == '@!' then
-				insert(users, id)
-			elseif symbol == '#' then
-				insert(channels, id)
-			elseif symbol == ':' then
-				insert(emojis, id)
-			end
+			insert(mentions, id)
 			seen[id] = true
 		end
 	end
-	return users, roles, channels, emojis
-
+	return mentions
 end
 
 function Message:_loadMore(data)
@@ -62,27 +46,19 @@ function Message:_loadMore(data)
 		self.client._users:_load(data.mentions)
 	end
 
-	if data.content then
-		local users, roles, channels, emojis = parseMentions(data.content)
+	local content = data.content
+	if content then
 		if self._mentioned_users then
-			self._mentioned_users._array = users
-		else
-			self._mentioned_users_raw = users
+			self._mentioned_users._array = parseMentions(content, '<@!?(%d+)>')
 		end
 		if self._mentioned_roles then
-			self._mentioned_roles._array = roles
-		else
-			self._mentioned_roles_raw = roles
+			self._mentioned_roles._array = parseMentions(content, '<@&(%d+)>')
 		end
 		if self._mentioned_channels then
-			self._mentioned_channels._array = channels
-		else
-			self._mentioned_channels_raw = channels
+			self._mentioned_channels._array = parseMentions(content, '<#(%d+)>')
 		end
 		if self._mentioned_emojis then
-			self._mentioned_emojis._array = emojis
-		else
-			self._mentioned_emojis_raw = emojis
+			self._mentioned_emojis._array = parseMentions(content, '<a?:[%w_]+:(%d+)>')
 		end
 		self._clean_content = nil
 	end
@@ -315,10 +291,10 @@ end
 function get.mentionedUsers(self)
 	if not self._mentioned_users then
 		local users = self.client._users
-		self._mentioned_users = ArrayIterable(self._mentioned_users_raw, function(id)
+		local mentions = parseMentions(self._content, '<@!?(%d+)>')
+		self._mentioned_users = ArrayIterable(mentions, function(id)
 			return users:get(id)
 		end)
-		self._mentioned_users_raw = nil
 	end
 	return self._mentioned_users
 end
@@ -327,11 +303,11 @@ end
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
 		local client = self.client
-		self._mentioned_roles = ArrayIterable(self._mentioned_roles_raw, function(id)
+		local mentions = parseMentions(self._content, '<@&(%d+)>')
+		self._mentioned_roles = ArrayIterable(mentions, function(id)
 			local guild = client._role_map[id]
 			return guild and guild._roles:get(id) or nil
 		end)
-		self._mentioned_roles_raw = nil
 	end
 	return self._mentioned_roles
 end
@@ -340,11 +316,11 @@ end
 function get.mentionedEmojis(self)
 	if not self._mentioned_emojis then
 		local client = self.client
-		self._mentioned_emojis = ArrayIterable(self._mentioned_emojis_raw, function(id)
+		local mentions = parseMentions(self._content, '<a?:[%w_]+:(%d+)>')
+		self._mentioned_emojis = ArrayIterable(mentions, function(id)
 			local guild = client._emoji_map[id]
 			return guild and guild._emojis:get(id)
 		end)
-		self._mentioned_emojis_raw = nil
 	end
 	return self._mentioned_emojis
 end
@@ -353,7 +329,8 @@ end
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then
 		local client = self.client
-		self._mentioned_channels = ArrayIterable(self._mentioned_channels_raw, function(id)
+		local mentions = parseMentions(self._content, '<#(%d+)>')
+		self._mentioned_channels = ArrayIterable(mentions, function(id)
 			local guild = client._channel_map[id]
 			if guild then
 				return guild._text_channels:get(id) or guild._voice_channels:get(id) or guild._categories:get(id)
@@ -361,7 +338,6 @@ function get.mentionedChannels(self)
 				return client._private_channels:get(id) or client._group_channels:get(id)
 			end
 		end)
-		self._mentioned_channels_raw = nil
 	end
 	return self._mentioned_channels
 end
