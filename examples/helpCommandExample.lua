@@ -31,12 +31,12 @@ client:on("messageCreate", function(message)
 	end
 
 	if args[1] == prefix.."help" then -- display all the commands
-		local output = {""}
+		local output = {}
 		for word, tbl in pairs(commands) do
-			table.insert(output, "Command: " .. word .. "\nDescription: " .. tbl.description .. "\n\n")
+			table.insert(output, "Command: " .. word .. "\nDescription: " .. tbl.description)
 		end
 
-		message:reply(table.concat(output))
+		message:reply(table.concat(output, "\n\n"))
 	end
 end)
 
