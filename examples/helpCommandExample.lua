@@ -22,15 +22,14 @@ client:on('ready', function()
 end)
 
 client:on("messageCreate", function(message)
-	local cmd, arg = string.match(message.content, '(%S+) (.*)')
-	cmd = cmd or message.content
+	local args = content:split(" ") -- split all arguments into a table
 
-	local command = commands[cmd]
+	local command = commands[args[1]]
 	if command then -- ping or hello
 		command.exec(message) -- execute the command
 	end
 
-	if cmd == "help" then -- display all the commands
+	if args[1] == "help" then -- display all the commands
 		local output = ""
 		for word, tbl in pairs(commands) do
 			output = output .. "Command: " .. word .. "\nDescription: " .. tbl.description .. "\n\n"
