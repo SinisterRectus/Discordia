@@ -2,6 +2,7 @@ local discordia = require('discordia')
 local client = discordia.Client()
 discordia.extensions() -- load all helpful extensions
 
+local prefix = "."
 local commands = {
 	ping = {
 		description = "Answers with pong.",
@@ -22,14 +23,14 @@ client:on('ready', function()
 end)
 
 client:on("messageCreate", function(message)
-	local args = content:split(" ") -- split all arguments into a table
+	local args = message.content:split(" ") -- split all arguments into a table
 
-	local command = commands[args[1]]
+	local command = commands[prefix..args[1]]
 	if command then -- ping or hello
 		command.exec(message) -- execute the command
 	end
 
-	if args[1] == "help" then -- display all the commands
+	if args[1] == prefix.."help" then -- display all the commands
 		local output = ""
 		for word, tbl in pairs(commands) do
 			output = output .. "Command: " .. word .. "\nDescription: " .. tbl.description .. "\n\n"
