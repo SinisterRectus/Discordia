@@ -1,6 +1,6 @@
-local TOKEN = "Bot's token"
 local discordia = require('discordia')
 local client = discordia.Client()
+discordia.extensions() -- load all helpful extensions
 
 local commands = {
 	ping = {
@@ -40,4 +40,4 @@ client:on("messageCreate", function(message)
 end)
 
 
-client:run("Bot " .. TOKEN)
+client:run("Bot BOT_TOKEN") -- replace BOT_TOKEN with your bot token
