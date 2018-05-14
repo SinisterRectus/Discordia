@@ -4,13 +4,13 @@ discordia.extensions() -- load all helpful extensions
 
 local prefix = "."
 local commands = {
-	ping = {
+	[prefix .. "ping"] = {
 		description = "Answers with pong.",
 		exec = function(message)
 			message.channel:send("Pong!")
 		end
 	},
-	hello = {
+	[prefix .. "hello"] = {
 		description = "Answers with world.",
 		exec = function(message)
 			message.channel:send("world!")
