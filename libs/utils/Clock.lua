@@ -1,4 +1,4 @@
---[=[@c Clock x Emitter desc]=]
+--[=[@c Clock x Emitter ...]=]
 
 local timer = require('timer')
 local Emitter = require('utils/Emitter')
@@ -13,10 +13,10 @@ function Clock:__init()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m start
+@p utc boolean
+@r void
+@d ...
 ]=]
 function Clock:start(utc)
 	if self._interval then return end
@@ -34,10 +34,9 @@ function Clock:start(utc)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m stop
+@r void
+@d ...
 ]=]
 function Clock:stop()
 	if not self._interval then return end

@@ -1,4 +1,4 @@
---[=[@c Mutex desc]=]
+--[=[@c Mutex ...]=]
 
 local Deque = require('./Deque')
 local timer = require('timer')
@@ -16,10 +16,10 @@ function Mutex:__init()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m lock
+@p prepend boolean
+@r void
+@d ...
 ]=]
 function Mutex:lock(prepend)
 	if self._active then
@@ -34,10 +34,9 @@ function Mutex:lock(prepend)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unlock
+@r void
+@d ...
 ]=]
 function Mutex:unlock()
 	if self:getCount() > 0 then
@@ -48,10 +47,10 @@ function Mutex:unlock()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unlockAfter
+@p delay number
+@r uv_timer
+@d ...
 ]=]
 local unlock = Mutex.unlock
 function Mutex:unlockAfter(delay)

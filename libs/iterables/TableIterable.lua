@@ -1,4 +1,4 @@
---[=[@c TableIterable x Iterable desc]=]
+--[=[@c TableIterable x Iterable ...]=]
 
 local wrap, yield = coroutine.wrap, coroutine.yield
 
@@ -12,10 +12,9 @@ function TableIterable:__init(tbl, map)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m iter
+@r function
+@d ...
 ]=]
 function TableIterable:iter()
 	local tbl = self._tbl

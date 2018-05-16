@@ -1,4 +1,4 @@
---[=[@c Cache x Iterable desc]=]
+--[=[@c Cache x Iterable ...]=]
 
 local json = require('json')
 local Iterable = require('iterables/Iterable')
@@ -108,20 +108,19 @@ function Cache:_load(array, update)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m get
+@p k *
+@r *
+@d ...
 ]=]
 function Cache:get(k)
 	return self._objects[k]
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m iter
+@r function
+@d ...
 ]=]
 function Cache:iter()
 	local objects, k, obj = self._objects

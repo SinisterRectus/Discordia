@@ -1,4 +1,4 @@
---[=[@c FilteredIterable x Iterable desc]=]
+--[=[@c FilteredIterable x Iterable ...]=]
 
 local Iterable = require('iterables/Iterable')
 
@@ -10,10 +10,9 @@ function FilteredIterable:__init(base, predicate)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m iter
+@r function
+@d ...
 ]=]
 function FilteredIterable:iter()
 	return self._base:findAll(self._predicate)

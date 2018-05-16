@@ -1,4 +1,4 @@
---[=[@c Client x Emitter desc]=]
+--[=[@c Client x Emitter ...]=]
 
 local fs = require('fs')
 local json = require('json')
@@ -256,10 +256,11 @@ local function run(self, token)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m run
+@p token string
+@p presence table
+@r void
+@d ...
 ]=]
 function Client:run(token, presence)
 	self._presence = presence or {}
@@ -267,10 +268,9 @@ function Client:run(token, presence)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m stop
+@r void
+@d ...
 ]=]
 function Client:stop()
 	for _, shard in pairs(self._shards) do
@@ -313,10 +313,10 @@ function Client:setAvatar(avatar)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m createGuild
+@p name string
+@r boolean
+@d ...
 ]=]
 function Client:createGuild(name)
 	local data, err = self._api:createGuild({name = name})
@@ -328,10 +328,9 @@ function Client:createGuild(name)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m createGroupChannel
+@r GroupChannel
+@d ...
 ]=]
 function Client:createGroupChannel()
 	local data, err = self._api:createGroupDM()
@@ -343,10 +342,10 @@ function Client:createGroupChannel()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getWebhook
+@p id string
+@r Webhook
+@d ...
 ]=]
 function Client:getWebhook(id)
 	local data, err = self._api:getWebhook(id)
@@ -358,10 +357,11 @@ function Client:getWebhook(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getInvite
+@p code string
+@p counts boolean
+@r Invite
+@d ...
 ]=]
 function Client:getInvite(code, counts)
 	local data, err = self._api:getInvite(code, counts and {with_counts = true})
@@ -373,10 +373,10 @@ function Client:getInvite(code, counts)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getUser
+@p id User-ID-Resolvable
+@r User
+@d ...
 ]=]
 function Client:getUser(id)
 	id = Resolver.userId(id)
@@ -394,10 +394,10 @@ function Client:getUser(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getGuild
+@p id Guild-ID-Resolvable
+@r Guild
+@d ...
 ]=]
 function Client:getGuild(id)
 	id = Resolver.guildId(id)
@@ -405,10 +405,10 @@ function Client:getGuild(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getChannel
+@p id Channel-ID-Resolvable
+@r Channel
+@d ...
 ]=]
 function Client:getChannel(id)
 	id = Resolver.channelId(id)
@@ -421,10 +421,10 @@ function Client:getChannel(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getRole
+@p id Role-ID-Resolvable
+@r Role
+@d ...
 ]=]
 function Client:getRole(id)
 	id = Resolver.roleId(id)
@@ -433,10 +433,10 @@ function Client:getRole(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getEmoji
+@p id Emoji-ID-Resolvable
+@r Emoji
+@d ...
 ]=]
 function Client:getEmoji(id)
 	id = Resolver.emojiId(id)
@@ -445,20 +445,18 @@ function Client:getEmoji(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m listVoiceRegions
+@r table
+@d ...
 ]=]
 function Client:listVoiceRegions()
 	return self._api:listVoiceRegions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getConnections
+@r table
+@d ...
 ]=]
 function Client:getConnections()
 	return self._api:getUsersConnections()
@@ -476,10 +474,10 @@ local function updateStatus(self)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setStatus
+@p status string
+@r void
+@d ...
 ]=]
 function Client:setStatus(status)
 	if type(status) == 'string' then
@@ -497,10 +495,10 @@ function Client:setStatus(status)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setGame
+@p game string|table
+@r void
+@d ...
 ]=]
 function Client:setGame(game)
 	if type(game) == 'string' then
@@ -525,10 +523,10 @@ function Client:setGame(game)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setAFK
+@p afk boolean
+@r void
+@d ...
 ]=]
 function Client:setAFK(afk)
 	if type(afk) == 'boolean' then
@@ -539,62 +537,62 @@ function Client:setAFK(afk)
 	return updateStatus(self)
 end
 
---[=[@p shardCount type desc]=]
+--[=[@p shardCount number|nil ...]=]
 function get.shardCount(self)
 	return self._shard_count
 end
 
---[=[@p totalShardCount type desc]=]
+--[=[@p totalShardCount number|nil ...]=]
 function get.totalShardCount(self)
 	return self._total_shard_count
 end
 
---[=[@p user type desc]=]
+--[=[@p user User|nil ...]=]
 function get.user(self)
 	return self._user
 end
 
---[=[@p owner type desc]=]
+--[=[@p owner User|nil ...]=]
 function get.owner(self)
 	return self._owner
 end
 
---[=[@p verified type desc]=]
+--[=[@p verified boolean|nil ...]=]
 function get.verified(self)
 	return self._user and self._user._verified
 end
 
---[=[@p mfaEnabled type desc]=]
+--[=[@p mfaEnabled boolean|nil ...]=]
 function get.mfaEnabled(self)
 	return self._user and self._user._verified
 end
 
---[=[@p email type desc]=]
+--[=[@p email string|nil ...]=]
 function get.email(self)
 	return self._user and self._user._email
 end
 
---[=[@p guilds type desc]=]
+--[=[@p guilds Cache ...]=]
 function get.guilds(self)
 	return self._guilds
 end
 
---[=[@p users type desc]=]
+--[=[@p users Cache ...]=]
 function get.users(self)
 	return self._users
 end
 
---[=[@p privateChannels type desc]=]
+--[=[@p privateChannels Cache ...]=]
 function get.privateChannels(self)
 	return self._private_channels
 end
 
---[=[@p groupChannels type desc]=]
+--[=[@p groupChannels Cache ...]=]
 function get.groupChannels(self)
 	return self._group_channels
 end
 
---[=[@p relationships type desc]=]
+--[=[@p relationships Cache ...]=]
 function get.relationships(self)
 	return self._relationships
 end

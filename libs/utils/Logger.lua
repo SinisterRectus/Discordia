@@ -1,4 +1,4 @@
---[=[@c Logger desc]=]
+--[=[@c Logger ...]=]
 
 local fs = require('fs')
 
@@ -39,10 +39,12 @@ function Logger:__init(level, dateTime, file)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m log
+@p level number
+@p msg string
+@p ... *
+@r string
+@d ...
 ]=]
 function Logger:log(level, msg, ...)
 

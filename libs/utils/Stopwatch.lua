@@ -1,4 +1,4 @@
---[=[@c Stopwatch desc]=]
+--[=[@c Stopwatch ...]=]
 
 local hrtime = require('uv').hrtime
 local constants = require('constants')
@@ -21,10 +21,9 @@ function Stopwatch:__tostring()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m stop
+@r void
+@d ...
 ]=]
 function Stopwatch:stop()
 	if self._final then return end
@@ -32,10 +31,9 @@ function Stopwatch:stop()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m start
+@r void
+@d ...
 ]=]
 function Stopwatch:start()
 	if not self._final then return end
@@ -44,26 +42,24 @@ function Stopwatch:start()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m reset
+@r void
+@d ...
 ]=]
 function Stopwatch:reset()
 	self._initial = self._final or hrtime()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getTime
+@r Time
+@d ...
 ]=]
 function Stopwatch:getTime()
 	return Time(self.milliseconds)
 end
 
---[=[@p milliseconds type desc]=]
+--[=[@p milliseconds number ...]=]
 function get.milliseconds(self)
 	local ns = (self._final or hrtime()) - self._initial
 	return ns * MS_PER_NS

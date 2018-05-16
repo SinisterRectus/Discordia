@@ -1,4 +1,4 @@
---[=[@c ArrayIterable x Iterable desc]=]
+--[=[@c ArrayIterable x Iterable ...]=]
 
 local wrap, yield = coroutine.wrap, coroutine.yield
 
@@ -24,7 +24,7 @@ function ArrayIterable:__len()
 	end
 end
 
---[=[@p first type desc]=]
+--[=[@p first * ...]=]
 function get.first(self)
 	local array = self._array
 	if not array or #array == 0 then
@@ -44,7 +44,7 @@ function get.first(self)
 	end
 end
 
---[=[@p last type desc]=]
+--[=[@p last * ...]=]
 function get.last(self)
 	local array = self._array
 	if not array or #array == 0 then
@@ -65,10 +65,9 @@ function get.last(self)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m iter
+@r function
+@d ...
 ]=]
 function ArrayIterable:iter()
 	local array = self._array

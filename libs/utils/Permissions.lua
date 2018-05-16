@@ -1,4 +1,4 @@
---[=[@c Permissions desc]=]
+--[=[@c Permissions ...]=]
 
 local enums = require('enums')
 local Resolver = require('client/Resolver')
@@ -48,10 +48,10 @@ local function getPerm(i, ...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m enable
+@p ... Permissions-Resolvable
+@r void
+@d ...
 ]=]
 function Permissions:enable(...)
 	local value = self._value
@@ -63,10 +63,10 @@ function Permissions:enable(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m disable
+@p ... Permissions-Resolvable
+@r void
+@d ...
 ]=]
 function Permissions:disable(...)
 	local value = self._value
@@ -78,10 +78,10 @@ function Permissions:disable(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m has
+@p ... Permissions-Resolvable
+@r boolean
+@d ...
 ]=]
 function Permissions:has(...)
 	local value = self._value
@@ -95,40 +95,36 @@ function Permissions:has(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m enableAll
+@r void
+@d ...
 ]=]
 function Permissions:enableAll()
 	self._value = ALL
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m disableAll
+@r void
+@d ...
 ]=]
 function Permissions:disableAll()
 	self._value = 0
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toHex
+@r string
+@d ...
 ]=]
 function Permissions:toHex()
 	return format('0x%08X', self._value)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toTable
+@r table
+@d ...
 ]=]
 function Permissions:toTable()
 	local ret = {}
@@ -140,10 +136,9 @@ function Permissions:toTable()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toArray
+@r table
+@d ...
 ]=]
 function Permissions:toArray()
 	local ret = {}
@@ -157,20 +152,20 @@ function Permissions:toArray()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m union
+@p other Permissions
+@r Permissions
+@d ...
 ]=]
 function Permissions:union(other)
 	return Permissions(bor(self._value, other._value))
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m intersection
+@p other Permissions
+@r Permissions
+@d ...
 ]=]
 function Permissions:intersection(other) -- in both
 	return Permissions(band(self._value, other._value))
@@ -178,19 +173,19 @@ end
 
 --[=[
 @m name
-@p name type
-@r type
-@d desc
+@p other Permissions
+@r Permissions
+@d ...
 ]=]
 function Permissions:difference(other) -- not in both
 	return Permissions(bxor(self._value, other._value))
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m complement
+@p other Permissions
+@r Permissions
+@d ...
 ]=]
 function Permissions:complement(other) -- in other not in self
 	local value = other and other._value or ALL
@@ -198,16 +193,15 @@ function Permissions:complement(other) -- in other not in self
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m copy
+@r Permissions
+@d ...
 ]=]
 function Permissions:copy()
 	return Permissions(self._value)
 end
 
---[=[@p value type desc]=]
+--[=[@p value number ...]=]
 function get.value(self)
 	return self._value
 end

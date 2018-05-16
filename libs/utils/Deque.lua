@@ -1,4 +1,4 @@
---[=[@c Deque desc]=]
+--[=[@c Deque ...]=]
 
 local Deque = require('class')('Deque')
 
@@ -9,20 +9,19 @@ function Deque:__init()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getCount
+@r number
+@d ...
 ]=]
 function Deque:getCount()
 	return self._last - self._first + 1
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m pushLeft
+@p obj *
+@r void
+@d ...
 ]=]
 function Deque:pushLeft(obj)
 	self._first = self._first - 1
@@ -30,10 +29,10 @@ function Deque:pushLeft(obj)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m pushRight
+@p obj *
+@r void
+@d ...
 ]=]
 function Deque:pushRight(obj)
 	self._last = self._last + 1
@@ -41,10 +40,9 @@ function Deque:pushRight(obj)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m popLeft
+@r *
+@d ...
 ]=]
 function Deque:popLeft()
 	if self._first > self._last then return nil end
@@ -55,10 +53,9 @@ function Deque:popLeft()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m popRight
+@r *
+@d ...
 ]=]
 function Deque:popRight()
 	if self._first > self._last then return nil end
@@ -69,30 +66,27 @@ function Deque:popRight()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m peekLeft
+@r *
+@d ...
 ]=]
 function Deque:peekLeft()
 	return self._objects[self._first]
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m peekRight
+@r *
+@d ...
 ]=]
 function Deque:peekRight()
 	return self._objects[self._last]
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m iter
+@r function
+@d ...
 ]=]
 function Deque:iter()
 	local t = self._objects

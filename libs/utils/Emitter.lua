@@ -1,4 +1,4 @@
---[=[@c Emitter desc]=]
+--[=[@c Emitter ...]=]
 
 local timer = require('timer')
 
@@ -24,50 +24,55 @@ local function new(self, name, listener)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m on
+@p name string
+@p fn function
+@r function
+@d ...
 ]=]
 function Emitter:on(name, fn)
 	return new(self, name, {fn = fn})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m once
+@p name string
+@p fn function
+@r function
+@d ...
 ]=]
 function Emitter:once(name, fn)
 	return new(self, name, {fn = fn, once = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m onSync
+@p name string
+@p fn function
+@r function
+@d ...
 ]=]
 function Emitter:onSync(name, fn)
 	return new(self, name, {fn = fn, sync = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m onceSync
+@p name string
+@p fn function
+@r function
+@d ...
 ]=]
 function Emitter:onceSync(name, fn)
 	return new(self, name, {fn = fn, once = true, sync = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m emit
+@p name string
+@p ... *
+@r void
+@d ...
 ]=]
 function Emitter:emit(name, ...)
 	local listeners = self._listeners[name]
@@ -100,10 +105,10 @@ function Emitter:emit(name, ...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getListeners
+@p name string
+@r function
+@d ...
 ]=]
 function Emitter:getListeners(name)
 	local listeners = self._listeners[name]
@@ -118,10 +123,10 @@ function Emitter:getListeners(name)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getListenerCount
+@p name string
+@r number
+@d ...
 ]=]
 function Emitter:getListenerCount(name)
 	local listeners = self._listeners[name]
@@ -136,10 +141,10 @@ function Emitter:getListenerCount(name)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeListener
+@p name string
+@r void
+@d ...
 ]=]
 function Emitter:removeListener(name, fn)
 	local listeners = self._listeners[name]
@@ -153,20 +158,23 @@ function Emitter:removeListener(name, fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeAllListeners
+@p name string
+@r void
+@d ...
 ]=]
 function Emitter:removeAllListeners(name)
 	self._listeners[name] = nil
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m waitFor
+@p name string
+@p timeout number
+@p predicate function
+@r boolean
+@r ...
+@d ...
 ]=]
 function Emitter:waitFor(name, timeout, predicate)
 	local thread = running()

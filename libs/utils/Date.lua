@@ -1,4 +1,4 @@
---[=[@c Date desc]=]
+--[=[@c Date ...]=]
 
 local class = require('class')
 local constants = require('constants')
@@ -64,10 +64,9 @@ function Date:__tostring()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toString
+@r string
+@d ...
 ]=]
 function Date:toString()
 	return date('%a %b %d %Y %T GMT%z (%Z)', self._s)
@@ -175,10 +174,11 @@ function Date.fromMicroseconds(t)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toISO
+@p sep string
+@p tz string
+@r string
+@d ...
 ]=]
 function Date:toISO(sep, tz)
 	if sep and tz then
@@ -194,80 +194,73 @@ function Date:toISO(sep, tz)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toSnowflake
+@r string
+@d ...
 ]=]
 function Date:toHeader()
 	return date('!%a, %d %b %Y %T GMT', self._s)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toSnowflake
+@r string
+@d ...
 ]=]
 function Date:toSnowflake()
 	return format('%i', (self:toMilliseconds() - DISCORD_EPOCH) * 2^22)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toTable
+@r table
+@d ...
 ]=]
 function Date:toTable()
 	return date('*t', self._s)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toTableUTC
+@r table
+@d ...
 ]=]
 function Date:toTableUTC()
 	return date('!*t', self._s)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toSeconds
+@r number
+@d ...
 ]=]
 function Date:toSeconds()
 	return self._s + self._us / US_PER_S
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toMilliseconds
+@r number
+@d ...
 ]=]
 function Date:toMilliseconds()
 	return self._s * MS_PER_S + self._us / US_PER_MS
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toMicroseconds
+@r number
+@d ...
 ]=]
 function Date:toMicroseconds()
 	return self._s * US_PER_S + self._us
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toParts
+@r number
+@r number
+@d ...
 ]=]
 function Date:toParts()
 	return self._s, self._us

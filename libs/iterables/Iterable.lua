@@ -1,4 +1,4 @@
---[=[@abc Iterable desc]=]
+--[=[@abc Iterable ...]=]
 
 local random = math.random
 local wrap, yield = coroutine.wrap, coroutine.yield
@@ -23,10 +23,10 @@ function Iterable:__len()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m get
+@p k *
+@r *
+@d ...
 ]=]
 function Iterable:get(k) -- objects must be hashable
 	for obj in self:iter() do
@@ -38,10 +38,10 @@ function Iterable:get(k) -- objects must be hashable
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m find
+@p fn function
+@r *
+@d ...
 ]=]
 function Iterable:find(fn)
 	for obj in self:iter() do
@@ -53,10 +53,10 @@ function Iterable:find(fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m findAll
+@p fn function
+@r function
+@d ...
 ]=]
 function Iterable:findAll(fn)
 	return wrap(function()
@@ -69,10 +69,10 @@ function Iterable:findAll(fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m forEach
+@p fn function
+@r void
+@d ...
 ]=]
 function Iterable:forEach(fn)
 	for obj in self:iter() do
@@ -81,10 +81,9 @@ function Iterable:forEach(fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m random
+@r *
+@d ...
 ]=]
 function Iterable:random()
 	local n = 1
@@ -98,10 +97,10 @@ function Iterable:random()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m count
+@p fn function
+@r number
+@d ...
 ]=]
 function Iterable:count(fn)
 	local n = 0
@@ -152,10 +151,11 @@ local function sorter(a, b)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toArray
+@p sortBy string
+@p fn function
+@r table
+@d ...
 ]=]
 function Iterable:toArray(sortBy, fn)
 	local t1 = type(sortBy)
@@ -180,10 +180,10 @@ function Iterable:toArray(sortBy, fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m select
+@p ... *
+@r table
+@d ...
 ]=]
 function Iterable:select(...)
 	local rows = {}

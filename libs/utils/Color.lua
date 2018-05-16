@@ -1,4 +1,4 @@
---[=[@c Color desc]=]
+--[=[@c Color ...]=]
 
 local class = require('class')
 
@@ -153,30 +153,31 @@ function Color.fromHSL(h, s, l)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toHex
+@r string
+@d ...
 ]=]
 function Color:toHex()
 	return format('#%06X', self._value)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toRGB
+@r number
+@r number
+@r number
+@d ...
 ]=]
 function Color:toRGB()
 	return self.r, self.g, self.b
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toHSV
+@r number
+@r number
+@r number
+@d ...
 ]=]
 function Color:toHSV()
 	local h, d, mx = toHue(self.r, self.g, self.b)
@@ -186,10 +187,11 @@ function Color:toHSV()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toHSL
+@r number
+@r number
+@r number
+@d ...
 ]=]
 function Color:toHSL()
 	local h, d, mx, mn = toHue(self.r, self.g, self.b)
@@ -198,7 +200,7 @@ function Color:toHSL()
 	return h, s, l
 end
 
---[=[@p value type desc]=]
+--[=[@p value number ...]=]
 function get.value(self)
 	return self._value
 end
@@ -207,17 +209,17 @@ local function getByte(value, offset)
 	return band(rshift(value, offset), 0xFF)
 end
 
---[=[@p r type desc]=]
+--[=[@p r number ...]=]
 function get.r(self)
 	return getByte(self._value, 16)
 end
 
---[=[@p g type desc]=]
+--[=[@p g number ...]=]
 function get.g(self)
 	return getByte(self._value, 8)
 end
 
---[=[@p b type desc]=]
+--[=[@p b number ...]=]
 function get.b(self)
 	return getByte(self._value, 0)
 end
