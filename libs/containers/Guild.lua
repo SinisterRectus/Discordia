@@ -529,20 +529,20 @@ end
 
 --[=[
 @m banUser
-@p user User-ID-Resolvable
+@p id User-ID-Resolvable
 @p reason string
 @p days number
 @r boolean
 @d ...
 ]=]
-function Guild:banUser(user, reason, days)
+function Guild:banUser(id, reason, days)
 	local query = reason and {reason = reason}
 	if days then
 		query = query or {}
 		query['delete-message-days'] = days
 	end
-	user = Resolver.userId(user)
-	local data, err = self.client._api:createGuildBan(self._id, user, query)
+	id = Resolver.userId(id)
+	local data, err = self.client._api:createGuildBan(self._id, id, query)
 	if data then
 		return true
 	else
@@ -552,15 +552,15 @@ end
 
 --[=[
 @m unbanUser
-@p user User-ID-Resolvable
+@p id User-ID-Resolvable
 @p reason string
 @r boolean
 @d ...
 ]=]
-function Guild:unbanUser(user, reason)
-	user = Resolver.userId(user)
+function Guild:unbanUser(id, reason)
+	id = Resolver.userId(id)
 	local query = reason and {reason = reason}
-	local data, err = self.client._api:removeGuildBan(self._id, user, query)
+	local data, err = self.client._api:removeGuildBan(self._id, id, query)
 	if data then
 		return true
 	else
