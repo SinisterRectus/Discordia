@@ -175,8 +175,8 @@ end
 
 --[=[
 @m toISO
-@p sep string
-@p tz string
+@op sep string
+@op tz string
 @r string
 @d ...
 ]=]

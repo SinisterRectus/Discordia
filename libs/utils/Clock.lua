@@ -14,7 +14,7 @@ end
 
 --[=[
 @m start
-@p utc boolean
+@op utc boolean
 @r void
 @d ...
 ]=]

@@ -152,8 +152,8 @@ end
 
 --[=[
 @m toArray
-@p sortBy string
-@p fn function
+@op sortBy string
+@op fn function
 @r table
 @d ...
 ]=]

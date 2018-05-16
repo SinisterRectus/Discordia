@@ -88,7 +88,7 @@ end
 
 --[=[
 @m getMessages
-@p limit number
+@op limit number
 @r SecondaryCache
 @d ...
 ]=]
@@ -99,7 +99,7 @@ end
 --[=[
 @m getMessagesAfter
 @p id Message-ID-Resolvable
-@p limit number
+@op limit number
 @r SecondaryCache
 @d ...
 ]=]
@@ -111,7 +111,7 @@ end
 --[=[
 @m getMessagesBefore
 @p id Message-ID-Resolvable
-@p limit number
+@op limit number
 @r SecondaryCache
 @d ...
 ]=]
@@ -123,7 +123,7 @@ end
 --[=[
 @m getMessagesAround
 @p id Message-ID-Resolvable
-@p limit number
+@op limit number
 @r SecondaryCache
 @d ...
 ]=]
@@ -133,7 +133,7 @@ function TextChannel:getMessagesAround(id, limit)
 end
 
 --[=[
-@m getPinnedMessages=
+@m getPinnedMessages
 @r SecondaryCache
 @d ...
 ]=]

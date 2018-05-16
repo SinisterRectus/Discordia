@@ -17,7 +17,7 @@ end
 
 --[=[
 @m lock
-@p prepend boolean
+@op prepend boolean
 @r void
 @d ...
 ]=]

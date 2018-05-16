@@ -27,8 +27,8 @@ end
 
 --[=[
 @m getAvatarURL
-@p size number
-@p ext string
+@op size number
+@op ext string
 @r string
 @d ...
 ]=]
@@ -38,7 +38,7 @@ end
 
 --[=[
 @m getDefaultAvatarURL
-@p size number
+@op size number
 @r string
 @d ...
 ]=]

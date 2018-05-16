@@ -69,7 +69,7 @@ end
 
 --[=[
 @m hasPermission
-@p channel GuildChannel
+@op channel GuildChannel
 @p perm Permissions-Resolvable
 @r boolean
 @d ...
@@ -159,7 +159,7 @@ end
 
 --[=[
 @m getPermissions
-@p channel GuildChannel
+@op channel GuildChannel
 @r Permissions
 @d ...
 ]=]

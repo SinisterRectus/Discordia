@@ -258,7 +258,7 @@ end
 --[=[
 @m run
 @p token string
-@p presence table
+@op presence table
 @r void
 @d ...
 ]=]
@@ -359,7 +359,7 @@ end
 --[=[
 @m getInvite
 @p code string
-@p counts boolean
+@op counts boolean
 @r Invite
 @d ...
 ]=]

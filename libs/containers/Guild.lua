@@ -373,7 +373,7 @@ end
 
 --[=[
 @m getPruneCount
-@p days number
+@op days number
 @r number
 @d ...
 ]=]
@@ -388,7 +388,7 @@ end
 
 --[=[
 @m pruneMembers
-@p days number
+@op days number
 @r number
 @d ...
 ]=]
@@ -431,7 +431,7 @@ end
 
 --[=[
 @m getAuditLogs
-@p query table
+@op query table
 @r Cache
 @d ...
 ]=]
@@ -512,7 +512,7 @@ end
 --[=[
 @m kickUser
 @p id User-ID-Resolvable
-@p reason string
+@op reason string
 @r boolean
 @d ...
 ]=]
@@ -530,8 +530,8 @@ end
 --[=[
 @m banUser
 @p id User-ID-Resolvable
-@p reason string
-@p days number
+@op reason string
+@op days number
 @r boolean
 @d ...
 ]=]
@@ -553,7 +553,7 @@ end
 --[=[
 @m unbanUser
 @p id User-ID-Resolvable
-@p reason string
+@op reason string
 @r boolean
 @d ...
 ]=]

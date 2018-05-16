@@ -170,8 +170,8 @@ end
 --[=[
 @m waitFor
 @p name string
-@p timeout number
-@p predicate function
+@op timeout number
+@op predicate function
 @r boolean
 @r ...
 @d ...

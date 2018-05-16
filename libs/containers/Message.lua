@@ -214,7 +214,7 @@ end
 --[=[
 @m removeReaction
 @p emoji Emoji-Resolvable
-@p id User-ID-Resolvable
+@op id User-ID-Resolvable
 @r boolean
 @d ...
 ]=]

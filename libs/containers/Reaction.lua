@@ -34,7 +34,7 @@ end
 
 --[=[
 @m getUsers
-@p limit number
+@op limit number
 @r SecondaryCache
 @d ...
 ]=]
@@ -45,7 +45,7 @@ end
 --[=[
 @m getUsersBefore
 @p id User-ID-Resolvable
-@p limit number
+@op limit number
 @r SecondaryCache
 @d ...
 ]=]
@@ -57,7 +57,7 @@ end
 --[=[
 @m getUsersAfter
 @p id User-ID-Resolvable
-@p limit number
+@op limit number
 @r SecondaryCache
 @d ...
 ]=]
@@ -68,7 +68,7 @@ end
 
 --[=[
 @m delete
-@p id User-ID-Resolvable
+@op id User-ID-Resolvable
 @r boolean
 @d ...
 ]=]
