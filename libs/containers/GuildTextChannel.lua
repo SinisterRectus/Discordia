@@ -1,4 +1,4 @@
---[=[@c GuildTextChannel x GuildChannel x TextChannel desc]=]
+--[=[@c GuildTextChannel x GuildChannel x TextChannel ...]=]
 
 local json = require('json')
 
@@ -22,10 +22,10 @@ function GuildTextChannel:_load(data)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m createWebhook
+@p name string
+@r Webhook
+@d ...
 ]=]
 function GuildTextChannel:createWebhook(name)
 	local data, err = self.client._api:createWebhook(self._id, {name = name})
@@ -37,10 +37,9 @@ function GuildTextChannel:createWebhook(name)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getWebhooks
+@r Cache
+@d ...
 ]=]
 function GuildTextChannel:getWebhooks()
 	local data, err = self.client._api:getChannelWebhooks(self._id)
@@ -52,10 +51,10 @@ function GuildTextChannel:getWebhooks()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m bulkDelete
+@p messages Message-ID-Resolvables
+@r boolean
+@d ...
 ]=]
 function GuildTextChannel:bulkDelete(messages)
 	messages = Resolver.messageIds(messages)
@@ -73,46 +72,44 @@ function GuildTextChannel:bulkDelete(messages)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setTopic
+@p topic string
+@r boolean
+@d ...
 ]=]
 function GuildTextChannel:setTopic(topic)
 	return self:_modify({topic = topic or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m enableNSFW
+@r boolean
+@d ...
 ]=]
 function GuildTextChannel:enableNSFW()
 	return self:_modify({nsfw = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m disableNSFW
+@r boolean
+@d ...
 ]=]
 function GuildTextChannel:disableNSFW()
 	return self:_modify({nsfw = false})
 end
 
---[=[@p topic type desc]=]
+--[=[@p topic string|nil ...]=]
 function get.topic(self)
 	return self._topic
 end
 
---[=[@p nsfw type desc]=]
+--[=[@p nsfw boolean ...]=]
 function get.nsfw(self)
 	return self._nsfw or false
 end
 
---[=[@p members type desc]=]
+--[=[@p members FilteredIterable ...]=]
 function get.members(self)
 	if not self._members then
 		self._members = FilteredIterable(self._parent._members, function(m)

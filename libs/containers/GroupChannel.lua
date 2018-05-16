@@ -1,4 +1,4 @@
---[=[@c GroupChannel x TextChannel desc]=]
+--[=[@c GroupChannel x TextChannel ...]=]
 
 local json = require('json')
 
@@ -16,20 +16,20 @@ function GroupChannel:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setName
+@p name string
+@r boolean
+@d ...
 ]=]
 function GroupChannel:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setIcon
+@p icon Base64-Resolvable
+@r boolean
+@d ...
 ]=]
 function GroupChannel:setIcon(icon)
 	icon = icon and Resolver.base64(icon)
@@ -37,10 +37,10 @@ function GroupChannel:setIcon(icon)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m addRecipient
+@p id User-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function GroupChannel:addRecipient(id)
 	id = Resolver.userId(id)
@@ -53,10 +53,10 @@ function GroupChannel:addRecipient(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeRecipient
+@p id User-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function GroupChannel:removeRecipient(id)
 	id = Resolver.userId(id)
@@ -69,41 +69,40 @@ function GroupChannel:removeRecipient(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m leave
+@r boolean
+@d ...
 ]=]
 function GroupChannel:leave()
 	return self:_delete()
 end
 
---[=[@p recipients type desc]=]
+--[=[@p recipients SecondaryCache ...]=]
 function get.recipients(self)
 	return self._recipients
 end
 
---[=[@p name type desc]=]
+--[=[@p name string ...]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p ownerId type desc]=]
+--[=[@p ownerId string ...]=]
 function get.ownerId(self)
 	return self._owner_id
 end
 
---[=[@p owner type desc]=]
+--[=[@p owner User|nil ...]=]
 function get.owner(self)
 	return self._recipients:get(self._owner_id)
 end
 
---[=[@p icon type desc]=]
+--[=[@p icon string|nil ...]=]
 function get.icon(self)
 	return self._icon
 end
 
---[=[@p iconURL type desc]=]
+--[=[@p iconURL string|nil ...]=]
 function get.iconURL(self)
 	local icon = self._icon
 	return icon and format('https://cdn.discordapp.com/channel-icons/%s/%s.png', self._id, icon)

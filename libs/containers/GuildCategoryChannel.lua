@@ -1,4 +1,4 @@
---[=[@c GuildCategoryChannel x GuildChannel desc]=]
+--[=[@c GuildCategoryChannel x GuildChannel ...]=]
 
 local GuildChannel = require('containers/abstract/GuildChannel')
 local FilteredIterable = require('iterables/FilteredIterable')
@@ -13,10 +13,10 @@ function GuildCategoryChannel:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m createTextChannel
+@p name string
+@r GuildTextChannel
+@d ...
 ]=]
 function GuildCategoryChannel:createTextChannel(name)
 	local guild = self._parent
@@ -33,10 +33,10 @@ function GuildCategoryChannel:createTextChannel(name)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m createVoiceChannel
+@p name string
+@r GuildVoiceChannel
+@d ...
 ]=]
 function GuildCategoryChannel:createVoiceChannel(name)
 	local guild = self._parent
@@ -52,7 +52,7 @@ function GuildCategoryChannel:createVoiceChannel(name)
 	end
 end
 
---[=[@p textChannels type desc]=]
+--[=[@p textChannels FilteredIterable ...]=]
 function get.textChannels(self)
 	if not self._text_channels then
 		local id = self._id
@@ -63,7 +63,7 @@ function get.textChannels(self)
 	return self._text_channels
 end
 
---[=[@p voiceChannels type desc]=]
+--[=[@p voiceChannels FilteredIterable ...]=]
 function get.voiceChannels(self)
 	if not self._voice_channels then
 		local id = self._id

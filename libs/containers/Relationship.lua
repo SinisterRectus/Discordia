@@ -1,4 +1,4 @@
---[=[@c Relationship x UserPresence desc]=]
+--[=[@c Relationship x UserPresence ...]=]
 
 local UserPresence = require('containers/abstract/UserPresence')
 
@@ -8,12 +8,12 @@ function Relationship:__init(data, parent)
 	UserPresence.__init(self, data, parent)
 end
 
---[=[@p name type desc]=]
+--[=[@p name string ...]=]
 function get.name(self)
 	return self._user._username
 end
 
---[=[@p type type desc]=]
+--[=[@p type number ...]=]
 function get.type(self)
 	return self._type
 end

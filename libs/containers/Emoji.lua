@@ -1,4 +1,4 @@
---[=[@c Emoji x Snowflake desc]=]
+--[=[@c Emoji x Snowflake ...]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local Resolver = require('client/Resolver')
@@ -42,20 +42,20 @@ function Emoji:_modify(payload)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setName
+@p name string
+@r boolean
+@d ...
 ]=]
 function Emoji:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setRoles
+@p roles Role-ID-Resolvables
+@r boolean
+@d ...
 ]=]
 function Emoji:setRoles(roles)
 	roles = Resolver.roleIds(roles)
@@ -63,10 +63,9 @@ function Emoji:setRoles(roles)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d ...
 ]=]
 function Emoji:delete()
 	local data, err = self.client._api:deleteGuildEmoji(self._parent._id, self._id)
@@ -82,10 +81,10 @@ function Emoji:delete()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m hasRole
+@p id Role-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function Emoji:hasRole(id)
 	id = Resolver.roleId(id)
@@ -100,49 +99,49 @@ function Emoji:hasRole(id)
 	return false
 end
 
---[=[@p name type desc]=]
+--[=[@p name string ...]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild ...]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p mentionString type desc]=]
+--[=[@p mentionString string ...]=]
 function get.mentionString(self)
 	local fmt = self._animated and '<a:%s>' or '<:%s>'
 	return format(fmt, self.hash)
 end
 
---[=[@p url type desc]=]
+--[=[@p url string ...]=]
 function get.url(self)
 	local ext = self._animated and 'gif' or 'png'
 	return format('https://cdn.discordapp.com/emojis/%s.%s', self._id, ext)
 end
 
---[=[@p managed type desc]=]
+--[=[@p managed boolean ...]=]
 function get.managed(self)
 	return self._managed
 end
 
---[=[@p requireColons type desc]=]
+--[=[@p requireColons boolean ...]=]
 function get.requireColons(self)
 	return self._require_colons
 end
 
---[=[@p hash type desc]=]
+--[=[@p hash string ...]=]
 function get.hash(self)
 	return self._name .. ':' .. self._id
 end
 
---[=[@p animated type desc]=]
+--[=[@p animated boolean ...]=]
 function get.animated(self)
 	return self._animated
 end
 
---[=[@p roles type desc]=]
+--[=[@p roles ArrayIterable ...]=]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles

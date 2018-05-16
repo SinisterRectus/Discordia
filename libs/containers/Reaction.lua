@@ -1,4 +1,4 @@
---[=[@c Reaction x Container desc]=]
+--[=[@c Reaction x Container ...]=]
 
 local json = require('json')
 local Container = require('containers/abstract/Container')
@@ -33,20 +33,21 @@ local function getUsers(self, query)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getUsers
+@p limit number
+@r SecondaryCache
+@d ...
 ]=]
 function Reaction:getUsers(limit)
 	return getUsers(self, limit and {limit = limit})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getUsersBefore
+@p id User-ID-Resolvable
+@p limit number
+@r SecondaryCache
+@d ...
 ]=]
 function Reaction:getUsersBefore(id, limit)
 	id = Resolver.userId(id)
@@ -54,10 +55,11 @@ function Reaction:getUsersBefore(id, limit)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getUsersAfter
+@p id User-ID-Resolvable
+@p limit number
+@r SecondaryCache
+@d ...
 ]=]
 function Reaction:getUsersAfter(id, limit)
 	id = Resolver.userId(id)
@@ -65,26 +67,26 @@ function Reaction:getUsersAfter(id, limit)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@p id User-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function Reaction:delete(id)
 	return self._parent:removeReaction(self, id)
 end
 
---[=[@p emojiId type desc]=]
+--[=[@p emojiId string|nil ...]=]
 function get.emojiId(self)
 	return self._emoji_id
 end
 
---[=[@p emojiName type desc]=]
+--[=[@p emojiName string ...]=]
 function get.emojiName(self)
 	return self._emoji_name
 end
 
---[=[@p emojiHash type desc]=]
+--[=[@p emojiHash string ...]=]
 function get.emojiHash(self)
 	if self._emoji_id then
 		return self._emoji_name .. ':' .. self._emoji_id
@@ -93,23 +95,23 @@ function get.emojiHash(self)
 	end
 end
 
---[=[@p emojiURL type desc]=]
+--[=[@p emojiURL string|nil ...]=]
 function get.emojiURL(self)
 	local id = self._emoji_id
 	return id and format('https://cdn.discordapp.com/emojis/%s.png', id) or nil
 end
 
---[=[@p me type desc]=]
+--[=[@p me boolean ...]=]
 function get.me(self)
 	return self._me
 end
 
---[=[@p count type desc]=]
+--[=[@p count number ...]=]
 function get.count(self)
 	return self._count
 end
 
---[=[@p message type desc]=]
+--[=[@p message Message ...]=]
 function get.message(self)
 	return self._parent
 end

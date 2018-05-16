@@ -1,4 +1,4 @@
---[=[@c Ban x Container desc]=]
+--[=[@c Ban x Container ...]=]
 
 local Container = require('containers/abstract/Container')
 
@@ -14,26 +14,25 @@ function Ban:__hash()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d ...
 ]=]
 function Ban:delete()
 	return self._parent:unbanUser(self._user)
 end
 
---[=[@p reason type desc]=]
+--[=[@p reason string|nil ...]=]
 function get.reason(self)
 	return self._reason
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild ...]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p user type desc]=]
+--[=[@p user User ...]=]
 function get.user(self)
 	return self._user
 end

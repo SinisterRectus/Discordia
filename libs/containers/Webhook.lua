@@ -1,4 +1,4 @@
---[=[@c Webhook x Snowflake desc]=]
+--[=[@c Webhook x Snowflake ...]=]
 
 local json = require('json')
 local enums = require('enums')
@@ -26,40 +26,41 @@ function Webhook:_modify(payload)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getAvatarURL
+@p size number
+@p ext string
+@r string
+@d ...
 ]=]
 function Webhook:getAvatarURL(size, ext)
 	return User.getAvatarURL(self, size, ext)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getDefaultAvatarURL
+@p size number
+@r string
+@d ...
 ]=]
 function Webhook:getDefaultAvatarURL(size)
 	return User.getDefaultAvatarURL(self, size)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setName
+@p name string
+@r boolean
+@d ...
 ]=]
 function Webhook:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setAvatar
+@p avatar Base64-Resolvable
+@r boolean
+@d ...
 ]=]
 function Webhook:setAvatar(avatar)
 	avatar = avatar and Resolver.base64(avatar)
@@ -67,10 +68,9 @@ function Webhook:setAvatar(avatar)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d ...
 ]=]
 function Webhook:delete()
 	local data, err = self.client._api:deleteWebhook(self._id)
@@ -81,47 +81,47 @@ function Webhook:delete()
 	end
 end
 
---[=[@p guildId type desc]=]
+--[=[@p guildId string ...]=]
 function get.guildId(self)
 	return self._guild_id
 end
 
---[=[@p channelId type desc]=]
+--[=[@p channelId string ...]=]
 function get.channelId(self)
 	return self._channel_id
 end
 
---[=[@p user type desc]=]
+--[=[@p user User|nil ...]=]
 function get.user(self)
 	return self._user
 end
 
---[=[@p token type desc]=]
+--[=[@p token string ...]=]
 function get.token(self)
 	return self._token
 end
 
---[=[@p name type desc]=]
+--[=[@p name string ...]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p avatar type desc]=]
+--[=[@p avatar string|nil ...]=]
 function get.avatar(self)
 	return self._avatar
 end
 
---[=[@p avatarURL type desc]=]
+--[=[@p avatarURL string ...]=]
 function get.avatarURL(self)
 	return self:getAvatarURL()
 end
 
---[=[@p defaultAvatar type desc]=]
+--[=[@p defaultAvatar number ...]=]
 function get.defaultAvatar()
 	return defaultAvatar.blurple
 end
 
---[=[@p defaultAvatarURL type desc]=]
+--[=[@p defaultAvatarURL string ...]=]
 function get.defaultAvatarURL(self)
 	return self:getDefaultAvatarURL()
 end

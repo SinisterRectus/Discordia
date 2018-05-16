@@ -1,4 +1,4 @@
---[=[@c Activity desc]=]
+--[=[@c Activity ...]=]
 
 local Container = require('containers/abstract/Container')
 
@@ -29,77 +29,77 @@ function Activity:_loadMore(data)
 	self._party_max = party and party.size and party.size[2]
 end
 
---[=[@p start type desc]=]
+--[=[@p start number|nil ...]=]
 function get.start(self)
 	return self._start
 end
 
---[=[@p stop type desc]=]
+--[=[@p stop number|nil ...]=]
 function get.stop(self)
 	return self._stop
 end
 
---[=[@p name type desc]=]
+--[=[@p name string|nil ...]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p type type desc]=]
+--[=[@p type number|nil ...]=]
 function get.type(self)
 	return self._type
 end
 
---[=[@p url type desc]=]
+--[=[@p url string|nil ...]=]
 function get.url(self)
 	return self._url
 end
 
---[=[@p applicationId type desc]=]
+--[=[@p applicationId string ...]=]
 function get.applicationId(self)
 	return self._application_id
 end
 
---[=[@p state type desc]=]
+--[=[@p state string|nil ...]=]
 function get.state(self)
 	return self._state
 end
 
---[=[@p details type desc]=]
+--[=[@p details string|nil ...]=]
 function get.details(self)
 	return self._details
 end
 
---[=[@p textSmall type desc]=]
+--[=[@p textSmall string|nil ...]=]
 function get.textSmall(self)
 	return self._small_text
 end
 
---[=[@p textLarge type desc]=]
+--[=[@p textLarge string|nil ...]=]
 function get.textLarge(self)
 	return self._large_text
 end
 
---[=[@p imageSmall type desc]=]
+--[=[@p imageSmall string|nil ...]=]
 function get.imageSmall(self)
 	return self._small_image
 end
 
---[=[@p imageLarge type desc]=]
+--[=[@p imageLarge string|nil ...]=]
 function get.imageLarge(self)
 	return self._large_image
 end
 
---[=[@p partyId type desc]=]
+--[=[@p partyId string|nil ...]=]
 function get.partyId(self)
 	return self._party_id
 end
 
---[=[@p partySize type desc]=]
+--[=[@p partySize number|nil ...]=]
 function get.partySize(self)
 	return self._party_size
 end
 
---[=[@p partyMax type desc]=]
+--[=[@p partyMax number|nil ...]=]
 function get.partyMax(self)
 	return self._party_max
 end

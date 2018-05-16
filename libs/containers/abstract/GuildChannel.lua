@@ -1,4 +1,4 @@
---[=[@abc GuildChannel x Channel desc]=]
+--[=[@abc GuildChannel x Channel ...]=]
 
 local json = require('json')
 local enums = require('enums')
@@ -36,20 +36,20 @@ function GuildChannel:_loadMore(data)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setName
+@p name string
+@r boolean
+@d ...
 ]=]
 function GuildChannel:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setCategory
+@p id Channel-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function GuildChannel:setCategory(id)
 	id = Resolver.channelId(id)
@@ -96,10 +96,10 @@ local function setSortedChannels(self, channels)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m moveUp
+@p n number
+@r boolean
+@d ...
 ]=]
 function GuildChannel:moveUp(n)
 
@@ -128,10 +128,10 @@ function GuildChannel:moveUp(n)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m moveDown
+@p n number
+@r boolean
+@d ...
 ]=]
 function GuildChannel:moveDown(n)
 
@@ -160,10 +160,10 @@ function GuildChannel:moveDown(n)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m createInvite
+@p payload table
+@r Invite
+@d ...
 ]=]
 function GuildChannel:createInvite(payload)
 	local data, err = self.client._api:createChannelInvite(self._id, payload)
@@ -175,10 +175,9 @@ function GuildChannel:createInvite(payload)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getInvites
+@r Cache
+@d ...
 ]=]
 function GuildChannel:getInvites()
 	local data, err = self.client._api:getChannelInvites(self._id)
@@ -190,10 +189,10 @@ function GuildChannel:getInvites()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getPermissionOverwriteFor
+@p obj Role|Member
+@r PermissionOverwrite
+@d ...
 ]=]
 function GuildChannel:getPermissionOverwriteFor(obj)
 	local id, type
@@ -211,36 +210,35 @@ function GuildChannel:getPermissionOverwriteFor(obj)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d ...
 ]=]
 function GuildChannel:delete()
 	return self:_delete()
 end
 
---[=[@p permissionOverwrites type desc]=]
+--[=[@p permissionOverwrites Cache ...]=]
 function get.permissionOverwrites(self)
 	return self._permission_overwrites
 end
 
---[=[@p name type desc]=]
+--[=[@p name string ...]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p position type desc]=]
+--[=[@p position number ...]=]
 function get.position(self)
 	return self._position
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild ...]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p category type desc]=]
+--[=[@p category GuildCategoryChannel|nil ...]=]
 function get.category(self)
 	return self._parent._categories:get(self._parent_id)
 end

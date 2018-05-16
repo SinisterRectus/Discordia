@@ -1,4 +1,4 @@
---[=[@c User x Snowflake desc]=]
+--[=[@c User x Snowflake ...]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local FilteredIterable = require('iterables/FilteredIterable')
@@ -14,10 +14,11 @@ function User:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getAvatarURL
+@p size number
+@p ext string
+@r string
+@d ...
 ]=]
 function User:getAvatarURL(size, ext)
 	local avatar = self._avatar
@@ -34,10 +35,10 @@ function User:getAvatarURL(size, ext)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getDefaultAvatarURL
+@p size number
+@r string
+@d ...
 ]=]
 function User:getDefaultAvatarURL(size)
 	local avatar = self.defaultAvatar
@@ -49,10 +50,9 @@ function User:getDefaultAvatarURL(size)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getPrivateChannel
+@r PrivateChannel
+@d ...
 ]=]
 function User:getPrivateChannel()
 	local id = self._id
@@ -71,10 +71,10 @@ function User:getPrivateChannel()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m send
+@p content string|table
+@r Message
+@d ...
 ]=]
 function User:send(content)
 	local channel, err = self:getPrivateChannel()
@@ -86,10 +86,10 @@ function User:send(content)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m sendf
+@p content string
+@r Message
+@d ...
 ]=]
 function User:sendf(content, ...)
 	local channel, err = self:getPrivateChannel()
@@ -100,63 +100,63 @@ function User:sendf(content, ...)
 	end
 end
 
---[=[@p bot type desc]=]
+--[=[@p bot boolean ...]=]
 function get.bot(self)
 	return self._bot or false
 end
 
---[=[@p name type desc]=]
+--[=[@p name string ...]=]
 function get.name(self)
 	return self._username
 end
 
---[=[@p username type desc]=]
+--[=[@p username string ...]=]
 function get.username(self)
 	return self._username
 end
 
---[=[@p discriminator type desc]=]
+--[=[@p discriminator number ...]=]
 function get.discriminator(self)
 	return self._discriminator
 end
 
---[=[@p tag type desc]=]
+--[=[@p tag string ...]=]
 function get.tag(self)
 	return self._username .. '#' .. self._discriminator
 end
 
---[=[@p fullname type desc]=]
+--[=[@p fullname string ...]=]
 function get.fullname(self)
 	self.client:_deprecated(self.__name, 'fullname', 'tag')
 	return self._username .. '#' .. self._discriminator
 end
 
---[=[@p avatar type desc]=]
+--[=[@p avatar string|nil ...]=]
 function get.avatar(self)
 	return self._avatar
 end
 
---[=[@p defaultAvatar type desc]=]
+--[=[@p defaultAvatar number ...]=]
 function get.defaultAvatar(self)
 	return self._discriminator % DEFAULT_AVATARS
 end
 
---[=[@p avatarURL type desc]=]
+--[=[@p avatarURL string ...]=]
 function get.avatarURL(self)
 	return self:getAvatarURL()
 end
 
---[=[@p defaultAvatarURL type desc]=]
+--[=[@p defaultAvatarURL string ...]=]
 function get.defaultAvatarURL(self)
 	return self:getDefaultAvatarURL()
 end
 
---[=[@p mentionString type desc]=]
+--[=[@p mentionString string ...]=]
 function get.mentionString(self)
 	return format('<@%s>', self._id)
 end
 
---[=[@p mutualGuilds type desc]=]
+--[=[@p mutualGuilds FilteredIterable ...]=]
 function get.mutualGuilds(self)
 	if not self._mutual_guilds then
 		local id = self._id

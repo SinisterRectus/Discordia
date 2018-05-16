@@ -1,4 +1,4 @@
---[=[@c PermissionOverwrite x Snowflake desc]=]
+--[=[@c PermissionOverwrite x Snowflake ...]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local Permissions = require('utils/Permissions')
@@ -13,10 +13,9 @@ function PermissionOverwrite:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:delete()
 	local data, err = self.client._api:deleteChannelPermission(self._parent._id, self._id)
@@ -32,10 +31,9 @@ function PermissionOverwrite:delete()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getObject
+@r Role|Member
+@d ...
 ]=]
 function PermissionOverwrite:getObject()
 	local guild = self._parent._parent
@@ -62,20 +60,18 @@ local function setPermissions(self, allow, deny)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getAllowedPermissions
+@r Permissions
+@d ...
 ]=]
 function PermissionOverwrite:getAllowedPermissions()
 	return Permissions(self._allow)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getDeniedPermissions
+@r Permissions
+@d ...
 ]=]
 function PermissionOverwrite:getDeniedPermissions()
 	return Permissions(self._deny)
@@ -83,9 +79,9 @@ end
 
 --[=[
 @m name
-@p name type
-@r type
-@d desc
+@p allowed Permissions-Resolvables
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:setAllowedPermissions(allowed)
 	local allow = Resolver.permissions(allowed)
@@ -94,10 +90,10 @@ function PermissionOverwrite:setAllowedPermissions(allowed)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setDeniedPermissions
+@p denied Permissions-Resolvables
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:setDeniedPermissions(denied)
 	local deny = Resolver.permissions(denied)
@@ -106,10 +102,10 @@ function PermissionOverwrite:setDeniedPermissions(denied)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m allowPermissions
+@p ... Permissions-Resolvables
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:allowPermissions(...)
 	local allowed, denied = getPermissions(self)
@@ -118,10 +114,10 @@ function PermissionOverwrite:allowPermissions(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m denyPermissions
+@p ... Permissions-Resolvables
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:denyPermissions(...)
 	local allowed, denied = getPermissions(self)
@@ -130,10 +126,10 @@ function PermissionOverwrite:denyPermissions(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m clearPermissions
+@p ... Permissions-Resolvables
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:clearPermissions(...)
 	local allowed, denied = getPermissions(self)
@@ -142,10 +138,9 @@ function PermissionOverwrite:clearPermissions(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m allowAllPermissions
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:allowAllPermissions()
 	local allowed, denied = getPermissions(self)
@@ -154,10 +149,9 @@ function PermissionOverwrite:allowAllPermissions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m denyAllPermissions
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:denyAllPermissions()
 	local allowed, denied = getPermissions(self)
@@ -166,10 +160,9 @@ function PermissionOverwrite:denyAllPermissions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m clearAllPermissions
+@r boolean
+@d ...
 ]=]
 function PermissionOverwrite:clearAllPermissions()
 	local allowed, denied = getPermissions(self)
@@ -177,27 +170,27 @@ function PermissionOverwrite:clearAllPermissions()
 	return setPermissions(self, allowed._value, denied._value)
 end
 
---[=[@p type type desc]=]
+--[=[@p type string ...]=]
 function get.type(self)
 	return self._type
 end
 
---[=[@p channel type desc]=]
+--[=[@p channel GuildChannel ...]=]
 function get.channel(self)
 	return self._parent
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild ...]=]
 function get.guild(self)
 	return self._parent._parent
 end
 
---[=[@p allowedPermissions type desc]=]
+--[=[@p allowedPermissions number ...]=]
 function get.allowedPermissions(self)
 	return self._allow
 end
 
---[=[@p deniedPermissions type desc]=]
+--[=[@p deniedPermissions number ...]=]
 function get.deniedPermissions(self)
 	return self._deny
 end

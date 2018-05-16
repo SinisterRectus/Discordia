@@ -1,4 +1,4 @@
---[=[@c GuildVoiceChannel x GuildChannel desc]=]
+--[=[@c GuildVoiceChannel x GuildChannel ...]=]
 
 local json = require('json')
 
@@ -13,30 +13,29 @@ function GuildVoiceChannel:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setBitrate
+@p bitrate number
+@r boolean
+@d ...
 ]=]
 function GuildVoiceChannel:setBitrate(bitrate)
 	return self:_modify({bitrate = bitrate or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setUserLimit
+@p user_limit number
+@r boolean
+@d ...
 ]=]
 function GuildVoiceChannel:setUserLimit(user_limit)
 	return self:_modify({user_limit = user_limit or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m join
+@r VoiceConnection
+@d ...
 ]=]
 function GuildVoiceChannel:join()
 
@@ -82,17 +81,17 @@ function GuildVoiceChannel:join()
 
 end
 
---[=[@p bitrate type desc]=]
+--[=[@p bitrate number ...]=]
 function get.bitrate(self)
 	return self._bitrate
 end
 
---[=[@p userLimit type desc]=]
+--[=[@p userLimit number ...]=]
 function get.userLimit(self)
 	return self._user_limit
 end
 
---[=[@p connectedMembers type desc]=]
+--[=[@p connectedMembers TableIterable ...]=]
 function get.connectedMembers(self)
 	if not self._members then
 		local id = self._id
@@ -104,7 +103,7 @@ function get.connectedMembers(self)
 	return self._members
 end
 
---[=[@p connection type desc]=]
+--[=[@p connection type ...]=]
 function get.connection(self)
 	return self._connection
 end

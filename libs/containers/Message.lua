@@ -1,4 +1,4 @@
---[=[@c Message x Snowflake desc]=]
+--[=[@c Message x Snowflake ...]=]
 
 local json = require('json')
 local constants = require('constants')
@@ -146,30 +146,29 @@ function Message:_modify(payload)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setContent
+@p content string
+@r boolean
+@d ...
 ]=]
 function Message:setContent(content)
 	return self:_modify({content = content or null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setEmbed
+@p embed table
+@r boolean
+@d ...
 ]=]
 function Message:setEmbed(embed)
 	return self:_modify({embed = embed or null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m pin
+@r boolean
+@d ...
 ]=]
 function Message:pin()
 	local data, err = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
@@ -182,10 +181,9 @@ function Message:pin()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unpin
+@r boolean
+@d ...
 ]=]
 function Message:unpin()
 	local data, err = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
@@ -198,10 +196,10 @@ function Message:unpin()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m addReaction
+@p emoji Emoji-Resolvable
+@r boolean
+@d ...
 ]=]
 function Message:addReaction(emoji)
 	emoji = Resolver.emoji(emoji)
@@ -214,10 +212,11 @@ function Message:addReaction(emoji)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeReaction
+@p emoji Emoji-Resolvable
+@p id User-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function Message:removeReaction(emoji, id)
 	emoji = Resolver.emoji(emoji)
@@ -236,10 +235,9 @@ function Message:removeReaction(emoji, id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m clearReactions
+@r boolean
+@d ...
 ]=]
 function Message:clearReactions()
 	local data, err = self.client._api:deleteAllReactions(self._parent._id, self._id)
@@ -251,10 +249,9 @@ function Message:clearReactions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d ...
 ]=]
 function Message:delete()
 	local data, err = self.client._api:deleteMessage(self._parent._id, self._id)
@@ -270,16 +267,16 @@ function Message:delete()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m reply
+@p content string|table
+@r Message
+@d ...
 ]=]
 function Message:reply(content)
 	return self._parent:send(content)
 end
 
---[=[@p reactions type desc]=]
+--[=[@p reactions Cache ...]=]
 function get.reactions(self)
 	if not self._reactions then
 		self._reactions = Cache({}, Reaction, self)
@@ -287,7 +284,7 @@ function get.reactions(self)
 	return self._reactions
 end
 
---[=[@p mentionedUsers type desc]=]
+--[=[@p mentionedUsers ArrayIterable ...]=]
 function get.mentionedUsers(self)
 	if not self._mentioned_users then
 		local users = self.client._users
@@ -299,7 +296,7 @@ function get.mentionedUsers(self)
 	return self._mentioned_users
 end
 
---[=[@p mentionedRoles type desc]=]
+--[=[@p mentionedRoles ArrayIterable ...]=]
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
 		local client = self.client
@@ -312,7 +309,7 @@ function get.mentionedRoles(self)
 	return self._mentioned_roles
 end
 
---[=[@p mentionedEmojis type desc]=]
+--[=[@p mentionedEmojis ArrayIterable ...]=]
 function get.mentionedEmojis(self)
 	if not self._mentioned_emojis then
 		local client = self.client
@@ -325,7 +322,7 @@ function get.mentionedEmojis(self)
 	return self._mentioned_emojis
 end
 
---[=[@p mentionedChannels type desc]=]
+--[=[@p mentionedChannels ArrayIterable ...]=]
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then
 		local client = self.client
@@ -348,7 +345,7 @@ local channelsMeta = {__index = function(_, k) return '#' .. k end}
 local everyone = '@' .. constants.ZWSP .. 'everyone'
 local here = '@' .. constants.ZWSP .. 'here'
 
---[=[@p cleanContent type desc]=]
+--[=[@p cleanContent string ...]=]
 function get.cleanContent(self)
 
 	if not self._clean_content then
@@ -386,82 +383,82 @@ function get.cleanContent(self)
 
 end
 
---[=[@p mentionsEveryone type desc]=]
+--[=[@p mentionsEveryone boolean ...]=]
 function get.mentionsEveryone(self)
 	return self._mention_everyone
 end
 
---[=[@p pinned type desc]=]
+--[=[@p pinned boolean ...]=]
 function get.pinned(self)
 	return self._pinned
 end
 
---[=[@p tts type desc]=]
+--[=[@p tts boolean ...]=]
 function get.tts(self)
 	return self._tts
 end
 
---[=[@p nonce type desc]=]
+--[=[@p nonce string|number|boolean|nil ...]=]
 function get.nonce(self)
 	return self._nonce
 end
 
---[=[@p editedTimestamp type desc]=]
+--[=[@p editedTimestamp string|nil ...]=]
 function get.editedTimestamp(self)
 	return self._edited_timestamp
 end
 
---[=[@p oldContent type desc]=]
+--[=[@p oldContent string|table ...]=]
 function get.oldContent(self)
 	return self._old
 end
 
---[=[@p content type desc]=]
+--[=[@p content string ...]=]
 function get.content(self)
 	return self._content
 end
 
---[=[@p author type desc]=]
+--[=[@p author User ...]=]
 function get.author(self)
 	return self._author
 end
 
---[=[@p channel type desc]=]
+--[=[@p channel TextChannel ...]=]
 function get.channel(self)
 	return self._parent
 end
 
---[=[@p type type desc]=]
+--[=[@p type number ...]=]
 function get.type(self)
 	return self._type
 end
 
---[=[@p embed type desc]=]
+--[=[@p embed table|nil ...]=]
 function get.embed(self)
 	return self._embeds and self._embeds[1]
 end
 
---[=[@p attachment type desc]=]
+--[=[@p attachment table|nil ...]=]
 function get.attachment(self)
 	return self._attachments and self._attachments[1]
 end
 
---[=[@p embeds type desc]=]
+--[=[@p embeds table ...]=]
 function get.embeds(self)
 	return self._embeds
 end
 
---[=[@p attachments type desc]=]
+--[=[@p attachments table ...]=]
 function get.attachments(self)
 	return self._attachments
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild|nil ...]=]
 function get.guild(self)
 	return self._parent.guild
 end
 
---[=[@p member type desc]=]
+--[=[@p member Member|nil ...]=]
 function get.member(self)
 	local guild = self.guild
 	return guild and guild._members:get(self._author._id)

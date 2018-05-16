@@ -1,4 +1,4 @@
---[=[@c AuditLogEntry x Snowflake desc]=]
+--[=[@c AuditLogEntry x Snowflake ...]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 
@@ -25,10 +25,10 @@ function AuditLogEntry:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getBeforeAfter
+@r table
+@r table
+@d ...
 ]=]
 function AuditLogEntry:getBeforeAfter()
 	local before, after = {}, {}
@@ -151,61 +151,58 @@ local targets = setmetatable({
 }, {__index = function() return unknown	end})
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getTarget
+@r *
+@d ...
 ]=]
 function AuditLogEntry:getTarget()
 	return targets[self._action_type](self)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getUser
+@r User
+@d ...
 ]=]
 function AuditLogEntry:getUser()
 	return self._parent._parent:getUser(self._user_id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getMember
+@r Member
+@d ...
 ]=]
 function AuditLogEntry:getMember()
 	return self._parent:getMember(self._user_id)
 end
 
---[=[@p changes type desc]=]
+--[=[@p changes table|nil ...]=]
 function get.changes(self)
 	return self._changes
 end
 
---[=[@p options type desc]=]
+--[=[@p options table|nil ...]=]
 function get.options(self)
 	return self._options
 end
 
---[=[@p actionType type desc]=]
+--[=[@p actionType number ...]=]
 function get.actionType(self)
 	return self._action_type
 end
 
---[=[@p targetId type desc]=]
+--[=[@p targetId string|nil ...]=]
 function get.targetId(self)
 	return self._target_id
 end
 
---[=[@p reason type desc]=]
+--[=[@p reason string|nil ...]=]
 function get.reason(self)
 	return self._reason
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild ...]=]
 function get.guild(self)
 	return self._parent
 end

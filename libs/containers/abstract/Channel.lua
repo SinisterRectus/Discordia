@@ -1,4 +1,4 @@
---[=[@abc Channel x Snowflake desc]=]
+--[=[@abc Channel x Snowflake ...]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local enums = require('enums')
@@ -47,12 +47,12 @@ function Channel:_delete()
 	end
 end
 
---[=[@p type type desc]=]
+--[=[@p type number ...]=]
 function get.type(self)
 	return self._type
 end
 
---[=[@p mentionString type desc]=]
+--[=[@p mentionString string ...]=]
 function get.mentionString(self)
 	return format('<#%s>', self._id)
 end

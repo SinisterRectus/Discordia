@@ -1,4 +1,4 @@
---[=[@c Member x UserPresence desc]=]
+--[=[@c Member x UserPresence ...]=]
 
 local enums = require('enums')
 local class = require('class')
@@ -50,10 +50,9 @@ local function predicate(role)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getColor
+@r Color
+@d ...
 ]=]
 function Member:getColor()
 	local roles = {}
@@ -69,10 +68,11 @@ local function has(a, b, admin)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m hasPermission
+@p channel GuildChannel
+@p perm Permissions-Resolvable
+@r boolean
+@d ...
 ]=]
 function Member:hasPermission(channel, perm)
 
@@ -158,10 +158,10 @@ function Member:hasPermission(channel, perm)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getPermissions
+@p channel GuildChannel
+@r Permissions
+@d ...
 ]=]
 function Member:getPermissions(channel)
 
@@ -224,10 +224,10 @@ function Member:getPermissions(channel)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m addRole
+@p id Role-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function Member:addRole(id)
 	if self:hasRole(id) then return true end
@@ -247,10 +247,10 @@ function Member:addRole(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeRole
+@p id Role-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function Member:removeRole(id)
 	if not self:hasRole(id) then return true end
@@ -280,10 +280,10 @@ function Member:removeRole(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m hasRole
+@p id Role-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function Member:hasRole(id)
 	id = Resolver.roleId(id)
@@ -300,10 +300,10 @@ function Member:hasRole(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setNickname
+@p nick string
+@r boolean
+@d ...
 ]=]
 function Member:setNickname(nick)
 	nick = nick or ''
@@ -322,10 +322,10 @@ function Member:setNickname(nick)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setVoiceChannel
+@p id Channel-ID-Resolvable
+@r boolean
+@d ...
 ]=]
 function Member:setVoiceChannel(id)
 	id = Resolver.channelId(id)
@@ -338,10 +338,9 @@ function Member:setVoiceChannel(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m mute
+@r boolean
+@d ...
 ]=]
 function Member:mute()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = true})
@@ -354,10 +353,9 @@ function Member:mute()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unmute
+@r boolean
+@d ...
 ]=]
 function Member:unmute()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = false})
@@ -370,10 +368,9 @@ function Member:unmute()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m deafen
+@r boolean
+@d ...
 ]=]
 function Member:deafen()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = true})
@@ -386,10 +383,9 @@ function Member:deafen()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m undeafen
+@r boolean
+@d ...
 ]=]
 function Member:undeafen()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = false})
@@ -402,36 +398,37 @@ function Member:undeafen()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m kick
+@p reason string
+@r boolean
+@d ...
 ]=]
 function Member:kick(reason)
 	return self._parent:kickUser(self._user, reason)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m ban
+@p reason string
+@p days number
+@r boolean
+@d ...
 ]=]
 function Member:ban(reason, days)
 	return self._parent:banUser(self._user, reason, days)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unban
+@p reason string
+@r boolean
+@d ...
 ]=]
 function Member:unban(reason)
 	return self._parent:unbanUser(self._user, reason)
 end
 
---[=[@p roles type desc]=]
+--[=[@p roles ArrayIterable ...]=]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles
@@ -443,46 +440,46 @@ function get.roles(self)
 	return self._roles
 end
 
---[=[@p name type desc]=]
+--[=[@p name string ...]=]
 function get.name(self)
 	return self._nick or self._user._username
 end
 
---[=[@p nickname type desc]=]
+--[=[@p nickname string|nil ...]=]
 function get.nickname(self)
 	return self._nick
 end
 
---[=[@p joinedAt type desc]=]
+--[=[@p joinedAt string|nil ...]=]
 function get.joinedAt(self)
 	return self._joined_at
 end
 
---[=[@p voiceChannel type desc]=]
+--[=[@p voiceChannel GuildVoiceChannel|nil ...]=]
 function get.voiceChannel(self)
 	local guild = self._parent
 	local state = guild._voice_states[self:__hash()]
 	return state and guild._voice_channels:get(state.channel_id)
 end
 
---[=[@p muted type desc]=]
+--[=[@p muted boolean ...]=]
 function get.muted(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.mute or state.self_mute) or self._mute
 end
 
---[=[@p deafened type desc]=]
+--[=[@p deafened boolean ...]=]
 function get.deafened(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.deaf or state.self_deaf) or self._deaf
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild ...]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p highestRole type desc]=]
+--[=[@p highestRole Role ...]=]
 function get.highestRole(self)
 	local ret
 	for role in self.roles:iter() do

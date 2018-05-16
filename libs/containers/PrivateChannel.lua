@@ -1,4 +1,4 @@
---[=[@c PrivateChannel x TextChannel desc]=]
+--[=[@c PrivateChannel x TextChannel ...]=]
 
 local TextChannel = require('containers/abstract/TextChannel')
 
@@ -10,21 +10,20 @@ function PrivateChannel:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m close
+@r boolean
+@d ...
 ]=]
 function PrivateChannel:close()
 	return self:_delete()
 end
 
---[=[@p name type desc]=]
+--[=[@p name string ...]=]
 function get.name(self)
 	return self._recipient._username
 end
 
---[=[@p recipient type desc]=]
+--[=[@p recipient User ...]=]
 function get.recipient(self)
 	return self._recipient
 end
