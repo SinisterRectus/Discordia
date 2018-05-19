@@ -1,4 +1,7 @@
---[=[@c Time ...]=]
+--[=[
+@c Time
+@d Represents a length of time and provides utilities for converting to and from different formats with millisecond precision.
+]=]
 
 local class = require('class')
 local constants = require('constants')
@@ -54,7 +57,7 @@ end
 --[=[
 @m toString
 @r string
-@d ...
+@d Returns a string from the normalized time values that can be used to represent the time object in a string form.
 ]=]
 function Time:toString()
 	local tbl = self:toTable()
@@ -150,7 +153,7 @@ end
 --[=[
 @m toWeeks
 @r number
-@d ...
+@d Returns the total number of weeks that the time object represents.
 ]=]
 function Time:toWeeks()
 	return self:toMilliseconds() / MS_PER_WEEK
@@ -159,7 +162,7 @@ end
 --[=[
 @m toDays
 @r number
-@d ...
+@d Returns the total number of days that the time object represents.
 ]=]
 function Time:toDays()
 	return self:toMilliseconds() / MS_PER_DAY
@@ -168,7 +171,7 @@ end
 --[=[
 @m toHours
 @r number
-@d ...
+@d Returns the total number of hours that the time object represents.
 ]=]
 function Time:toHours()
 	return self:toMilliseconds() / MS_PER_HOUR
@@ -177,7 +180,7 @@ end
 --[=[
 @m toMinutes
 @r number
-@d ...
+@d Returns the total number of minutes that the time object represents.
 ]=]
 function Time:toMinutes()
 	return self:toMilliseconds() / MS_PER_MIN
@@ -186,7 +189,7 @@ end
 --[=[
 @m toSeconds
 @r number
-@d ...
+@d Returns the total number of seconds that the time object represents.
 ]=]
 function Time:toSeconds()
 	return self:toMilliseconds() / MS_PER_S
@@ -195,7 +198,7 @@ end
 --[=[
 @m toMilliseconds
 @r number
-@d ...
+@d Returns the total number of milliseconds that the time object represents.
 ]=]
 function Time:toMilliseconds()
 	return self._value
@@ -204,7 +207,7 @@ end
 --[=[
 @m toTable
 @r number
-@d ...
+@d Returns a table of normalized time values that can be used to represent the time object in a more human-readable form.
 ]=]
 function Time:toTable()
 	local v = self._value

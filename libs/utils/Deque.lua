@@ -1,4 +1,7 @@
---[=[@c Deque ...]=]
+--[=[
+@c Deque
+@d An implementation of a double-ended queue.
+]=]
 
 local Deque = require('class')('Deque')
 
@@ -11,7 +14,7 @@ end
 --[=[
 @m getCount
 @r number
-@d ...
+@d Returns the total number of values stored.
 ]=]
 function Deque:getCount()
 	return self._last - self._first + 1
@@ -21,7 +24,7 @@ end
 @m pushLeft
 @p obj *
 @r void
-@d ...
+@d Adds a value of any type to the left side of the deque.
 ]=]
 function Deque:pushLeft(obj)
 	self._first = self._first - 1
@@ -32,7 +35,7 @@ end
 @m pushRight
 @p obj *
 @r void
-@d ...
+@d Adds a value of any type to the right side of the deque.
 ]=]
 function Deque:pushRight(obj)
 	self._last = self._last + 1
@@ -42,7 +45,7 @@ end
 --[=[
 @m popLeft
 @r *
-@d ...
+@d Removes and returns a value from the left side of the deque.
 ]=]
 function Deque:popLeft()
 	if self._first > self._last then return nil end
@@ -55,7 +58,7 @@ end
 --[=[
 @m popRight
 @r *
-@d ...
+@d Removes and returns a value from the right side of the deque.
 ]=]
 function Deque:popRight()
 	if self._first > self._last then return nil end
@@ -68,7 +71,7 @@ end
 --[=[
 @m peekLeft
 @r *
-@d ...
+@d Returns the value at the left side of the deque without removing it.
 ]=]
 function Deque:peekLeft()
 	return self._objects[self._first]
@@ -77,7 +80,7 @@ end
 --[=[
 @m peekRight
 @r *
-@d ...
+@d Returns the value at the right side of the deque without removing it.
 ]=]
 function Deque:peekRight()
 	return self._objects[self._last]
@@ -86,7 +89,7 @@ end
 --[=[
 @m iter
 @r function
-@d ...
+@d Iterates over the deque from left to right.
 ]=]
 function Deque:iter()
 	local t = self._objects

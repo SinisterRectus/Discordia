@@ -1,4 +1,8 @@
---[=[@c Role x Snowflake ...]=]
+--[=[
+@c Role x Snowflake
+@d Represents a Discord guild role, which is used to assign priority, permissions,
+and a color to guild members.
+]=]
 
 local json = require('json')
 local Snowflake = require('containers/abstract/Snowflake')
@@ -32,7 +36,7 @@ end
 --[=[
 @m delete
 @r boolean
-@d ...
+@d Permanently deletes the role. This cannot be undone!
 ]=]
 function Role:delete()
 	local data, err = self.client._api:deleteGuildRole(self._parent._id, self._id)
@@ -83,7 +87,10 @@ end
 @m moveDown
 @p n number
 @r boolean
-@d ...
+@d Moves a role down its list. The parameter `n` indicates how many spaces the
+role should be moved, clamped to the lowest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all roles. Note that
+the default everyone role cannot be moved.
 ]=]
 function Role:moveDown(n) -- TODO: fix attempt to move roles that cannot be moved
 
@@ -115,7 +122,10 @@ end
 @m moveUp
 @p n number
 @r boolean
-@d ...
+@d Moves a role up its list. The parameter `n` indicates how many spaces the
+role should be moved, clamped to the highest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all roles. Note that
+the default everyone role cannot be moved.
 ]=]
 function Role:moveUp(n) -- TODO: fix attempt to move roles that cannot be moved
 
@@ -147,7 +157,7 @@ end
 @m setName
 @p name string
 @r boolean
-@d ...
+@d Sets the role's name. The name must be between 1 and 100 characters in length.
 ]=]
 function Role:setName(name)
 	return self:_modify({name = name or json.null})
@@ -157,7 +167,7 @@ end
 @m setColor
 @p color Color-Resolvable
 @r boolean
-@d ...
+@d Sets the role's display color.
 ]=]
 function Role:setColor(color)
 	color = color and Resolver.color(color)
@@ -168,7 +178,7 @@ end
 @m setPermissions
 @p permissions Permissions-Resolvable
 @r boolean
-@d ...
+@d Sets the permissions that this role explicitly allows.
 ]=]
 function Role:setPermissions(permissions)
 	permissions = permissions and Resolver.permissions(permissions)
@@ -178,7 +188,8 @@ end
 --[=[
 @m hoist
 @r boolean
-@d ...
+@d Causes members with this role to display above unhoisted roles in the member
+list.
 ]=]
 function Role:hoist()
 	return self:_modify({hoist = true})
@@ -187,7 +198,7 @@ end
 --[=[
 @m unhoist
 @r boolean
-@d ...
+@d Causes member with this role to display amongst other unhoisted members.
 ]=]
 function Role:unhoist()
 	return self:_modify({hoist = false})
@@ -196,7 +207,7 @@ end
 --[=[
 @m enableMentioning
 @r boolean
-@d ...
+@d Allows anyone to mention this role in text messages.
 ]=]
 function Role:enableMentioning()
 	return self:_modify({mentionable = true})
@@ -205,7 +216,7 @@ end
 --[=[
 @m disableMentioning
 @r boolean
-@d ...
+@d Disallows anyone to mention this role in text messages.
 ]=]
 function Role:disableMentioning()
 	return self:_modify({mentionable = false})
@@ -215,7 +226,8 @@ end
 @m enablePermissions
 @p ... Permissions-Resolvables
 @r boolean
-@d ...
+@d Enables individual permissions for this role. This does not necessarily fully
+allow the permissions.
 ]=]
 function Role:enablePermissions(...)
 	local permissions = self:getPermissions()
@@ -227,7 +239,8 @@ end
 @m disablePermissions
 @p ... Permissions-Resolvables
 @r boolean
-@d ...
+@d Disables individual permissions for this role. This does not necessarily fully
+disallow the permissions.
 ]=]
 function Role:disablePermissions(...)
 	local permissions = self:getPermissions()
@@ -238,7 +251,8 @@ end
 --[=[
 @m enableAllPermissions
 @r boolean
-@d ...
+@d Enables all permissions for this role. This does not necessarily fully
+allow the permissions.
 ]=]
 function Role:enableAllPermissions()
 	local permissions = self:getPermissions()
@@ -249,7 +263,8 @@ end
 --[=[
 @m disableAllPermissions
 @r boolean
-@d ...
+@d Disables all permissions for this role. This does not necessarily fully
+disallow the permissions.
 ]=]
 function Role:disableAllPermissions()
 	local permissions = self:getPermissions()
@@ -260,7 +275,7 @@ end
 --[=[
 @m getColor
 @r Color
-@d ...
+@d Returns a color object that represents the role's display color.
 ]=]
 function Role:getColor()
 	return Color(self._color)
@@ -269,58 +284,64 @@ end
 --[=[
 @m getPermissions
 @r Permissions
-@d ...
+@d Returns a permissions object that represents the permissions that this role
+has enabled.
 ]=]
 function Role:getPermissions()
 	return Permissions(self._permissions)
 end
 
---[=[@p hoisted boolean ...]=]
+--[=[@p hoisted boolean Whether members with this role should be shown separated from other members
+in the guild member list.]=]
 function get.hoisted(self)
 	return self._hoist
 end
 
---[=[@p mentionable boolean ...]=]
+--[=[@p mentionable boolean Whether this role can be mentioned in a text channel message.]=]
 function get.mentionable(self)
 	return self._mentionable
 end
 
---[=[@p managed boolean ...]=]
+--[=[@p managed boolean Whether this role is managed by some integration or bot inclusion.]=]
 function get.managed(self)
 	return self._managed
 end
 
---[=[@p name string ...]=]
+--[=[@p name string The name of the role. This should be between 1 and 100 characters in length.]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p position number ...]=]
+--[=[@p position number The position of the role, where 0 is the lowest.]=]
 function get.position(self)
 	return self._position
 end
 
---[=[@p color number ...]=]
+--[=[@p color number Represents the display color of the role as a decimal value.]=]
 function get.color(self)
 	return self._color
 end
 
---[=[@p permissions number ...]=]
+--[=[@p permissions number Represents the total permissions of the role as a decimal value.]=]
 function get.permissions(self)
 	return self._permissions
 end
 
---[=[@p mentionString string ...]=]
+--[=[@p mentionString string A string that, when included in a message content, may resolve as a role
+notification in the official Discord client.]=]
 function get.mentionString(self)
 	return format('<@&%s>', self._id)
 end
 
---[=[@p guild Guild ...]=]
+--[=[@p guild Guild The guild in which this role exists.]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p members FilteredIterable ...]=]
+--[=[@p members FilteredIterable A filtered iterable of guild members that have this role. If you want to check
+whether a specific member has this role, it would be better to get the member
+object elsewhere and use `Member:hasRole` rather than check whether the member
+exists here.]=]
 function get.members(self)
 	if not self._members then
 		self._members = FilteredIterable(self._parent._members, function(m)

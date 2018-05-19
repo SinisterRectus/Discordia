@@ -1,4 +1,8 @@
---[=[@c Color ...]=]
+--[=[
+@ic Color
+@p value number
+@d Wrapper for 24-bit colors packed as a decimal value. See the static constructors for more information.
+]=]
 
 local class = require('class')
 
@@ -155,7 +159,7 @@ end
 --[=[
 @m toHex
 @r string
-@d ...
+@d Returns the hexadecimal string that represents the color value.
 ]=]
 function Color:toHex()
 	return format('#%06X', self._value)
@@ -166,7 +170,7 @@ end
 @r number
 @r number
 @r number
-@d ...
+@d Returns the red, green, and blue values that are packed into the color value.
 ]=]
 function Color:toRGB()
 	return self.r, self.g, self.b
@@ -177,7 +181,7 @@ end
 @r number
 @r number
 @r number
-@d ...
+@d Returns the hue, saturation, and value that represents the color value.
 ]=]
 function Color:toHSV()
 	local h, d, mx = toHue(self.r, self.g, self.b)
@@ -191,7 +195,7 @@ end
 @r number
 @r number
 @r number
-@d ...
+@d Returns the hue, saturation, and lightness that represents the color value.
 ]=]
 function Color:toHSL()
 	local h, d, mx, mn = toHue(self.r, self.g, self.b)
@@ -200,7 +204,7 @@ function Color:toHSL()
 	return h, s, l
 end
 
---[=[@p value number ...]=]
+--[=[@p value number The raw decimal value that represents the color value.]=]
 function get.value(self)
 	return self._value
 end
@@ -209,17 +213,17 @@ local function getByte(value, offset)
 	return band(rshift(value, offset), 0xFF)
 end
 
---[=[@p r number ...]=]
+--[=[@p r number The value that represents the color's red-level.]=]
 function get.r(self)
 	return getByte(self._value, 16)
 end
 
---[=[@p g number ...]=]
+--[=[@p g number The value that represents the color's green-level.]=]
 function get.g(self)
 	return getByte(self._value, 8)
 end
 
---[=[@p b number ...]=]
+--[=[@p b number The value that represents the color's blue-level.]=]
 function get.b(self)
 	return getByte(self._value, 0)
 end
@@ -230,18 +234,38 @@ local function setByte(value, offset, new)
 	return bor(value, band(lshift(new, offset), byte))
 end
 
+--[=[
+@m setRed
+@r void
+@d Sets the color's red-level.
+]=]
 function Color:setRed(r)
 	self._value = setByte(self._value, 16, r)
 end
 
+--[=[
+@m setGreen
+@r void
+@d Sets the color's green-level.
+]=]
 function Color:setGreen(g)
 	self._value = setByte(self._value, 8, g)
 end
 
+--[=[
+@m setBlue
+@r void
+@d Sets the color's blue-level.
+]=]
 function Color:setBlue(b)
 	self._value = setByte(self._value, 0, b)
 end
 
+--[=[
+@m toHSL
+@r Color
+@d Returns a new copy of the original color object.
+]=]
 function Color:copy()
 	return Color(self._value)
 end

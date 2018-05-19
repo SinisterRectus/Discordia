@@ -1,4 +1,9 @@
---[=[@c SecondaryCache x Iterable ...]=]
+--[=[
+@c SecondaryCache x Iterable
+@d Iterable class that wraps another cache. Objects added to or removed from a
+secondary cache are also automatically added to or removed from the primary
+cache that it wraps.
+]=]
 
 local Iterable = require('iterables/Iterable')
 
@@ -47,7 +52,9 @@ end
 @m get
 @p k *
 @r *
-@d ...
+@d Returns an individual object by key, where the key should match the result of
+calling `__hash` on the contained objects. Unlike the default version, this
+method operates with O(1) complexity.
 ]=]
 function SecondaryCache:get(k)
 	return self._objects[k]
@@ -56,7 +63,8 @@ end
 --[=[
 @m iter
 @r function
-@d ...
+@d Returns an iterator that returns all contained object. The order of the objects
+is not guaranteed.
 ]=]
 function SecondaryCache:iter()
 	local objects, k, obj = self._objects

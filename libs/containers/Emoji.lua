@@ -1,4 +1,8 @@
---[=[@c Emoji x Snowflake ...]=]
+--[=[
+@c Emoji x Snowflake
+@d Represents a custom emoji object usable in message content and reactions.
+Standard unicode emojis do not have a class; they are just strings.
+]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local Resolver = require('client/Resolver')
@@ -45,7 +49,7 @@ end
 @m setName
 @p name string
 @r boolean
-@d ...
+@d description
 ]=]
 function Emoji:setName(name)
 	return self:_modify({name = name or json.null})
@@ -55,7 +59,7 @@ end
 @m setRoles
 @p roles Role-ID-Resolvables
 @r boolean
-@d ...
+@d description
 ]=]
 function Emoji:setRoles(roles)
 	roles = Resolver.roleIds(roles)
@@ -65,7 +69,7 @@ end
 --[=[
 @m delete
 @r boolean
-@d ...
+@d description
 ]=]
 function Emoji:delete()
 	local data, err = self.client._api:deleteGuildEmoji(self._parent._id, self._id)
@@ -84,7 +88,7 @@ end
 @m hasRole
 @p id Role-ID-Resolvable
 @r boolean
-@d ...
+@d description
 ]=]
 function Emoji:hasRole(id)
 	id = Resolver.roleId(id)
@@ -99,49 +103,52 @@ function Emoji:hasRole(id)
 	return false
 end
 
---[=[@p name string ...]=]
+--[=[@p name string The name of the emoji.]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p guild Guild ...]=]
+--[=[@p guild Guild The guild in which the emoji exists.]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p mentionString string ...]=]
+--[=[@p mentionString string A string that, when included in a message content, may resolve as an emoji image
+in the official Discord client.]=]
 function get.mentionString(self)
 	local fmt = self._animated and '<a:%s>' or '<:%s>'
 	return format(fmt, self.hash)
 end
 
---[=[@p url string ...]=]
+--[=[@p url string The URL that can be used to view a full version of the emoji.]=]
 function get.url(self)
 	local ext = self._animated and 'gif' or 'png'
 	return format('https://cdn.discordapp.com/emojis/%s.%s', self._id, ext)
 end
 
---[=[@p managed boolean ...]=]
+--[=[@p managed boolean Whether this emoji is managed by an integration such as Twitch or YouTube.]=]
 function get.managed(self)
 	return self._managed
 end
 
---[=[@p requireColons boolean ...]=]
+--[=[@p requireColons boolean Whether this emoji requires colons to be used in the official Discord client.]=]
 function get.requireColons(self)
 	return self._require_colons
 end
 
---[=[@p hash string ...]=]
+--[=[@p hash string An iterable array of roles that may be required to use this emoji, generally
+related to integration-managed emojis. Object order is not guaranteed.
+]=]
 function get.hash(self)
 	return self._name .. ':' .. self._id
 end
 
---[=[@p animated boolean ...]=]
+--[=[@p animated boolean description]=]
 function get.animated(self)
 	return self._animated
 end
 
---[=[@p roles ArrayIterable ...]=]
+--[=[@p roles ArrayIterable description]=]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles

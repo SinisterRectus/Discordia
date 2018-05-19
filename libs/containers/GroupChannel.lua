@@ -1,4 +1,9 @@
---[=[@c GroupChannel x TextChannel ...]=]
+--[=[
+@c GroupChannel x TextChannel
+@d Represents a Discord group channel. Essentially a private channel that may have
+more than one and up to ten recipients. This class should only be relevant to
+user-accounts; bots cannot normally join group channels.
+]=]
 
 local json = require('json')
 
@@ -19,7 +24,7 @@ end
 @m setName
 @p name string
 @r boolean
-@d ...
+@d Sets the channel's name. This must be between 1 and 100 characters in length.
 ]=]
 function GroupChannel:setName(name)
 	return self:_modify({name = name or json.null})
@@ -29,7 +34,7 @@ end
 @m setIcon
 @p icon Base64-Resolvable
 @r boolean
-@d ...
+@d Sets the channel's icon. To remove the icon, pass `nil`.
 ]=]
 function GroupChannel:setIcon(icon)
 	icon = icon and Resolver.base64(icon)
@@ -40,7 +45,7 @@ end
 @m addRecipient
 @p id User-ID-Resolvable
 @r boolean
-@d ...
+@d Adds a user to the channel.
 ]=]
 function GroupChannel:addRecipient(id)
 	id = Resolver.userId(id)
@@ -56,7 +61,7 @@ end
 @m removeRecipient
 @p id User-ID-Resolvable
 @r boolean
-@d ...
+@d Removes a user from the channel.
 ]=]
 function GroupChannel:removeRecipient(id)
 	id = Resolver.userId(id)
@@ -71,38 +76,39 @@ end
 --[=[
 @m leave
 @r boolean
-@d ...
+@d Removes the client's user from the channel. If no users remain, the channel
+is destroyed.
 ]=]
 function GroupChannel:leave()
 	return self:_delete()
 end
 
---[=[@p recipients SecondaryCache ...]=]
+--[=[@p recipients SecondaryCache A secondary cache of users that are present in the channel.]=]
 function get.recipients(self)
 	return self._recipients
 end
 
---[=[@p name string ...]=]
+--[=[@p name string The name of the channel.]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p ownerId string ...]=]
+--[=[@p ownerId string The Snowflake ID of the user that owns (created) the channel.]=]
 function get.ownerId(self)
 	return self._owner_id
 end
 
---[=[@p owner User|nil ...]=]
+--[=[@p owner User|nil Equivalent to `GroupChannel.recipients:get(GroupChannel.ownerId)`.]=]
 function get.owner(self)
 	return self._recipients:get(self._owner_id)
 end
 
---[=[@p icon string|nil ...]=]
+--[=[@p icon string|nil The hash for the channel's custom icon, if one is set.]=]
 function get.icon(self)
 	return self._icon
 end
 
---[=[@p iconURL string|nil ...]=]
+--[=[@p iconURL string|nil The URL that can be used to view the channel's icon, if one is set.]=]
 function get.iconURL(self)
 	local icon = self._icon
 	return icon and format('https://cdn.discordapp.com/channel-icons/%s/%s.png', self._id, icon)

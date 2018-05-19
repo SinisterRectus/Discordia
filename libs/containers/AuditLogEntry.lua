@@ -1,4 +1,7 @@
---[=[@c AuditLogEntry x Snowflake ...]=]
+--[=[
+@c AuditLogEntry x Snowflake
+@d Represents an entry made into a guild's audit log.
+]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 
@@ -28,7 +31,7 @@ end
 @m getBeforeAfter
 @r table
 @r table
-@d ...
+@d Returns two table's of the target's properties before the change, and after the change.
 ]=]
 function AuditLogEntry:getBeforeAfter()
 	local before, after = {}, {}
@@ -153,7 +156,15 @@ local targets = setmetatable({
 --[=[
 @m getTarget
 @r *
-@d ...
+@d Gets the target object of the affected entity. The returned object can be:
+ - [[Guild]]
+ - [[GuildChannel]]
+ - [[User]]
+ - [[Member]]
+ - [[Role]]
+ - [[Webhook]]
+ - [[Emoji]]
+ - nil
 ]=]
 function AuditLogEntry:getTarget()
 	return targets[self._action_type](self)
@@ -162,7 +173,7 @@ end
 --[=[
 @m getUser
 @r User
-@d ...
+@d Gets the user who performed the changes.
 ]=]
 function AuditLogEntry:getUser()
 	return self._parent._parent:getUser(self._user_id)
@@ -171,38 +182,38 @@ end
 --[=[
 @m getMember
 @r Member
-@d ...
+@d Gets the member object of the user who performed the changes.
 ]=]
 function AuditLogEntry:getMember()
 	return self._parent:getMember(self._user_id)
 end
 
---[=[@p changes table|nil ...]=]
+--[=[@p changes table|nil A table of audit log change objects. The key represents the property of the changed target and the value contains a table of `new` and possibly `old`, representing the property's new and old value.]=]
 function get.changes(self)
 	return self._changes
 end
 
---[=[@p options table|nil ...]=]
+--[=[@p options table|nil A table of optional audit log information.]=]
 function get.options(self)
 	return self._options
 end
 
---[=[@p actionType number ...]=]
+--[=[@p actionType number The action type. Use the `actionType `enumeration for a human-readable representation.]=]
 function get.actionType(self)
 	return self._action_type
 end
 
---[=[@p targetId string|nil ...]=]
+--[=[@p targetId string|nil The Snowflake ID of the affected entity. Will be `nil` for certain targets.]=]
 function get.targetId(self)
 	return self._target_id
 end
 
---[=[@p reason string|nil ...]=]
+--[=[@p reason string|nil The reason provided by the user for the change.]=]
 function get.reason(self)
 	return self._reason
 end
 
---[=[@p guild Guild ...]=]
+--[=[@p guild Guild The guild in which this audit log entry was found.]=]
 function get.guild(self)
 	return self._parent
 end

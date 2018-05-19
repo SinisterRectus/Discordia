@@ -1,4 +1,8 @@
---[=[@c GuildCategoryChannel x GuildChannel ...]=]
+--[=[
+@c GuildCategoryChannel x GuildChannel
+@d Represents a channel category in a Discord guild, used to organize individual
+text or voice channels in that guild.
+]=]
 
 local GuildChannel = require('containers/abstract/GuildChannel')
 local FilteredIterable = require('iterables/FilteredIterable')
@@ -16,7 +20,7 @@ end
 @m createTextChannel
 @p name string
 @r GuildTextChannel
-@d ...
+@d description
 ]=]
 function GuildCategoryChannel:createTextChannel(name)
 	local guild = self._parent
@@ -36,7 +40,7 @@ end
 @m createVoiceChannel
 @p name string
 @r GuildVoiceChannel
-@d ...
+@d description
 ]=]
 function GuildCategoryChannel:createVoiceChannel(name)
 	local guild = self._parent
@@ -52,7 +56,7 @@ function GuildCategoryChannel:createVoiceChannel(name)
 	end
 end
 
---[=[@p textChannels FilteredIterable ...]=]
+--[=[@p textChannels FilteredIterable Returns all textChannels in the Category]=]
 function get.textChannels(self)
 	if not self._text_channels then
 		local id = self._id
@@ -63,7 +67,7 @@ function get.textChannels(self)
 	return self._text_channels
 end
 
---[=[@p voiceChannels FilteredIterable ...]=]
+--[=[@p voiceChannels FilteredIterable Returns all voiceChannels in the Category]=]
 function get.voiceChannels(self)
 	if not self._voice_channels then
 		local id = self._id

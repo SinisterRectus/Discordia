@@ -1,4 +1,7 @@
---[=[@c Emitter ...]=]
+--[=[
+@c Emitter
+@d Implements an asynchronous event emitter where callbacks can be subscribed to specific named events. When events are emitted, the callbacks are called in the order that they were originally registered.
+]=]
 
 local timer = require('timer')
 
@@ -28,7 +31,7 @@ end
 @p name string
 @p fn function
 @r function
-@d ...
+@d Subscribes a callback to be called every time the named event is emitted. Callbacks registered with this method will automatically be wrapped as a new coroutine when they are called. Returns the original callback for convenience.
 ]=]
 function Emitter:on(name, fn)
 	return new(self, name, {fn = fn})
@@ -39,7 +42,7 @@ end
 @p name string
 @p fn function
 @r function
-@d ...
+@d Subscribes a callback to be called only the first time this event is emitted. Callbacks registered with this method will automatically be wrapped as a new coroutine when they are called. Returns the original callback for convenience.
 ]=]
 function Emitter:once(name, fn)
 	return new(self, name, {fn = fn, once = true})
@@ -50,7 +53,7 @@ end
 @p name string
 @p fn function
 @r function
-@d ...
+@d Subscribes a callback to be called every time the named event is emitted. Callbacks registered with this method are not automatically wrapped as a coroutine. Returns the original callback for convenience.
 ]=]
 function Emitter:onSync(name, fn)
 	return new(self, name, {fn = fn, sync = true})
@@ -61,7 +64,7 @@ end
 @p name string
 @p fn function
 @r function
-@d ...
+@d Subscribes a callback to be called only the first time this event is emitted. Callbacks registered with this method are not automatically wrapped as a coroutine. Returns the original callback for convenience.
 ]=]
 function Emitter:onceSync(name, fn)
 	return new(self, name, {fn = fn, once = true, sync = true})
@@ -70,9 +73,9 @@ end
 --[=[
 @m emit
 @p name string
-@p ... *
+@op ... *
 @r void
-@d ...
+@d Emits the named event and a variable number of arguments to pass to the event callbacks.
 ]=]
 function Emitter:emit(name, ...)
 	local listeners = self._listeners[name]
@@ -108,7 +111,7 @@ end
 @m getListeners
 @p name string
 @r function
-@d ...
+@d Returns an iterator for all callbacks registered to the named event.
 ]=]
 function Emitter:getListeners(name)
 	local listeners = self._listeners[name]
@@ -126,7 +129,7 @@ end
 @m getListenerCount
 @p name string
 @r number
-@d ...
+@d Returns the number of callbacks registered to the named event.
 ]=]
 function Emitter:getListenerCount(name)
 	local listeners = self._listeners[name]
@@ -144,7 +147,7 @@ end
 @m removeListener
 @p name string
 @r void
-@d ...
+@d Unregisters all instances of the callback from the named event.
 ]=]
 function Emitter:removeListener(name, fn)
 	local listeners = self._listeners[name]
@@ -161,7 +164,7 @@ end
 @m removeAllListeners
 @p name string
 @r void
-@d ...
+@d Unregisters all callbacks from the named event.
 ]=]
 function Emitter:removeAllListeners(name)
 	self._listeners[name] = nil
@@ -174,7 +177,7 @@ end
 @op predicate function
 @r boolean
 @r ...
-@d ...
+@d When called inside of a coroutine, this will yield the coroutine until the specific named event is emitted or until a timeout (in milliseconds) expires. If the coroutine is resumed by the event, then `true` is returned with any event arguments. If the coroutine is resumed by the timeout's expiration, then `false` is returned without any other arguments.
 ]=]
 function Emitter:waitFor(name, timeout, predicate)
 	local thread = running()

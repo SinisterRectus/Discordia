@@ -1,4 +1,7 @@
---[=[@c TableIterable x Iterable ...]=]
+--[=[
+@c TableIterable x Iterable
+@d description
+]=]
 
 local wrap, yield = coroutine.wrap, coroutine.yield
 

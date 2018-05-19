@@ -1,4 +1,9 @@
---[=[@c WeakCache x Cache ...]=]
+--[=[
+@c WeakCache x Cache
+@d Extends the functionality of a regular cache by making use of weak references
+to the objects that are cached. If all references to an object are weak, as they
+are here, then the object will be deleted on the next garbage collection cycle.
+]=]
 
 local Cache = require('iterables/Cache')
 local Iterable = require('iterables/Iterable')

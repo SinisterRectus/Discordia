@@ -1,4 +1,8 @@
---[=[@c Reaction x Container ...]=]
+--[=[
+@c Reaction x Container
+@d Represents an emoji that has been used to react to a Discord text message. Both
+standard and custom emojis can be used.
+]=]
 
 local json = require('json')
 local Container = require('containers/abstract/Container')
@@ -36,7 +40,10 @@ end
 @m getUsers
 @op limit number
 @r SecondaryCache
-@d ...
+@d Returns a newly constructed cache of all users that have used this reaction in
+its parent message. The cache is not automatically updated via gateway events,
+but the internally referenced user objects may be updated. You must call this
+method again to guarantee that the objects are update to date.
 ]=]
 function Reaction:getUsers(limit)
 	return getUsers(self, limit and {limit = limit})
@@ -47,7 +54,7 @@ end
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
-@d ...
+@d description
 ]=]
 function Reaction:getUsersBefore(id, limit)
 	id = Resolver.userId(id)
@@ -59,7 +66,7 @@ end
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
-@d ...
+@d description
 ]=]
 function Reaction:getUsersAfter(id, limit)
 	id = Resolver.userId(id)
@@ -70,23 +77,24 @@ end
 @m delete
 @op id User-ID-Resolvable
 @r boolean
-@d ...
+@d Equivalent to `Reaction.message:removeReaction(Reaction)`
 ]=]
 function Reaction:delete(id)
 	return self._parent:removeReaction(self, id)
 end
 
---[=[@p emojiId string|nil ...]=]
+--[=[@p emojiId string|nil The ID of the emoji used in this reaction if it is a custom emoji.]=]
 function get.emojiId(self)
 	return self._emoji_id
 end
 
---[=[@p emojiName string ...]=]
+--[=[@p emojiName string The name of the emoji used in this reaction if it is a custom emoji. Otherwise,
+this will be the raw string for a standard emoji.]=]
 function get.emojiName(self)
 	return self._emoji_name
 end
 
---[=[@p emojiHash string ...]=]
+--[=[@p emojiHash description]=]
 function get.emojiHash(self)
 	if self._emoji_id then
 		return self._emoji_name .. ':' .. self._emoji_id
@@ -95,23 +103,24 @@ function get.emojiHash(self)
 	end
 end
 
---[=[@p emojiURL string|nil ...]=]
+--[=[@p emojiURL string|nil string The URL that can be used to view a full version of the emoji used in this
+reaction if it is a custom emoji.]=]
 function get.emojiURL(self)
 	local id = self._emoji_id
 	return id and format('https://cdn.discordapp.com/emojis/%s.png', id) or nil
 end
 
---[=[@p me boolean ...]=]
+--[=[@p me boolean Whether the current user has used this reaction.]=]
 function get.me(self)
 	return self._me
 end
 
---[=[@p count number ...]=]
+--[=[@p count number The total number of users that have used this reaction.]=]
 function get.count(self)
 	return self._count
 end
 
---[=[@p message Message ...]=]
+--[=[@p message Message The message on which this reaction exists.]=]
 function get.message(self)
 	return self._parent
 end

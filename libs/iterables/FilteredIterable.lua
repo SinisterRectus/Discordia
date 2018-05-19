@@ -1,4 +1,8 @@
---[=[@c FilteredIterable x Iterable ...]=]
+--[=[
+@c FilteredIterable x Iterable
+@d Iterable class that wraps another iterable and serves a subset of the objects
+that the original iterable contains.
+]=]
 
 local Iterable = require('iterables/Iterable')
 
@@ -12,7 +16,8 @@ end
 --[=[
 @m iter
 @r function
-@d ...
+@d Returns an iterator that returns all contained objects. The order of the objects
+is not guaranteed.
 ]=]
 function FilteredIterable:iter()
 	return self._base:findAll(self._predicate)

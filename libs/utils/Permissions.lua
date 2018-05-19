@@ -1,4 +1,7 @@
---[=[@c Permissions ...]=]
+--[=[
+@c Permissions
+@d Wrapper for a bitfield that is more specifically used to represent Discord permissions. See the `permission` enumeration for acceptable permission values.
+]=]
 
 local enums = require('enums')
 local Resolver = require('client/Resolver')
@@ -51,7 +54,7 @@ end
 @m enable
 @p ... Permissions-Resolvable
 @r void
-@d ...
+@d Enables a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:enable(...)
 	local value = self._value
@@ -66,7 +69,7 @@ end
 @m disable
 @p ... Permissions-Resolvable
 @r void
-@d ...
+@d Disables a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:disable(...)
 	local value = self._value
@@ -81,7 +84,7 @@ end
 @m has
 @p ... Permissions-Resolvable
 @r boolean
-@d ...
+@d Returns whether this set has a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:has(...)
 	local value = self._value
@@ -97,7 +100,7 @@ end
 --[=[
 @m enableAll
 @r void
-@d ...
+@d Enables all permissions values.
 ]=]
 function Permissions:enableAll()
 	self._value = ALL
@@ -106,7 +109,7 @@ end
 --[=[
 @m disableAll
 @r void
-@d ...
+@d Disables all permissions values.
 ]=]
 function Permissions:disableAll()
 	self._value = 0
@@ -115,7 +118,7 @@ end
 --[=[
 @m toHex
 @r string
-@d ...
+@d Returns the hexadecimal string that represents the permissions value.
 ]=]
 function Permissions:toHex()
 	return format('0x%08X', self._value)
@@ -124,7 +127,7 @@ end
 --[=[
 @m toTable
 @r table
-@d ...
+@d Returns a table that represents the permissions value, where the keys are the permission names and the values are `true` or `false`.
 ]=]
 function Permissions:toTable()
 	local ret = {}
@@ -138,7 +141,7 @@ end
 --[=[
 @m toArray
 @r table
-@d ...
+@d Returns an array of the names of the permissions that this objects represents.
 ]=]
 function Permissions:toArray()
 	local ret = {}
@@ -155,7 +158,7 @@ end
 @m union
 @p other Permissions
 @r Permissions
-@d ...
+@d Returns a new Permissions object that contains the permissions that are in either `self` or `other` (bitwise OR).
 ]=]
 function Permissions:union(other)
 	return Permissions(bor(self._value, other._value))
@@ -165,7 +168,7 @@ end
 @m intersection
 @p other Permissions
 @r Permissions
-@d ...
+@d Returns a new Permissions object that contains the permissions that are in both `self` and `other` (bitwise AND).
 ]=]
 function Permissions:intersection(other) -- in both
 	return Permissions(band(self._value, other._value))
@@ -175,7 +178,7 @@ end
 @m name
 @p other Permissions
 @r Permissions
-@d ...
+@d Returns a new Permissions object that contains the permissions that are not in `self` or `other` (bitwise XOR).
 ]=]
 function Permissions:difference(other) -- not in both
 	return Permissions(bxor(self._value, other._value))
@@ -185,7 +188,7 @@ end
 @m complement
 @p other Permissions
 @r Permissions
-@d ...
+@d Returns a new Permissions object that contains the permissions that are not in `self`, but are in `other` (or the set of all permissions if omitted).
 ]=]
 function Permissions:complement(other) -- in other not in self
 	local value = other and other._value or ALL
@@ -195,13 +198,13 @@ end
 --[=[
 @m copy
 @r Permissions
-@d ...
+@d Returns a new copy of the original permissions object.
 ]=]
 function Permissions:copy()
 	return Permissions(self._value)
 end
 
---[=[@p value number ...]=]
+--[=[@p value number The raw decimal value that represents the permissions value.]=]
 function get.value(self)
 	return self._value
 end

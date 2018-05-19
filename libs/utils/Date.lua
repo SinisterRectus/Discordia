@@ -1,4 +1,9 @@
---[=[@c Date ...]=]
+--[=[
+@ic Date
+@op seconds number
+@op microseconds number
+@d Represents a single moment in time and provides utilities for converting to and from different date and time formats. Although microsecond precision is available, most formats are implemented with only second precision.
+]=]
 
 local class = require('class')
 local constants = require('constants')
@@ -178,7 +183,7 @@ end
 @op sep string
 @op tz string
 @r string
-@d ...
+@d Returns an ISO 8601 string that represents the stored date and time. If `sep` and `tz` are both provided, then they are used as a custom separator and timezone; otherwise, `T` is used for the separator and `+00:00` is used for the timezone, plus microseconds if available.
 ]=]
 function Date:toISO(sep, tz)
 	if sep and tz then
@@ -196,7 +201,7 @@ end
 --[=[
 @m toSnowflake
 @r string
-@d ...
+@d Returns an RFC 2822 string that represents the stored date and time.
 ]=]
 function Date:toHeader()
 	return date('!%a, %d %b %Y %T GMT', self._s)
@@ -205,7 +210,7 @@ end
 --[=[
 @m toSnowflake
 @r string
-@d ...
+@d Returns a synthetic Discord Snowflake ID based on the stored date and time. Note that `Date.fromSnowflake(id):toSnowflake()` will most likely not return the original Snowflake.
 ]=]
 function Date:toSnowflake()
 	return format('%i', (self:toMilliseconds() - DISCORD_EPOCH) * 2^22)
@@ -214,7 +219,7 @@ end
 --[=[
 @m toTable
 @r table
-@d ...
+@d Returns a Lua date table that represents the stored date and time as a local time. Equivalent to `os.date('*t', s)` where `s` is the Unix time in seconds.
 ]=]
 function Date:toTable()
 	return date('*t', self._s)
@@ -223,7 +228,7 @@ end
 --[=[
 @m toTableUTC
 @r table
-@d ...
+@d Returns a Lua date table that represents the stored date and time as a UTC time. Equivalent to `os.date('!*t', s)` where `s` is the Unix time in seconds.
 ]=]
 function Date:toTableUTC()
 	return date('!*t', self._s)
@@ -232,7 +237,7 @@ end
 --[=[
 @m toSeconds
 @r number
-@d ...
+@d Returns a Unix time in seconds that represents the stored date and time.
 ]=]
 function Date:toSeconds()
 	return self._s + self._us / US_PER_S
@@ -241,7 +246,7 @@ end
 --[=[
 @m toMilliseconds
 @r number
-@d ...
+@d Returns a Unix time in milliseconds that represents the stored date and time.
 ]=]
 function Date:toMilliseconds()
 	return self._s * MS_PER_S + self._us / US_PER_MS
@@ -250,7 +255,7 @@ end
 --[=[
 @m toMicroseconds
 @r number
-@d ...
+@d Returns a Unix time in microseconds that represents the stored date and time.
 ]=]
 function Date:toMicroseconds()
 	return self._s * US_PER_S + self._us
@@ -260,7 +265,7 @@ end
 @m toParts
 @r number
 @r number
-@d ...
+@d Returns the seconds and microseconds that are stored in the date object.
 ]=]
 function Date:toParts()
 	return self._s, self._us

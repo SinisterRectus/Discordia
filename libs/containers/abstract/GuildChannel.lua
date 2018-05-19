@@ -1,4 +1,8 @@
---[=[@abc GuildChannel x Channel ...]=]
+--[=[
+@c GuildChannel x Channel
+@d Abstract base class that defines the base methods and/or properties for all
+Discord guild channels.
+]=]
 
 local json = require('json')
 local enums = require('enums')
@@ -39,7 +43,7 @@ end
 @m setName
 @p name string
 @r boolean
-@d ...
+@d Sets the channel's name. This must be between 2 and 100 characters in length.
 ]=]
 function GuildChannel:setName(name)
 	return self:_modify({name = name or json.null})
@@ -49,7 +53,7 @@ end
 @m setCategory
 @p id Channel-ID-Resolvable
 @r boolean
-@d ...
+@d Sets the channel's parent category.
 ]=]
 function GuildChannel:setCategory(id)
 	id = Resolver.channelId(id)
@@ -99,7 +103,9 @@ end
 @m moveUp
 @p n number
 @r boolean
-@d ...
+@d Moves a channel up its list. The parameter `n` indicates how many spaces the
+channel should be moved, clamped to the highest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all channels.
 ]=]
 function GuildChannel:moveUp(n)
 
@@ -131,7 +137,9 @@ end
 @m moveDown
 @p n number
 @r boolean
-@d ...
+@d Moves a channel down its list. The parameter `n` indicates how many spaces the
+channel should be moved, clamped to the lowest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all channels.
 ]=]
 function GuildChannel:moveDown(n)
 
@@ -163,7 +171,11 @@ end
 @m createInvite
 @p payload table
 @r Invite
-@d ...
+@d Creates an invite to the channel. Optional payload fields are:
+- max_age:number time in seconds until expiration, default = 86400 (24 hours)
+- max_uses:number total number of uses allowed, default = 0 (unlimited)
+- temporary:boolean whether the invite grants temporary membership, default = false
+- unique:boolean whether a unique code should be guaranteed, default = false
 ]=]
 function GuildChannel:createInvite(payload)
 	local data, err = self.client._api:createChannelInvite(self._id, payload)
@@ -177,7 +189,9 @@ end
 --[=[
 @m getInvites
 @r Cache
-@d ...
+@d Returns a newly constructed cache of all invite objects for the channel. The
+cache and its objects are not automatically updated via gateway events. You must
+call this method again to get the updated objects.
 ]=]
 function GuildChannel:getInvites()
 	local data, err = self.client._api:getChannelInvites(self._id)
@@ -192,7 +206,11 @@ end
 @m getPermissionOverwriteFor
 @p obj Role|Member
 @r PermissionOverwrite
-@d ...
+@d Returns a permission overwrite object corresponding to the provided member or
+role object. If a cached overwrite is not found, an empty overwrite with
+zero-permissions is returned instead. Therefore, this can be used to create a
+new overwrite when one does not exist. Note that the member or role must exist
+in the same guild as the channel does.
 ]=]
 function GuildChannel:getPermissionOverwriteFor(obj)
 	local id, type
@@ -212,33 +230,34 @@ end
 --[=[
 @m delete
 @r boolean
-@d ...
+@d Permanently deletes the channel. This cannot be undone!
 ]=]
 function GuildChannel:delete()
 	return self:_delete()
 end
 
---[=[@p permissionOverwrites Cache ...]=]
+--[=[@p permissionOverwrites Cache An iterable cache of all overwrites that exist in this channel. To access an
+overwrite that may exist, but is not cached, use `GuildChannel:getPermissionOverwriteFor`.]=]
 function get.permissionOverwrites(self)
 	return self._permission_overwrites
 end
 
---[=[@p name string ...]=]
+--[=[@p name string The name of the channel. This should be between 2 and 100 characters in length.]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p position number ...]=]
+--[=[@p position number The position of the channel, where 0 is the highest.]=]
 function get.position(self)
 	return self._position
 end
 
---[=[@p guild Guild ...]=]
+--[=[@p guild Guild The guild in which this channel exists.]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p category GuildCategoryChannel|nil ...]=]
+--[=[@p category GuildCategoryChannel|nil The parent channel category that may contain this channel.]=]
 function get.category(self)
 	return self._parent._categories:get(self._parent_id)
 end
