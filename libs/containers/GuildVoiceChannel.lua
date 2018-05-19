@@ -94,7 +94,7 @@ function get.bitrate(self)
 	return self._bitrate
 end
 
---[=[@p userLimit number ...]=]
+--[=[@p userLimit number description]=]
 function get.userLimit(self)
 	return self._user_limit
 end

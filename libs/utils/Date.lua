@@ -71,7 +71,7 @@ end
 --[=[
 @m toString
 @r string
-@d ...
+@d description
 ]=]
 function Date:toString()
 	return date('%a %b %d %Y %T GMT%z (%Z)', self._s)

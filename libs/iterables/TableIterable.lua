@@ -17,7 +17,7 @@ end
 --[=[
 @m iter
 @r function
-@d ...
+@d description
 ]=]
 function TableIterable:iter()
 	local tbl = self._tbl
