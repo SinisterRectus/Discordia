@@ -346,16 +346,18 @@ function EventHandler.MESSAGE_DELETE(d, client) -- message object not provided
 end
 
 function EventHandler.MESSAGE_DELETE_BULK(d, client)
+	local messages = {}
 	local channel = getChannel(client, d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE_BULK') end
 	for _, id in ipairs(d.ids) do
 		local message = channel._messages:_delete(id)
 		if message then
-			client:emit('messageDelete', message)
+			table.insert(messages, message)
 		else
-			client:emit('messageDeleteUncached', channel, id)
+			table.insert(messages, {id = id, channel = channel, uncached = true})
 		end
 	end
+	return client:emit("messageDeleteBulk", messages)
 end
 
 function EventHandler.MESSAGE_REACTION_ADD(d, client)
