@@ -352,10 +352,29 @@ function EventHandler.MESSAGE_DELETE_BULK(d, client)
 	for _, id in ipairs(d.ids) do
 		local message = channel._messages:_delete(id)
 		if message then
+			client:emit('messageDelete', message)
 			table.insert(messages, message)
 		else
+			client:emit('messageDeleteUncached', channel, id)
 			table.insert(messages, {id = id, channel = channel, uncached = true})
 		end
+	end
+
+	local deprecatedEvent
+	if client._emitter._listeners["messageDelete"] then
+		deprecatedEvent = "messageDelete"
+	elseif client._emitter._listeners["messageDeleteUncached"] then
+		deprecatedEvent = "messageDeleteUncached"
+	end
+
+	if deprecatedEvent then
+		local info = debug.getinfo(1)
+		client:warning(
+			'%s:%s: The usage of %s for BulkDelete is deprecated; use messageDeleteBulk event instead.',
+			info.short_src,
+			info.currentline,
+			deprecatedEvent
+		)
 	end
 	return client:emit("messageDeleteBulk", messages)
 end
