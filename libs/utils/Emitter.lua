@@ -11,6 +11,7 @@ local Emitter = require('class')('Emitter')
 
 function Emitter:__init()
 	self._listeners = {}
+	return self
 end
 
 local function new(self, name, listener)
