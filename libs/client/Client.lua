@@ -89,7 +89,7 @@ end
 local Client, get = require('class')('Client', Emitter)
 
 function Client:__init(options)
-	Emitter.__init(self)
+	self._emitter = Emitter.__init(self)
 	options = parseOptions(options)
 	self._options = options
 	self._shards = {}
@@ -119,7 +119,7 @@ end
 function Client:_deprecated(clsName, before, after)
 	local info = debug.getinfo(3)
 	return self:warning(
-		'%s:%s: %s.%s is deprecated; use %s.%s instead',
+		'%s:%s: %s.%s is deprecated; use %s.%s instead.',
 		info.short_src,
 		info.currentline,
 		clsName,
