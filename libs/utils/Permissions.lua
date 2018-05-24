@@ -53,7 +53,7 @@ end
 --[=[
 @m enable
 @p ... Permissions-Resolvable
-@r void
+@r nil
 @d Enables a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:enable(...)
@@ -68,7 +68,7 @@ end
 --[=[
 @m disable
 @p ... Permissions-Resolvable
-@r void
+@r nil
 @d Disables a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:disable(...)
@@ -99,7 +99,7 @@ end
 
 --[=[
 @m enableAll
-@r void
+@r nil
 @d Enables all permissions values.
 ]=]
 function Permissions:enableAll()
@@ -108,7 +108,7 @@ end
 
 --[=[
 @m disableAll
-@r void
+@r nil
 @d Disables all permissions values.
 ]=]
 function Permissions:disableAll()

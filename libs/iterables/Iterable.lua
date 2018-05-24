@@ -81,7 +81,7 @@ end
 --[=[
 @m forEach
 @p fn function
-@r void
+@r nil
 @d Iterates through all objects and calls a function `fn` that takes the
 objects as an argument.
 ]=]

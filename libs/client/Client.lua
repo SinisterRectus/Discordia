@@ -268,7 +268,7 @@ end
 @m run
 @p token string
 @op presence table
-@r void
+@r nil
 @d Authenticates the current user via HTTPS and launches as many WSS gateway
 shards as are required or requested. By using coroutines that are automatically
 managed by Luvit libraries and a libuv event loop, multiple clients per process
@@ -282,7 +282,7 @@ end
 
 --[=[
 @m stop
-@r void
+@r nil
 @d Disconnects all shards and effectively stop their loops. This does not
 empty any data that the client may have cached.
 ]=]
@@ -512,7 +512,7 @@ end
 --[=[
 @m setStatus
 @p status string
-@r void
+@r nil
 @d Sets the current users's status on all shards that are managed by this client.
 Valid statuses are `online`, `idle`, `dnd`, and `invisible`.
 ]=]
@@ -534,7 +534,7 @@ end
 --[=[
 @m setGame
 @p game string|table
-@r void
+@r nil
 @d Sets the current users's game on all shards that are managed by this client. If
 a string is passed, it is treated as the game name. If a table is passed, it
 must have a `name` field and may optionally have a `url` field. Pass `nil` to
@@ -565,7 +565,7 @@ end
 --[=[
 @m setAFK
 @p afk boolean
-@r void
+@r nil
 @d Set the current user's AFK status on all shards that are managed by this client.
 This generally applies to user accounts and their push notifications.
 ]=]

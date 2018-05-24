@@ -74,7 +74,7 @@ end
 @m emit
 @p name string
 @op ... *
-@r void
+@r nil
 @d Emits the named event and a variable number of arguments to pass to the event callbacks.
 ]=]
 function Emitter:emit(name, ...)
@@ -146,7 +146,7 @@ end
 --[=[
 @m removeListener
 @p name string
-@r void
+@r nil
 @d Unregisters all instances of the callback from the named event.
 ]=]
 function Emitter:removeListener(name, fn)
@@ -163,7 +163,7 @@ end
 --[=[
 @m removeAllListeners
 @p name string
-@r void
+@r nil
 @d Unregisters all callbacks from the named event.
 ]=]
 function Emitter:removeAllListeners(name)

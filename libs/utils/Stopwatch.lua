@@ -25,7 +25,7 @@ end
 
 --[=[
 @m stop
-@r void
+@r nil
 @d Effectively stops the stopwatch.
 ]=]
 function Stopwatch:stop()
@@ -35,7 +35,7 @@ end
 
 --[=[
 @m start
-@r void
+@r nil
 @d Effectively starts the stopwatch.
 ]=]
 function Stopwatch:start()
@@ -46,7 +46,7 @@ end
 
 --[=[
 @m reset
-@r void
+@r nil
 @d Effectively resets the stopwatch.
 ]=]
 function Stopwatch:reset()

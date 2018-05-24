@@ -18,7 +18,7 @@ end
 --[=[
 @m start
 @op utc boolean
-@r void
+@r nil
 @d Starts the main loop for the clock. If a truthy argument is passed, then UTC time is used; otherwise, local time is used. As the clock ticks, an event is emitted for every `os.date` value change. The event name is the key of the value that changed and the event argument is the corresponding date table.
 ]=]
 function Clock:start(utc)
@@ -38,7 +38,7 @@ end
 
 --[=[
 @m stop
-@r void
+@r nil
 @d Stops the main loop for the clock.
 ]=]
 function Clock:stop()

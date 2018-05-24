@@ -21,7 +21,7 @@ end
 --[=[
 @m lock
 @op prepend boolean
-@r void
+@r nil
 @d If the mutex is not active (if a coroutine is not queued), this will activate the mutex; otherwise, this will yield and queue the current coroutine.
 ]=]
 function Mutex:lock(prepend)
@@ -38,7 +38,7 @@ end
 
 --[=[
 @m unlock
-@r void
+@r nil
 @d If the mutex is active (if a coroutine is queued), this will dequeue and resume the next available coroutine; otherwise, this will deactivate the mutex.
 ]=]
 function Mutex:unlock()

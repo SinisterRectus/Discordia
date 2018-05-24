@@ -236,7 +236,7 @@ end
 
 --[=[
 @m setRed
-@r void
+@r nil
 @d Sets the color's red-level.
 ]=]
 function Color:setRed(r)
@@ -245,7 +245,7 @@ end
 
 --[=[
 @m setGreen
-@r void
+@r nil
 @d Sets the color's green-level.
 ]=]
 function Color:setGreen(g)
@@ -254,7 +254,7 @@ end
 
 --[=[
 @m setBlue
-@r void
+@r nil
 @d Sets the color's blue-level.
 ]=]
 function Color:setBlue(b)

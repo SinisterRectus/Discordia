@@ -23,7 +23,7 @@ end
 --[=[
 @m pushLeft
 @p obj *
-@r void
+@r nil
 @d Adds a value of any type to the left side of the deque.
 ]=]
 function Deque:pushLeft(obj)
@@ -34,7 +34,7 @@ end
 --[=[
 @m pushRight
 @p obj *
-@r void
+@r nil
 @d Adds a value of any type to the right side of the deque.
 ]=]
 function Deque:pushRight(obj)
