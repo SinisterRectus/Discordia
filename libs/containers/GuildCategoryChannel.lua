@@ -20,7 +20,7 @@ end
 @m createTextChannel
 @p name string
 @r GuildTextChannel
-@d description
+@d Creates a new GuildTextChannel with this category as it's parent. `Guild:createTextChannel(name)`
 ]=]
 function GuildCategoryChannel:createTextChannel(name)
 	local guild = self._parent
@@ -40,7 +40,7 @@ end
 @m createVoiceChannel
 @p name string
 @r GuildVoiceChannel
-@d description
+@d Creates a new GuildVoiceChannel with this category as it's parent. Similar to `Guild:createVoiceChannel(name)`
 ]=]
 function GuildCategoryChannel:createVoiceChannel(name)
 	local guild = self._parent

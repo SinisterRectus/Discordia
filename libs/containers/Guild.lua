@@ -731,12 +731,12 @@ function get.afkChannel(self)
 	return self._voice_channels:get(self._afk_channel_id)
 end
 
---[=[@p systemChannelId string|nil description]=]
+--[=[@p systemChannelId string|nil The channel id where Discord's join messages will be displayed]=]
 function get.systemChannelId(self)
 	return self._system_channel_id
 end
 
---[=[@p systemChannel GuildTextChannel|nil description]=]
+--[=[@p systemChannel GuildTextChannel|nil The channel where Discord's join messages will be displayed]=]
 function get.systemChannel(self)
 	return self._text_channels:get(self._system_channel_id)
 end

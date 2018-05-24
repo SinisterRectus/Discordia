@@ -49,7 +49,7 @@ end
 @m setName
 @p name string
 @r boolean
-@d description
+@d Sets the emoji's name. The name must be between 2 and 32 characters in length.
 ]=]
 function Emoji:setName(name)
 	return self:_modify({name = name or json.null})
@@ -59,7 +59,7 @@ end
 @m setRoles
 @p roles Role-ID-Resolvables
 @r boolean
-@d description
+@d Sets the roles that can use the emoji.
 ]=]
 function Emoji:setRoles(roles)
 	roles = Resolver.roleIds(roles)
@@ -69,7 +69,7 @@ end
 --[=[
 @m delete
 @r boolean
-@d description
+@d Permanently deletes the emoji. This cannot be undone!
 ]=]
 function Emoji:delete()
 	local data, err = self.client._api:deleteGuildEmoji(self._parent._id, self._id)
@@ -88,7 +88,7 @@ end
 @m hasRole
 @p id Role-ID-Resolvable
 @r boolean
-@d description
+@d Returns whether or not the provided role is allowed to use the emoji.
 ]=]
 function Emoji:hasRole(id)
 	id = Resolver.roleId(id)
@@ -143,12 +143,12 @@ function get.hash(self)
 	return self._name .. ':' .. self._id
 end
 
---[=[@p animated boolean description]=]
+--[=[@p animated boolean Whether this emoji is animated. (a .gif)]=]
 function get.animated(self)
 	return self._animated
 end
 
---[=[@p roles ArrayIterable description]=]
+--[=[@p roles ArrayIterable An iterable of roles that have access to the emoji.]=]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles

@@ -144,12 +144,12 @@ function get.revoked(self)
 	return self._revoked
 end
 
---[=[@p approximatePresenceCount number|nil description]=]
+--[=[@p approximatePresenceCount number|nil The approximate count of online members.]=]
 function get.approximatePresenceCount(self)
 	return self._approximate_presence_count
 end
 
---[=[@p approximateMemberCount number|nil description]=]
+--[=[@p approximateMemberCount number|nil The approximate count of all members.]=]
 function get.approximateMemberCount(self)
 	return self._approximate_member_count
 end

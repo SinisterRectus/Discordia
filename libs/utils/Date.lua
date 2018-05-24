@@ -71,7 +71,7 @@ end
 --[=[
 @m toString
 @r string
-@d description
+@d Returns a string from this Date object in human-readable form.
 ]=]
 function Date:toString()
 	return date('%a %b %d %Y %T GMT%z (%Z)', self._s)

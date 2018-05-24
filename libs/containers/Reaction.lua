@@ -54,7 +54,10 @@ end
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
-@d description
+@d Returns a newly constructed cache of all users that have used this reaction before the specified id in
+its parent message. The cache is not automatically updated via gateway events,
+but the internally referenced user objects may be updated. You must call this
+method again to guarantee that the objects are update to date.
 ]=]
 function Reaction:getUsersBefore(id, limit)
 	id = Resolver.userId(id)
@@ -66,7 +69,10 @@ end
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
-@d description
+@d Returns a newly constructed cache of all users that have used this reaction after the specified id in
+its parent message. The cache is not automatically updated via gateway events,
+but the internally referenced user objects may be updated. You must call this
+method again to guarantee that the objects are update to date.
 ]=]
 function Reaction:getUsersAfter(id, limit)
 	id = Resolver.userId(id)
@@ -94,7 +100,7 @@ function get.emojiName(self)
 	return self._emoji_name
 end
 
---[=[@p emojiHash description]=]
+--[=[@p emojiHash The discord hash for the emoji, or Unicode string if it is not custom.]=]
 function get.emojiHash(self)
 	if self._emoji_id then
 		return self._emoji_name .. ':' .. self._emoji_id

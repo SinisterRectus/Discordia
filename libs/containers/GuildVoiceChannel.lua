@@ -42,7 +42,7 @@ end
 --[=[
 @m join
 @r VoiceConnection
-@d description
+@d Join this channel and form a connection to the Voice Gateway.
 ]=]
 function GuildVoiceChannel:join()
 
@@ -94,7 +94,7 @@ function get.bitrate(self)
 	return self._bitrate
 end
 
---[=[@p userLimit number description]=]
+--[=[@p userLimit number The amount of users allowed to be in this channel. Users with `moveMembers` permission ignore this limit.]=]
 function get.userLimit(self)
 	return self._user_limit
 end
@@ -111,7 +111,7 @@ function get.connectedMembers(self)
 	return self._members
 end
 
---[=[@p connection type description]=]
+--[=[@p connection VoiceConnection|nil The VoiceConnection for this channel if one exists.]=]
 function get.connection(self)
 	return self._connection
 end

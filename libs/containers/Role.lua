@@ -351,7 +351,7 @@ function get.members(self)
 	return self._members
 end
 
---[=[@p emojis type description]=]
+--[=[@p emojis type An iterable of all emojis this Role has access to and can use.]=]
 function get.emojis(self)
 	if not self._emojis then
 		self._emojis = FilteredIterable(self._parent._emojis, function(e)

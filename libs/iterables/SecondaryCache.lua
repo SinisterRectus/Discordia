@@ -63,7 +63,7 @@ end
 --[=[
 @m iter
 @r function
-@d Returns an iterator that returns all contained object. The order of the objects
+@d Returns an iterator that returns all contained objects. The order of the objects
 is not guaranteed.
 ]=]
 function SecondaryCache:iter()

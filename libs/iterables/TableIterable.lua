@@ -17,7 +17,7 @@ end
 --[=[
 @m iter
 @r function
-@d description
+@d Returns an iterator that returns all contained objects. The order of the objects is not guaranteed.
 ]=]
 function TableIterable:iter()
 	local tbl = self._tbl
