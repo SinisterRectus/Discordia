@@ -82,10 +82,26 @@ function Color:__div(other)
 	end
 end
 
+--[=[
+@sm fromHex
+@p hex string
+@r Color
+@d Constructs a new Color object from a hexadecimal string. The string may or may
+not be prefixed by `#`; all other characters are interpreted as a hex string.
+]=]
 function Color.fromHex(hex)
 	return Color(tonumber(hex:match('#?(.*)'), 16))
 end
 
+--[=[
+@sm fromRGB
+@p r number
+@p g number
+@p b number
+@r Color
+@d Constructs a new Color object from RGB color values. Values are allowed to
+overflow, though one component will not overflow to the next component.
+]=]
 function Color.fromRGB(r, g, b)
 	r = band(lshift(r, 16), 0xFF0000)
 	g = band(lshift(g, 8), 0x00FF00)
@@ -136,6 +152,15 @@ local function toHue(r, g, b)
 	return h, d, mx, mn
 end
 
+--[=[
+@sm fromHSV
+@p h number
+@p s number
+@p v number
+@r Color
+@d Constructs a new Color object from HSV color values. Hue is allowed to overflow
+while saturation and value are clamped to [0, 1].
+]=]
 function Color.fromHSV(h, s, v)
 	h = h % 360
 	s = clamp(s, 0, 1)
@@ -146,6 +171,15 @@ function Color.fromHSV(h, s, v)
 	return Color.fromRGB(r, g, b)
 end
 
+--[=[
+@sm fromHSL
+@p h number
+@p s number
+@p l number
+@r Color
+@d Constructs a new Color object from HSL color values. Hue is allowed to overflow
+while saturation and lightness are clamped to [0, 1].
+]=]
 function Color.fromHSL(h, s, l)
 	h = h % 360
 	s = clamp(s, 0, 1)

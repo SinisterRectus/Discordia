@@ -115,30 +115,79 @@ function Time:__div(other)
 	end
 end
 
+--[=[
+@sm fromWeeks
+@p t number
+@r Time
+@d Constructs a new Time object from a value interpreted as weeks, where a week
+is equal to 7 days.
+]=]
 function Time.fromWeeks(t)
 	return Time(t * MS_PER_WEEK)
 end
 
+--[=[
+@sm fromDays
+@p t number
+@r Time
+@d Constructs a new Time object from a value interpreted as days, where a day is
+equal to 24 hours.
+]=]
 function Time.fromDays(t)
 	return Time(t * MS_PER_DAY)
 end
 
+--[=[
+@sm fromHours
+@p t number
+@r Time
+@d Constructs a new Time object from a value interpreted as hours, where an hour is
+equal to 60 minutes.
+]=]
 function Time.fromHours(t)
 	return Time(t * MS_PER_HOUR)
 end
 
+--[=[
+@sm fromMinutes
+@p t number
+@r Time
+@d Constructs a new Time object from a value interpreted as minutes, where a minute
+is equal to 60 seconds.
+]=]
 function Time.fromMinutes(t)
 	return Time(t * MS_PER_MIN)
 end
 
+--[=[
+@sm fromSeconds
+@p t number
+@r Time
+@d Constructs a new Time object from a value interpreted as seconds, where a second
+is equal to 1000 milliseconds.
+]=]
 function Time.fromSeconds(t)
 	return Time(t * MS_PER_S)
 end
 
+--[=[
+@sm fromMilliseconds
+@p t number
+@r Time
+@d Constructs a new Time object from a value interpreted as milliseconds, the base
+unit represented.
+]=]
 function Time.fromMilliseconds(t)
 	return Time(t)
 end
 
+--[=[
+@sm fromTable
+@p t table
+@r Time
+@d Constructs a new Time object from a table of time values where the keys are
+defined in the constructors above (eg: `weeks`, `days`, `hours`).
+]=]
 function Time.fromTable(t)
 	local n = 0
 	for k, v in pairs(from) do
