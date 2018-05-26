@@ -1,4 +1,9 @@
---[=[@c Member x UserPresence desc]=]
+--[=[
+@c Member x UserPresence
+@d Represents a Discord guild member. Though one user may be a member in more than
+one guild, each presence is represented by a different member object associated
+with that guild.
+]=]
 
 local enums = require('enums')
 local class = require('class')
@@ -50,10 +55,11 @@ local function predicate(role)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getColor
+@r Color
+@d Returns a color object that represents the member's color as determined by
+its highest colored role. If the member has no colored roles, then the default
+color with a value of 0 is returned.
 ]=]
 function Member:getColor()
 	local roles = {}
@@ -69,10 +75,14 @@ local function has(a, b, admin)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m hasPermission
+@op channel GuildChannel
+@p perm Permissions-Resolvable
+@r boolean
+@d Checks whether the member has a specific permission. If `channel` is omitted,
+then only guild-level permissions are checked. This is a relatively expensive
+operation. If you need to check multiple permissions at once, use the
+`getPermissions` method and check the resulting object.
 ]=]
 function Member:hasPermission(channel, perm)
 
@@ -158,10 +168,12 @@ function Member:hasPermission(channel, perm)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getPermissions
+@op channel GuildChannel
+@r Permissions
+@d Returns a permissions object that represents the member's total permissions for
+the guild, or for a specific channel if one is provided. If you just need to
+check one permission, use the `hasPermission` method.
 ]=]
 function Member:getPermissions(channel)
 
@@ -224,10 +236,11 @@ function Member:getPermissions(channel)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m addRole
+@p id Role-ID-Resolvable
+@r boolean
+@d Adds a role to the member. If the member already has the role, then no action is
+taken. Note that the everyone role cannot be explicitly added.
 ]=]
 function Member:addRole(id)
 	if self:hasRole(id) then return true end
@@ -247,10 +260,11 @@ function Member:addRole(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeRole
+@p id Role-ID-Resolvable
+@r boolean
+@d Removes a role from the member. If the member does not have the role, then no
+action is taken. Note that the everyone role cannot be removed.
 ]=]
 function Member:removeRole(id)
 	if not self:hasRole(id) then return true end
@@ -280,10 +294,11 @@ function Member:removeRole(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m hasRole
+@p id Role-ID-Resolvable
+@r boolean
+@d Checks whether the member has a specific role. This will return true for the
+guild's default role in addition to any explicitly assigned roles.
 ]=]
 function Member:hasRole(id)
 	id = Resolver.roleId(id)
@@ -300,10 +315,11 @@ function Member:hasRole(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setNickname
+@p nick string
+@r boolean
+@d Sets the member's nickname. This must be between 1 and 32 characters in length.
+Pass `nil` to remove the nickname.
 ]=]
 function Member:setNickname(nick)
 	nick = nick or ''
@@ -322,10 +338,13 @@ function Member:setNickname(nick)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setVoiceChannel
+@p id Channel-ID-Resolvable
+@r boolean
+@d Moves the member to a new voice channel, but only if the member has an active
+voice connection in the current guild. Due to complexities in voice state
+handling, the member's `voiceChannel` property will update asynchronously via
+WebSocket; not as a result of the HTTP request.
 ]=]
 function Member:setVoiceChannel(id)
 	id = Resolver.channelId(id)
@@ -338,10 +357,9 @@ function Member:setVoiceChannel(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m mute
+@r boolean
+@d Mutes the member in its guild.
 ]=]
 function Member:mute()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = true})
@@ -354,10 +372,9 @@ function Member:mute()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unmute
+@r boolean
+@d Unmutes the member in its guild.
 ]=]
 function Member:unmute()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {mute = false})
@@ -370,10 +387,9 @@ function Member:unmute()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m deafen
+@r boolean
+@d Deafens the member in its guild.
 ]=]
 function Member:deafen()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = true})
@@ -386,10 +402,9 @@ function Member:deafen()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m undeafen
+@r boolean
+@d Undeafens the member in its guild.
 ]=]
 function Member:undeafen()
 	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {deaf = false})
@@ -402,36 +417,38 @@ function Member:undeafen()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m kick
+@p reason string
+@r boolean
+@d Equivalent to `Member.guild:kickUser(Member.user, reason)`
 ]=]
 function Member:kick(reason)
 	return self._parent:kickUser(self._user, reason)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m ban
+@p reason string
+@p days number
+@r boolean
+@d Equivalent to `Member.guild:banUser(Member.user, reason, days)`
 ]=]
 function Member:ban(reason, days)
 	return self._parent:banUser(self._user, reason, days)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unban
+@p reason string
+@r boolean
+@d Equivalent to `Member.guild:unbanUser(Member.user, reason)`
 ]=]
 function Member:unban(reason)
 	return self._parent:unbanUser(self._user, reason)
 end
 
---[=[@p roles type desc]=]
+--[=[@p roles ArrayIterable An iterable array of guild roles that the member has. This does not explicitly
+include the default everyone role. Object order is not guaranteed.]=]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles
@@ -443,46 +460,50 @@ function get.roles(self)
 	return self._roles
 end
 
---[=[@p name type desc]=]
+--[=[@p name string If the member has a nickname, then this will be equivalent to that nickname.
+Otherwise, this is equivalent to `Member.user.username`.]=]
 function get.name(self)
 	return self._nick or self._user._username
 end
 
---[=[@p nickname type desc]=]
+--[=[@p nickname string|nil The member's nickname, if one is set.]=]
 function get.nickname(self)
 	return self._nick
 end
 
---[=[@p joinedAt type desc]=]
+--[=[@p joinedAt string|nil The date and time at which the current member joined the guild, represented as
+an ISO 8601 string plus microseconds when available. Member objects generated
+via presence updates lack this property.]=]
 function get.joinedAt(self)
 	return self._joined_at
 end
 
---[=[@p voiceChannel type desc]=]
+--[=[@p voiceChannel GuildVoiceChannel|nil The voice channel to which this member is connected in the current guild.]=]
 function get.voiceChannel(self)
 	local guild = self._parent
 	local state = guild._voice_states[self:__hash()]
 	return state and guild._voice_channels:get(state.channel_id)
 end
 
---[=[@p muted type desc]=]
+--[=[@p muted boolean Whether the member is voice muted in its guild.]=]
 function get.muted(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.mute or state.self_mute) or self._mute
 end
 
---[=[@p deafened type desc]=]
+--[=[@p deafened boolean Whether the member is voice deafened in its guild.]=]
 function get.deafened(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.deaf or state.self_deaf) or self._deaf
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild The guild in which this member exists.]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p highestRole type desc]=]
+--[=[@p highestRole Role The highest positioned role that the member has. If the member has no
+explicit roles, then this is equivalent to `Member.guild.defaultRole`.]=]
 function get.highestRole(self)
 	local ret
 	for role in self.roles:iter() do

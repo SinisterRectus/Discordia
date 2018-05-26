@@ -1,4 +1,8 @@
---[=[@c User x Snowflake desc]=]
+--[=[
+@c User x Snowflake
+@d Represents a single user of Discord, either a human or a bot, outside of any
+specific guild's context.
+]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local FilteredIterable = require('iterables/FilteredIterable')
@@ -14,10 +18,13 @@ function User:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getAvatarURL
+@op size number
+@op ext string
+@r string
+@d Returns a URL that can be used to view the user's full avatar. If provided, the
+size must be a power of 2 while the extension must be a valid image format. If
+the user does not have a custom avatar, the default URL is returned.
 ]=]
 function User:getAvatarURL(size, ext)
 	local avatar = self._avatar
@@ -34,10 +41,10 @@ function User:getAvatarURL(size, ext)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getDefaultAvatarURL
+@op size number
+@r string
+@d Returns a URL that can be used to view the user's default avatar.
 ]=]
 function User:getDefaultAvatarURL(size)
 	local avatar = self.defaultAvatar
@@ -49,10 +56,10 @@ function User:getDefaultAvatarURL(size)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getPrivateChannel
+@r PrivateChannel
+@d Returns a private channel that can be used to communicate with the user. If the
+channel is not cached an HTTP request is made to open one.
 ]=]
 function User:getPrivateChannel()
 	local id = self._id
@@ -71,10 +78,10 @@ function User:getPrivateChannel()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m send
+@p content string|table
+@r Message
+@d Equivalent to `User:getPrivateChannel():send(content)`
 ]=]
 function User:send(content)
 	local channel, err = self:getPrivateChannel()
@@ -86,10 +93,10 @@ function User:send(content)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m sendf
+@p content string
+@r Message
+@d Equivalent to `User:getPrivateChannel():sendf(content)`
 ]=]
 function User:sendf(content, ...)
 	local channel, err = self:getPrivateChannel()
@@ -100,63 +107,67 @@ function User:sendf(content, ...)
 	end
 end
 
---[=[@p bot type desc]=]
+--[=[@p bot boolean Whether this user is a bot.]=]
 function get.bot(self)
 	return self._bot or false
 end
 
---[=[@p name type desc]=]
+--[=[@p name string Equivalent to `User.username`.]=]
 function get.name(self)
 	return self._username
 end
 
---[=[@p username type desc]=]
+--[=[@p username string The name of the user. This should be between 2 and 32 characters in length.]=]
 function get.username(self)
 	return self._username
 end
 
---[=[@p discriminator type desc]=]
+--[=[@p discriminator number The discriminator of the user. This is a 4-digit string that is used to
+discriminate the user from other users with the same username.]=]
 function get.discriminator(self)
 	return self._discriminator
 end
 
---[=[@p tag type desc]=]
+--[=[@p tag string The user's username and discriminator concatenated by an `#`.]=]
 function get.tag(self)
 	return self._username .. '#' .. self._discriminator
 end
 
---[=[@p fullname type desc]=]
 function get.fullname(self)
 	self.client:_deprecated(self.__name, 'fullname', 'tag')
 	return self._username .. '#' .. self._discriminator
 end
 
---[=[@p avatar type desc]=]
+--[=[@p avatar string|nil The hash for the user's custom avatar, if one is set.]=]
 function get.avatar(self)
 	return self._avatar
 end
 
---[=[@p defaultAvatar type desc]=]
+--[=[@p defaultAvatar number The user's default avatar. See the `defaultAvatar` enumeration for a
+human-readable representation.]=]
 function get.defaultAvatar(self)
 	return self._discriminator % DEFAULT_AVATARS
 end
 
---[=[@p avatarURL type desc]=]
+--[=[@p avatarURL string Equivalent to the result of calling `User:getAvatarURL()`.]=]
 function get.avatarURL(self)
 	return self:getAvatarURL()
 end
 
---[=[@p defaultAvatarURL type desc]=]
+--[=[@p defaultAvatarURL string Equivalent to the result of calling `User:getDefaultAvatarURL()`.]=]
 function get.defaultAvatarURL(self)
 	return self:getDefaultAvatarURL()
 end
 
---[=[@p mentionString type desc]=]
+--[=[@p mentionString string A string that, when included in a message content, may resolve as user
+notification in the official Discord client.]=]
 function get.mentionString(self)
 	return format('<@%s>', self._id)
 end
 
---[=[@p mutualGuilds type desc]=]
+--[=[@p mutualGuilds FilteredIterable A iterable cache of all guilds where this user shares a membership with the
+current user. The guild must be cached on the current client and the user's
+member object must be cached in that guild in order for it to appear here.]=]
 function get.mutualGuilds(self)
 	if not self._mutual_guilds then
 		local id = self._id

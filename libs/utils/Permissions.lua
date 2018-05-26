@@ -1,4 +1,7 @@
---[=[@c Permissions desc]=]
+--[=[
+@c Permissions
+@d Wrapper for a bitfield that is more specifically used to represent Discord permissions. See the `permission` enumeration for acceptable permission values.
+]=]
 
 local enums = require('enums')
 local Resolver = require('client/Resolver')
@@ -48,10 +51,10 @@ local function getPerm(i, ...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m enable
+@p ... Permissions-Resolvable
+@r nil
+@d Enables a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:enable(...)
 	local value = self._value
@@ -63,10 +66,10 @@ function Permissions:enable(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m disable
+@p ... Permissions-Resolvable
+@r nil
+@d Disables a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:disable(...)
 	local value = self._value
@@ -78,10 +81,10 @@ function Permissions:disable(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m has
+@p ... Permissions-Resolvable
+@r boolean
+@d Returns whether this set has a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:has(...)
 	local value = self._value
@@ -95,40 +98,36 @@ function Permissions:has(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m enableAll
+@r nil
+@d Enables all permissions values.
 ]=]
 function Permissions:enableAll()
 	self._value = ALL
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m disableAll
+@r nil
+@d Disables all permissions values.
 ]=]
 function Permissions:disableAll()
 	self._value = 0
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toHex
+@r string
+@d Returns the hexadecimal string that represents the permissions value.
 ]=]
 function Permissions:toHex()
 	return format('0x%08X', self._value)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toTable
+@r table
+@d Returns a table that represents the permissions value, where the keys are the permission names and the values are `true` or `false`.
 ]=]
 function Permissions:toTable()
 	local ret = {}
@@ -140,10 +139,9 @@ function Permissions:toTable()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toArray
+@r table
+@d Returns an array of the names of the permissions that this objects represents.
 ]=]
 function Permissions:toArray()
 	local ret = {}
@@ -157,20 +155,20 @@ function Permissions:toArray()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m union
+@p other Permissions
+@r Permissions
+@d Returns a new Permissions object that contains the permissions that are in either `self` or `other` (bitwise OR).
 ]=]
 function Permissions:union(other)
 	return Permissions(bor(self._value, other._value))
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m intersection
+@p other Permissions
+@r Permissions
+@d Returns a new Permissions object that contains the permissions that are in both `self` and `other` (bitwise AND).
 ]=]
 function Permissions:intersection(other) -- in both
 	return Permissions(band(self._value, other._value))
@@ -178,19 +176,19 @@ end
 
 --[=[
 @m name
-@p name type
-@r type
-@d desc
+@p other Permissions
+@r Permissions
+@d Returns a new Permissions object that contains the permissions that are not in `self` or `other` (bitwise XOR).
 ]=]
 function Permissions:difference(other) -- not in both
 	return Permissions(bxor(self._value, other._value))
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m complement
+@p other Permissions
+@r Permissions
+@d Returns a new Permissions object that contains the permissions that are not in `self`, but are in `other` (or the set of all permissions if omitted).
 ]=]
 function Permissions:complement(other) -- in other not in self
 	local value = other and other._value or ALL
@@ -198,16 +196,15 @@ function Permissions:complement(other) -- in other not in self
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m copy
+@r Permissions
+@d Returns a new copy of the original permissions object.
 ]=]
 function Permissions:copy()
 	return Permissions(self._value)
 end
 
---[=[@p value type desc]=]
+--[=[@p value number The raw decimal value that represents the permissions value.]=]
 function get.value(self)
 	return self._value
 end

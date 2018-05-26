@@ -1,4 +1,8 @@
---[=[@c Role x Snowflake desc]=]
+--[=[
+@c Role x Snowflake
+@d Represents a Discord guild role, which is used to assign priority, permissions,
+and a color to guild members.
+]=]
 
 local json = require('json')
 local Snowflake = require('containers/abstract/Snowflake')
@@ -30,10 +34,9 @@ function Role:_modify(payload)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d Permanently deletes the role. This cannot be undone!
 ]=]
 function Role:delete()
 	local data, err = self.client._api:deleteGuildRole(self._parent._id, self._id)
@@ -81,10 +84,13 @@ local function setSortedRoles(self, roles)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m moveDown
+@p n number
+@r boolean
+@d Moves a role down its list. The parameter `n` indicates how many spaces the
+role should be moved, clamped to the lowest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all roles. Note that
+the default everyone role cannot be moved.
 ]=]
 function Role:moveDown(n) -- TODO: fix attempt to move roles that cannot be moved
 
@@ -113,10 +119,13 @@ function Role:moveDown(n) -- TODO: fix attempt to move roles that cannot be move
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m moveUp
+@p n number
+@r boolean
+@d Moves a role up its list. The parameter `n` indicates how many spaces the
+role should be moved, clamped to the highest position, with a default of 1 if
+it is omitted. This will also normalize the positions of all roles. Note that
+the default everyone role cannot be moved.
 ]=]
 function Role:moveUp(n) -- TODO: fix attempt to move roles that cannot be moved
 
@@ -145,20 +154,20 @@ function Role:moveUp(n) -- TODO: fix attempt to move roles that cannot be moved
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setName
+@p name string
+@r boolean
+@d Sets the role's name. The name must be between 1 and 100 characters in length.
 ]=]
 function Role:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setColor
+@p color Color-Resolvable
+@r boolean
+@d Sets the role's display color.
 ]=]
 function Role:setColor(color)
 	color = color and Resolver.color(color)
@@ -166,10 +175,10 @@ function Role:setColor(color)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setPermissions
+@p permissions Permissions-Resolvable
+@r boolean
+@d Sets the permissions that this role explicitly allows.
 ]=]
 function Role:setPermissions(permissions)
 	permissions = permissions and Resolver.permissions(permissions)
@@ -177,50 +186,48 @@ function Role:setPermissions(permissions)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m hoist
+@r boolean
+@d Causes members with this role to display above unhoisted roles in the member
+list.
 ]=]
 function Role:hoist()
 	return self:_modify({hoist = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unhoist
+@r boolean
+@d Causes member with this role to display amongst other unhoisted members.
 ]=]
 function Role:unhoist()
 	return self:_modify({hoist = false})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m enableMentioning
+@r boolean
+@d Allows anyone to mention this role in text messages.
 ]=]
 function Role:enableMentioning()
 	return self:_modify({mentionable = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m disableMentioning
+@r boolean
+@d Disallows anyone to mention this role in text messages.
 ]=]
 function Role:disableMentioning()
 	return self:_modify({mentionable = false})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m enablePermissions
+@p ... Permissions-Resolvables
+@r boolean
+@d Enables individual permissions for this role. This does not necessarily fully
+allow the permissions.
 ]=]
 function Role:enablePermissions(...)
 	local permissions = self:getPermissions()
@@ -229,10 +236,11 @@ function Role:enablePermissions(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m disablePermissions
+@p ... Permissions-Resolvables
+@r boolean
+@d Disables individual permissions for this role. This does not necessarily fully
+disallow the permissions.
 ]=]
 function Role:disablePermissions(...)
 	local permissions = self:getPermissions()
@@ -241,10 +249,10 @@ function Role:disablePermissions(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m enableAllPermissions
+@r boolean
+@d Enables all permissions for this role. This does not necessarily fully
+allow the permissions.
 ]=]
 function Role:enableAllPermissions()
 	local permissions = self:getPermissions()
@@ -253,10 +261,10 @@ function Role:enableAllPermissions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m disableAllPermissions
+@r boolean
+@d Disables all permissions for this role. This does not necessarily fully
+disallow the permissions.
 ]=]
 function Role:disableAllPermissions()
 	local permissions = self:getPermissions()
@@ -265,71 +273,75 @@ function Role:disableAllPermissions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getColor
+@r Color
+@d Returns a color object that represents the role's display color.
 ]=]
 function Role:getColor()
 	return Color(self._color)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getPermissions
+@r Permissions
+@d Returns a permissions object that represents the permissions that this role
+has enabled.
 ]=]
 function Role:getPermissions()
 	return Permissions(self._permissions)
 end
 
---[=[@p hoisted type desc]=]
+--[=[@p hoisted boolean Whether members with this role should be shown separated from other members
+in the guild member list.]=]
 function get.hoisted(self)
 	return self._hoist
 end
 
---[=[@p mentionable type desc]=]
+--[=[@p mentionable boolean Whether this role can be mentioned in a text channel message.]=]
 function get.mentionable(self)
 	return self._mentionable
 end
 
---[=[@p managed type desc]=]
+--[=[@p managed boolean Whether this role is managed by some integration or bot inclusion.]=]
 function get.managed(self)
 	return self._managed
 end
 
---[=[@p name type desc]=]
+--[=[@p name string The name of the role. This should be between 1 and 100 characters in length.]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p position type desc]=]
+--[=[@p position number The position of the role, where 0 is the lowest.]=]
 function get.position(self)
 	return self._position
 end
 
---[=[@p color type desc]=]
+--[=[@p color number Represents the display color of the role as a decimal value.]=]
 function get.color(self)
 	return self._color
 end
 
---[=[@p permissions type desc]=]
+--[=[@p permissions number Represents the total permissions of the role as a decimal value.]=]
 function get.permissions(self)
 	return self._permissions
 end
 
---[=[@p mentionString type desc]=]
+--[=[@p mentionString string A string that, when included in a message content, may resolve as a role
+notification in the official Discord client.]=]
 function get.mentionString(self)
 	return format('<@&%s>', self._id)
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild The guild in which this role exists.]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p members type desc]=]
+--[=[@p members FilteredIterable A filtered iterable of guild members that have this role. If you want to check
+whether a specific member has this role, it would be better to get the member
+object elsewhere and use `Member:hasRole` rather than check whether the member
+exists here.]=]
 function get.members(self)
 	if not self._members then
 		self._members = FilteredIterable(self._parent._members, function(m)
@@ -339,7 +351,7 @@ function get.members(self)
 	return self._members
 end
 
---[=[@p emojis type desc]=]
+--[=[@p emojis type An iterable of all emojis this Role has access to and can use.]=]
 function get.emojis(self)
 	if not self._emojis then
 		self._emojis = FilteredIterable(self._parent._emojis, function(e)

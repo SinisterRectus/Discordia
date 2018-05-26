@@ -1,4 +1,8 @@
---[=[@c Emoji x Snowflake desc]=]
+--[=[
+@c Emoji x Snowflake
+@d Represents a custom emoji object usable in message content and reactions.
+Standard unicode emojis do not have a class; they are just strings.
+]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local Resolver = require('client/Resolver')
@@ -42,20 +46,20 @@ function Emoji:_modify(payload)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setName
+@p name string
+@r boolean
+@d Sets the emoji's name. The name must be between 2 and 32 characters in length.
 ]=]
 function Emoji:setName(name)
 	return self:_modify({name = name or json.null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setRoles
+@p roles Role-ID-Resolvables
+@r boolean
+@d Sets the roles that can use the emoji.
 ]=]
 function Emoji:setRoles(roles)
 	roles = Resolver.roleIds(roles)
@@ -63,10 +67,9 @@ function Emoji:setRoles(roles)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d Permanently deletes the emoji. This cannot be undone!
 ]=]
 function Emoji:delete()
 	local data, err = self.client._api:deleteGuildEmoji(self._parent._id, self._id)
@@ -82,10 +85,10 @@ function Emoji:delete()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m hasRole
+@p id Role-ID-Resolvable
+@r boolean
+@d Returns whether or not the provided role is allowed to use the emoji.
 ]=]
 function Emoji:hasRole(id)
 	id = Resolver.roleId(id)
@@ -100,49 +103,52 @@ function Emoji:hasRole(id)
 	return false
 end
 
---[=[@p name type desc]=]
+--[=[@p name string The name of the emoji.]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild The guild in which the emoji exists.]=]
 function get.guild(self)
 	return self._parent
 end
 
---[=[@p mentionString type desc]=]
+--[=[@p mentionString string A string that, when included in a message content, may resolve as an emoji image
+in the official Discord client.]=]
 function get.mentionString(self)
 	local fmt = self._animated and '<a:%s>' or '<:%s>'
 	return format(fmt, self.hash)
 end
 
---[=[@p url type desc]=]
+--[=[@p url string The URL that can be used to view a full version of the emoji.]=]
 function get.url(self)
 	local ext = self._animated and 'gif' or 'png'
 	return format('https://cdn.discordapp.com/emojis/%s.%s', self._id, ext)
 end
 
---[=[@p managed type desc]=]
+--[=[@p managed boolean Whether this emoji is managed by an integration such as Twitch or YouTube.]=]
 function get.managed(self)
 	return self._managed
 end
 
---[=[@p requireColons type desc]=]
+--[=[@p requireColons boolean Whether this emoji requires colons to be used in the official Discord client.]=]
 function get.requireColons(self)
 	return self._require_colons
 end
 
---[=[@p hash type desc]=]
+--[=[@p hash string An iterable array of roles that may be required to use this emoji, generally
+related to integration-managed emojis. Object order is not guaranteed.
+]=]
 function get.hash(self)
 	return self._name .. ':' .. self._id
 end
 
---[=[@p animated type desc]=]
+--[=[@p animated boolean Whether this emoji is animated. (a .gif)]=]
 function get.animated(self)
 	return self._animated
 end
 
---[=[@p roles type desc]=]
+--[=[@p roles ArrayIterable An iterable of roles that have access to the emoji.]=]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles

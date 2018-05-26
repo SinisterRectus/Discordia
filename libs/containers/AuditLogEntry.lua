@@ -1,4 +1,7 @@
---[=[@c AuditLogEntry x Snowflake desc]=]
+--[=[
+@c AuditLogEntry x Snowflake
+@d Represents an entry made into a guild's audit log.
+]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 
@@ -25,10 +28,10 @@ function AuditLogEntry:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getBeforeAfter
+@r table
+@r table
+@d Returns two table's of the target's properties before the change, and after the change.
 ]=]
 function AuditLogEntry:getBeforeAfter()
 	local before, after = {}, {}
@@ -151,61 +154,66 @@ local targets = setmetatable({
 }, {__index = function() return unknown	end})
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getTarget
+@r *
+@d Gets the target object of the affected entity. The returned object can be:
+ - [[Guild]]
+ - [[GuildChannel]]
+ - [[User]]
+ - [[Member]]
+ - [[Role]]
+ - [[Webhook]]
+ - [[Emoji]]
+ - nil
 ]=]
 function AuditLogEntry:getTarget()
 	return targets[self._action_type](self)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getUser
+@r User
+@d Gets the user who performed the changes.
 ]=]
 function AuditLogEntry:getUser()
 	return self._parent._parent:getUser(self._user_id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getMember
+@r Member
+@d Gets the member object of the user who performed the changes.
 ]=]
 function AuditLogEntry:getMember()
 	return self._parent:getMember(self._user_id)
 end
 
---[=[@p changes type desc]=]
+--[=[@p changes table|nil A table of audit log change objects. The key represents the property of the changed target and the value contains a table of `new` and possibly `old`, representing the property's new and old value.]=]
 function get.changes(self)
 	return self._changes
 end
 
---[=[@p options type desc]=]
+--[=[@p options table|nil A table of optional audit log information.]=]
 function get.options(self)
 	return self._options
 end
 
---[=[@p actionType type desc]=]
+--[=[@p actionType number The action type. Use the `actionType `enumeration for a human-readable representation.]=]
 function get.actionType(self)
 	return self._action_type
 end
 
---[=[@p targetId type desc]=]
+--[=[@p targetId string|nil The Snowflake ID of the affected entity. Will be `nil` for certain targets.]=]
 function get.targetId(self)
 	return self._target_id
 end
 
---[=[@p reason type desc]=]
+--[=[@p reason string|nil The reason provided by the user for the change.]=]
 function get.reason(self)
 	return self._reason
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild The guild in which this audit log entry was found.]=]
 function get.guild(self)
 	return self._parent
 end

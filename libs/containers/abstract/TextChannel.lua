@@ -1,4 +1,8 @@
---[=[@abc TextChannel x Channel desc]=]
+--[=[
+@c TextChannel x Channel
+@d Abstract base class that defines the base methods and/or properties for all
+Discord text channels.
+]=]
 
 local pathjoin = require('pathjoin')
 local Channel = require('containers/abstract/Channel')
@@ -21,10 +25,11 @@ function TextChannel:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getMessage
+@p id Message-ID-Resolvable
+@r Message
+@d Gets a message object by ID. If the object is already cached, then the cached
+object will be returned; otherwise, an HTTP request is made.
 ]=]
 function TextChannel:getMessage(id)
 	id = Resolver.messageId(id)
@@ -42,10 +47,10 @@ function TextChannel:getMessage(id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getFirstMessage
+@r Message
+@d Returns the first message found in the channel, if any exist. This is not a
+cache shortcut; an HTTP request is made each time this method is called.
 ]=]
 function TextChannel:getFirstMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {after = self._id, limit = 1})
@@ -61,10 +66,10 @@ function TextChannel:getFirstMessage()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getLastMessage
+@r Message
+@d Returns the last message found in the channel, if any exist. This is not a
+cache shortcut; an HTTP request is made each time this method is called.
 ]=]
 function TextChannel:getLastMessage()
 	local data, err = self.client._api:getChannelMessages(self._id, {limit = 1})
@@ -89,20 +94,26 @@ local function getMessages(self, query)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getMessages
+@op limit number
+@r SecondaryCache
+@d Returns a newly constructed cache of between 1 and 100 (default = 50) message
+objects found in the channel. While the cache will never automatically gain or
+lose objects, the objects that it contains may be updated by gateway events.
 ]=]
 function TextChannel:getMessages(limit)
 	return getMessages(self, limit and {limit = limit})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getMessagesAfter
+@p id Message-ID-Resolvable
+@op limit number
+@r SecondaryCache
+@d Returns a newly constructed cache of between 1 and 100 (default = 50) message
+objects found in the channel after a specific point. While the cache will never
+automatically gain or lose objects, the objects that it contains may be updated
+by gateway events.
 ]=]
 function TextChannel:getMessagesAfter(id, limit)
 	id = Resolver.messageId(id)
@@ -110,10 +121,14 @@ function TextChannel:getMessagesAfter(id, limit)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getMessagesBefore
+@p id Message-ID-Resolvable
+@op limit number
+@r SecondaryCache
+@d Returns a newly constructed cache of between 1 and 100 (default = 50) message
+objects found in the channel before a specific point. While the cache will never
+automatically gain or lose objects, the objects that it contains may be updated
+by gateway events.
 ]=]
 function TextChannel:getMessagesBefore(id, limit)
 	id = Resolver.messageId(id)
@@ -121,10 +136,14 @@ function TextChannel:getMessagesBefore(id, limit)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getMessagesAround
+@p id Message-ID-Resolvable
+@op limit number
+@r SecondaryCache
+@d Returns a newly constructed cache of between 1 and 100 (default = 50) message
+objects found in the channel around a specific point. While the cache will never
+automatically gain or lose objects, the objects that it contains may be updated
+by gateway events.
 ]=]
 function TextChannel:getMessagesAround(id, limit)
 	id = Resolver.messageId(id)
@@ -132,10 +151,11 @@ function TextChannel:getMessagesAround(id, limit)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getPinnedMessages
+@r SecondaryCache
+@d Returns a newly constructed cache of up to 50 messages that are pinned in the
+channel. While the cache will never automatically gain or lose objects, the
+objects that it contains may be updated by gateway events.
 ]=]
 function TextChannel:getPinnedMessages()
 	local data, err = self.client._api:getPinnedMessages(self._id)
@@ -147,10 +167,9 @@ function TextChannel:getPinnedMessages()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m broadcastTyping
+@r boolean
+@d Indicates in the channel that the client's user "is typing".
 ]=]
 function TextChannel:broadcastTyping()
 	local data, err = self.client._api:triggerTypingIndicator(self._id)
@@ -189,10 +208,12 @@ local function parseMention(obj, mentions)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m send
+@p content string|table
+@r Message
+@d Sends a message to the channel. If `content` is a string, then this is simply
+sent as the message content. If it is a table, more advanced formatting is
+allowed. See [[managing messages]] for more information.
 ]=]
 function TextChannel:send(content)
 
@@ -268,10 +289,11 @@ function TextChannel:send(content)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m sendf
+@p content string
+@p ... *
+@r Message
+@d Sends a message to the channel with content being formatted with `...` via `string.format`
 ]=]
 function TextChannel:sendf(content, ...)
 	local data, err = self.client._api:createMessage(self._id, {content = format(content, ...)})
@@ -282,7 +304,9 @@ function TextChannel:sendf(content, ...)
 	end
 end
 
---[=[@p messages type desc]=]
+--[=[@p messages WeakCache An iterable weak cache of all messages that are visible to the client. Messages
+that are not referenced elsewhere are eventually garbage collected. To access a
+message that may exist but is not cached, use `TextChannel:getMessage`.]=]
 function get.messages(self)
 	return self._messages
 end

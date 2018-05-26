@@ -1,4 +1,8 @@
---[=[@c PrivateChannel x TextChannel desc]=]
+--[=[
+@c PrivateChannel x TextChannel
+@d Represents a private Discord text channel used to track correspondences between
+the current user and one other recipient.
+]=]
 
 local TextChannel = require('containers/abstract/TextChannel')
 
@@ -10,21 +14,21 @@ function PrivateChannel:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m close
+@r boolean
+@d Closes the channel. This does not delete the channel. To re-open the channel,
+use `User:getPrivateChannel`.
 ]=]
 function PrivateChannel:close()
 	return self:_delete()
 end
 
---[=[@p name type desc]=]
+--[=[@p name string Equivalent to `PrivateChannel.recipient.username`.]=]
 function get.name(self)
 	return self._recipient._username
 end
 
---[=[@p recipient type desc]=]
+--[=[@p recipient User The recipient of this channel's messages, other than the current user.]=]
 function get.recipient(self)
 	return self._recipient
 end

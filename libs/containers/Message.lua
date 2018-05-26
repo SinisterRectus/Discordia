@@ -1,4 +1,8 @@
---[=[@c Message x Snowflake desc]=]
+--[=[
+@c Message x Snowflake
+@d Represents a text message sent in a Discord text channel. Messages can contain
+simple content strings, rich embeds, attachments, or reactions.
+]=]
 
 local json = require('json')
 local constants = require('constants')
@@ -146,30 +150,32 @@ function Message:_modify(payload)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setContent
+@p content string
+@r boolean
+@d Sets the message's content. The message must be authored by the current user
+(ie: you cannot change the content of messages sent by other users). The content
+must be from 1 to 2000 characters in length.
 ]=]
 function Message:setContent(content)
 	return self:_modify({content = content or null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setEmbed
+@p embed table
+@r boolean
+@d Sets the message's embed. The message must be authored by the current user.
+(ie: you cannot change the embed of messages sent by other users).
 ]=]
 function Message:setEmbed(embed)
 	return self:_modify({embed = embed or null})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m pin
+@r boolean
+@d Pins the message in the channel.
 ]=]
 function Message:pin()
 	local data, err = self.client._api:addPinnedChannelMessage(self._parent._id, self._id)
@@ -182,10 +188,9 @@ function Message:pin()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m unpin
+@r boolean
+@d Unpins the message in the channel.
 ]=]
 function Message:unpin()
 	local data, err = self.client._api:deletePinnedChannelMessage(self._parent._id, self._id)
@@ -198,10 +203,11 @@ function Message:unpin()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m addReaction
+@p emoji Emoji-Resolvable
+@r boolean
+@d Adds a reaction to the message. Note that this does not return the new reaction
+object; wait for the `reactionAdd` event instead.
 ]=]
 function Message:addReaction(emoji)
 	emoji = Resolver.emoji(emoji)
@@ -214,10 +220,13 @@ function Message:addReaction(emoji)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeReaction
+@p emoji Emoji-Resolvable
+@op id User-ID-Resolvable
+@r boolean
+@d Removes a reaction from the message. Note that this does not return the old
+reaction object; wait for the `reactionAdd` event instead. If no user is
+indicated, then this will remove the current user's reaction.
 ]=]
 function Message:removeReaction(emoji, id)
 	emoji = Resolver.emoji(emoji)
@@ -236,10 +245,9 @@ function Message:removeReaction(emoji, id)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m clearReactions
+@r boolean
+@d Removes all reactions from the message.
 ]=]
 function Message:clearReactions()
 	local data, err = self.client._api:deleteAllReactions(self._parent._id, self._id)
@@ -251,10 +259,9 @@ function Message:clearReactions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d Permanently deletes the message. This cannot be undone!
 ]=]
 function Message:delete()
 	local data, err = self.client._api:deleteMessage(self._parent._id, self._id)
@@ -270,16 +277,16 @@ function Message:delete()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m reply
+@p content string|table
+@r Message
+@d Equivalent to `Message.channel:send(content)`.
 ]=]
 function Message:reply(content)
 	return self._parent:send(content)
 end
 
---[=[@p reactions type desc]=]
+--[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]
 function get.reactions(self)
 	if not self._reactions then
 		self._reactions = Cache({}, Reaction, self)
@@ -287,7 +294,8 @@ function get.reactions(self)
 	return self._reactions
 end
 
---[=[@p mentionedUsers type desc]=]
+--[=[@p mentionedUsers ArrayIterable An iterable array of all users that are mentioned in this message.  Object order
+is not guaranteed.]=]
 function get.mentionedUsers(self)
 	if not self._mentioned_users then
 		local users = self.client._users
@@ -299,7 +307,10 @@ function get.mentionedUsers(self)
 	return self._mentioned_users
 end
 
---[=[@p mentionedRoles type desc]=]
+--[=[@p mentionedRoles ArrayIterable An iterable array of known roles that are mentioned in this message, excluding
+the default everyone role. The message must be in a guild text channel and the
+roles must be cached in that channel's guild for them to appear here. Object
+order is not guaranteed.]=]
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
 		local client = self.client
@@ -312,7 +323,8 @@ function get.mentionedRoles(self)
 	return self._mentioned_roles
 end
 
---[=[@p mentionedEmojis type desc]=]
+--[=[@p mentionedEmojis ArrayIterable An iterable array of all known emojis that are mentioned in this message. If
+the client does not have the emoji cached, then it will not appear here. Object order is not guaranteed.]=]
 function get.mentionedEmojis(self)
 	if not self._mentioned_emojis then
 		local client = self.client
@@ -325,7 +337,9 @@ function get.mentionedEmojis(self)
 	return self._mentioned_emojis
 end
 
---[=[@p mentionedChannels type desc]=]
+--[=[@p mentionedChannels ArrayIterable An iterable array of all known channels that are mentioned in this message. If
+the client does not have the channel cached, then it will not appear here.
+Object order is not guaranteed.]=]
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then
 		local client = self.client
@@ -348,7 +362,8 @@ local channelsMeta = {__index = function(_, k) return '#' .. k end}
 local everyone = '@' .. constants.ZWSP .. 'everyone'
 local here = '@' .. constants.ZWSP .. 'here'
 
---[=[@p cleanContent type desc]=]
+--[=[@p cleanContent string The message content with all recognized mentions replaced by names and with
+@everyone and @here mentions escaped by a zero-width space (ZWSP).]=]
 function get.cleanContent(self)
 
 	if not self._clean_content then
@@ -386,82 +401,91 @@ function get.cleanContent(self)
 
 end
 
---[=[@p mentionsEveryone type desc]=]
+--[=[@p mentionsEveryone boolean Whether this message mentions @everyone or @here.]=]
 function get.mentionsEveryone(self)
 	return self._mention_everyone
 end
 
---[=[@p pinned type desc]=]
+--[=[@p pinned boolean Whether this message belongs to its channel's pinned messages.]=]
 function get.pinned(self)
 	return self._pinned
 end
 
---[=[@p tts type desc]=]
+--[=[@p tts boolean Whether this message is a text-to-speech message.]=]
 function get.tts(self)
 	return self._tts
 end
 
---[=[@p nonce type desc]=]
+--[=[@p nonce string|number|boolean|nil Used by the official Discord client to detect the success of a sent message.]=]
 function get.nonce(self)
 	return self._nonce
 end
 
---[=[@p editedTimestamp type desc]=]
+--[=[@p editedTimestamp string|nil The date and time at which the message was most recently edited, represented as
+an ISO 8601 string plus microseconds when available.]=]
 function get.editedTimestamp(self)
 	return self._edited_timestamp
 end
 
---[=[@p oldContent type desc]=]
+--[=[@p oldContent string|table Yields a table containing keys as timestamps and value as content of the message at that time.]=]
 function get.oldContent(self)
 	return self._old
 end
 
---[=[@p content type desc]=]
+--[=[@p content string The raw message content. This should be between 0 and 2000 characters in length.]=]
 function get.content(self)
 	return self._content
 end
 
---[=[@p author type desc]=]
+--[=[@p author User The object of the user that created the message.]=]
 function get.author(self)
 	return self._author
 end
 
---[=[@p channel type desc]=]
+--[=[@p channel TextChannel The channel in which this message was sent.]=]
 function get.channel(self)
 	return self._parent
 end
 
---[=[@p type type desc]=]
+--[=[@p type number The message type. Use the `messageType` enumeration for a human-readable
+representation.]=]
 function get.type(self)
 	return self._type
 end
 
---[=[@p embed type desc]=]
+--[=[@p embed table|nil A raw data table that represents the first rich embed that exists in this
+message. See the Discord documentation for more information.]=]
 function get.embed(self)
 	return self._embeds and self._embeds[1]
 end
 
---[=[@p attachment type desc]=]
+--[=[@p attachment table|nil A raw data table that represents the first file attachment that exists in this
+message. See the Discord documentation for more information.]=]
 function get.attachment(self)
 	return self._attachments and self._attachments[1]
 end
 
---[=[@p embeds type desc]=]
+--[=[@p embeds table A raw data table that contains all embeds that exist for this message. If
+there are none, this table will not be present.]=]
 function get.embeds(self)
 	return self._embeds
 end
 
---[=[@p attachments type desc]=]
+--[=[@p attachments table A raw data table that contains all attachments that exist for this message. If
+there are none, this table will not be present.]=]
 function get.attachments(self)
 	return self._attachments
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild|nil The guild in which this message was sent. This will not exist if the message
+was not sent in a guild text channel. Equivalent to `Message.channel.guild`.]=]
 function get.guild(self)
 	return self._parent.guild
 end
 
---[=[@p member type desc]=]
+--[=[@p member Member|nil The member object of the message's author. This will not exist if the message
+is not sent in a guild text channel or if the member object is not cached.
+Equivalent to `Message.guild.members:get(Message.author.id)`.]=]
 function get.member(self)
 	local guild = self.guild
 	return guild and guild._members:get(self._author._id)

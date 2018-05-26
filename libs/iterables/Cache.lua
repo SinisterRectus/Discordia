@@ -1,4 +1,7 @@
---[=[@c Cache x Iterable desc]=]
+--[=[
+@c Cache x Iterable
+@d description
+]=]
 
 local json = require('json')
 local Iterable = require('iterables/Iterable')
@@ -108,20 +111,22 @@ function Cache:_load(array, update)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m get
+@p k *
+@r *
+@d Returns an individual object by key, where the key should match the result of
+calling `__hash` on the contained objects. Unlike the default version, this
+method operates with O(1) complexity.
 ]=]
 function Cache:get(k)
 	return self._objects[k]
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m iter
+@r function
+@d Returns an iterator that returns all contained objects. The order of the objects
+is not guaranteed.
 ]=]
 function Cache:iter()
 	local objects, k, obj = self._objects

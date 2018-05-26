@@ -1,4 +1,8 @@
---[=[@abc Channel x Snowflake desc]=]
+--[=[
+@c Channel x Snowflake
+@d Abstract base class that defines the base methods and/or properties for all
+Discord channel types.
+]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local enums = require('enums')
@@ -47,12 +51,14 @@ function Channel:_delete()
 	end
 end
 
---[=[@p type type desc]=]
+--[=[@p type number The channel type. See the `channelType` enumeration for a human-readable
+representation.]=]
 function get.type(self)
 	return self._type
 end
 
---[=[@p mentionString type desc]=]
+--[=[@p mentionString string A string that, when included in a message content, may resolve as a link to
+a channel in the official Discord client.]=]
 function get.mentionString(self)
 	return format('<#%s>', self._id)
 end

@@ -1,4 +1,13 @@
---[=[@abc Iterable desc]=]
+--[=[
+@c Iterable
+@d Abstract base class that defines the base methods and/or properties for a
+general purpose data structure with features that are better suited for an
+object-oriented environment.
+
+Note: All sub-classes must implement their own `__init` and `iter` methods.
+Additionally, more efficient versions of `__len`, `__pairs`, and `get` methods
+can be redefined in sub-classes.
+]=]
 
 local random = math.random
 local wrap, yield = coroutine.wrap, coroutine.yield
@@ -23,10 +32,11 @@ function Iterable:__len()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m get
+@p k *
+@r *
+@d Returns an individual object by key, where the key should match the result of
+calling `__hash` on the contained objects. Operates with up to O(n) complexity.
 ]=]
 function Iterable:get(k) -- objects must be hashable
 	for obj in self:iter() do
@@ -38,10 +48,10 @@ function Iterable:get(k) -- objects must be hashable
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m find
+@p fn function
+@r *
+@d Returns the first object that satisfies a predicate.
 ]=]
 function Iterable:find(fn)
 	for obj in self:iter() do
@@ -53,10 +63,10 @@ function Iterable:find(fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m findAll
+@p fn function
+@r function
+@d Returns an iterator that returns all objects that satisfy a predicate.
 ]=]
 function Iterable:findAll(fn)
 	return wrap(function()
@@ -69,10 +79,11 @@ function Iterable:findAll(fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m forEach
+@p fn function
+@r nil
+@d Iterates through all objects and calls a function `fn` that takes the
+objects as an argument.
 ]=]
 function Iterable:forEach(fn)
 	for obj in self:iter() do
@@ -81,10 +92,9 @@ function Iterable:forEach(fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m random
+@r *
+@d Returns a random object that is contained in the iterable.
 ]=]
 function Iterable:random()
 	local n = 1
@@ -98,10 +108,10 @@ function Iterable:random()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m count
+@p fn function
+@r number
+@d Returns the amount of objects that satisfy a predicate.
 ]=]
 function Iterable:count(fn)
 	local n = 0
@@ -152,10 +162,14 @@ local function sorter(a, b)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m toArray
+@op sortBy string
+@op fn function
+@r table
+@d Returns a sequentially-indexed table that contains references to all objects.
+If a `sortBy` string is provided, then the table is sorted by that particular
+property. If a predicate is provided, then only objects that satisfy it will
+be included.
 ]=]
 function Iterable:toArray(sortBy, fn)
 	local t1 = type(sortBy)
@@ -180,10 +194,12 @@ function Iterable:toArray(sortBy, fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m select
+@p ... *
+@r table
+@d Similarly to an SQL query, this returns a sorted Lua table of rows where each
+row corresponds to each object in the iterable, and each value in the row is
+selected from the objects according to the arguments provided.
 ]=]
 function Iterable:select(...)
 	local rows = {}

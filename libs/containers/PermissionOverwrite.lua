@@ -1,4 +1,8 @@
---[=[@c PermissionOverwrite x Snowflake desc]=]
+--[=[
+@c PermissionOverwrite x Snowflake
+@d Represents an object that is used to allow or deny specific permissions for a
+role or member in a Discord guild channel.
+]=]
 
 local Snowflake = require('containers/abstract/Snowflake')
 local Permissions = require('utils/Permissions')
@@ -13,10 +17,10 @@ function PermissionOverwrite:__init(data, parent)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m delete
+@r boolean
+@d Deletes the permission overwrite. This can be undone by created a new version of
+the same overwrite.
 ]=]
 function PermissionOverwrite:delete()
 	local data, err = self.client._api:deleteChannelPermission(self._parent._id, self._id)
@@ -32,10 +36,10 @@ function PermissionOverwrite:delete()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getObject
+@r Role|Member
+@d Returns the object associated with this overwrite, either a role or member.
+This may make an HTTP request if the object is not cached.
 ]=]
 function PermissionOverwrite:getObject()
 	local guild = self._parent._parent
@@ -62,20 +66,20 @@ local function setPermissions(self, allow, deny)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getAllowedPermissions
+@r Permissions
+@d Returns a permissions object that represents the permissions that this overwrite
+explicitly allows.
 ]=]
 function PermissionOverwrite:getAllowedPermissions()
 	return Permissions(self._allow)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getDeniedPermissions
+@r Permissions
+@d Returns a permissions object that represents the permissions that this overwrite
+explicitly denies.
 ]=]
 function PermissionOverwrite:getDeniedPermissions()
 	return Permissions(self._deny)
@@ -83,9 +87,9 @@ end
 
 --[=[
 @m name
-@p name type
-@r type
-@d desc
+@p allowed Permissions-Resolvables
+@r boolean
+@d Sets the permissions that this overwrite explicitly allows.
 ]=]
 function PermissionOverwrite:setAllowedPermissions(allowed)
 	local allow = Resolver.permissions(allowed)
@@ -94,10 +98,10 @@ function PermissionOverwrite:setAllowedPermissions(allowed)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m setDeniedPermissions
+@p denied Permissions-Resolvables
+@r boolean
+@d Sets the permissions that this overwrite explicitly denies.
 ]=]
 function PermissionOverwrite:setDeniedPermissions(denied)
 	local deny = Resolver.permissions(denied)
@@ -106,10 +110,10 @@ function PermissionOverwrite:setDeniedPermissions(denied)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m allowPermissions
+@p ... Permissions-Resolvables
+@r boolean
+@d Allows individual permissions in this overwrite.
 ]=]
 function PermissionOverwrite:allowPermissions(...)
 	local allowed, denied = getPermissions(self)
@@ -118,10 +122,10 @@ function PermissionOverwrite:allowPermissions(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m denyPermissions
+@p ... Permissions-Resolvables
+@r boolean
+@d Denies individual permissions in this overwrite.
 ]=]
 function PermissionOverwrite:denyPermissions(...)
 	local allowed, denied = getPermissions(self)
@@ -130,10 +134,10 @@ function PermissionOverwrite:denyPermissions(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m clearPermissions
+@p ... Permissions-Resolvables
+@r boolean
+@d Clears individual permissions in this overwrite.
 ]=]
 function PermissionOverwrite:clearPermissions(...)
 	local allowed, denied = getPermissions(self)
@@ -142,10 +146,9 @@ function PermissionOverwrite:clearPermissions(...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m allowAllPermissions
+@r boolean
+@d Allows all permissions in this overwrite.
 ]=]
 function PermissionOverwrite:allowAllPermissions()
 	local allowed, denied = getPermissions(self)
@@ -154,10 +157,9 @@ function PermissionOverwrite:allowAllPermissions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m denyAllPermissions
+@r boolean
+@d Denies all permissions in this overwrite.
 ]=]
 function PermissionOverwrite:denyAllPermissions()
 	local allowed, denied = getPermissions(self)
@@ -166,10 +168,9 @@ function PermissionOverwrite:denyAllPermissions()
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m clearAllPermissions
+@r boolean
+@d Clears all permissions in this overwrite.
 ]=]
 function PermissionOverwrite:clearAllPermissions()
 	local allowed, denied = getPermissions(self)
@@ -177,27 +178,27 @@ function PermissionOverwrite:clearAllPermissions()
 	return setPermissions(self, allowed._value, denied._value)
 end
 
---[=[@p type type desc]=]
+--[=[@p type string The overwrite type; either "role" or "member".]=]
 function get.type(self)
 	return self._type
 end
 
---[=[@p channel type desc]=]
+--[=[@p channel GuildChannel The channel in which this overwrite exists.]=]
 function get.channel(self)
 	return self._parent
 end
 
---[=[@p guild type desc]=]
+--[=[@p guild Guild The guild in which this overwrite exists. Equivalent to `PermissionOverwrite.channel.guild`.]=]
 function get.guild(self)
 	return self._parent._parent
 end
 
---[=[@p allowedPermissions type desc]=]
+--[=[@p allowedPermissions number The number representing the total permissions allowed by this overwrite.]=]
 function get.allowedPermissions(self)
 	return self._allow
 end
 
---[=[@p deniedPermissions type desc]=]
+--[=[@p deniedPermissions number The number representing the total permissions denied by this overwrite.]=]
 function get.deniedPermissions(self)
 	return self._deny
 end

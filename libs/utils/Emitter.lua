@@ -1,4 +1,7 @@
---[=[@c Emitter desc]=]
+--[=[
+@c Emitter
+@d Implements an asynchronous event emitter where callbacks can be subscribed to specific named events. When events are emitted, the callbacks are called in the order that they were originally registered.
+]=]
 
 local timer = require('timer')
 
@@ -24,50 +27,55 @@ local function new(self, name, listener)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m on
+@p name string
+@p fn function
+@r function
+@d Subscribes a callback to be called every time the named event is emitted. Callbacks registered with this method will automatically be wrapped as a new coroutine when they are called. Returns the original callback for convenience.
 ]=]
 function Emitter:on(name, fn)
 	return new(self, name, {fn = fn})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m once
+@p name string
+@p fn function
+@r function
+@d Subscribes a callback to be called only the first time this event is emitted. Callbacks registered with this method will automatically be wrapped as a new coroutine when they are called. Returns the original callback for convenience.
 ]=]
 function Emitter:once(name, fn)
 	return new(self, name, {fn = fn, once = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m onSync
+@p name string
+@p fn function
+@r function
+@d Subscribes a callback to be called every time the named event is emitted. Callbacks registered with this method are not automatically wrapped as a coroutine. Returns the original callback for convenience.
 ]=]
 function Emitter:onSync(name, fn)
 	return new(self, name, {fn = fn, sync = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m onceSync
+@p name string
+@p fn function
+@r function
+@d Subscribes a callback to be called only the first time this event is emitted. Callbacks registered with this method are not automatically wrapped as a coroutine. Returns the original callback for convenience.
 ]=]
 function Emitter:onceSync(name, fn)
 	return new(self, name, {fn = fn, once = true, sync = true})
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m emit
+@p name string
+@op ... *
+@r nil
+@d Emits the named event and a variable number of arguments to pass to the event callbacks.
 ]=]
 function Emitter:emit(name, ...)
 	local listeners = self._listeners[name]
@@ -100,10 +108,10 @@ function Emitter:emit(name, ...)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getListeners
+@p name string
+@r function
+@d Returns an iterator for all callbacks registered to the named event.
 ]=]
 function Emitter:getListeners(name)
 	local listeners = self._listeners[name]
@@ -118,10 +126,10 @@ function Emitter:getListeners(name)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m getListenerCount
+@p name string
+@r number
+@d Returns the number of callbacks registered to the named event.
 ]=]
 function Emitter:getListenerCount(name)
 	local listeners = self._listeners[name]
@@ -136,10 +144,10 @@ function Emitter:getListenerCount(name)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeListener
+@p name string
+@r nil
+@d Unregisters all instances of the callback from the named event.
 ]=]
 function Emitter:removeListener(name, fn)
 	local listeners = self._listeners[name]
@@ -153,20 +161,23 @@ function Emitter:removeListener(name, fn)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m removeAllListeners
+@p name string
+@r nil
+@d Unregisters all callbacks from the named event.
 ]=]
 function Emitter:removeAllListeners(name)
 	self._listeners[name] = nil
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m waitFor
+@p name string
+@op timeout number
+@op predicate function
+@r boolean
+@r ...
+@d When called inside of a coroutine, this will yield the coroutine until the specific named event is emitted or until a timeout (in milliseconds) expires. If the coroutine is resumed by the event, then `true` is returned with any event arguments. If the coroutine is resumed by the timeout's expiration, then `false` is returned without any other arguments.
 ]=]
 function Emitter:waitFor(name, timeout, predicate)
 	local thread = running()

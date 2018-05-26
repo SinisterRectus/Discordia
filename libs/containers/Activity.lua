@@ -1,4 +1,7 @@
---[=[@c Activity desc]=]
+--[=[
+@c Activity
+@d description
+]=]
 
 local Container = require('containers/abstract/Container')
 
@@ -29,77 +32,77 @@ function Activity:_loadMore(data)
 	self._party_max = party and party.size and party.size[2]
 end
 
---[=[@p start type desc]=]
+--[=[@p start number|nil The Unix timestamp for when this activity was started.]=]
 function get.start(self)
 	return self._start
 end
 
---[=[@p stop type desc]=]
+--[=[@p stop number|nil The Unix timestamp for when this activity was stopped.]=]
 function get.stop(self)
 	return self._stop
 end
 
---[=[@p name type desc]=]
+--[=[@p name string|nil The game that the user is currently playing.]=]
 function get.name(self)
 	return self._name
 end
 
---[=[@p type type desc]=]
+--[=[@p type number|nil The type of user's game status. See the `gameType` enumeration for a human-readable representation.]=]
 function get.type(self)
 	return self._type
 end
 
---[=[@p url type desc]=]
+--[=[@p url string|nil The URL that is set for a user's streaming game status.]=]
 function get.url(self)
 	return self._url
 end
 
---[=[@p applicationId type desc]=]
+--[=[@p applicationId string The application id controlling this activity.]=]
 function get.applicationId(self)
 	return self._application_id
 end
 
---[=[@p state type desc]=]
+--[=[@p state string|nil string for the Rich Presence state section.]=]
 function get.state(self)
 	return self._state
 end
 
---[=[@p details type desc]=]
+--[=[@p details string|nil string for the Rich Presence details section.]=]
 function get.details(self)
 	return self._details
 end
 
---[=[@p textSmall type desc]=]
+--[=[@p textSmall string|nil string for the Rich Presence small image text.]=]
 function get.textSmall(self)
 	return self._small_text
 end
 
---[=[@p textLarge type desc]=]
+--[=[@p textLarge string|nil string for the Rich Presence large image text.]=]
 function get.textLarge(self)
 	return self._large_text
 end
 
---[=[@p imageSmall type desc]=]
+--[=[@p imageSmall string|nil URL for the Rich Presence small image.]=]
 function get.imageSmall(self)
 	return self._small_image
 end
 
---[=[@p imageLarge type desc]=]
+--[=[@p imageLarge string|nil URL for the Rich Presence large image.]=]
 function get.imageLarge(self)
 	return self._large_image
 end
 
---[=[@p partyId type desc]=]
+--[=[@p partyId string|nil Party id for this Rich Presence.]=]
 function get.partyId(self)
 	return self._party_id
 end
 
---[=[@p partySize type desc]=]
+--[=[@p partySize number|nil Size of the Rich Presence party.]=]
 function get.partySize(self)
 	return self._party_size
 end
 
---[=[@p partyMax type desc]=]
+--[=[@p partyMax number|nil Max size for the Rich Presence party.]=]
 function get.partyMax(self)
 	return self._party_max
 end

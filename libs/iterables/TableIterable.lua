@@ -1,4 +1,7 @@
---[=[@c TableIterable x Iterable desc]=]
+--[=[
+@c TableIterable x Iterable
+@d description
+]=]
 
 local wrap, yield = coroutine.wrap, coroutine.yield
 
@@ -12,10 +15,9 @@ function TableIterable:__init(tbl, map)
 end
 
 --[=[
-@m name
-@p name type
-@r type
-@d desc
+@m iter
+@r function
+@d Returns an iterator that returns all contained objects. The order of the objects is not guaranteed.
 ]=]
 function TableIterable:iter()
 	local tbl = self._tbl
