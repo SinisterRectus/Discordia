@@ -20,6 +20,10 @@ local Message, get = require('class')('Message', Snowflake)
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._author = self.client._users:_insert(data.author)
+	if data.member then
+		data.member.user = data.author
+		self._parent._parent._members:_insert(data.member)
+	end
 	self._timestamp = nil -- waste of space; can be calculated from Snowflake ID
 	if data.reactions and #data.reactions > 0 then
 		self._reactions = Cache(data.reactions, Reaction, self)
