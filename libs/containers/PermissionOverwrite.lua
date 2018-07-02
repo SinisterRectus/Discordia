@@ -87,7 +87,21 @@ function PermissionOverwrite:getDeniedPermissions()
 end
 
 --[=[
-@m name
+@m setPermissions
+@p allowed Permissions-Resolvables
+@p denied Permissions-Resolvables
+@r boolean
+@d Sets the permissions that this overwrite explicitly allows and denies. This
+method does NOT resolve conflicts. Please be sure to use the correct parameters.
+]=]
+function PermissionOverwrite:setPermissions(allowed, denied)
+	local allow = Resolver.permissions(allowed)
+	local deny = Resolver.permissions(denied)
+	return setPermissions(self, allow, deny)
+end
+
+--[=[
+@m setAllowedPermissions
 @p allowed Permissions-Resolvables
 @r boolean
 @d Sets the permissions that this overwrite explicitly allows.
