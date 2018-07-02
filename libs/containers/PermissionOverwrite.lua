@@ -59,6 +59,7 @@ local function setPermissions(self, allow, deny)
 		allow = allow, deny = deny, type = self._type
 	})
 	if data then
+		self._allow, self._deny = allow, deny
 		return true
 	else
 		return false, err
