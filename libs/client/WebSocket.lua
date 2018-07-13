@@ -55,6 +55,9 @@ function WebSocket:connect(url, path)
 		self:error('Could not connect to %s (%s)', url, res) -- TODO: get new url?
 	end
 
+	self._read = nil
+	self._write = nil
+
 	if self.handleDisconnect then -- virtual method
 		return self:handleDisconnect(url, path)
 	end
