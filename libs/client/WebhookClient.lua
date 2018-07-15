@@ -21,6 +21,7 @@ local splitPath = pathjoin.splitPath
 
 local defaultOptions = {
 	routeDelay = 300,
+	maxRetries = 5,
 	tts = false,
 	nonce = "",
 	logFile = 'discordia.log',
