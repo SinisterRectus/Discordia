@@ -93,11 +93,7 @@ function WebSocket:_send(op, d)
 	self._mutex:lock()
 	local success, err
 	if self._write then
-		if self._session_id then
-			success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
-		else
-			success, err = false, 'Invalid session, sent websocket message without authentication'
-		end
+		success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
 	else
 		success, err = false, 'Not connected to gateway'
 	end
