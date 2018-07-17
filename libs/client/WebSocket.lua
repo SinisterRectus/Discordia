@@ -59,6 +59,10 @@ function WebSocket:connect(url, path)
 	self._write = nil
 	self._identified = nil
 
+	if self.stopHeartbeat then -- virtual method
+		self:stopHeartbeat()
+	end
+
 	if self.handleDisconnect then -- virtual method
 		return self:handleDisconnect(url, path)
 	end
@@ -109,7 +113,6 @@ end
 function WebSocket:disconnect(reconnect)
 	if not self._write then return end
 	self._reconnect = not not reconnect
-	self:stopHeartbeat()
 	self._write()
 	self._read = nil
 	self._write = nil

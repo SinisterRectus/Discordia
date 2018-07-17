@@ -66,7 +66,7 @@ local function getReconnectTime(self, n, m)
 end
 
 local function incrementReconnectTime(self)
-	self._backoff = min(self._backoff * 2, 30000)
+	self._backoff = min(self._backoff * 2, 60000)
 end
 
 local function decrementReconnectTime(self)
