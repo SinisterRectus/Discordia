@@ -19,10 +19,10 @@ end
 
 function VoiceManager:_prepareConnection(state, connection)
 	if not next(opus) then
-		return self._client:error('Cannot connect to voice: libopus not found')
+		return self._client:error('Cannot prepare voice connection: libopus not found')
 	end
 	if not next(sodium) then
-		return self._client:error('Cannot connect to voice: libsodium not found')
+		return self._client:error('Cannot prepare voice connection: libsodium not found')
 	end
 	local socket = VoiceSocket(state, connection, self)
 	local url = 'wss://' .. state.endpoint:gsub(':%d*$', '')
