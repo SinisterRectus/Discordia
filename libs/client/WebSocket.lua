@@ -57,6 +57,7 @@ function WebSocket:connect(url, path)
 
 	self._read = nil
 	self._write = nil
+	self._identified = nil
 
 	if self.handleDisconnect then -- virtual method
 		return self:handleDisconnect(url, path)
@@ -89,13 +90,17 @@ function WebSocket:parseMessage(message)
 
 end
 
-function WebSocket:_send(op, d)
+function WebSocket:_send(op, d, identify)
 	self._mutex:lock()
 	local success, err
-	if self._write then
-		success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
+	if identify or self._session_id then
+		if self._write then
+			success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
+		else
+			success, err = false, 'Not connected to gateway'
+		end
 	else
-		success, err = false, 'Not connected to gateway'
+		success, err = false, 'Invalid session'
 	end
 	self._mutex:unlockAfter(GATEWAY_DELAY)
 	return success, err
@@ -108,6 +113,7 @@ function WebSocket:disconnect(reconnect)
 	self._write()
 	self._read = nil
 	self._write = nil
+	self._session_id = nil
 end
 
 return WebSocket

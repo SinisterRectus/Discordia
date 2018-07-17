@@ -120,7 +120,9 @@ function Shard:handlePayload(payload)
 
 	elseif op == INVALID_SESSION then
 
-		if payload.d and self._session_id then
+		local session_id = self._session_id
+		self._session_id = nil
+		if payload.d and session_id then
 			self:info('Session invalidated, resuming...')
 			self:resume()
 		else
@@ -211,7 +213,7 @@ function Shard:identify()
 		large_threshold = options.largeThreshold,
 		shard = {self._id, client._total_shard_count},
 		presence = next(client._presence) and client._presence,
-	})
+	}, true)
 
 end
 

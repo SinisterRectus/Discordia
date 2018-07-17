@@ -49,6 +49,7 @@ function VoiceSocket:__init(state, connection, manager)
 	self._manager = manager
 	self._client = manager._client
 	self._connection = connection
+	self._session_id = state.session_id
 end
 
 function VoiceSocket:handleDisconnect()
@@ -147,7 +148,7 @@ function VoiceSocket:identify()
 		user_id = state.user_id,
 		session_id = state.session_id,
 		token = state.token,
-	})
+	}, true)
 end
 
 function VoiceSocket:resume()
