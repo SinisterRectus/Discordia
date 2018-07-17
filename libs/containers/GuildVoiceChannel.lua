@@ -88,6 +88,19 @@ function GuildVoiceChannel:join()
 
 end
 
+--[=[
+@m leave
+@d Leave this channel if there is an existing voice connection to it.
+Equivalent to GuildVoiceChannel.connection:close()
+]=]
+function GuildVoiceChannel:leave()
+	if self._connection then
+		return self._connection:close()
+	else
+		return nil, 'No voice connection exists for this channel'
+	end
+end
+
 --[=[@p bitrate number The channel's bitrate in bits per second (bps). This should be between 8000 and
 96000 (or 128000 for partnered servers).]=]
 function get.bitrate(self)
