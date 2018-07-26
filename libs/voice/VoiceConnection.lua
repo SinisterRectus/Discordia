@@ -309,7 +309,8 @@ function VoiceConnection:close()
 		self._socket:disconnect()
 	end
 	local guild = self._channel._parent
-	return self._client._shards[guild.shardId]:updateVoice(guild._id)
+	local client = self._parent
+	return client._shards[guild.shardId]:updateVoice(guild._id)
 end
 
 function get.channel(self)
