@@ -107,6 +107,7 @@ enums.permission = enum {
 	manageGuild         = 0x00000020,
 	addReactions        = 0x00000040,
 	viewAuditLog        = 0x00000080,
+	prioritySpeaker     = 0x00000100,
 	readMessages        = 0x00000400,
 	sendMessages        = 0x00000800,
 	sendTextToSpeech    = 0x00001000,
