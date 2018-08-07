@@ -1,6 +1,9 @@
---[=[@c ArrayIterable x Iterable Iterable class that contains objects in a constant, ordered fashion, although
+--[=[
+@c ArrayIterable x Iterable Iterable class that contains objects in a constant, ordered fashion, although
 the order may change if the internal array is modified. Some versions may
-use a map function to shape the objects before they are accessed.]=]
+use a map function to shape the objects before they are accessed.
+@d description
+]=]
 
 local wrap, yield = coroutine.wrap, coroutine.yield
 
