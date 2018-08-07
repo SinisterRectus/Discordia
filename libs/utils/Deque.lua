@@ -1,5 +1,5 @@
 --[=[
-@c Deque
+@ic Deque
 @d An implementation of a double-ended queue.
 ]=]
 

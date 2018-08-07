@@ -1,5 +1,6 @@
 local fs = require('fs')
 local pathjoin = require('pathjoin')
+local insert = table.insert
 
 local function scan(dir)
 	for fileName, fileType in fs.scandirSync(dir) do
@@ -12,10 +13,6 @@ local function scan(dir)
 	end
 end
 
-local function iter(dir)
-	return coroutine.wrap(function() scan(dir) end)
-end
-
 local function checkType(docstring, token)
 	return docstring:find(token) == 1
 end
@@ -26,75 +23,50 @@ end
 
 local docs = {}
 
-for f in iter('./libs') do
+for f in coroutine.wrap(function() scan('./libs') end) do
 
 	local d = assert(fs.readFileSync(f))
 
 	local class = {
 		methods = {},
-		statics = {},
 		properties = {},
 		parents = {},
 	}
 
 	for s in d:gmatch('--%[=%[%s*(.-)%s*%]=%]') do
 
-		if checkType(s, '@ic') then
+		if checkType(s, '@i?c') then
 
-			class.userInitialized = true
-			class.name = match(s, '@ic (%w+)')
+			class.name = match(s, '@i?c (%w+)')
+			class.userInitialized = checkType(s, '@ic') or nil
 			for parent in s:gmatch('x (%w+)') do
-				table.insert(class.parents, parent)
+				insert(class.parents, parent)
 			end
 
-		elseif checkType(s, '@c') then
-
-			class.name = match(s, '@c (%w+)')
-			for parent in s:gmatch('x (%w+)') do
-				table.insert(class.parents, parent)
-			end
-			class.desc = match(s, '@d (.+)'):gsub('\r?\n', ' ')
-
-		elseif checkType(s, '@m') then
+		elseif checkType(s, '@s?m') then
 
 			local method = {parameters = {}}
-			method.name = match(s, '@m (%w+)')
-			for paramName, paramType in s:gmatch('@p (%w+)%s+(%w+)') do
-				table.insert(method.parameters, {paramName, paramType}) -- required
+			method.name = match(s, '@s?m (%w+)')
+			method.static = checkType(s, '@sm') or nil
+			for optional, paramName, paramType in s:gmatch('@(o?)p (%w+)%s+(%w+)') do
+				insert(method.parameters, {paramName, paramType, optional == 'o' or nil})
 			end
-			for paramName, paramType in s:gmatch('@op (%w+)%s+(%w+)') do
-				table.insert(method.parameters, {paramName, paramType, true}) -- optional
-			end
-			method.returnType = s:match('@r (%w+)')
+			method.returnType = s:match('@r ([%w%p]+)')
 			method.desc = match(s, '@d (.+)'):gsub('\r?\n', ' ')
-			table.insert(class.methods, method)
+			insert(class.methods, method)
 
 		elseif checkType(s, '@p') then
 
-			local property = {s:match('@p (%w+)%s+([%w%p]+)%s+(.+)')}
-			assert(property[1], s)
-			table.insert(class.properties, property)
-
-		elseif checkType(s, '@sm') then
-
-			local static = {parameters = {}}
-			static.name = match(s, '@sm (%w+)')
-			for paramName, paramType in s:gmatch('@p (%w+)%s+(%w+)') do
-				table.insert(static.parameters, {paramName, paramType}) -- required
-			end
-			for paramName, paramType in s:gmatch('@op (%w+)%s+(%w+)') do
-				table.insert(static.parameters, {paramName, paramType, true}) -- optional
-			end
-			static.returnType = match(s, '@r (%w+)')
-			static.desc = match(s, '@d (.+)'):gsub('\r?\n', ' ')
-			table.insert(class.statics, static)
+			local propertyName, propertyType, propertyDesc = s:match('@p (%w+)%s+([%w%p]+)%s+(.+)')
+			assert(propertyName, s); assert(propertyType, s); assert(propertyDesc, s)
+			insert(class.properties, {propertyName, propertyType, propertyDesc:gsub('\r?\n', ' ')})
 
 		end
 
 	end
 
 	if class.name then
-		table.insert(docs, class)
+		insert(docs, class)
 	end
 
 end

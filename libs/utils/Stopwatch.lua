@@ -1,5 +1,5 @@
 --[=[
-@c Stopwatch
+@ic Stopwatch
 @d Used to measure an elapsed period of time. If a truthy value is passed as an argument, then the stopwatch will initialize in an idle state; otherwise, it will initialize in an active state. Although nanosecond precision is available, Lua can only reliably provide microsecond accuracy due to the lack of native 64-bit integer support. Generally, milliseconds should be sufficient here.
 ]=]
 

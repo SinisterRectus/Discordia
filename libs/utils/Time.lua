@@ -1,5 +1,5 @@
 --[=[
-@c Time
+@ic Time
 @d Represents a length of time and provides utilities for converting to and from different formats with millisecond precision.
 ]=]
 
