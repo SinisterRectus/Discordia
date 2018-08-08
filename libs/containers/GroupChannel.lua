@@ -98,17 +98,17 @@ function get.ownerId(self)
 	return self._owner_id
 end
 
---[=[@p owner User|nil Equivalent to `GroupChannel.recipients:get(GroupChannel.ownerId)`.]=]
+--[=[@p owner User/nil Equivalent to `GroupChannel.recipients:get(GroupChannel.ownerId)`.]=]
 function get.owner(self)
 	return self._recipients:get(self._owner_id)
 end
 
---[=[@p icon string|nil The hash for the channel's custom icon, if one is set.]=]
+--[=[@p icon string/nil The hash for the channel's custom icon, if one is set.]=]
 function get.icon(self)
 	return self._icon
 end
 
---[=[@p iconURL string|nil The URL that can be used to view the channel's icon, if one is set.]=]
+--[=[@p iconURL string/nil The URL that can be used to view the channel's icon, if one is set.]=]
 function get.iconURL(self)
 	local icon = self._icon
 	return icon and format('https://cdn.discordapp.com/channel-icons/%s/%s.png', self._id, icon)

@@ -282,7 +282,7 @@ end
 
 --[=[
 @m reply
-@p content string|table
+@p content string/table
 @r Message
 @d Equivalent to `Message.channel:send(content)`.
 ]=]
@@ -420,18 +420,18 @@ function get.tts(self)
 	return self._tts
 end
 
---[=[@p nonce string|number|boolean|nil Used by the official Discord client to detect the success of a sent message.]=]
+--[=[@p nonce string/number/boolean/nil Used by the official Discord client to detect the success of a sent message.]=]
 function get.nonce(self)
 	return self._nonce
 end
 
---[=[@p editedTimestamp string|nil The date and time at which the message was most recently edited, represented as
+--[=[@p editedTimestamp string/nil The date and time at which the message was most recently edited, represented as
 an ISO 8601 string plus microseconds when available.]=]
 function get.editedTimestamp(self)
 	return self._edited_timestamp
 end
 
---[=[@p oldContent string|table Yields a table containing keys as timestamps and value as content of the message at that time.]=]
+--[=[@p oldContent string/table Yields a table containing keys as timestamps and value as content of the message at that time.]=]
 function get.oldContent(self)
 	return self._old
 end
@@ -457,13 +457,13 @@ function get.type(self)
 	return self._type
 end
 
---[=[@p embed table|nil A raw data table that represents the first rich embed that exists in this
+--[=[@p embed table/nil A raw data table that represents the first rich embed that exists in this
 message. See the Discord documentation for more information.]=]
 function get.embed(self)
 	return self._embeds and self._embeds[1]
 end
 
---[=[@p attachment table|nil A raw data table that represents the first file attachment that exists in this
+--[=[@p attachment table/nil A raw data table that represents the first file attachment that exists in this
 message. See the Discord documentation for more information.]=]
 function get.attachment(self)
 	return self._attachments and self._attachments[1]
@@ -481,13 +481,13 @@ function get.attachments(self)
 	return self._attachments
 end
 
---[=[@p guild Guild|nil The guild in which this message was sent. This will not exist if the message
+--[=[@p guild Guild/nil The guild in which this message was sent. This will not exist if the message
 was not sent in a guild text channel. Equivalent to `Message.channel.guild`.]=]
 function get.guild(self)
 	return self._parent.guild
 end
 
---[=[@p member Member|nil The member object of the message's author. This will not exist if the message
+--[=[@p member Member/nil The member object of the message's author. This will not exist if the message
 is not sent in a guild text channel or if the member object is not cached.
 Equivalent to `Message.guild.members:get(Message.author.id)`.]=]
 function get.member(self)

@@ -98,7 +98,7 @@ function get.channelId(self)
 	return self._channel_id
 end
 
---[=[@p user User|nil The user that created this webhook.]=]
+--[=[@p user User/nil The user that created this webhook.]=]
 function get.user(self)
 	return self._user
 end
@@ -113,7 +113,7 @@ function get.name(self)
 	return self._name
 end
 
---[=[@p avatar string|nil The hash for the webhook's custom avatar, if one is set.]=]
+--[=[@p avatar string/nil The hash for the webhook's custom avatar, if one is set.]=]
 function get.avatar(self)
 	return self._avatar
 end

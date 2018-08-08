@@ -209,7 +209,7 @@ end
 
 --[=[
 @m send
-@p content string|table
+@p content string/table
 @r Message
 @d Sends a message to the channel. If `content` is a string, then this is simply
 sent as the message content. If it is a table, more advanced formatting is

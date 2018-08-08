@@ -89,7 +89,7 @@ function Reaction:delete(id)
 	return self._parent:removeReaction(self, id)
 end
 
---[=[@p emojiId string|nil The ID of the emoji used in this reaction if it is a custom emoji.]=]
+--[=[@p emojiId string/nil The ID of the emoji used in this reaction if it is a custom emoji.]=]
 function get.emojiId(self)
 	return self._emoji_id
 end
@@ -109,7 +109,7 @@ function get.emojiHash(self)
 	end
 end
 
---[=[@p emojiURL string|nil string The URL that can be used to view a full version of the emoji used in this
+--[=[@p emojiURL string/nil string The URL that can be used to view a full version of the emoji used in this
 reaction if it is a custom emoji.]=]
 function get.emojiURL(self)
 	local id = self._emoji_id

@@ -188,12 +188,12 @@ function AuditLogEntry:getMember()
 	return self._parent:getMember(self._user_id)
 end
 
---[=[@p changes table|nil A table of audit log change objects. The key represents the property of the changed target and the value contains a table of `new` and possibly `old`, representing the property's new and old value.]=]
+--[=[@p changes table/nil A table of audit log change objects. The key represents the property of the changed target and the value contains a table of `new` and possibly `old`, representing the property's new and old value.]=]
 function get.changes(self)
 	return self._changes
 end
 
---[=[@p options table|nil A table of optional audit log information.]=]
+--[=[@p options table/nil A table of optional audit log information.]=]
 function get.options(self)
 	return self._options
 end
@@ -203,12 +203,12 @@ function get.actionType(self)
 	return self._action_type
 end
 
---[=[@p targetId string|nil The Snowflake ID of the affected entity. Will be `nil` for certain targets.]=]
+--[=[@p targetId string/nil The Snowflake ID of the affected entity. Will be `nil` for certain targets.]=]
 function get.targetId(self)
 	return self._target_id
 end
 
---[=[@p reason string|nil The reason provided by the user for the change.]=]
+--[=[@p reason string/nil The reason provided by the user for the change.]=]
 function get.reason(self)
 	return self._reason
 end

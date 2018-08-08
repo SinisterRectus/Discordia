@@ -109,7 +109,7 @@ function GuildTextChannel:disableNSFW()
 	return self:_modify({nsfw = false})
 end
 
---[=[@p topic string|nil The channel's topic. This should be between 1 and 1024 characters.]=]
+--[=[@p topic string/nil The channel's topic. This should be between 1 and 1024 characters.]=]
 function get.topic(self)
 	return self._topic
 end

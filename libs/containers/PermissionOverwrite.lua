@@ -37,7 +37,7 @@ end
 
 --[=[
 @m getObject
-@r Role|Member
+@r Role/Member
 @d Returns the object associated with this overwrite, either a role or member.
 This may make an HTTP request if the object is not cached.
 ]=]

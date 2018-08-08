@@ -204,7 +204,7 @@ end
 
 --[=[
 @m getPermissionOverwriteFor
-@p obj Role|Member
+@p obj Role/Member
 @r PermissionOverwrite
 @d Returns a permission overwrite object corresponding to the provided member or
 role object. If a cached overwrite is not found, an empty overwrite with
@@ -257,7 +257,7 @@ function get.guild(self)
 	return self._parent
 end
 
---[=[@p category GuildCategoryChannel|nil The parent channel category that may contain this channel.]=]
+--[=[@p category GuildCategoryChannel/nil The parent channel category that may contain this channel.]=]
 function get.category(self)
 	return self._parent._categories:get(self._parent_id)
 end

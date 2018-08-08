@@ -46,7 +46,7 @@ function get.client(self)
 	return self._parent.client or self._parent
 end
 
---[=[@p parent Container|Client The parent object of to which this container is a child. For example, the parent
+--[=[@p parent Container/Client The parent object of to which this container is a child. For example, the parent
 of a role is the guild in which the role exists.]=]
 function get.parent(self)
 	return self._parent

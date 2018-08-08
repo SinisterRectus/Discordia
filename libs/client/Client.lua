@@ -533,7 +533,7 @@ end
 
 --[=[
 @m setGame
-@p game string|table
+@p game string/table
 @r nil
 @d Sets the current users's game on all shards that are managed by this client. If
 a string is passed, it is treated as the game name. If a table is passed, it
@@ -578,38 +578,38 @@ function Client:setAFK(afk)
 	return updateStatus(self)
 end
 
---[=[@p shardCount number|nil The number of shards that this client is managing.]=]
+--[=[@p shardCount number/nil The number of shards that this client is managing.]=]
 function get.shardCount(self)
 	return self._shard_count
 end
 
---[=[@p totalShardCount number|nil The total number of shards that this user is on.]=]
+--[=[@p totalShardCount number/nil The total number of shards that this user is on.]=]
 function get.totalShardCount(self)
 	return self._total_shard_count
 end
 
---[=[@p user User|nil User object representing the current user.]=]
+--[=[@p user User/nil User object representing the current user.]=]
 function get.user(self)
 	return self._user
 end
 
---[=[@p owner User|nil User object representing the current user's owner.]=]
+--[=[@p owner User/nil User object representing the current user's owner.]=]
 function get.owner(self)
 	return self._owner
 end
 
---[=[@p verified boolean|nil Whether the current user's owner's account is verified.]=]
+--[=[@p verified boolean/nil Whether the current user's owner's account is verified.]=]
 function get.verified(self)
 	return self._user and self._user._verified
 end
 
---[=[@p mfaEnabled boolean|nil Whether the current user's owner's account has multi-factor (or two-factor)
+--[=[@p mfaEnabled boolean/nil Whether the current user's owner's account has multi-factor (or two-factor)
 authentication enabled.]=]
 function get.mfaEnabled(self)
 	return self._user and self._user._verified
 end
 
---[=[@p email string|nil The current user's owner's account's email address (user-accounts only).]=]
+--[=[@p email string/nil The current user's owner's account's email address (user-accounts only).]=]
 function get.email(self)
 	return self._user and self._user._email
 end

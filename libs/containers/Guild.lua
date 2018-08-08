@@ -618,24 +618,24 @@ function get.name(self)
 	return self._name
 end
 
---[=[@p icon string|nil The hash for the guild's custom icon, if one is set.]=]
+--[=[@p icon string/nil The hash for the guild's custom icon, if one is set.]=]
 function get.icon(self)
 	return self._icon
 end
 
---[=[@p iconURL string|nil The URL that can be used to view the guild's icon, if one is set.]=]
+--[=[@p iconURL string/nil The URL that can be used to view the guild's icon, if one is set.]=]
 function get.iconURL(self)
 	local icon = self._icon
 	return icon and format('https://cdn.discordapp.com/icons/%s/%s.png', self._id, icon)
 end
 
---[=[@p splash string|nil The hash for the guild's custom splash image, if one is set. Only partnered
+--[=[@p splash string/nil The hash for the guild's custom splash image, if one is set. Only partnered
 guilds may have this.]=]
 function get.splash(self)
 	return self._splash
 end
 
---[=[@p splashURL string|nil The URL that can be used to view the guild's custom splash image, if one is set.
+--[=[@p splashURL string/nil The URL that can be used to view the guild's custom splash image, if one is set.
 Only partnered guilds may have this.]=]
 function get.splashURL(self)
 	local splash = self._splash
@@ -706,12 +706,12 @@ function get.features(self)
 	return self._features
 end
 
---[=[@p me Member|nil Equivalent to `Guild.members:get(Guild.client.user.id)`.]=]
+--[=[@p me Member/nil Equivalent to `Guild.members:get(Guild.client.user.id)`.]=]
 function get.me(self)
 	return self._members:get(self.client._user._id)
 end
 
---[=[@p owner Member|nil Equivalent to `Guild.members:get(Guild.ownerId)`.]=]
+--[=[@p owner Member/nil Equivalent to `Guild.members:get(Guild.ownerId)`.]=]
 function get.owner(self)
 	return self._members:get(self._owner_id)
 end
@@ -721,22 +721,22 @@ function get.ownerId(self)
 	return self._owner_id
 end
 
---[=[@p afkChannelId string|nil The Snowflake ID of the channel that is used for AFK members, if one is set.]=]
+--[=[@p afkChannelId string/nil The Snowflake ID of the channel that is used for AFK members, if one is set.]=]
 function get.afkChannelId(self)
 	return self._afk_channel_id
 end
 
---[=[@p afkChannel GuildVoiceChannel|nil Equivalent to `Guild.voiceChannels:get(Guild.afkChannelId)`.]=]
+--[=[@p afkChannel GuildVoiceChannel/nil Equivalent to `Guild.voiceChannels:get(Guild.afkChannelId)`.]=]
 function get.afkChannel(self)
 	return self._voice_channels:get(self._afk_channel_id)
 end
 
---[=[@p systemChannelId string|nil The channel id where Discord's join messages will be displayed]=]
+--[=[@p systemChannelId string/nil The channel id where Discord's join messages will be displayed]=]
 function get.systemChannelId(self)
 	return self._system_channel_id
 end
 
---[=[@p systemChannel GuildTextChannel|nil The channel where Discord's join messages will be displayed]=]
+--[=[@p systemChannel GuildTextChannel/nil The channel where Discord's join messages will be displayed]=]
 function get.systemChannel(self)
 	return self._text_channels:get(self._system_channel_id)
 end

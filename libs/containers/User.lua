@@ -79,7 +79,7 @@ end
 
 --[=[
 @m send
-@p content string|table
+@p content string/table
 @r Message
 @d Equivalent to `User:getPrivateChannel():send(content)`
 ]=]
@@ -138,7 +138,7 @@ function get.fullname(self)
 	return self._username .. '#' .. self._discriminator
 end
 
---[=[@p avatar string|nil The hash for the user's custom avatar, if one is set.]=]
+--[=[@p avatar string/nil The hash for the user's custom avatar, if one is set.]=]
 function get.avatar(self)
 	return self._avatar
 end

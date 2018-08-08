@@ -27,7 +27,7 @@ function Ban:delete()
 	return self._parent:unbanUser(self._user)
 end
 
---[=[@p reason string|nil The reason for the ban, if one was set. This should be from 1 to 512 characters
+--[=[@p reason string/nil The reason for the ban, if one was set. This should be from 1 to 512 characters
 in length.]=]
 function get.reason(self)
 	return self._reason

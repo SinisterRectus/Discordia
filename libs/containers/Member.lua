@@ -466,19 +466,19 @@ function get.name(self)
 	return self._nick or self._user._username
 end
 
---[=[@p nickname string|nil The member's nickname, if one is set.]=]
+--[=[@p nickname string/nil The member's nickname, if one is set.]=]
 function get.nickname(self)
 	return self._nick
 end
 
---[=[@p joinedAt string|nil The date and time at which the current member joined the guild, represented as
+--[=[@p joinedAt string/nil The date and time at which the current member joined the guild, represented as
 an ISO 8601 string plus microseconds when available. Member objects generated
 via presence updates lack this property.]=]
 function get.joinedAt(self)
 	return self._joined_at
 end
 
---[=[@p voiceChannel GuildVoiceChannel|nil The voice channel to which this member is connected in the current guild.]=]
+--[=[@p voiceChannel GuildVoiceChannel/nil The voice channel to which this member is connected in the current guild.]=]
 function get.voiceChannel(self)
 	local guild = self._parent
 	local state = guild._voice_states[self:__hash()]

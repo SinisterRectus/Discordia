@@ -79,53 +79,53 @@ function get.channelType(self)
 	return self._channel_type
 end
 
---[=[@p guildIcon string|nil The hash for the guild's custom icon, if one is set.]=]
+--[=[@p guildIcon string/nil The hash for the guild's custom icon, if one is set.]=]
 function get.guildIcon(self)
 	return self._guild_icon
 end
 
---[=[@p guildSplash string|nil The hash for the guild's custom splash, if one is set.]=]
+--[=[@p guildSplash string/nil The hash for the guild's custom splash, if one is set.]=]
 function get.guildSplash(self)
 	return self._guild_splash
 end
 
---[=[@p guildIconURL string|nil The URL that can be used to view the guild's icon, if one is set.]=]
+--[=[@p guildIconURL string/nil The URL that can be used to view the guild's icon, if one is set.]=]
 function get.guildIconURL(self)
 	local icon = self._guild_icon
 	return icon and format('https://cdn.discordapp.com/icons/%s/%s.png', self._guild_id, icon) or nil
 end
 
---[=[@p guildSplashURL string|nil The URL that can be used to view the guild's splash, if one is set.]=]
+--[=[@p guildSplashURL string/nil The URL that can be used to view the guild's splash, if one is set.]=]
 function get.guildSplashURL(self)
 	local splash = self._guild_splash
 	return splash and format('https://cdn.discordapp.com/splashs/%s/%s.png', self._guild_id, splash) or nil
 end
 
---[=[@p inviter User|nil The object of the user that created the invite. This will not exist if the
+--[=[@p inviter User/nil The object of the user that created the invite. This will not exist if the
 invite is a guild widget or a vanity invite.]=]
 function get.inviter(self)
 	return self._inviter
 end
 
---[=[@p uses number|nil How many times this invite has been used. This will not exist if the invite is
+--[=[@p uses number/nil How many times this invite has been used. This will not exist if the invite is
 accessed via `Client:getInvite`.]=]
 function get.uses(self)
 	return self._uses
 end
 
---[=[@p maxUses number|nil The maximum amount of times this invite can be used. This will not exist if the
+--[=[@p maxUses number/nil The maximum amount of times this invite can be used. This will not exist if the
 invite is accessed via `Client:getInvite`.]=]
 function get.maxUses(self)
 	return self._max_uses
 end
 
---[=[@p maxAge number|nil How long, in seconds, this invite lasts before it expires. This will not exist
+--[=[@p maxAge number/nil How long, in seconds, this invite lasts before it expires. This will not exist
 if the invite is accessed via `Client:getInvite`.]=]
 function get.maxAge(self)
 	return self._max_age
 end
 
---[=[@p temporary boolean|nil Whether the invite grants temporary membership. This will not exist if the
+--[=[@p temporary boolean/nil Whether the invite grants temporary membership. This will not exist if the
 invite is accessed via `Client:getInvite`.]=]
 function get.temporary(self)
 	return self._temporary
@@ -138,18 +138,18 @@ function get.createdAt(self)
 	return self._created_at
 end
 
---[=[@p revoked boolean|nil Whether the invite has been revoked. This will not exist if the invite is
+--[=[@p revoked boolean/nil Whether the invite has been revoked. This will not exist if the invite is
 accessed via `Client:getInvite`.]=]
 function get.revoked(self)
 	return self._revoked
 end
 
---[=[@p approximatePresenceCount number|nil The approximate count of online members.]=]
+--[=[@p approximatePresenceCount number/nil The approximate count of online members.]=]
 function get.approximatePresenceCount(self)
 	return self._approximate_presence_count
 end
 
---[=[@p approximateMemberCount number|nil The approximate count of all members.]=]
+--[=[@p approximateMemberCount number/nil The approximate count of all members.]=]
 function get.approximateMemberCount(self)
 	return self._approximate_member_count
 end

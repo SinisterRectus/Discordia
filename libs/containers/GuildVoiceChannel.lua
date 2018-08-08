@@ -124,7 +124,7 @@ function get.connectedMembers(self)
 	return self._members
 end
 
---[=[@p connection VoiceConnection|nil The VoiceConnection for this channel if one exists.]=]
+--[=[@p connection VoiceConnection/nil The VoiceConnection for this channel if one exists.]=]
 function get.connection(self)
 	return self._connection
 end
