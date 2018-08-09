@@ -69,10 +69,10 @@ end
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
-@d Returns a newly constructed cache of all users that have used this reaction after the specified id in
-its parent message. The cache is not automatically updated via gateway events,
-but the internally referenced user objects may be updated. You must call this
-method again to guarantee that the objects are update to date.
+@d Returns a newly constructed cache of all users that have used this reaction
+after the specified id in its parent message. The cache is not automatically
+updated via gateway events, but the internally referenced user objects may be
+updated. You must call this method again to guarantee that the objects are update to date.
 ]=]
 function Reaction:getUsersAfter(id, limit)
 	id = Resolver.userId(id)

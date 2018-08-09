@@ -90,6 +90,7 @@ end
 
 --[=[
 @m leave
+@r boolean
 @d Leave this channel if there is an existing voice connection to it.
 Equivalent to GuildVoiceChannel.connection:close()
 ]=]
@@ -97,7 +98,7 @@ function GuildVoiceChannel:leave()
 	if self._connection then
 		return self._connection:close()
 	else
-		return nil, 'No voice connection exists for this channel'
+		return false, 'No voice connection exists for this channel'
 	end
 end
 
@@ -107,7 +108,8 @@ function get.bitrate(self)
 	return self._bitrate
 end
 
---[=[@p userLimit number The amount of users allowed to be in this channel. Users with `moveMembers` permission ignore this limit.]=]
+--[=[@p userLimit number The amount of users allowed to be in this channel.
+Users with `moveMembers` permission ignore this limit.]=]
 function get.userLimit(self)
 	return self._user_limit
 end

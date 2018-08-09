@@ -31,7 +31,7 @@ end
 @m getBeforeAfter
 @r table
 @r table
-@d Returns two table's of the target's properties before the change, and after the change.
+@d Returns two tables of the target's properties before the change, and after the change.
 ]=]
 function AuditLogEntry:getBeforeAfter()
 	local before, after = {}, {}
@@ -188,7 +188,9 @@ function AuditLogEntry:getMember()
 	return self._parent:getMember(self._user_id)
 end
 
---[=[@p changes table/nil A table of audit log change objects. The key represents the property of the changed target and the value contains a table of `new` and possibly `old`, representing the property's new and old value.]=]
+--[=[@p changes table/nil A table of audit log change objects. The key represents
+the property of the changed target and the value contains a table of `new` and
+possibly `old`, representing the property's new and old value.]=]
 function get.changes(self)
 	return self._changes
 end

@@ -1,6 +1,6 @@
 --[=[
 @ic Clock x Emitter
-@d Used to periodically execute code according to the ticking of the system clock rather than an arbitrary interval.
+@d Used to periodically execute code according to the ticking of the system clock instead of arbitrary interval.
 ]=]
 
 local timer = require('timer')
@@ -19,7 +19,10 @@ end
 @m start
 @op utc boolean
 @r nil
-@d Starts the main loop for the clock. If a truthy argument is passed, then UTC time is used; otherwise, local time is used. As the clock ticks, an event is emitted for every `os.date` value change. The event name is the key of the value that changed and the event argument is the corresponding date table.
+@d Starts the main loop for the clock. If a truthy argument is passed, then UTC
+time is used; otherwise, local time is used. As the clock ticks, an event is
+emitted for every `os.date` value change. The event name is the key of the value
+that changed and the event argument is the corresponding date table.
 ]=]
 function Clock:start(utc)
 	if self._interval then return end
@@ -42,9 +45,10 @@ end
 @d Stops the main loop for the clock.
 ]=]
 function Clock:stop()
-	if not self._interval then return end
-	clearInterval(self._interval)
-	self._interval = nil
+	if self._interval then
+		clearInterval(self._interval)
+		self._interval = nil
+	end
 end
 
 return Clock

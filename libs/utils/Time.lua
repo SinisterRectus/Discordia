@@ -1,6 +1,7 @@
 --[=[
 @ic Time
-@d Represents a length of time and provides utilities for converting to and from different formats with millisecond precision.
+@d Represents a length of time and provides utilities for converting to and from
+different formats with millisecond precision.
 ]=]
 
 local class = require('class')
@@ -57,7 +58,8 @@ end
 --[=[
 @m toString
 @r string
-@d Returns a string from the normalized time values that can be used to represent the time object in a string form.
+@d Returns a string from the normalized time values that can be used to
+represent the time object in a string form.
 ]=]
 function Time:toString()
 	local tbl = self:toTable()
@@ -256,7 +258,8 @@ end
 --[=[
 @m toTable
 @r number
-@d Returns a table of normalized time values that can be used to represent the time object in a more human-readable form.
+@d Returns a table of normalized time values that can be used to represent the
+time object in a more human-readable form.
 ]=]
 function Time:toTable()
 	local v = self._value

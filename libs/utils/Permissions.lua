@@ -1,6 +1,7 @@
 --[=[
 @ic Permissions
-@d Wrapper for a bitfield that is more specifically used to represent Discord permissions. See the `permission` enumeration for acceptable permission values.
+@d Wrapper for a bitfield that is more specifically used to represent Discord
+permissions. See the `permission` enumeration for acceptable permission values.
 ]=]
 
 local enums = require('enums')
@@ -54,7 +55,8 @@ end
 @m enable
 @p ... Permissions-Resolvable
 @r nil
-@d Enables a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
+@d Enables a specific permission or permissions. See the `permission` enumeration
+for acceptable permission values.
 ]=]
 function Permissions:enable(...)
 	local value = self._value
@@ -69,7 +71,8 @@ end
 @m disable
 @p ... Permissions-Resolvable
 @r nil
-@d Disables a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
+@d Disables a specific permission or permissions. See the `permission` enumeration
+for acceptable permission values.
 ]=]
 function Permissions:disable(...)
 	local value = self._value
@@ -84,7 +87,8 @@ end
 @m has
 @p ... Permissions-Resolvable
 @r boolean
-@d Returns whether this set has a specific permission or permissions. See the `permission` enumeration for acceptable permission values.
+@d Returns whether this set has a specific permission or permissions. See the
+`permission` enumeration for acceptable permission values.
 ]=]
 function Permissions:has(...)
 	local value = self._value
@@ -127,7 +131,8 @@ end
 --[=[
 @m toTable
 @r table
-@d Returns a table that represents the permissions value, where the keys are the permission names and the values are `true` or `false`.
+@d Returns a table that represents the permissions value, where the keys are the
+permission names and the values are `true` or `false`.
 ]=]
 function Permissions:toTable()
 	local ret = {}
@@ -158,7 +163,8 @@ end
 @m union
 @p other Permissions
 @r Permissions
-@d Returns a new Permissions object that contains the permissions that are in either `self` or `other` (bitwise OR).
+@d Returns a new Permissions object that contains the permissions that are in
+either `self` or `other` (bitwise OR).
 ]=]
 function Permissions:union(other)
 	return Permissions(bor(self._value, other._value))
@@ -168,7 +174,8 @@ end
 @m intersection
 @p other Permissions
 @r Permissions
-@d Returns a new Permissions object that contains the permissions that are in both `self` and `other` (bitwise AND).
+@d Returns a new Permissions object that contains the permissions that are in
+both `self` and `other` (bitwise AND).
 ]=]
 function Permissions:intersection(other) -- in both
 	return Permissions(band(self._value, other._value))
@@ -178,7 +185,8 @@ end
 @m name
 @p other Permissions
 @r Permissions
-@d Returns a new Permissions object that contains the permissions that are not in `self` or `other` (bitwise XOR).
+@d Returns a new Permissions object that contains the permissions that are not
+in `self` or `other` (bitwise XOR).
 ]=]
 function Permissions:difference(other) -- not in both
 	return Permissions(bxor(self._value, other._value))
@@ -188,7 +196,8 @@ end
 @m complement
 @p other Permissions
 @r Permissions
-@d Returns a new Permissions object that contains the permissions that are not in `self`, but are in `other` (or the set of all permissions if omitted).
+@d Returns a new Permissions object that contains the permissions that are not
+in `self`, but are in `other` (or the set of all permissions if omitted).
 ]=]
 function Permissions:complement(other) -- in other not in self
 	local value = other and other._value or ALL

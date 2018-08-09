@@ -293,7 +293,7 @@ end
 @p content string
 @p ... *
 @r Message
-@d Sends a message to the channel with content being formatted with `...` via `string.format`
+@d Sends a message to the channel with content formatted with `...` via `string.format`
 ]=]
 function TextChannel:sendf(content, ...)
 	local data, err = self.client._api:createMessage(self._id, {content = format(content, ...)})
@@ -304,9 +304,10 @@ function TextChannel:sendf(content, ...)
 	end
 end
 
---[=[@p messages WeakCache An iterable weak cache of all messages that are visible to the client. Messages
-that are not referenced elsewhere are eventually garbage collected. To access a
-message that may exist but is not cached, use `TextChannel:getMessage`.]=]
+--[=[@p messages WeakCache An iterable weak cache of all messages that are
+visible to the client. Messages that are not referenced elsewhere are eventually
+garbage collected. To access a message that may exist but is not cached,
+use `TextChannel:getMessage`.]=]
 function get.messages(self)
 	return self._messages
 end

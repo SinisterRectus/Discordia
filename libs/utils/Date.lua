@@ -2,7 +2,9 @@
 @ic Date
 @op seconds number
 @op microseconds number
-@d Represents a single moment in time and provides utilities for converting to and from different date and time formats. Although microsecond precision is available, most formats are implemented with only second precision.
+@d Represents a single moment in time and provides utilities for converting to
+and from different date and time formats. Although microsecond precision is available,
+most formats are implemented with only second precision.
 ]=]
 
 local class = require('class')
@@ -153,7 +155,7 @@ end
 @sm parseSnowflake
 @p str string
 @r number
-@d Converts a Discord/Twitter Snowflake ID into a Unix time in seconds. Additional
+@d Converts a Discord Snowflake ID into a Unix time in seconds. Additional
 decimal points may be present, though only the first 3 (milliseconds) should be
 considered accurate.
 ]=]
@@ -273,7 +275,10 @@ end
 @op sep string
 @op tz string
 @r string
-@d Returns an ISO 8601 string that represents the stored date and time. If `sep` and `tz` are both provided, then they are used as a custom separator and timezone; otherwise, `T` is used for the separator and `+00:00` is used for the timezone, plus microseconds if available.
+@d Returns an ISO 8601 string that represents the stored date and time.
+If `sep` and `tz` are both provided, then they are used as a custom separator
+and timezone; otherwise, `T` is used for the separator and `+00:00` is used for
+the timezone, plus microseconds if available.
 ]=]
 function Date:toISO(sep, tz)
 	if sep and tz then
@@ -300,7 +305,8 @@ end
 --[=[
 @m toSnowflake
 @r string
-@d Returns a synthetic Discord Snowflake ID based on the stored date and time. Note that `Date.fromSnowflake(id):toSnowflake()` will most likely not return the original Snowflake.
+@d Returns a synthetic Discord Snowflake ID based on the stored date and time.
+Note that `Date.fromSnowflake(id):toSnowflake()` may not return the original Snowflake.
 ]=]
 function Date:toSnowflake()
 	return format('%i', (self:toMilliseconds() - DISCORD_EPOCH) * 2^22)
@@ -309,7 +315,8 @@ end
 --[=[
 @m toTable
 @r table
-@d Returns a Lua date table that represents the stored date and time as a local time. Equivalent to `os.date('*t', s)` where `s` is the Unix time in seconds.
+@d Returns a Lua date table that represents the stored date and time as a local
+time. Equivalent to `os.date('*t', s)` where `s` is the Unix time in seconds.
 ]=]
 function Date:toTable()
 	return date('*t', self._s)
@@ -318,7 +325,8 @@ end
 --[=[
 @m toTableUTC
 @r table
-@d Returns a Lua date table that represents the stored date and time as a UTC time. Equivalent to `os.date('!*t', s)` where `s` is the Unix time in seconds.
+@d Returns a Lua date table that represents the stored date and time as a UTC
+time. Equivalent to `os.date('!*t', s)` where `s` is the Unix time in seconds.
 ]=]
 function Date:toTableUTC()
 	return date('!*t', self._s)

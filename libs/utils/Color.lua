@@ -99,8 +99,8 @@ end
 @p g number
 @p b number
 @r Color
-@d Constructs a new Color object from RGB color values. Values are allowed to
-overflow, though one component will not overflow to the next component.
+@d Constructs a new Color object from RGB values. Values are allowed to overflow
+though one component will not overflow to the next component.
 ]=]
 function Color.fromRGB(r, g, b)
 	r = band(lshift(r, 16), 0xFF0000)
@@ -158,7 +158,7 @@ end
 @p s number
 @p v number
 @r Color
-@d Constructs a new Color object from HSV color values. Hue is allowed to overflow
+@d Constructs a new Color object from HSV values. Hue is allowed to overflow
 while saturation and value are clamped to [0, 1].
 ]=]
 function Color.fromHSV(h, s, v)
@@ -177,7 +177,7 @@ end
 @p s number
 @p l number
 @r Color
-@d Constructs a new Color object from HSL color values. Hue is allowed to overflow
+@d Constructs a new Color object from HSL values. Hue is allowed to overflow
 while saturation and lightness are clamped to [0, 1].
 ]=]
 function Color.fromHSL(h, s, l)
@@ -193,7 +193,7 @@ end
 --[=[
 @m toHex
 @r string
-@d Returns the hexadecimal string that represents the color value.
+@d Returns a 6-digit hexadecimal string that represents the color value.
 ]=]
 function Color:toHex()
 	return format('#%06X', self._value)

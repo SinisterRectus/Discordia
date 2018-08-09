@@ -431,7 +431,8 @@ function get.editedTimestamp(self)
 	return self._edited_timestamp
 end
 
---[=[@p oldContent string/table Yields a table containing keys as timestamps and value as content of the message at that time.]=]
+--[=[@p oldContent string/table Yields a table containing keys as timestamps and
+value as content of the message at that time.]=]
 function get.oldContent(self)
 	return self._old
 end

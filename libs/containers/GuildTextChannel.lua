@@ -119,10 +119,11 @@ function get.nsfw(self)
 	return self._nsfw or false
 end
 
---[=[@p members FilteredIterable A filtered iterable of guild members that have permission to read this channel.
-If you want to check whether a specific member has permission to read this
-channel, it would be better to get the member object elsewhere and use
-`Member:hasPermission` rather than check whether the member exists here.]=]
+--[=[@p members FilteredIterable A filtered iterable of guild members that have
+permission to read this channel. If you want to check whether a specific member
+has permission to read this channel, it would be better to get the member object
+elsewhere and use `Member:hasPermission` rather than check whether the member
+exists here.]=]
 function get.members(self)
 	if not self._members then
 		self._members = FilteredIterable(self._parent._members, function(m)

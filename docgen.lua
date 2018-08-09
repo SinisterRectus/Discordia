@@ -47,7 +47,7 @@ for f in coroutine.wrap(function() scan('./libs') end) do
 			end
 			class.desc = match(s, '@d (.+)'):gsub('\r?\n', ' ')
 			class.parameters = {}
-			for optional, paramName, paramType in s:gmatch('@(o?)p (%w+)%s+([%w%p]+)') do
+			for optional, paramName, paramType in s:gmatch('@(o?)p ([%w%p]+)%s+([%w%p]+)') do
 				insert(class.parameters, {paramName, paramType, optional == 'o'})
 			end
 
@@ -55,10 +55,10 @@ for f in coroutine.wrap(function() scan('./libs') end) do
 
 			local method = {parameters = {}}
 			method.name = match(s, '@s?m (%w+)')
-			for optional, paramName, paramType in s:gmatch('@(o?)p (%w+)%s+([%w%p]+)') do
+			for optional, paramName, paramType in s:gmatch('@(o?)p ([%w%p]+)%s+([%w%p]+)') do
 				insert(method.parameters, {paramName, paramType, optional == 'o'})
 			end
-			method.returnType = s:match('@r ([%w%p]+)')
+			method.returnType = match(s, '@r ([%w%p]+)')
 			method.desc = match(s, '@d (.+)'):gsub('\r?\n', ' ')
 			insert(checkType(s, '@sm') and class.statics or class.methods, method)
 
@@ -115,7 +115,7 @@ local function writeParameters(f, parameters)
 		end
 		f:write(')\n')
 		if optional then
-			f:write('>| Name | Type | Optional |\n')
+			f:write('>| Parameter | Type | Optional |\n')
 			f:write('>|-|-|:-:|\n')
 			for _, param in ipairs(parameters) do
 				local o = param[3] and '✔' or ''
@@ -139,7 +139,7 @@ local function writeMethods(f, methods)
 		f:write('### ', method.name)
 		writeParameters(f, method.parameters)
 		f:write('>\n>', method.desc, '\n>\n')
-		f:write('>Returns: ', link(method.returnType or 'nil'), '\n\n')
+		f:write('>Returns: ', link(method.returnType), '\n\n')
 	end
 end
 

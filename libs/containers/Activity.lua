@@ -47,7 +47,8 @@ function get.name(self)
 	return self._name
 end
 
---[=[@p type number/nil The type of user's game status. See the `gameType` enumeration for a human-readable representation.]=]
+--[=[@p type number/nil The type of user's game status. See the `gameType`
+enumeration for a human-readable representation.]=]
 function get.type(self)
 	return self._type
 end
