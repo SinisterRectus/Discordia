@@ -188,14 +188,21 @@ function VoiceConnection:_play(stream, duration)
 	local pcm_len = frame_size * CHANNELS
 
 	local start = hrtime()
+	local reason
 
 	while elapsed < duration do
 
 		local pcm = stream:read(pcm_len)
-		if not pcm then break end
+		if not pcm then
+			reason = 'stream exhausted or errored'
+			break
+		end
 
 		local data, len = encoder:encode(pcm, pcm_len, frame_size, pcm_len * 2)
-		if not data then break end
+		if not data then
+			reason = 'could not encode audio data'
+			break
+		end
 
 		local s, t = self._s, self._t
 		local header = pack(HEADER_FMT, 0x80, 0x78, s, t, ssrc)
@@ -207,7 +214,10 @@ function VoiceConnection:_play(stream, duration)
 		self._t = t > MAX_TIMESTAMP and 0 or t
 
 		local encrypted, encrypted_len = sodium.encrypt(data, len, header .. PADDING, key)
-		if not encrypted then break end
+		if not encrypted then
+			reason = 'could not encrypt audio data'
+			break
+		end
 
 		local packet = header .. ffi_string(encrypted, encrypted_len)
 		udp:send(packet, ip, port)
@@ -226,7 +236,10 @@ function VoiceConnection:_play(stream, duration)
 			self._resumed = nil
 		end
 
-		if self._stopped then break	end
+		if self._stopped then
+			reason = 'stream stopped'
+			break
+		end
 
 	end
 
@@ -236,6 +249,8 @@ function VoiceConnection:_play(stream, duration)
 		asyncResume(self._stopped)
 		self._stopped = nil
 	end
+
+	return elapsed, reason
 
 end
 
@@ -275,8 +290,9 @@ function VoiceConnection:playFFmpeg(path, duration)
 
 	local stream = FFmpegProcess(path, SAMPLE_RATE, CHANNELS)
 
-	self:_play(stream, duration)
+	local elapsed, reason = self:_play(stream, duration)
 	stream:close()
+	return elapsed, reason
 
 end
 
@@ -305,6 +321,7 @@ function VoiceConnection:stopStream()
 end
 
 function VoiceConnection:close()
+	self:stopStream()
 	if self._socket then
 		self._socket:disconnect()
 	end
