@@ -50,6 +50,16 @@ function Shard:__init(id, client)
 	self._backoff = 1000
 end
 
+local wssend = WebSocket._send 
+
+function Shard:_send(op, d, ignore)
+	if ignore or self._session_id then 
+		return wssend(self, op, d)
+	else
+		return false, 'Invalid session, sent websocket message without authentication'
+	end
+end
+
 for name in pairs(logLevel) do
 	Shard[name] = function(self, fmt, ...)
 		local client = self._client
