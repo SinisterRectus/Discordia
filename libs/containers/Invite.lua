@@ -30,6 +30,11 @@ function Invite:__init(data, parent)
 	end
 end
 
+--[=[
+@m __hash
+@r string
+@d Returns `Invite.code`
+]=]
 function Invite:__hash()
 	return self._code
 end

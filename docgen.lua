@@ -54,7 +54,7 @@ for f in coroutine.wrap(function() scan('./libs') end) do
 		elseif checkType(s, '@s?m') then
 
 			local method = {parameters = {}}
-			method.name = match(s, '@s?m (%w+)')
+			method.name = match(s, '@s?m ([%w%p]+)')
 			for optional, paramName, paramType in s:gmatch('@(o?)p ([%w%p]+)%s+([%w%p]+)') do
 				insert(method.parameters, {paramName, paramType, optional == 'o'})
 			end
@@ -147,7 +147,24 @@ if not fs.existsSync('docs') then
 	fs.mkdirSync('docs')
 end
 
+local function clean(input, seen)
+
+	local methods = {}
+	for _, method in ipairs(input) do
+		if not seen[method.name] then
+			insert(methods, method)
+		end
+	end
+	return methods
+
+end
+
 for _, class in pairs(docs) do
+
+	local seen = {}
+	for _, v in pairs(class.properties) do seen[v[1]] = true end
+	for _, v in pairs(class.statics) do seen[v.name] = true	end
+	for _, v in pairs(class.methods) do seen[v.name] = true	end
 
 	local f = io.open(pathJoin('docs', class.name .. '.md'), 'w')
 
@@ -168,8 +185,11 @@ for _, class in pairs(docs) do
 
 	for _, parent in ipairs(class.parents) do
 		if docs[parent] and next(docs[parent].properties) then
-			f:write('## Properties Inherited From ', link(parent), '\n\n')
-			writeProperties(f, docs[parent].properties)
+			local properties = docs[parent].properties
+			if next(properties) then
+				f:write('## Properties Inherited From ', link(parent), '\n\n')
+				writeProperties(f, clean(properties, seen))
+			end
 		end
 	end
 
@@ -180,15 +200,21 @@ for _, class in pairs(docs) do
 
 	for _, parent in ipairs(class.parents) do
 		if docs[parent] and next(docs[parent].statics) then
-			f:write('## Static Methods Inherited From ', link(parent), '\n\n')
-			writeMethods(f, docs[parent].statics)
+			local statics = docs[parent].statics
+			if next(statics) then
+				f:write('## Static Methods Inherited From ', link(parent), '\n\n')
+				writeMethods(f, clean(statics, seen))
+			end
 		end
 	end
 
 	for _, parent in ipairs(class.parents) do
 		if docs[parent] and next(docs[parent].methods) then
-			f:write('## Methods Inherited From ', link(parent), '\n\n')
-			writeMethods(f, docs[parent].methods)
+			local methods = docs[parent].methods
+			if next(methods) then
+				f:write('## Methods Inherited From ', link(parent), '\n\n')
+				writeMethods(f, clean(methods, seen))
+			end
 		end
 	end
 

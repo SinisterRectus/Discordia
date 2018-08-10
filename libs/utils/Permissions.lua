@@ -24,6 +24,12 @@ function Permissions:__init(value)
 	self._value = tonumber(value) or 0
 end
 
+--[=[
+@m __tostring
+@r string
+@d Defines the behavior of the `tostring` function. Returns a readable list of
+permissions stored for convenience of introspection.
+]=]
 function Permissions:__tostring()
 	if self._value == 0 then
 		return 'Permissions: 0 (none)'
@@ -38,6 +44,12 @@ function Permissions.all()
 	return Permissions(ALL)
 end
 
+--[=[
+@m __eq
+@r boolean
+@d Defines the behavior of the `==` operator. Allows permissions to be directly
+compared according to their value.
+]=]
 function Permissions:__eq(other)
 	return self._value == other._value
 end

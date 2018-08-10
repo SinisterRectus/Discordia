@@ -31,10 +31,22 @@ function Container:__init(data, parent)
 	return load(self, data)
 end
 
+--[=[
+@m __eq
+@r boolean
+@d Defines the behavior of the `==` operator. Allows containers to be directly
+compared according to their type and `__hash` return values.
+]=]
 function Container:__eq(other)
 	return self.__class == other.__class and self:__hash() == other:__hash()
 end
 
+--[=[
+@m __tostring
+@r string
+@d Defines the behavior of the `tostring` function. All containers follow the format
+`ClassName: hash`.
+]=]
 function Container:__tostring()
 	return format('%s: %s', self.__name, self:__hash())
 end

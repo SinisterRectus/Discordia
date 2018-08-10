@@ -18,6 +18,11 @@ function UserPresence:__init(data, parent)
 	self._user = self.client._users:_insert(data.user)
 end
 
+--[=[
+@m __hash
+@r string
+@d Returns `UserPresence.user.id`
+]=]
 function UserPresence:__hash()
 	return self._user._id
 end

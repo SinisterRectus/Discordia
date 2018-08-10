@@ -1,6 +1,7 @@
 --[=[
 @c TableIterable x Iterable
-@d description
+@d Iterable class that wraps a basic Lua table, where order is not guaranteed.
+Some versions may use a map function to shape the objects before they are accessed.
 ]=]
 
 local wrap, yield = coroutine.wrap, coroutine.yield

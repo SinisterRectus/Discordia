@@ -13,6 +13,11 @@ function Ban:__init(data, parent)
 	self._user = self.client._users:_insert(data.user)
 end
 
+--[=[
+@m __hash
+@r string
+@d Returns `Ban.user.id`
+]=]
 function Ban:__hash()
 	return self._user._id
 end

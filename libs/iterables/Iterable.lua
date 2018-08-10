@@ -4,9 +4,8 @@
 general purpose data structure with features that are better suited for an
 object-oriented environment.
 
-Note: All sub-classes must implement their own `__init` and `iter` methods.
-Additionally, more efficient versions of `__len`, `__pairs`, and `get` methods
-can be redefined in sub-classes.
+Note: All sub-classes should implement their own `__init` and `iter` methods and
+all stored objects should have a `__hash` method.
 ]=]
 
 local random = math.random
@@ -15,6 +14,12 @@ local insert, sort, pack = table.insert, table.sort, table.pack
 
 local Iterable = require('class')('Iterable')
 
+--[=[
+@m __pairs
+@r function
+@d Defines the behavior of the `pair` function. Returns an iterator that returns
+a `key, value` pair, where `key` is the result of calling `__hash` on the `value`.
+]=]
 function Iterable:__pairs()
 	return wrap(function()
 		for obj in self:iter() do
@@ -23,6 +28,12 @@ function Iterable:__pairs()
 	end)
 end
 
+--[=[
+@m __len
+@r function
+@d Defines the behavior of the `#` operator. Returns the total number of objects
+stored in the iterable.
+]=]
 function Iterable:__len()
 	local n = 0
 	for _ in self:iter() do
@@ -109,11 +120,15 @@ end
 
 --[=[
 @m count
-@p fn function
+@op fn function
 @r number
-@d Returns the amount of objects that satisfy a predicate.
+@d If a predicate is provided, this returns the number of objects in the iterable
+that satistfy the predicate; otherwise, the total number of objects.
 ]=]
 function Iterable:count(fn)
+	if not fn then
+		return self:__len()
+	end
 	local n = 0
 	for _ in self:findAll(fn) do
 		n = n + 1
@@ -195,11 +210,11 @@ end
 
 --[=[
 @m select
-@p ... *
+@p ... string
 @r table
 @d Similarly to an SQL query, this returns a sorted Lua table of rows where each
 row corresponds to each object in the iterable, and each value in the row is
-selected from the objects according to the arguments provided.
+selected from the objects according to the keys provided.
 ]=]
 function Iterable:select(...)
 	local rows = {}

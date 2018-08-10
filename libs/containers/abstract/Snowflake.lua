@@ -13,6 +13,11 @@ function Snowflake:__init(data, parent)
 	Container.__init(self, data, parent)
 end
 
+--[=[
+@m __hash
+@r string
+@d Returns `Snowflake.id`
+]=]
 function Snowflake:__hash()
 	return self._id
 end

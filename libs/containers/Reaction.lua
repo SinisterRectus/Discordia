@@ -20,6 +20,11 @@ function Reaction:__init(data, parent)
 	self._emoji_name = data.emoji.name
 end
 
+--[=[
+@m __hash
+@r string
+@d Returns `Reaction.emojiId or Reaction.emojiName`
+]=]
 function Reaction:__hash()
 	return self._emoji_id or self._emoji_name
 end

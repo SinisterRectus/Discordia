@@ -23,6 +23,12 @@ function Stopwatch:__init(stopped)
 	self._final = stopped and t or nil
 end
 
+--[=[
+@m __tostring
+@r string
+@d Defines the behavior of the `tostring` function. Returns a string that
+represents the elapsed milliseconds for convenience of introspection.
+]=]
 function Stopwatch:__tostring()
 	return format('Stopwatch: %s ms', self.milliseconds)
 end
