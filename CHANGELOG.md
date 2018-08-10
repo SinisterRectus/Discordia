@@ -1,5 +1,45 @@
 # Changelog
 
+## 2.4.0
+- Added support voice for sending voice/audio
+	- Added `VoiceConnection` class and other internal voice classes
+	- `GuildVoiceChannel:join` is now functional
+	- Added `GuildVoiceChannel:leave`
+	- See documentation for more information
+- Added support for advanced presences/activities
+	- Added `Activity` class
+	- Added `Member.activity` and `Relationship.activity` via `UserPresence.activity`
+	- Deprecated `UserPresence.gameName`, use `UserPresence.activity.name`
+	- Deprecated `UserPresence.gameType`, use `UserPresence.activity.type`
+	- Deprecated `UserPresence.gameURL`, use `UserPresence.activity.url`
+- Other additions
+	- Added inline documentation and a documentation generator for classes
+	- Added `GuildCategoryChannel:createTextChannel` and `GuildCategoryChannel:createVoiceChannel`
+	- Added `Client:getRole` and `ClientgetEmoji`
+	- Added `PermissionOverwrite:setPermissions`
+	- Added `prioritySpeaker` permission
+	- Added `Stopwatch:__tostring`
+	- Added `class.serialize` function
+	- Added `shardDisconnect` event
+	- Added optional predicate to `Emitter:waitFor`
+	- Added ability to get member counts with `Client:getInvite`, `Invite.approximatePresenceCount`, and `Invite.approximateMemberCount`
+	- Added donation link to README
+- Bug fixes
+	- Fixed overflow issue with `extensions.table.deepcount`
+	- Fixed leading-zero issue in `Date:toISO`
+	- Fixed issue when comparing two `Date` objects
+	- Fixed issue in `Time:toString`
+	- Fixed issue that caused a crash on guild initialization
+	- Fixed `Client.shardCount`
+	- Fixed cache consistency issue with `PermissionOverwrite`s
+- Other changes
+	- Made `Date:__tostring` more consistent with other metamethods and added `Date:toString`
+	- Overhauled WebSocket connection logic
+	- Deprecated `User.fullname`, use `User.tag` instead
+	- Calling an HTTP API method outside of a coroutine will now throw (instead of return) its error
+	- Implemented internal gateway `message.member` parsing
+	- All offline members are now uncached when `cacheAllMembers` is false (instead of just those in large guilds)
+
 ## 2.3.0
 - Emoji improvements:
 	- Added `Emoji:hasRole`

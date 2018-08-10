@@ -746,6 +746,11 @@ function get.defaultRole(self)
 	return self._roles:get(self._id)
 end
 
+--[=[@p connection VoiceConnection/nil The VoiceConnection for this guild if one exists.]=]
+function get.connection(self)
+	return self._connection
+end
+
 --[=[@p roles Cache An iterable cache of all roles that exist in this guild. This includes the
 default everyone role.]=]
 function get.roles(self)
