@@ -2,6 +2,7 @@ local fs = require('fs')
 local pathjoin = require('pathjoin')
 
 local insert, sort, concat = table.insert, table.sort, table.concat
+local format = string.format
 local pathJoin = pathjoin.pathJoin
 
 local function scan(dir)
@@ -80,7 +81,11 @@ for f in coroutine.wrap(function() scan('./libs') end) do
 end
 
 local function link(str)
-	return docs[str] and '[[' .. str .. ']]' or str
+	local ret = {}
+	for t in str:gmatch('[^/]+') do
+		insert(ret, docs[t] and format('[[%s]]', t) or t)
+	end
+	return concat(ret, '/')
 end
 
 local function propertySorter(a, b)
@@ -148,7 +153,6 @@ if not fs.existsSync('docs') then
 end
 
 local function clean(input, seen)
-
 	local methods = {}
 	for _, method in ipairs(input) do
 		if not seen[method.name] then
@@ -156,7 +160,6 @@ local function clean(input, seen)
 		end
 	end
 	return methods
-
 end
 
 for _, class in pairs(docs) do

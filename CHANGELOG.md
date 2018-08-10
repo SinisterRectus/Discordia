@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.4.0
-- Added support voice for sending voice/audio
+- Added support for sending voice/audio
 	- Added `VoiceConnection` class and other internal voice classes
 	- `GuildVoiceChannel:join` is now functional
 	- Added `GuildVoiceChannel:leave`
