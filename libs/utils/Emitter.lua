@@ -195,11 +195,13 @@ provided, events that do not pass the predicate will be ignored.
 ]=]
 function Emitter:waitFor(name, timeout, predicate)
 	local thread = running()
-	local fn = self:onceSync(name, function(...)
+	local fn
+	fn = self:onSync(name, function(...)
 		if predicate and not predicate(...) then return end
 		if timeout then
 			clearTimeout(timeout)
 		end
+		self:removeListener(name, fn)
 		return assert(resume(thread, true, ...))
 	end)
 	timeout = timeout and setTimeout(timeout, function()
