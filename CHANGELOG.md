@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.4.1
+- Fixed a bug in `Emitter:waitFor` when using a predicate
+
 ## 2.4.0
 - Added support for sending voice/audio
 	- Added `VoiceConnection` class and other internal voice classes
