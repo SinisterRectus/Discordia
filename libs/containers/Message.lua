@@ -14,6 +14,7 @@ local Resolver = require('client/Resolver')
 
 local insert = table.insert
 local null = json.null
+local format = string.format
 
 local Message, get = require('class')('Message', Snowflake)
 
@@ -494,6 +495,12 @@ Equivalent to `Message.guild.members:get(Message.author.id)`.]=]
 function get.member(self)
 	local guild = self.guild
 	return guild and guild._members:get(self._author._id)
+end
+
+--[=[@p link string URL that can be used to jump-to the message in the Discord client.]=]
+function get.link(self)
+	local guild = self.guild
+	return format('https://discordapp.com/channels/%s/%s/%s', guild and guild._id or '@me', self._parent._id, self._id)
 end
 
 return Message
