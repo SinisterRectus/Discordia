@@ -1,11 +1,11 @@
 --[=[
 @c Activity
-@d description
+@d Represents a Discord user's presence data, either plain game or streaming presence or a rich presence.
 ]=]
 
 local Container = require('containers/abstract/Container')
 
-local Activity, get = require('class')('Activity')
+local Activity, get = require('class')('Activity', Container)
 
 function Activity:__init(data, parent)
 	Container.__init(self, data, parent)
