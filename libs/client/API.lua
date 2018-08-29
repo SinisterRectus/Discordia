@@ -55,7 +55,7 @@ local function route(method, endpoint)
 
 	-- special case for reactions
 	if endpoint:find('reactions') then
-		return 'reactions'
+		endpoint = endpoint:match('.*/reactions')
 	end
 
 	-- remove the ID from minor routes
