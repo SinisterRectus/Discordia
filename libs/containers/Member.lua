@@ -449,15 +449,16 @@ end
 
 --[=[@p roles ArrayIterable An iterable array of guild roles that the member has. This does not explicitly
 include the default everyone role. Object order is not guaranteed.]=]
+local _roles = setmetatable({}, {__mode = 'v'})
 function get.roles(self)
-	if not self._roles then
+	if not _roles[self] then
 		local roles = self._parent._roles
-		self._roles = ArrayIterable(self._roles_raw, function(id)
+		_roles[self] = ArrayIterable(self._roles_raw, function(id)
 			return roles:get(id)
 		end)
 		self._roles_raw = nil
 	end
-	return self._roles
+	return _roles[self]
 end
 
 --[=[@p name string If the member has a nickname, then this will be equivalent to that nickname.

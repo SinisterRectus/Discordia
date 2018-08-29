@@ -149,15 +149,16 @@ function get.animated(self)
 end
 
 --[=[@p roles ArrayIterable An iterable of roles that have access to the emoji.]=]
+local _roles = setmetatable({}, {__mode = 'v'})
 function get.roles(self)
-	if not self._roles then
+	if not _roles[self] then
 		local roles = self._parent._roles
-		self._roles = ArrayIterable(self._roles_raw, function(id)
+		_roles[self] = ArrayIterable(self._roles_raw, function(id)
 			return roles:get(id)
 		end)
 		self._roles_raw = nil
 	end
-	return self._roles
+	return _roles[self]
 end
 
 return Emoji

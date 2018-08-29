@@ -292,64 +292,69 @@ function Message:reply(content)
 end
 
 --[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]
+local _reactions = setmetatable({}, {__mode = 'v'})
 function get.reactions(self)
-	if not self._reactions then
-		self._reactions = Cache({}, Reaction, self)
+	if not _reactions[self] then
+		_reactions[self] = Cache({}, Reaction, self)
 	end
-	return self._reactions
+	return _reactions[self]
 end
 
 --[=[@p mentionedUsers ArrayIterable An iterable array of all users that are mentioned in this message.  Object order
 is not guaranteed.]=]
+local _mentioned_users = setmetatable({}, {__mode = 'v'})
 function get.mentionedUsers(self)
-	if not self._mentioned_users then
+	if not _mentioned_users[self] then
 		local users = self.client._users
 		local mentions = parseMentions(self._content, '<@!?(%d+)>')
-		self._mentioned_users = ArrayIterable(mentions, function(id)
+		_mentioned_users[self] = ArrayIterable(mentions, function(id)
 			return users:get(id)
 		end)
 	end
-	return self._mentioned_users
+	return _mentioned_users[self]
 end
 
 --[=[@p mentionedRoles ArrayIterable An iterable array of known roles that are mentioned in this message, excluding
 the default everyone role. The message must be in a guild text channel and the
 roles must be cached in that channel's guild for them to appear here. Object
 order is not guaranteed.]=]
+local _mentioned_roles = setmetatable({}, {__mode = 'v'})
 function get.mentionedRoles(self)
-	if not self._mentioned_roles then
+	if not _mentioned_roles[self] then
 		local client = self.client
 		local mentions = parseMentions(self._content, '<@&(%d+)>')
-		self._mentioned_roles = ArrayIterable(mentions, function(id)
+		_mentioned_roles[self] = ArrayIterable(mentions, function(id)
 			local guild = client._role_map[id]
 			return guild and guild._roles:get(id) or nil
 		end)
 	end
-	return self._mentioned_roles
+	return _mentioned_roles[self]
 end
 
 --[=[@p mentionedEmojis ArrayIterable An iterable array of all known emojis that are mentioned in this message. If
 the client does not have the emoji cached, then it will not appear here. Object order is not guaranteed.]=]
+local _mentioned_emojis = setmetatable({}, {__mode = 'v'})
 function get.mentionedEmojis(self)
-	if not self._mentioned_emojis then
+	if not _mentioned_emojis[self] then
 		local client = self.client
 		local mentions = parseMentions(self._content, '<a?:[%w_]+:(%d+)>')
-		self._mentioned_emojis = ArrayIterable(mentions, function(id)
+		_mentioned_emojis[self] = ArrayIterable(mentions, function(id)
 			local guild = client._emoji_map[id]
 			return guild and guild._emojis:get(id)
 		end)
 	end
-	return self._mentioned_emojis
+	return _mentioned_emojis[self]
 end
 
 --[=[@p mentionedChannels ArrayIterable An iterable array of all known channels that are mentioned in this message. If
 the client does not have the channel cached, then it will not appear here.
 Object order is not guaranteed.]=]
+local _mentioned_channels = setmetatable({}, {__mode = 'v'})
 function get.mentionedChannels(self)
-	if not self._mentioned_channels then
+	if not _mentioned_channels[self] then
 		local client = self.client
 		local mentions = parseMentions(self._content, '<#(%d+)>')
-		self._mentioned_channels = ArrayIterable(mentions, function(id)
+		_mentioned_channels[self] = ArrayIterable(mentions, function(id)
 			local guild = client._channel_map[id]
 			if guild then
 				return guild._text_channels:get(id) or guild._voice_channels:get(id) or guild._categories:get(id)
@@ -358,7 +363,7 @@ function get.mentionedChannels(self)
 			end
 		end)
 	end
-	return self._mentioned_channels
+	return _mentioned_channels[self]
 end
 
 local usersMeta = {__index = function(_, k) return '@' .. k end}
@@ -369,9 +374,10 @@ local here = '@' .. constants.ZWSP .. 'here'
 
 --[=[@p cleanContent string The message content with all recognized mentions replaced by names and with
 @everyone and @here mentions escaped by a zero-width space (ZWSP).]=]
+local _clean_content = setmetatable({}, {__mode = 'v'})
 function get.cleanContent(self)
 
-	if not self._clean_content then
+	if not _clean_content[self] then
 
 		local content = self._content
 		local guild = self.guild
@@ -392,7 +398,7 @@ function get.cleanContent(self)
 			channels[channel._id] = '#' .. channel._name
 		end
 
-		self._clean_content = content
+		_clean_content[self] = content
 			:gsub('<@!?(%d+)>', users)
 			:gsub('<@&(%d+)>', roles)
 			:gsub('<#(%d+)>', channels)
@@ -402,7 +408,7 @@ function get.cleanContent(self)
 
 	end
 
-	return self._clean_content
+	return _clean_content[self]
 
 end
 
