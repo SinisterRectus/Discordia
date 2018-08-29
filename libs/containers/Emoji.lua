@@ -24,11 +24,13 @@ function Emoji:_load(data)
 	return self:_loadMore(data)
 end
 
+local _roles = setmetatable({}, {__mode = 'v'})
+
 function Emoji:_loadMore(data)
 	if data.roles then
 		local roles = #data.roles > 0 and data.roles or nil
-		if self._roles then
-			self._roles._array = roles
+		if _roles[self] then
+			_roles[self]._array = roles
 		else
 			self._roles_raw = roles
 		end
@@ -92,7 +94,7 @@ end
 ]=]
 function Emoji:hasRole(id)
 	id = Resolver.roleId(id)
-	local roles = self._roles and self._roles._array or self._roles_raw
+	local roles = _roles[self]._array or self._roles_raw
 	if roles then
 		for _, v in ipairs(roles) do
 			if v == id then
@@ -149,7 +151,6 @@ function get.animated(self)
 end
 
 --[=[@p roles ArrayIterable An iterable of roles that have access to the emoji.]=]
-local _roles = setmetatable({}, {__mode = 'v'})
 function get.roles(self)
 	if not _roles[self] then
 		local roles = self._parent._roles

@@ -31,11 +31,13 @@ function Member:_load(data)
 	return self:_loadMore(data)
 end
 
+local _roles = setmetatable({}, {__mode = 'v'})
+
 function Member:_loadMore(data)
 	if data.roles then
 		local roles = #data.roles > 0 and data.roles or nil
-		if self._roles then
-			self._roles._array = roles
+		if _roles[self] then
+			_roles[self]._array = roles
 		else
 			self._roles_raw = roles
 		end
@@ -247,7 +249,7 @@ function Member:addRole(id)
 	id = Resolver.roleId(id)
 	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, id)
 	if data then
-		local roles = self._roles and self._roles._array or self._roles_raw
+		local roles = _roles[self]._array or self._roles_raw
 		if roles then
 			insert(roles, id)
 		else
@@ -271,7 +273,7 @@ function Member:removeRole(id)
 	id = Resolver.roleId(id)
 	local data, err = self.client._api:removeGuildMemberRole(self._parent._id, self.id, id)
 	if data then
-		local roles = self._roles and self._roles._array or self._roles_raw
+		local roles = _roles[self]._array or self._roles_raw
 		if roles then
 			for i, v in ipairs(roles) do
 				if v == id then
@@ -303,7 +305,7 @@ guild's default role in addition to any explicitly assigned roles.
 function Member:hasRole(id)
 	id = Resolver.roleId(id)
 	if id == self._parent._id then return true end -- @everyone
-	local roles = self._roles and self._roles._array or self._roles_raw
+	local roles = _roles[self]._array or self._roles_raw
 	if roles then
 		for _, v in ipairs(roles) do
 			if v == id then
@@ -449,7 +451,6 @@ end
 
 --[=[@p roles ArrayIterable An iterable array of guild roles that the member has. This does not explicitly
 include the default everyone role. Object order is not guaranteed.]=]
-local _roles = setmetatable({}, {__mode = 'v'})
 function get.roles(self)
 	if not _roles[self] then
 		local roles = self._parent._roles

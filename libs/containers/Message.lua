@@ -49,6 +49,13 @@ local function parseMentions(content, pattern)
 	return mentions
 end
 
+local _reactions = setmetatable({}, {__mode = 'v'})
+local _mentioned_users = setmetatable({}, {__mode = 'v'})
+local _mentioned_roles = setmetatable({}, {__mode = 'v'})
+local _mentioned_emojis = setmetatable({}, {__mode = 'v'})
+local _mentioned_channels = setmetatable({}, {__mode = 'v'})
+local _clean_content = setmetatable({}, {__mode = 'v'})
+
 function Message:_loadMore(data)
 
 	if data.mentions then
@@ -57,19 +64,19 @@ function Message:_loadMore(data)
 
 	local content = data.content
 	if content then
-		if self._mentioned_users then
-			self._mentioned_users._array = parseMentions(content, '<@!?(%d+)>')
+		if _mentioned_users[self] then
+			_mentioned_users[self]._array = parseMentions(content, '<@!?(%d+)>')
 		end
-		if self._mentioned_roles then
-			self._mentioned_roles._array = parseMentions(content, '<@&(%d+)>')
+		if _mentioned_roles[self] then
+			_mentioned_roles[self]._array = parseMentions(content, '<@&(%d+)>')
 		end
-		if self._mentioned_channels then
-			self._mentioned_channels._array = parseMentions(content, '<#(%d+)>')
+		if _mentioned_channels[self] then
+			_mentioned_channels[self]._array = parseMentions(content, '<#(%d+)>')
 		end
-		if self._mentioned_emojis then
-			self._mentioned_emojis._array = parseMentions(content, '<a?:[%w_]+:(%d+)>')
+		if _mentioned_emojis[self] then
+			_mentioned_emojis[self]._array = parseMentions(content, '<a?:[%w_]+:(%d+)>')
 		end
-		self._clean_content = nil
+		_clean_content[self] = nil
 	end
 
 	if data.embeds then
@@ -292,7 +299,6 @@ function Message:reply(content)
 end
 
 --[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]
-local _reactions = setmetatable({}, {__mode = 'v'})
 function get.reactions(self)
 	if not _reactions[self] then
 		_reactions[self] = Cache({}, Reaction, self)
@@ -302,7 +308,6 @@ end
 
 --[=[@p mentionedUsers ArrayIterable An iterable array of all users that are mentioned in this message.  Object order
 is not guaranteed.]=]
-local _mentioned_users = setmetatable({}, {__mode = 'v'})
 function get.mentionedUsers(self)
 	if not _mentioned_users[self] then
 		local users = self.client._users
@@ -318,7 +323,6 @@ end
 the default everyone role. The message must be in a guild text channel and the
 roles must be cached in that channel's guild for them to appear here. Object
 order is not guaranteed.]=]
-local _mentioned_roles = setmetatable({}, {__mode = 'v'})
 function get.mentionedRoles(self)
 	if not _mentioned_roles[self] then
 		local client = self.client
@@ -333,7 +337,6 @@ end
 
 --[=[@p mentionedEmojis ArrayIterable An iterable array of all known emojis that are mentioned in this message. If
 the client does not have the emoji cached, then it will not appear here. Object order is not guaranteed.]=]
-local _mentioned_emojis = setmetatable({}, {__mode = 'v'})
 function get.mentionedEmojis(self)
 	if not _mentioned_emojis[self] then
 		local client = self.client
@@ -349,7 +352,6 @@ end
 --[=[@p mentionedChannels ArrayIterable An iterable array of all known channels that are mentioned in this message. If
 the client does not have the channel cached, then it will not appear here.
 Object order is not guaranteed.]=]
-local _mentioned_channels = setmetatable({}, {__mode = 'v'})
 function get.mentionedChannels(self)
 	if not _mentioned_channels[self] then
 		local client = self.client
@@ -374,7 +376,6 @@ local here = '@' .. constants.ZWSP .. 'here'
 
 --[=[@p cleanContent string The message content with all recognized mentions replaced by names and with
 @everyone and @here mentions escaped by a zero-width space (ZWSP).]=]
-local _clean_content = setmetatable({}, {__mode = 'v'})
 function get.cleanContent(self)
 
 	if not _clean_content[self] then
