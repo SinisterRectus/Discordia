@@ -477,6 +477,11 @@ function API:getGuildBans(guild_id) -- Guild:getBans
 	return self:request("GET", endpoint)
 end
 
+function API:getGuildBan(guild_id, user_id) -- Guild:getBan
+	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
+	return self:request("GET", endpoint)
+end
+
 function API:createGuildBan(guild_id, user_id, query) -- Guild:banUser
 	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
 	return self:request("PUT", endpoint, nil, query)

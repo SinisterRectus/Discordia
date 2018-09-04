@@ -158,7 +158,7 @@ function Guild:getMember(id)
 end
 
 --[=[
-@m getMember
+@m getRole
 @p id User-ID-Resolvable
 @r Member
 @d Gets a role object by ID.
@@ -436,6 +436,23 @@ function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
 	if data then
 		return Cache(data, Ban, self)
+	else
+		return nil, err
+	end
+end
+
+--[=[
+@m getBan
+@p id User-ID-Resolvable | User
+@r Ban
+@d This will return a Ban object for a giver user if that user is banned 
+from the guild; otherwise, `nil` is returned.
+]=]
+function Guild:getBan(id)
+	id = Resolver.userId(id)
+	local data, err = self.client._api:getGuildBan(self._id, id)
+	if data then
+		return Ban(data, self._parent)
 	else
 		return nil, err
 	end
