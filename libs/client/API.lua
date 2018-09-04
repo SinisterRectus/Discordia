@@ -472,13 +472,13 @@ function API:removeGuildMember(guild_id, user_id, query) -- Guild:kickUser
 	return self:request("DELETE", endpoint, nil, query)
 end
 
-function API:getGuildBan(guild_id, user_id) -- Guild:getBan
-	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
+function API:getGuildBans(guild_id) -- Guild:getBans
+	local endpoint = f(endpoints.GUILD_BANS, guild_id)
 	return self:request("GET", endpoint)
 end
 
-function API:getGuildBans(guild_id) -- Guild:getBans
-	local endpoint = f(endpoints.GUILD_BANS, guild_id)
+function API:getGuildBan(guild_id, user_id) -- Guild:getBan
+	local endpoint = f(endpoints.GUILD_BAN, guild_id, user_id)
 	return self:request("GET", endpoint)
 end
 
