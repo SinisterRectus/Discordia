@@ -158,7 +158,7 @@ function Guild:getMember(id)
 end
 
 --[=[
-@m getMember
+@m getRole
 @p id User-ID-Resolvable
 @r Member
 @d Gets a role object by ID.
@@ -425,25 +425,6 @@ function Guild:pruneMembers(days)
 end
 
 --[=[
-@m getBan
-@p user User-ID-Resolvable | User
-@r Ban
-@d Returns a [ban object](https://discordapp.com/developers/docs/resources/guild#ban-object) for the given user.
-]=]
-function Guild:getBan(user)
-	if user.id then
-		user = user.id
-	end
-
-	local data, err = self.client._api:getGuildBan(self._id, user)
-	if data then
-		return Ban(data, self._parent)
-	else
-		return nil, err
-	end
-end
-
---[=[
 @m getBans
 @r Cache
 @d Returns a newly constructed cache of all ban objects for the guild. The
@@ -455,6 +436,24 @@ function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
 	if data then
 		return Cache(data, Ban, self)
+	else
+		return nil, err
+	end
+end
+
+--[=[
+@m getBan
+@p user User-ID-Resolvable | User
+@r Ban
+@d Returns a Ban object for the given user. Will return nil when no ban 
+was found for that user.
+]=]
+function Guild:getBan(user)
+	user = Resolver.userId(user)
+
+	local data, err = self.client._api:getGuildBan(self._id, user)
+	if data then
+		return Ban(data, self._parent)
 	else
 		return nil, err
 	end
