@@ -425,6 +425,25 @@ function Guild:pruneMembers(days)
 end
 
 --[=[
+@m getBan
+@p user User-ID-Resolvable | User
+@r Ban
+@d Returns a [ban object](https://discordapp.com/developers/docs/resources/guild#ban-object) for the given user.
+]=]
+function Guild:getBan(user)
+	if user.id then
+		user = Resolver.userId(user.id)
+	end
+
+	local data, err = self.client._api:getGuildBan(self._id, user)
+	if data then
+		return Ban(data, self._parent)
+	else
+		return nil, err
+	end
+end
+
+--[=[
 @m getBans
 @r Cache
 @d Returns a newly constructed cache of all ban objects for the guild. The
