@@ -432,7 +432,7 @@ end
 ]=]
 function Guild:getBan(user)
 	if user.id then
-		user = Resolver.userId(user.id)
+		user = user.id
 	end
 
 	local data, err = self.client._api:getGuildBan(self._id, user)
