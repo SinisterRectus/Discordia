@@ -443,15 +443,14 @@ end
 
 --[=[
 @m getBan
-@p user User-ID-Resolvable | User
+@p id User-ID-Resolvable | User
 @r Ban
-@d Returns a Ban object for the given user. Will return nil when no ban 
-was found for that user.
+@d This will return a Ban object for a giver user if that user is banned 
+from the guild; otherwise, `nil` is returned.
 ]=]
-function Guild:getBan(user)
-	user = Resolver.userId(user)
-
-	local data, err = self.client._api:getGuildBan(self._id, user)
+function Guild:getBan(id)
+	id = Resolver.userId(id)
+	local data, err = self.client._api:getGuildBan(self._id, id)
 	if data then
 		return Ban(data, self._parent)
 	else
