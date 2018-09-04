@@ -159,8 +159,8 @@ end
 
 --[=[
 @m getRole
-@p id User-ID-Resolvable
-@r Member
+@p id Role-ID-Resolvable
+@r Role
 @d Gets a role object by ID.
 ]=]
 function Guild:getRole(id)
@@ -443,9 +443,9 @@ end
 
 --[=[
 @m getBan
-@p id User-ID-Resolvable | User
+@p id User-ID-Resolvable
 @r Ban
-@d This will return a Ban object for a giver user if that user is banned 
+@d This will return a Ban object for a giver user if that user is banned
 from the guild; otherwise, `nil` is returned.
 ]=]
 function Guild:getBan(id)
