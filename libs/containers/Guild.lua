@@ -667,7 +667,7 @@ end
 
 --[=[@p lazy boolean Whether the guild has follows rules for the lazy-loading of client data.]=]
 function get.lazy(self)
-	return self._large
+	return self._lazy
 end
 
 --[=[@p region string The voice region that is used for all voice connections in the guild.]=]
