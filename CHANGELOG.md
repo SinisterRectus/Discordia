@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.5.0
+- Added `message.link` property for jump-to links
+- Added `Guild.lazy` property
+- Added `Guild:getBan` for checking individual bans
+- `Activity` now correctly inherits `Container`
+- Removed global reaction ratelimit
+- Memoized iterables are now weakly cached for memory optimization
+
 ## 2.4.1
 - Fixed a bug in `Emitter:waitFor` when using a predicate
 
@@ -35,6 +43,7 @@
 	- Fixed issue that caused a crash on guild initialization
 	- Fixed `Client.shardCount`
 	- Fixed cache consistency issue with `PermissionOverwrite`s
+	- Fixed issue in mention matching when an unpaired `<` was encountered
 - Other changes
 	- Made `Date:__tostring` more consistent with other metamethods and added `Date:toString`
 	- Overhauled WebSocket connection logic
