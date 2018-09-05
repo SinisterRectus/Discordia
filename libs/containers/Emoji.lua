@@ -94,7 +94,7 @@ end
 ]=]
 function Emoji:hasRole(id)
 	id = Resolver.roleId(id)
-	local roles = _roles[self]._array or self._roles_raw
+	local roles = _roles[self] and _roles[self]._array or self._roles_raw
 	if roles then
 		for _, v in ipairs(roles) do
 			if v == id then

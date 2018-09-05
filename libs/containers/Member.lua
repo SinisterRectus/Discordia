@@ -249,7 +249,7 @@ function Member:addRole(id)
 	id = Resolver.roleId(id)
 	local data, err = self.client._api:addGuildMemberRole(self._parent._id, self.id, id)
 	if data then
-		local roles = _roles[self]._array or self._roles_raw
+		local roles = _roles[self] and _roles[self]._array or self._roles_raw
 		if roles then
 			insert(roles, id)
 		else
@@ -273,7 +273,7 @@ function Member:removeRole(id)
 	id = Resolver.roleId(id)
 	local data, err = self.client._api:removeGuildMemberRole(self._parent._id, self.id, id)
 	if data then
-		local roles = _roles[self]._array or self._roles_raw
+		local roles = _roles[self] and _roles[self]._array or self._roles_raw
 		if roles then
 			for i, v in ipairs(roles) do
 				if v == id then
@@ -305,7 +305,7 @@ guild's default role in addition to any explicitly assigned roles.
 function Member:hasRole(id)
 	id = Resolver.roleId(id)
 	if id == self._parent._id then return true end -- @everyone
-	local roles = _roles[self]._array or self._roles_raw
+	local roles = _roles[self] and _roles[self]._array or self._roles_raw
 	if roles then
 		for _, v in ipairs(roles) do
 			if v == id then
