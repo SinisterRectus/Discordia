@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.1
+- Fixed nil index issue in Emoji and Member methods
+
 ## 2.5.0
 - Added `message.link` property for jump-to links
 - Added `Guild.lazy` property
