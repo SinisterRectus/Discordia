@@ -49,7 +49,6 @@ local function parseMentions(content, pattern)
 	return mentions
 end
 
-local _reactions = setmetatable({}, {__mode = 'v'})
 local _mentioned_users = setmetatable({}, {__mode = 'v'})
 local _mentioned_roles = setmetatable({}, {__mode = 'v'})
 local _mentioned_emojis = setmetatable({}, {__mode = 'v'})
@@ -300,10 +299,10 @@ end
 
 --[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]
 function get.reactions(self)
-	if not _reactions[self] then
-		_reactions[self] = Cache({}, Reaction, self)
+	if not self._reactions then
+		self._reactions = Cache({}, Reaction, self)
 	end
-	return _reactions[self]
+	return self._reactions
 end
 
 --[=[@p mentionedUsers ArrayIterable An iterable array of all users that are mentioned in this message.  Object order
