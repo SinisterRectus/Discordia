@@ -381,7 +381,7 @@ function VoiceConnection:resumeStream()
 end
 
 --[=[
-@m stopStreap
+@m stopStream
 @r nil
 @d Irreversibly stops the audio stream for this connection, if one is active.
 Like most Discordia methods, this must be called inside of a coroutine, as it
