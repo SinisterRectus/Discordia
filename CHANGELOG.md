@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.5.2
+- Fixed an issue where `Message.reactions` was always empty
+
 ## 2.5.1
 - Fixed nil index issue in Emoji and Member methods
 
