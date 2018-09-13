@@ -58,7 +58,14 @@ local _clean_content = setmetatable({}, {__mode = 'v'})
 function Message:_loadMore(data)
 
 	if data.mentions then
-		self.client._users:_load(data.mentions)
+		for _, user in ipairs(data.mentions) do
+			if user.member then
+				user.member.user = user
+				self._parent._parent._members:_insert(user.member)
+			else
+				self.client._users:_insert(user)
+			end
+		end
 	end
 
 	local content = data.content
