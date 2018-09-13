@@ -90,6 +90,17 @@ function GuildTextChannel:setTopic(topic)
 end
 
 --[=[
+@m setRateLimit
+@p limit number
+@r boolean
+@d Sets the channel's slowmode rate limit in seconds. This must be between 0 and 120.
+Passing 0 or `nil` will clear the limit.
+]=]
+function GuildTextChannel:setRateLimit(limit)
+	return self:_modify({rate_limit_per_user = limit or json.null})
+end
+
+--[=[
 @m enableNSFW
 @r boolean
 @d Enables the NSFW setting for the channel. NSFW channels are hidden from users
@@ -117,6 +128,11 @@ end
 --[=[@p nsfw boolean Whether this channel is marked as NSFW (not safe for work).]=]
 function get.nsfw(self)
 	return self._nsfw or false
+end
+
+--[=[@p rateLimit number Slowmode rate limit per guild member.]=]
+function get.rateLimit(self)
+	return self._rate_limit_per_user or 0
 end
 
 --[=[@p members FilteredIterable A filtered iterable of guild members that have
