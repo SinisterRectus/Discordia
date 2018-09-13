@@ -475,7 +475,7 @@ end
 function EventHandler.VOICE_STATE_UPDATE(d, client)
 	local guild = client._guilds:get(d.guild_id)
 	if not guild then return warning(client, 'Guild', d.guild_id, 'VOICE_STATE_UPDATE') end
-	local member = guild._members:get(d.user_id)
+	local member = d.member and guild._members:_insert(d.member) or guild._members:get(d.user_id)
 	if not member then return warning(client, 'Member', d.user_id, 'VOICE_STATE_UPDATE') end
 	local states = guild._voice_states
 	local channels = guild._voice_channels

@@ -39,6 +39,7 @@ local ignore = {
 	['MESSAGE_ACK'] = true,
 	['PRESENCES_REPLACE'] = true,
 	['USER_SETTINGS_UPDATE'] = true,
+	['SESSIONS_REPLACE'] = true,
 }
 
 local Shard = require('class')('Shard', WebSocket)
