@@ -78,7 +78,7 @@ enums.activityType = enum {
 	listening = 2,
 }
 
-enum.status = enum {
+enums.status = enum {
 	online = 'online',
 	idle = 'idle',
 	doNotDisturb = 'dnd',
