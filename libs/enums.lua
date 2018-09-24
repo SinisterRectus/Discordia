@@ -78,6 +78,13 @@ enums.activityType = enum {
 	listening = 2,
 }
 
+enum.status = enum {
+	online = 'online',
+	idle = 'idle',
+	doNotDisturb = 'dnd',
+	invisible = 'invisible',
+}
+
 enums.gameType = enum { -- NOTE: deprecated; use activityType
 	default   = 0,
 	streaming = 1,

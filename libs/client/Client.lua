@@ -511,7 +511,7 @@ end
 @p status string
 @r nil
 @d Sets the current users's status on all shards that are managed by this client.
-Valid statuses are `online`, `idle`, `dnd`, and `invisible`.
+See the `status` enumeration for acceptable status values.
 ]=]
 function Client:setStatus(status)
 	if type(status) == 'string' then
