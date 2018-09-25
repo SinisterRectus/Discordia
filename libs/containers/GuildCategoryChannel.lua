@@ -57,27 +57,25 @@ function GuildCategoryChannel:createVoiceChannel(name)
 end
 
 --[=[@p textChannels FilteredIterable Returns all textChannels in the Category]=]
-local _text_channels = setmetatable({}, {__mode = 'v'})
 function get.textChannels(self)
-	if not _text_channels[self] then
+	if not self._text_channels then
 		local id = self._id
-		_text_channels[self] = FilteredIterable(self._parent._text_channels, function(c)
+		self._text_channels = FilteredIterable(self._parent._text_channels, function(c)
 			return c._parent_id == id
 		end)
 	end
-	return _text_channels[self]
+	return self._text_channels
 end
 
 --[=[@p voiceChannels FilteredIterable Returns all voiceChannels in the Category]=]
-local _voice_channels = setmetatable({}, {__mode = 'v'})
 function get.voiceChannels(self)
-	if not _voice_channels[self] then
+	if not self._voice_channels then
 		local id = self._id
-		_voice_channels[self] = FilteredIterable(self._parent._voice_channels, function(c)
+		self._voice_channels = FilteredIterable(self._parent._voice_channels, function(c)
 			return c._parent_id == id
 		end)
 	end
-	return _voice_channels[self]
+	return self._voice_channels
 end
 
 return GuildCategoryChannel

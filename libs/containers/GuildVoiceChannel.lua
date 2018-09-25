@@ -115,16 +115,15 @@ function get.userLimit(self)
 end
 
 --[=[@p connectedMembers TableIterable The channel's user limit. This should between 0 and 99 (where 0 is unlimited).]=]
-local _connected_members = setmetatable({}, {__mode = 'v'})
 function get.connectedMembers(self)
-	if not _connected_members[self] then
+	if not self._connected_members then
 		local id = self._id
 		local members = self._parent._members
-		_connected_members[self] = TableIterable(self._parent._voice_states, function(state)
+		self._connected_members = TableIterable(self._parent._voice_states, function(state)
 			return state.channel_id == id and members:get(state.user_id)
 		end)
 	end
-	return _connected_members[self]
+	return self._connected_members
 end
 
 --[=[@p connection VoiceConnection/nil The VoiceConnection for this channel if one exists.]=]

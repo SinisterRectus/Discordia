@@ -140,14 +140,13 @@ permission to read this channel. If you want to check whether a specific member
 has permission to read this channel, it would be better to get the member object
 elsewhere and use `Member:hasPermission` rather than check whether the member
 exists here.]=]
-local _members = setmetatable({}, {__mode = 'v'})
 function get.members(self)
-	if not _members[self] then
-		_members[self] = FilteredIterable(self._parent._members, function(m)
+	if not self._members then
+		self._members = FilteredIterable(self._parent._members, function(m)
 			return m:hasPermission(self, 'readMessages')
 		end)
 	end
-	return _members[self]
+	return self._members
 end
 
 return GuildTextChannel
