@@ -68,7 +68,11 @@ for f in coroutine.wrap(function() scan('./libs') end) do
 			local propertyName, propertyType, propertyDesc = s:match('@p (%w+)%s+([%w%p]+)%s+(.+)')
 			assert(propertyName, s); assert(propertyType, s); assert(propertyDesc, s)
 			propertyDesc = propertyDesc:gsub('\r?\n', ' ')
-			insert(class.properties, {propertyName, propertyType, propertyDesc})
+			insert(class.properties, {
+				name = propertyName,
+				type = propertyType,
+				desc = propertyDesc,
+			})
 
 		end
 
@@ -88,20 +92,16 @@ local function link(str)
 	return concat(ret, '/')
 end
 
-local function propertySorter(a, b)
-	return a[1] < b[1]
-end
-
-local function methodSorter(a, b)
+local function sorter(a, b)
 	return a.name < b.name
 end
 
 local function writeProperties(f, properties)
-	sort(properties, propertySorter)
+	sort(properties, sorter)
 	f:write('| Name | Type | Description |\n')
 	f:write('|-|-|-|\n')
 	for _, v in ipairs(properties) do
-		f:write('| ', v[1], ' | ', link(v[2]), ' | ', v[3], ' |\n')
+		f:write('| ', v.name, ' | ', link(v.type), ' | ', v.desc, ' |\n')
 	end
 end
 
@@ -139,7 +139,7 @@ local function writeParameters(f, parameters)
 end
 
 local function writeMethods(f, methods)
-	sort(methods, methodSorter)
+	sort(methods, sorter)
 	for _, method in ipairs(methods) do
 		f:write('### ', method.name)
 		writeParameters(f, method.parameters)
@@ -153,19 +153,19 @@ if not fs.existsSync('docs') then
 end
 
 local function clean(input, seen)
-	local methods = {}
-	for _, method in ipairs(input) do
-		if not seen[method.name] then
-			insert(methods, method)
+	local fields = {}
+	for _, field in ipairs(input) do
+		if not seen[field.name] then
+			insert(fields, field)
 		end
 	end
-	return methods
+	return fields
 end
 
 for _, class in pairs(docs) do
 
 	local seen = {}
-	for _, v in pairs(class.properties) do seen[v[1]] = true end
+	for _, v in pairs(class.properties) do seen[v.name] = true end
 	for _, v in pairs(class.statics) do seen[v.name] = true	end
 	for _, v in pairs(class.methods) do seen[v.name] = true	end
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.0
+- Added `GuildTextChannel.rateLimit` and `GuildTextChannel:setRateLimit` for slowmode handling
+- Added parsing of members in the VOICE_STATE_UPDATE event and the mentioned users array for message handling
+- Added `status` enumeration for presence or activity statuses
+- Reverted memoization changes from 2.5.0 (fixes an unidentified bug in role caching)
+
 ## 2.5.2
 - Fixed an issue where `Message.reactions` was always empty
 
@@ -90,7 +96,6 @@
 	- Default class instance `__tostring` now provides only the class type
 	- Fixed over-caching of members
 
-
 ## 2.2.0
 - Added audit log support
 	- Added `Guild:getAuditLogs`
@@ -108,7 +113,6 @@
 - Fixed issue when setting status on manually-sharded bots
 - Fixed crash on guild initialization when voice states were not present
 
-
 ## 2.1.0
 - Added `Reaction.emojiHash` and `Emoji.hash` properties
 - Added support for emoji endpoints and methods:
@@ -122,7 +126,6 @@
 	- `Guild.systemChannelId`
 	- `Guild:setSystemChannel`
 
-
 ## 2.0.1
 - Added missing `Message.oldContent`, which was intended for 2.0.0
 - `GuildTextChannel:bulkDelete` can now handle a minimum of 1 message instead of 2
@@ -132,7 +135,6 @@
 - Authentication cache now expires after 1 hour instead of 24 hours
 - Reactions are now properly uncached when MESSAGE_REACTIONS_REMOVE_ALL occurs
 - JSON `null` is now correctly handled for `Invites` and `Reactions`
-
 
 ## 2.0.0
 
@@ -561,11 +563,9 @@ The major goals of this rewrite were to add new or missing features and to impro
 #### Time
 - New class! See documentation.
 
-
 ## 1.5.1
 - Added partial handling of failed socket connections
 - Added special handling for reaction ratelimits
-
 
 ## 1.5.0
 - Implemented webhook features
@@ -594,12 +594,10 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Changed `os.exit` in `client:stop` to `process:exit`
 	- Changed `print` call in console logging function to `process.stdout:write`
 
-
 ## 1.4.2
 - Fixed bug in Guild:setOwner
 - Fixed nickname not being cleared from member objects
 - Minor optimization in `printf`
-
 
 ## 1.4.1
 - Added token check to socket reconnection
@@ -610,7 +608,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Extensions added:
 	- `string.random` for generating random string
 	- `string.split2` for splitting strings by pattern [@FiniteReality]
-
 
 ## 1.4.0
 - Implemented automatic gateway sharding
@@ -641,7 +638,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Added default audio library names which can allow for automatic loading of libopus.so and libsodium.so on POSIX systems or opus.dll and sodium.dll on Windows. (Call `loadOpus` or `loadSodium` without arguments to use the defaults)
 	- Fixed a missing parameter in the sodium decrypt function (not currently used by Discordia)
 
-
 ## 1.3.1
 - Event handler optimizations
 	- If an uncached guild, channel, member, or role is encountered on their respective `UPDATE` or `DELETE` events, an object is now created and cached from the event payload instead of throwing a warning.
@@ -653,7 +649,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- The encode method now expects an explicitly defined PCM length instead of one implicitly defined from the input table.
 	- This should fix a segmentation fault issue which apparently was a result of passing a size that is too small.
 	- Fixed an oversight where the positional return value of `string.unpack` was passed to the opus encoder for FFmpeg streams.
-
 
 ## 1.3.0
 - Message enhancements
@@ -678,7 +673,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Removed unnecessary fields from `PATCH /users/@me` request
 	- Added `isPlaying`, `isPaused`, and `playTime` properties to `VoiceConnection` class
 
-
 ## 1.2.2
 - Added package metadata to main `discordia` module
 - Reduced timeout on voice channel join from 10 to 5 seconds
@@ -687,14 +681,12 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added a Clock utility class (not used by the library)
 - Voice optimizations
 
-
 ## 1.2.1
 - Fixed issue where PermissionOverwrite tostring value was not properly formatted
 - Voice tweaks
 	- Moved encryption mode to constants module
 	- pcall'd FFmpeg handle closings to avoid rare nil error
 	- Some minor optimizations
-
 
 ## 1.2.0
 - Implemented voice-send features
@@ -713,7 +705,6 @@ The major goals of this rewrite were to add new or missing features and to impro
  - Outgoing gateway payloads are now coroutine-wrapped
  - Fixed gateway reconnection bug
 
-
 ## 1.1.0
 - Implemented emoji features
 	- Added Emoji and Reaction classes
@@ -726,7 +717,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Fixed issue where PermissionOverwrites for members were not named
 - Added more standard library extensions:
 	- `table.slice`, `string.startswith`, `string.endswith`, `string.levenshtein`
-
 
 ## 1.0.0
 
@@ -799,7 +789,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 			end
 			```
 
-
 - Events
 
 	- Event handling was made more reliable by using the new `Cache` objects
@@ -815,7 +804,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- `warning` and `error` events were added
 	- `heartbeat` event was added with event sequence and roundtrip latency arguments
 
-
 - New Classes
 
 	- `API` - Adds a layer of abstraction between Discord's REST API and Discordia's object oriented API
@@ -827,20 +815,16 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- `Stopwatch` - Used to measure elapsed time with nanosecond precision
 	- `PermissionOverwrite` - Extension of `Snowflake` that maintains per-channel permissions
 
-
 - For other API changes, please consult the Discordia [wiki](https://github.com/SinisterRectus/Discordia/wiki).
-
 
 ## 0.6.2
 - Fixed issue where presences were applied to offline members on guild creation
 - Fixed issue where roles where not properly being applied by Member:setRoles method
 
-
 ## 0.6.1
 - Fixed issue where mentioned object would be nil
 - Fixed issue with UTC time parsing
 - Updated secure-socket dependency to version 0.1.4
-
 
 ## 0.6.0
 - Member:setRoles now accepts a table of roles instead of IDs
@@ -849,14 +833,11 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Fixed issue where private message author was always the channel recipient
 - Fixed erroneous private message parenting for User:sendMessage
 
-
 ## 0.5.8
 - Partial restoration of class overhaul for critical fix
 
-
 ## 0.5.7
 - Reverted class overhaul due to complicated bugs
-
 
 ## 0.5.6
 - Added API client class (not yet exposed)
@@ -866,16 +847,13 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Equality operator now correctly considers type
 	- Fixes an issue where Server == defaultChannel or defaultRole was true
 
-
 ## 0.5.5
 - Fixed regression due to Message.channelId removal
-
 
 ## 0.5.4
 - Added User object fallback for member[Ban/Unban]
 - Added local datetime to Error/Warning output
 - Fixed critical issue where client would not recognize a resumed connection
-
 
 ## 0.5.3
 - Added "0x" to Color:toHex() output
@@ -884,16 +862,13 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Server.joinedAt is now a Unix timestamp
 - utils.dateToTime and resulting timestamps now support milliseconds
 
-
 ## 0.5.2
 - Fixed critical issue with lit package metadata
-
 
 ## 0.5.1
 - Added Member:kick() overload method
 - table.reverse now reverses a table in place
 - Reorganized directories
-
 
 ## 0.5.0
 - Implemented basic Permissions handling
@@ -912,12 +887,10 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Fixed issue where handleWebSocketDisconnect was improperly called
 	- Minor refactoring of token caching
 
-
 ## 0.4.5
 - Overhauled WebSocket keep alive process
 - Fixed issue where Server.defaultRole was nil
 - Fixed UTC issue with dateToTime utility
-
 
 ## 0.4.4
 - Added utility for converting UTC datetime string to Unix timestamp
@@ -925,10 +898,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 - messageUpdate is no longer fired for non-existing messages
 - Fixed @everyone mention crash
 
-
 ## 0.4.3
 - Critical: Removed code that accesses Server.memberCount
-
 
 ## 0.4.2
 - TextChannel improvements
@@ -943,13 +914,11 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Added add, sub, mul, and div operators
 - Added error codes to HTTP warnings and errors
 
-
 ## 0.4.1
 - Client:setNickname now uses proper endpoint
 - Fixed issue where nickname would not update
 - Fixed issue where deleting private channels crashed library
 - Added table.randompair and table.randomipair
-
 
 ## 0.4.0
 - Added standard library extensions (printf, string, table, and math)
@@ -973,13 +942,11 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Fixed issue where member status was nil
 	- Fixed issue where server owner was nil
 
-
 ## 0.3.5
 - Fixed issue where Member.gameName would be nil
 - Removed logout POST until otherwise required
 - Added timeout for WebSocket reconnections
 - Improved rate limit handling
-
 
 ## 0.3.4
 - ServerChannel:createInvite() now returns an Invite object
@@ -987,7 +954,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - getMessageHistory now returns a table of objects
 - Added User.bot parameter (boolean)
 - Fixed issue where voiceLeave event would not fire
-
 
 ## 0.3.3
 - Reworked logout and termination handling:
@@ -999,7 +965,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Added 'expected' argument to disconnect event.
 - Added User.name alias for User.username
 
-
 ## 0.3.2
 - Added HTTP 502 handling
 - Caught exceptions no longer terminate the program
@@ -1007,7 +972,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added disconnect event
 - Fixed missing presenceUpdate arguments
 - Increased max messages to 500 per channel
-
 
 ## 0.3.1
 - Fixed issue where offline member status was nil
@@ -1018,7 +982,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- loginWithToken accepts a token for any account
 	- Client:run() calls the appropriate login method
 	- Bot is prepended to the token according to the READY data
-
 
 ## 0.3.0
 - Added User:sendMessage() method
@@ -1033,10 +996,8 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- Added setTopic method for ServerTextChannel
 	- Added setBitrate method for ServerVoiceChannel
 
-
 ## 0.2.1
 - Critical: Fixed package path issue
-
 
 ## 0.2.0
 - Overhauled class system
@@ -1052,7 +1013,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added statusUpdate WebSocket method and corresponding client methods setStatusIdle, setStatusOnline, and setGameGame
 - Implemented WebSocket reconnecting
 
-
 ## 0.1.0
 - First 'stable' release to coincide with official API documentation release
 - Code overhauled for optimizations and bug fixes
@@ -1062,11 +1022,9 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added 'raw' event
 - Added setOwner, setAfkTimeout, setAfkChannel Server methods
 
-
 ## 0.0.8
 - Established project name: Discordia
 - Added reply example script
-
 
 ## 0.0.7
 - Changed luvit/secure-socket version to 1.1.2
@@ -1075,7 +1033,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added op# shortcut WebSocket methods
 - Role events no longer emit Server object, use role.server instead
 - General Git version control employed instead of GitHub direct editing
-
 
 ## 0.0.6
 - Implemented custom class module with multiple inheritance
@@ -1088,7 +1045,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 	- ServerVoiceChannel inherit from ServerChannel
 - Fixed token caching, which now uses an MD5 hash
 
-
 ## 0.0.5
 - Implemented token caching
 - Conformed user agent to API standard
@@ -1100,7 +1056,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added channel position and general role mutators
 - Message updates now account for 'embeds only'
 
-
 ## 0.0.4
 - Added getServers and getMessages User methods
 - Added event handling for guildCreate, guildDelete, guildUpdate
@@ -1108,7 +1063,6 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added event handling for guildMemberAdd, guildMemberRemove, and guildMemberUpdate
 - Added getAvatarUrl method for user class
 - Pasted MIT license info into package.lua
-
 
 ## 0.0.3
 - Created PrivateChannel class
@@ -1118,12 +1072,10 @@ The major goals of this rewrite were to add new or missing features and to impro
 - Added methods to update class instances
 - Switched from multiple User classes to one main class for all types
 
-
 ## 0.0.2
 - Added event handling for messageCreate and voiceStateUpdate
 - get[Role|Channel|Server]By[Name|Id] now use cached data
 - Expanded Message class
-
 
 ## 0.0.1
 - Finished the majority of REST methods
