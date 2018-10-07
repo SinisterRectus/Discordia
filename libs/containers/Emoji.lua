@@ -136,19 +136,20 @@ function get.requireColons(self)
 	return self._require_colons
 end
 
---[=[@p hash string An iterable array of roles that may be required to use this emoji, generally
-related to integration-managed emojis. Object order is not guaranteed.
+--[=[@p hash string String with the format `name:id`, used in HTTP requests.
+This is different from `Emoji:__hash`, which returns only the Snowflake ID.
 ]=]
 function get.hash(self)
 	return self._name .. ':' .. self._id
 end
 
---[=[@p animated boolean Whether this emoji is animated. (a .gif)]=]
+--[=[@p animated boolean Whether this emoji is animated.]=]
 function get.animated(self)
 	return self._animated
 end
 
---[=[@p roles ArrayIterable An iterable of roles that have access to the emoji.]=]
+--[=[@p roles ArrayIterable An iterable array of roles that may be required to use this emoji, generally
+related to integration-managed emojis. Object order is not guaranteed.]=]
 function get.roles(self)
 	if not self._roles then
 		local roles = self._parent._roles
