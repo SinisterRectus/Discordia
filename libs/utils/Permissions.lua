@@ -40,6 +40,11 @@ function Permissions:__tostring()
 	end
 end
 
+--[=[
+@sm all
+@r Permissions
+@d Returns a Permissions object with all permissions.
+]=]
 function Permissions.all()
 	return Permissions(ALL)
 end

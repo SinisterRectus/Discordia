@@ -351,8 +351,7 @@ end
 @m setSystemChannel
 @p id Channel-Id-Resolvable
 @r boolean
-@d Transfers ownership of the guild to another user. Only the current guild owner
-can do this.
+@d Sets the guild's join message channel.
 ]=]
 function Guild:setSystemChannel(id)
 	id = id and Resolver.channelId(id)
@@ -413,7 +412,7 @@ end
 @m pruneMembers
 @op days number
 @r number
-@d Prunes (removes) inactive, roleless members from the guild.
+@d Prunes (removes) inactive, roleless members from the guild who have not been online in the last provided days.
 ]=]
 function Guild:pruneMembers(days)
 	local data, err = self.client._api:beginGuildPrune(self._id, nil, days and {days = days} or nil)
@@ -428,9 +427,8 @@ end
 @m getBans
 @r Cache
 @d Returns a newly constructed cache of all ban objects for the guild. The
-cache is not automatically updated via gateway events, but the internally
-referenced user objects may be updated. You must call this method again to
-guarantee that the objects are up to date.
+cache and its objects are not automatically updated via gateway events. You must
+call this method again to get the updated objects.
 ]=]
 function Guild:getBans()
 	local data, err = self.client._api:getGuildBans(self._id)
@@ -549,7 +547,7 @@ end
 --[=[
 @m delete
 @r boolean
-@d Permanently deletes the guild. This cannot be undone!
+@d Permanently deletes the guild. The current user must owner the server. This cannot be undone!
 ]=]
 function Guild:delete()
 	local data, err = self.client._api:deleteGuild(self._id)
@@ -753,12 +751,12 @@ function get.afkChannel(self)
 	return self._voice_channels:get(self._afk_channel_id)
 end
 
---[=[@p systemChannelId string/nil The channel id where Discord's join messages will be displayed]=]
+--[=[@p systemChannelId string/nil The channel id where Discord's join messages will be displayed.]=]
 function get.systemChannelId(self)
 	return self._system_channel_id
 end
 
---[=[@p systemChannel GuildTextChannel/nil The channel where Discord's join messages will be displayed]=]
+--[=[@p systemChannel GuildTextChannel/nil The channel where Discord's join messages will be displayed.]=]
 function get.systemChannel(self)
 	return self._text_channels:get(self._system_channel_id)
 end

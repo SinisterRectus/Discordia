@@ -237,7 +237,7 @@ end
 @op id User-ID-Resolvable
 @r boolean
 @d Removes a reaction from the message. Note that this does not return the old
-reaction object; wait for the `reactionAdd` event instead. If no user is
+reaction object; wait for the `reactionRemove` event instead. If no user is
 indicated, then this will remove the current user's reaction.
 ]=]
 function Message:removeReaction(emoji, id)
@@ -306,8 +306,7 @@ function get.reactions(self)
 	return self._reactions
 end
 
---[=[@p mentionedUsers ArrayIterable An iterable array of all users that are mentioned in this message.  Object order
-is not guaranteed.]=]
+--[=[@p mentionedUsers ArrayIterable An iterable array of all users that are mentioned in this message.]=]
 function get.mentionedUsers(self)
 	if not self._mentioned_users then
 		local users = self.client._users
@@ -321,8 +320,7 @@ end
 
 --[=[@p mentionedRoles ArrayIterable An iterable array of known roles that are mentioned in this message, excluding
 the default everyone role. The message must be in a guild text channel and the
-roles must be cached in that channel's guild for them to appear here. Object
-order is not guaranteed.]=]
+roles must be cached in that channel's guild for them to appear here.]=]
 function get.mentionedRoles(self)
 	if not self._mentioned_roles then
 		local client = self.client
@@ -336,7 +334,7 @@ function get.mentionedRoles(self)
 end
 
 --[=[@p mentionedEmojis ArrayIterable An iterable array of all known emojis that are mentioned in this message. If
-the client does not have the emoji cached, then it will not appear here. Object order is not guaranteed.]=]
+the client does not have the emoji cached, then it will not appear here.]=]
 function get.mentionedEmojis(self)
 	if not self._mentioned_emojis then
 		local client = self.client
@@ -350,8 +348,7 @@ function get.mentionedEmojis(self)
 end
 
 --[=[@p mentionedChannels ArrayIterable An iterable array of all known channels that are mentioned in this message. If
-the client does not have the channel cached, then it will not appear here.
-Object order is not guaranteed.]=]
+the client does not have the channel cached, then it will not appear here.]=]
 function get.mentionedChannels(self)
 	if not self._mentioned_channels then
 		local client = self.client

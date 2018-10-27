@@ -1,6 +1,6 @@
 --[=[
 @c Iterable
-@d Abstract base class that defines the base methods and/or properties for a
+@d Abstract base class that defines the base methods and properties for a
 general purpose data structure with features that are better suited for an
 object-oriented environment.
 

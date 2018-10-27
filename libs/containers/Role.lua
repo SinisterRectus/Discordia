@@ -224,7 +224,7 @@ end
 
 --[=[
 @m enablePermissions
-@p ... Permissions-Resolvables
+@p ... Permission-Resolvables
 @r boolean
 @d Enables individual permissions for this role. This does not necessarily fully
 allow the permissions.
@@ -237,7 +237,7 @@ end
 
 --[=[
 @m disablePermissions
-@p ... Permissions-Resolvables
+@p ... Permission-Resolvables
 @r boolean
 @d Disables individual permissions for this role. This does not necessarily fully
 disallow the permissions.

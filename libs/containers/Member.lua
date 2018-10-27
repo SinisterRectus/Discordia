@@ -2,7 +2,8 @@
 @c Member x UserPresence
 @d Represents a Discord guild member. Though one user may be a member in more than
 one guild, each presence is represented by a different member object associated
-with that guild.
+with that guild. Note that any method or property that exists for the User class is
+also available in the Member class.
 ]=]
 
 local enums = require('enums')

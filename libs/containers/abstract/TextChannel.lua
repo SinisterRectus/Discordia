@@ -1,6 +1,6 @@
 --[=[
 @c TextChannel x Channel
-@d Abstract base class that defines the base methods and/or properties for all
+@d Abstract base class that defines the base methods and properties for all
 Discord text channels.
 ]=]
 
@@ -111,7 +111,7 @@ end
 @op limit number
 @r SecondaryCache
 @d Returns a newly constructed cache of between 1 and 100 (default = 50) message
-objects found in the channel after a specific point. While the cache will never
+objects found in the channel after a specific id. While the cache will never
 automatically gain or lose objects, the objects that it contains may be updated
 by gateway events.
 ]=]
@@ -126,7 +126,7 @@ end
 @op limit number
 @r SecondaryCache
 @d Returns a newly constructed cache of between 1 and 100 (default = 50) message
-objects found in the channel before a specific point. While the cache will never
+objects found in the channel before a specific id. While the cache will never
 automatically gain or lose objects, the objects that it contains may be updated
 by gateway events.
 ]=]

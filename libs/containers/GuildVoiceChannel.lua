@@ -114,7 +114,7 @@ function get.userLimit(self)
 	return self._user_limit
 end
 
---[=[@p connectedMembers TableIterable The channel's user limit. This should between 0 and 99 (where 0 is unlimited).]=]
+--[=[@p connectedMembers TableIterable An iterable of all users connected to the channel.]=]
 function get.connectedMembers(self)
 	if not self._connected_members then
 		local id = self._id
