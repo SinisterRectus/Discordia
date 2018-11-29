@@ -77,7 +77,7 @@ function Resolver.emojiId(obj)
 	elseif isInstance(obj, classes.Reaction) then
 		return obj.emojiId
 	end
-	return tostring(obj)
+	return int(obj)
 end
 
 function Resolver.guildId(obj)
