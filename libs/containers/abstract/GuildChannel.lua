@@ -1,6 +1,6 @@
 --[=[
 @c GuildChannel x Channel
-@d Abstract base class that defines the base methods and/or properties for all
+@d Abstract base class that defines the base methods and properties for all
 Discord guild channels.
 ]=]
 
@@ -169,7 +169,7 @@ end
 
 --[=[
 @m createInvite
-@p payload table
+@op payload table
 @r Invite
 @d Creates an invite to the channel. Optional payload fields are:
 - max_age:number time in seconds until expiration, default = 86400 (24 hours)

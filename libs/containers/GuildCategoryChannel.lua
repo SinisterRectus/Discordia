@@ -20,7 +20,7 @@ end
 @m createTextChannel
 @p name string
 @r GuildTextChannel
-@d Creates a new GuildTextChannel with this category as it's parent. `Guild:createTextChannel(name)`
+@d Creates a new GuildTextChannel with this category as it's parent. Similar to `Guild:createTextChannel(name)`
 ]=]
 function GuildCategoryChannel:createTextChannel(name)
 	local guild = self._parent
@@ -56,7 +56,7 @@ function GuildCategoryChannel:createVoiceChannel(name)
 	end
 end
 
---[=[@p textChannels FilteredIterable Returns all textChannels in the Category]=]
+--[=[@p textChannels FilteredIterable Iterable of all textChannels in the Category.]=]
 function get.textChannels(self)
 	if not self._text_channels then
 		local id = self._id
@@ -67,7 +67,7 @@ function get.textChannels(self)
 	return self._text_channels
 end
 
---[=[@p voiceChannels FilteredIterable Returns all voiceChannels in the Category]=]
+--[=[@p voiceChannels FilteredIterable Iterable of all voiceChannels in the Category.]=]
 function get.voiceChannels(self)
 	if not self._voice_channels then
 		local id = self._id

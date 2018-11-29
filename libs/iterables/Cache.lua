@@ -1,6 +1,6 @@
 --[=[
 @c Cache x Iterable
-@d description
+@d Iterable class that holds references to Discordia Class objects in no particular order.
 ]=]
 
 local json = require('json')

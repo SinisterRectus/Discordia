@@ -136,7 +136,7 @@ function get.temporary(self)
 	return self._temporary
 end
 
---[=[@p createdAt string The date and time at which the invite was created, represented as an ISO 8601
+--[=[@p createdAt string/nil The date and time at which the invite was created, represented as an ISO 8601
 string plus microseconds when available. This will not exist if the invite is
 accessed via `Client:getInvite`.]=]
 function get.createdAt(self)

@@ -1,6 +1,7 @@
 --[=[
 @c Activity
 @d Represents a Discord user's presence data, either plain game or streaming presence or a rich presence.
+Most if not all properties may be nil.
 ]=]
 
 local Container = require('containers/abstract/Container')
@@ -32,12 +33,12 @@ function Activity:_loadMore(data)
 	self._party_max = party and party.size and party.size[2]
 end
 
---[=[@p start number/nil The Unix timestamp for when this activity was started.]=]
+--[=[@p start number/nil The Unix timestamp for when this Rich Presence activity was started.]=]
 function get.start(self)
 	return self._start
 end
 
---[=[@p stop number/nil The Unix timestamp for when this activity was stopped.]=]
+--[=[@p stop number/nil The Unix timestamp for when this Rich Presence activity was stopped.]=]
 function get.stop(self)
 	return self._stop
 end
@@ -58,7 +59,7 @@ function get.url(self)
 	return self._url
 end
 
---[=[@p applicationId string The application id controlling this activity.]=]
+--[=[@p applicationId string/nil The application id controlling this Rich Presence activity.]=]
 function get.applicationId(self)
 	return self._application_id
 end

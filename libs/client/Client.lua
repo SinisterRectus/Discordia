@@ -534,7 +534,7 @@ end
 @r nil
 @d Sets the current users's game on all shards that are managed by this client.
 If a string is passed, it is treated as the game name. If a table is passed, it
-must have a `name` field and may optionally have a `url` field. Pass `nil` to
+must have a `name` field and may optionally have a `url` or `type` field. Pass `nil` to
 remove the game status.
 ]=]
 function Client:setGame(game)

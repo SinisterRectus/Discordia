@@ -19,7 +19,7 @@ end
 --[=[
 @m delete
 @r boolean
-@d Deletes the permission overwrite. This can be undone by created a new version of
+@d Deletes the permission overwrite. This can be undone by creating a new version of
 the same overwrite.
 ]=]
 function PermissionOverwrite:delete()

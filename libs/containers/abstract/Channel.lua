@@ -1,6 +1,6 @@
 --[=[
 @c Channel x Snowflake
-@d Abstract base class that defines the base methods and/or properties for all
+@d Abstract base class that defines the base methods and properties for all
 Discord channel types.
 ]=]
 
