@@ -155,7 +155,7 @@ local function writeMethods(f, methods)
             returns[i] = link(retType)
         end
 
-        f:write(concat(returns, ', '), '\n\n')
+        f:write('>Returns: ', concat(returns, ', '), '\n\n')
 	end
 end
 
