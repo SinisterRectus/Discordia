@@ -153,7 +153,7 @@ end
 
 --[=[
 @sm parseSnowflake
-@p str string
+@p id string
 @r number
 @d Converts a Discord Snowflake ID into a Unix time in seconds. Additional
 decimal points may be present, though only the first 3 (milliseconds) should be
@@ -165,7 +165,7 @@ end
 
 --[=[
 @sm parseTable
-@p str string
+@p tbl table
 @r number
 @d Interprets a Lua date table as a local time and converts it to a Unix time in
 seconds. Equivalent to `os.time(tbl)`.
@@ -176,7 +176,7 @@ end
 
 --[=[
 @sm parseTableUTC
-@p str string
+@p tbl table
 @r number
 @d Interprets a Lua date table as a UTC time and converts it to a Unix time in
 seconds. Equivalent to `os.time(tbl)` with a correction for UTC.
@@ -209,7 +209,7 @@ end
 
 --[=[
 @sm fromSnowflake
-@p str string
+@p id string
 @r Date
 @d Constructs a new Date object from a Discord/Twitter Snowflake ID. Equivalent to
 `Date(Date.parseSnowflake(id))`.
@@ -242,32 +242,32 @@ end
 
 --[=[
 @sm fromSeconds
-@p t number
+@p s number
 @r Date
 @d Constructs a new Date object from a Unix time in seconds.
 ]=]
-function Date.fromSeconds(t)
-	return Date(t)
+function Date.fromSeconds(s)
+	return Date(s)
 end
 
 --[=[
 @sm fromMilliseconds
-@p t number
+@p ms number
 @r Date
 @d Constructs a new Date object from a Unix time in milliseconds.
 ]=]
-function Date.fromMilliseconds(t)
-	return Date(t / MS_PER_S)
+function Date.fromMilliseconds(ms)
+	return Date(ms / MS_PER_S)
 end
 
 --[=[
 @sm fromMicroseconds
-@p t number
+@p us number
 @r Date
 @d Constructs a new Date object from a Unix time in microseconds.
 ]=]
-function Date.fromMicroseconds(t)
-	return Date(0, t)
+function Date.fromMicroseconds(us)
+	return Date(0, us)
 end
 
 --[=[
@@ -294,7 +294,7 @@ function Date:toISO(sep, tz)
 end
 
 --[=[
-@m toSnowflake
+@m toHeader
 @r string
 @d Returns an RFC 2822 string that represents the stored date and time.
 ]=]

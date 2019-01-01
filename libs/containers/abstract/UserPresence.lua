@@ -75,7 +75,7 @@ function get.user(self)
 	return self._user
 end
 
---[=[@p activity Activity The Activity that this presence represents.]=]
+--[=[@p activity Activity/nil The Activity that this presence represents.]=]
 function get.activity(self)
 	return self._activity
 end
