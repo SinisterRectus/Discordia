@@ -25,7 +25,7 @@ end)
 client:on("messageCreate", function(message)
 	local args = message.content:split(" ") -- split all arguments into a table
 
-	local command = commands[prefix..args[1]]
+	local command = commands[args[1]]
 	if command then -- ping or hello
 		command.exec(message) -- execute the command
 	end

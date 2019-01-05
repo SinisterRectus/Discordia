@@ -294,7 +294,7 @@ function Date:toISO(sep, tz)
 end
 
 --[=[
-@m toSnowflake
+@m toHeader
 @r string
 @d Returns an RFC 2822 string that represents the stored date and time.
 ]=]
