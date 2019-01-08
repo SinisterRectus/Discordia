@@ -156,15 +156,8 @@ local targets = setmetatable({
 --[=[
 @m getTarget
 @r *
-@d Gets the target object of the affected entity. The returned object can be:  
-- [[Guild]]  
-- [[GuildChannel]]  
-- [[User]]  
-- [[Member]]  
-- [[Role]]  
-- [[Webhook]]  
-- [[Emoji]]  
-- nil
+@d Gets the target object of the affected entity. The returned object can be: [[Guild]],
+[[GuildChannel]], [[User]], [[Member]], [[Role]], [[Webhook]], [[Emoji]], nil
 ]=]
 function AuditLogEntry:getTarget()
 	return targets[self._action_type](self)

@@ -127,7 +127,7 @@ local function writeParameters(f, parameters)
 			f:write('>| Parameter | Type | Optional |\n')
 			f:write('>|-|-|:-:|\n')
 			for _, param in ipairs(parameters) do
-				local o = param[3] and '✔' or ''
+				local o = param[3] and 'âœ”' or ''
 				f:write('>| ', param[1], ' | ', param[2], ' | ', o, ' |\n')
 			end
 		else
