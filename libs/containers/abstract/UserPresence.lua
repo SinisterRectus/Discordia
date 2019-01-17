@@ -31,6 +31,9 @@ local activities = setmetatable({}, {__mode = 'v'})
 
 function UserPresence:_loadPresence(presence)
 	self._status = presence.status
+	self._web_status = presence.client_status.web
+	self._mobile_status = presence.client_status.mobile
+	self._desktop_status = presence.client_status.desktop
 	local game = presence.game
 	if game == null then
 		self._activity = nil
@@ -65,9 +68,24 @@ function get.gameURL(self)
 	return self._activity and self._activity._url
 end
 
---[=[@p status string The user's online status (online, dnd, idle, offline).]=]
+--[=[@p status string The user's overall status (online, dnd, idle, offline).]=]
 function get.status(self)
 	return self._status or 'offline'
+end
+
+--[=[@p status string The user's web status (online, dnd, idle, offline).]=]
+function get.webStatus(self)
+	return self._web_status or 'offline'
+end
+
+--[=[@p status string The user's mobile status (online, dnd, idle, offline).]=]
+function get.mobileStatus(self)
+	return self._mobile_status or 'offline'
+end
+
+--[=[@p status string The user's desktop status (online, dnd, idle, offline).]=]
+function get.desktopStatus(self)
+	return self._desktop_status or 'offline'
 end
 
 --[=[@p user User The user that this presence represents.]=]
