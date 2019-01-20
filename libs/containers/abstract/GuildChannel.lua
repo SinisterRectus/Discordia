@@ -171,11 +171,9 @@ end
 @m createInvite
 @op payload table
 @r Invite
-@d Creates an invite to the channel. Optional payload fields are:
-- max_age:number time in seconds until expiration, default = 86400 (24 hours)
-- max_uses:number total number of uses allowed, default = 0 (unlimited)
-- temporary:boolean whether the invite grants temporary membership, default = false
-- unique:boolean whether a unique code should be guaranteed, default = false
+@d Creates an invite to the channel. Optional payload fields are: max_age: number time in seconds until expiration, default = 86400 (24 hours), 
+max_uses: number total number of uses allowed, default = 0 (unlimited), temporary: boolean whether the invite grants temporary membership, default = false,
+unique: boolean whether a unique code should be guaranteed, default = false
 ]=]
 function GuildChannel:createInvite(payload)
 	local data, err = self.client._api:createChannelInvite(self._id, payload)

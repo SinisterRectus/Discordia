@@ -292,7 +292,8 @@ end
 @m playPCM
 @p source string/function/table/userdata
 @op duration number
-@r number, string
+@r number
+@r string
 @d Plays PCM data over the established connection. If a duration (in milliseconds)
 is provided, the audio stream will automatically stop after that time has elapsed;
 otherwise, it will play until the source is exhausted. The returned number is the
@@ -327,7 +328,8 @@ end
 @m playFFmpeg
 @p path string
 @op duration number
-@r number, string
+@r number
+@r string
 @d Plays audio over the established connection using an FFmpeg process, assuming
 FFmpeg is properly configured. If a duration (in milliseconds)
 is provided, the audio stream will automatically stop after that time has elapsed;

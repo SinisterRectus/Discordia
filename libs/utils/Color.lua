@@ -296,7 +296,7 @@ function Color:setBlue(b)
 end
 
 --[=[
-@m toHSL
+@m copy
 @r Color
 @d Returns a new copy of the original color object.
 ]=]

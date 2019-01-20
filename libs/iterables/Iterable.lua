@@ -17,7 +17,7 @@ local Iterable = require('class')('Iterable')
 --[=[
 @m __pairs
 @r function
-@d Defines the behavior of the `pair` function. Returns an iterator that returns
+@d Defines the behavior of the `pairs` function. Returns an iterator that returns
 a `key, value` pair, where `key` is the result of calling `__hash` on the `value`.
 ]=]
 function Iterable:__pairs()

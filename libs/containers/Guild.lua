@@ -480,10 +480,8 @@ end
 cache and its objects are not automatically updated via gateway events. You must
 call this method again to get the updated objects.
 
-- query.limit: number
-- query.user: UserId Resolvable
-- query.before: EntryId Resolvable
-- query.type: ActionType Resolvable
+If included, the query parameters include: query.limit: number, query.user: UserId Resolvable
+query.before: EntryId Resolvable, query.type: ActionType Resolvable
 ]=]
 function Guild:getAuditLogs(query)
 	if type(query) == 'table' then
@@ -658,7 +656,7 @@ function get.splashURL(self)
 end
 
 --[=[@p large boolean Whether the guild has an arbitrarily large amount of members. Guilds that are
-"large" will not initialize with all members.]=]
+"large" will not initialize with all members cached.]=]
 function get.large(self)
 	return self._large
 end

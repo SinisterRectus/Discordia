@@ -58,8 +58,12 @@ for f in coroutine.wrap(function() scan('./libs') end) do
 			method.name = match(s, '@s?m ([%w%p]+)')
 			for optional, paramName, paramType in s:gmatch('@(o?)p ([%w%p]+)%s+([%w%p]+)') do
 				insert(method.parameters, {paramName, paramType, optional == 'o'})
-			end
-			method.returnType = match(s, '@r ([%w%p]+)')
+            end
+            local returnTypes = {}
+            for retType in s:gmatch('@r ([%w%p]+)') do
+                insert(returnTypes, retType)
+            end
+			method.returnTypes = returnTypes
 			method.desc = match(s, '@d (.+)'):gsub('\r?\n', ' ')
 			insert(checkType(s, '@sm') and class.statics or class.methods, method)
 
@@ -143,8 +147,15 @@ local function writeMethods(f, methods)
 	for _, method in ipairs(methods) do
 		f:write('### ', method.name)
 		writeParameters(f, method.parameters)
-		f:write('>\n>', method.desc, '\n>\n')
-		f:write('>Returns: ', link(method.returnType), '\n\n')
+        f:write('>\n>', method.desc, '\n>\n')
+        
+        local returns = { }
+
+        for i, retType in ipairs(method.returnTypes) do
+            returns[i] = link(retType)
+        end
+
+        f:write('>Returns: ', concat(returns, ', '), '\n\n')
 	end
 end
 

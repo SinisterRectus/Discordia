@@ -156,15 +156,8 @@ local targets = setmetatable({
 --[=[
 @m getTarget
 @r *
-@d Gets the target object of the affected entity. The returned object can be:
- - [[Guild]]
- - [[GuildChannel]]
- - [[User]]
- - [[Member]]
- - [[Role]]
- - [[Webhook]]
- - [[Emoji]]
- - nil
+@d Gets the target object of the affected entity. The returned object can be: [[Guild]],
+[[GuildChannel]], [[User]], [[Member]], [[Role]], [[Webhook]], [[Emoji]], nil
 ]=]
 function AuditLogEntry:getTarget()
 	return targets[self._action_type](self)
@@ -181,7 +174,7 @@ end
 
 --[=[
 @m getMember
-@r Member
+@r Member/nil
 @d Gets the member object of the user who performed the changes.
 ]=]
 function AuditLogEntry:getMember()
@@ -200,12 +193,14 @@ function get.options(self)
 	return self._options
 end
 
---[=[@p actionType number The action type. Use the `actionType `enumeration for a human-readable representation.]=]
+--[=[@p actionType number The action type. Use the `actionType `enumeration
+for a human-readable representation.]=]
 function get.actionType(self)
 	return self._action_type
 end
 
---[=[@p targetId string/nil The Snowflake ID of the affected entity. Will be `nil` for certain targets.]=]
+--[=[@p targetId string/nil The Snowflake ID of the affected entity. Will
+be `nil` for certain targets.]=]
 function get.targetId(self)
 	return self._target_id
 end

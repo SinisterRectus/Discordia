@@ -2,7 +2,7 @@
 @ic Client x Emitter
 @op options table
 @d The main point of entry into a Discordia application. All data relevant to
-Discord are accessible through a client instance or its child objects after a
+Discord is accessible through a client instance or its child objects after a
 connection to Discord is established with the `run` method. In other words,
 client data should not be expected and most client methods should not be called
 until after the `ready` event is received. Base emitter methods may be called
@@ -273,7 +273,9 @@ end
 shards as are required or requested. By using coroutines that are automatically
 managed by Luvit libraries and a libuv event loop, multiple clients per process
 and multiple shards per client can operate concurrently. This should be the last
-method called after all other code and event handlers have been initialized.
+method called after all other code and event handlers have been initialized. If 
+a presence table is provided, it will act as if the user called `setStatus`
+and `setGame` after `run`.
 ]=]
 function Client:run(token, presence)
 	self._presence = presence or {}
@@ -601,7 +603,7 @@ function get.verified(self)
 end
 
 --[=[@p mfaEnabled boolean/nil Whether the current user's owner's account has multi-factor (or two-factor)
-authentication enabled.]=]
+authentication enabled. This is equivalent to `verified`]=]
 function get.mfaEnabled(self)
 	return self._user and self._user._verified
 end
