@@ -411,11 +411,23 @@ end
 --[=[
 @m pruneMembers
 @op days number
+@op count boolean
 @r number
 @d Prunes (removes) inactive, roleless members from the guild who have not been online in the last provided days.
+If the `count` boolean is provided, the number of pruned members is returned; otherwise, `0` is returned.
 ]=]
-function Guild:pruneMembers(days)
-	local data, err = self.client._api:beginGuildPrune(self._id, nil, days and {days = days} or nil)
+function Guild:pruneMembers(days, count)
+	local t1 = type(days)
+	if t1 == 'number' then
+		count = type(count) == 'boolean' and count
+	elseif t1 == 'boolean' then
+		count = days
+		days = nil
+	end
+	local data, err = self.client._api:beginGuildPrune(self._id, nil, {
+		days = days,
+		compute_prune_count = count,
+	})
 	if data then
 		return data.pruned
 	else
