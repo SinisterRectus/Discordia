@@ -62,7 +62,7 @@ end
 @p messages Message-ID-Resolvables
 @r boolean
 @d Bulk deletes multiple messages, from 2 to 100, from the channel. Messages over
-2 weeks old cannot be deleted and discord will return an error.
+2 weeks old cannot be deleted and return an error.
 ]=]
 function GuildTextChannel:bulkDelete(messages)
 	messages = Resolver.messageIds(messages)
