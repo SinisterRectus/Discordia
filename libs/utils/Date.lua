@@ -72,11 +72,16 @@ end
 
 --[=[
 @m toString
+@op fmt string
 @r string
-@d Returns a string from this Date object in human-readable form.
+@d Returns a string from this Date object via Lua's `os.date`.
+If no format string is provided, the default is '%a %b %d %Y %T GMT%z (%Z)'.
 ]=]
-function Date:toString()
-	return date('%a %b %d %Y %T GMT%z (%Z)', self._s)
+function Date:toString(fmt)
+	if not fmt or fmt == '*t' or fmt == '!*t' then
+		fmt = '%a %b %d %Y %T GMT%z (%Z)'
+	end
+	return date(fmt, self._s)
 end
 
 function Date:__eq(other) check(self, other)
