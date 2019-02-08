@@ -70,7 +70,7 @@ end
 
 --[=[
 @m enable
-@p ... Permissions-Resolvable
+@p ... Permission-Resolvables
 @r nil
 @d Enables a specific permission or permissions. See the `permission` enumeration
 for acceptable permission values.
@@ -86,7 +86,7 @@ end
 
 --[=[
 @m disable
-@p ... Permissions-Resolvable
+@p ... Permission-Resolvables
 @r nil
 @d Disables a specific permission or permissions. See the `permission` enumeration
 for acceptable permission values.
@@ -102,7 +102,7 @@ end
 
 --[=[
 @m has
-@p ... Permissions-Resolvable
+@p ... Permission-Resolvables
 @r boolean
 @d Returns whether this set has a specific permission or permissions. See the
 `permission` enumeration for acceptable permission values.
