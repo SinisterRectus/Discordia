@@ -273,7 +273,7 @@ end
 shards as are required or requested. By using coroutines that are automatically
 managed by Luvit libraries and a libuv event loop, multiple clients per process
 and multiple shards per client can operate concurrently. This should be the last
-method called after all other code and event handlers have been initialized. If 
+method called after all other code and event handlers have been initialized. If
 a presence table is provided, it will act as if the user called `setStatus`
 and `setGame` after `run`.
 ]=]
@@ -481,7 +481,7 @@ end
 @m listVoiceRegions
 @r table
 @d Returns a raw data table that contains a list of voice regions as provided by
-Discord, with no additional parsing.
+Discord, with no formatting beyond what is provided by the Discord API.
 ]=]
 function Client:listVoiceRegions()
 	return self._api:listVoiceRegions()
@@ -491,10 +491,21 @@ end
 @m getConnections
 @r table
 @d Returns a raw data table that contains a list of connections as provided by
-Discord, with no additional parsing. This is unrelated to voice connections.
+Discord, with no formatting beyond what is provided by the Discord API.
+This is unrelated to voice connections.
 ]=]
 function Client:getConnections()
 	return self._api:getUsersConnections()
+end
+
+--[=[
+@m getApplicationInformation
+@r table
+@d Returns a raw data table that contains information about the current OAuth2
+application, with no formatting beyond what is provided by the Discord API.
+]=]
+function Client:getApplicationInformation()
+	return self._api:getCurrentApplicationInformation()
 end
 
 local function updateStatus(self)
