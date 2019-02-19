@@ -118,7 +118,7 @@ end
 
 function API:authenticate(token)
 	self._headers = {
-		{'Authorization', token},
+		{'Authorization', 'Bot '..token},
 		{'User-Agent', USER_AGENT},
 	}
 	return self:getCurrentUser()
