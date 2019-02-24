@@ -37,7 +37,7 @@ end
 
 --[=[@p date Date A date object representing the time at which the object was created by Discord.
 
-Equivalent to `Date.fromSnowflake(Snowflake.id)`
+Equivalent to `Date.fromSnowflake(Snowflake.id)`.
 ]=]
 function get.date(self)
 	return Date.fromSnowflake(self._id)
