@@ -35,6 +35,14 @@ function get.createdAt(self)
 	return Date.parseSnowflake(self._id)
 end
 
+--[=[@p date Date A date object representing the time at which the object was created by Discord.
+
+Equivalent to `Date.fromSnowflake(Snowflake.id)`
+]=]
+function get.date(self)
+	return Date.fromSnowflake(self._id)
+end
+
 --[=[@p timestamp string The date and time at which this object was created by Discord, represented as
 an ISO 8601 string plus microseconds when available.
 
