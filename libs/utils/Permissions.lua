@@ -41,6 +41,18 @@ function Permissions:__tostring()
 end
 
 --[=[
+@sm fromMany
+@p ... Permission-Resolvables
+@r Permissions
+@d Returns a Permissions object with all of the defined permissions.
+]=]
+function Permissions.fromMany(...)
+	local ret = Permissions()
+	ret:enable(...)
+	return ret
+end
+
+--[=[
 @sm all
 @r Permissions
 @d Returns a Permissions object with all permissions.
