@@ -136,6 +136,11 @@ function get.rateLimit(self)
 	return self._rate_limit_per_user or 0
 end
 
+--[=[@p isNews boolean Whether this channel is a news channel of type 5.]=]
+function get.isNews(self)
+	return self._type == 5
+end
+
 --[=[@p members FilteredIterable A filtered iterable of guild members that have
 permission to read this channel. If you want to check whether a specific member
 has permission to read this channel, it would be better to get the member object

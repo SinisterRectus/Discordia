@@ -126,7 +126,7 @@ end
 function EventHandler.CHANNEL_CREATE(d, client)
 	local channel
 	local t = d.type
-	if t == channelType.text then
+	if t == channelType.text or t == channelType.news then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
 		channel = guild._text_channels:_insert(d)
@@ -151,7 +151,7 @@ end
 function EventHandler.CHANNEL_UPDATE(d, client)
 	local channel
 	local t = d.type
-	if t == channelType.text then
+	if t == channelType.text or t == channelType.news then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
 		channel = guild._text_channels:_insert(d)
@@ -176,7 +176,7 @@ end
 function EventHandler.CHANNEL_DELETE(d, client)
 	local channel
 	local t = d.type
-	if t == channelType.text then
+	if t == channelType.text or t == channelType.news then
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
 		channel = guild._text_channels:_remove(d)

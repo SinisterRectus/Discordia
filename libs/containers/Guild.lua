@@ -60,7 +60,7 @@ function Guild:_makeAvailable(data)
 
 	for _, channel in ipairs(data.channels) do
 		local t = channel.type
-		if t == channelType.text then
+		if t == channelType.text or t == channelType.news then
 			text_channels:_insert(channel)
 		elseif t == channelType.voice then
 			voice_channels:_insert(channel)
