@@ -23,6 +23,9 @@ function Invite:__init(data, parent)
 	self._guild_name = load(data.guild.name)
 	self._guild_icon = load(data.guild.icon)
 	self._guild_splash = load(data.guild.splash)
+	self._guild_banner = load(data.guild.banner)
+	self._guild_description = load(data.guild.description)
+	self._guild_verification_level = load(data.guild.verification_level)
 	self._channel_name = load(data.channel.name)
 	self._channel_type = load(data.channel.type)
 	if data.inviter then
@@ -89,6 +92,11 @@ function get.guildIcon(self)
 	return self._guild_icon
 end
 
+--[=[@p guildBanner string/nil The hash for the guild's custom banner, if one is set.]=]
+function get.guildBanner(self)
+	return self._guild_banner
+end
+
 --[=[@p guildSplash string/nil The hash for the guild's custom splash, if one is set.]=]
 function get.guildSplash(self)
 	return self._guild_splash
@@ -100,10 +108,26 @@ function get.guildIconURL(self)
 	return icon and format('https://cdn.discordapp.com/icons/%s/%s.png', self._guild_id, icon) or nil
 end
 
+--[=[@p guildBannerURL string/nil The URL that can be used to view the guild's banner, if one is set.]=]
+function get.guildBannerURL(self)
+	local banner = self._guild_banner
+	return banner and format('https://cdn.discordapp.com/banners/%s/%s.png', self._guild_id, banner) or nil
+end
+
 --[=[@p guildSplashURL string/nil The URL that can be used to view the guild's splash, if one is set.]=]
 function get.guildSplashURL(self)
 	local splash = self._guild_splash
 	return splash and format('https://cdn.discordapp.com/splashs/%s/%s.png', self._guild_id, splash) or nil
+end
+
+--[=[@p guildDescription string/nil The guild's custom description, if one is set.]=]
+function get.guildDescription(self)
+	return self._guild_description
+end
+
+--[=[@p guildVerificationLevel number/nil The guild's verification level, if available.]=]
+function get.guildVerificationLevel(self)
+	return self._guild_verification_level
 end
 
 --[=[@p inviter User/nil The object of the user that created the invite. This will not exist if the

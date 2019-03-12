@@ -705,6 +705,26 @@ function get.region(self)
 	return self._region
 end
 
+--[=[@p vanityCode string/nil The guild's vanity invite URL code, if one exists.]=]
+function get.vanityCode(self)
+	return self._vanity_url_code
+end
+
+--[=[@p description string/nil The guild's custom description, if one exists.]=]
+function get.description(self)
+	return self._description
+end
+
+--[=[@p maxMembers number/nil The guild's maximum member count, if available.]=]
+function get.maxMembers(self)
+	return self._max_members
+end
+
+--[=[@p maxPresences number/nil The guild's maximum presence count, if available.]=]
+function get.maxPresences(self)
+	return self._max_presences
+end
+
 --[=[@p mfaLevel number The guild's multi-factor (or two-factor) verification level setting. A value of
 0 indicates that MFA is not required; a value of 1 indicates that MFA is
 required for administrative actions.]=]
