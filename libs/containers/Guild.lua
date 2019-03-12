@@ -382,6 +382,17 @@ function Guild:setIcon(icon)
 end
 
 --[=[
+@m setBanner
+@p banner Base64-Resolvable
+@r boolean
+@d Sets the guild's banner. To remove the banner, pass `nil`.
+]=]
+function Guild:setBanner(banner)
+	banner = banner and Resolver.base64(banner)
+	return self:_modify({banner = banner or json.null})
+end
+
+--[=[
 @m setSplash
 @p splash Base64-Resolvable
 @r boolean
@@ -665,6 +676,17 @@ Only partnered guilds may have this.]=]
 function get.splashURL(self)
 	local splash = self._splash
 	return splash and format('https://cdn.discordapp.com/splashs/%s/%s.png', self._id, splash)
+end
+
+--[=[@p banner string/nil The hash for the guild's custom banner, if one is set.]=]
+function get.banner(self)
+	return self._banner
+end
+
+--[=[@p bannerURL string/nil The URL that can be used to view the guild's banner, if one is set.]=]
+function get.bannerURL(self)
+	local banner = self._banner
+	return banner and format('https://cdn.discordapp.com/banners/%s/%s.png', self._id, banner)
 end
 
 --[=[@p large boolean Whether the guild has an arbitrarily large amount of members. Guilds that are
