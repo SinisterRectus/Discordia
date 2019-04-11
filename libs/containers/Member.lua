@@ -71,8 +71,8 @@ function Member:getColor()
 	return roles[1] and roles[1]:getColor() or Color()
 end
 
-local function has(a, b, admin)
-	return band(a, b) > 0 or admin and band(a, permission.administrator) > 0
+local function has(a, b)
+	return band(a, b) > 0
 end
 
 --[=[
@@ -105,6 +105,18 @@ function Member:hasPermission(channel, perm)
 	end
 
 	if self.id == guild.ownerId then
+		return true
+	end
+
+	local rolePermission = guild.defaultRole.permissions
+
+	for role in self.roles:iter() do
+		if role.id ~= guild.id then -- just in case
+			rolePermission = bor(rolePermission, role.permissions)
+		end
+	end
+
+	if band(rolePermission, permission.administrator) > 0 then
 		return true
 	end
 
@@ -152,19 +164,7 @@ function Member:hasPermission(channel, perm)
 
 	end
 
-	for role in self.roles:iter() do
-		if role.id ~= guild.id then -- just in case
-			if has(role.permissions, n, true) then
-				return true
-			end
-		end
-	end
-
-	if has(guild.defaultRole.permissions, n, true) then
-		return true
-	end
-
-	return false
+	return has(rolePermission, n)
 
 end
 
