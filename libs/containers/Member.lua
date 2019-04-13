@@ -108,15 +108,15 @@ function Member:hasPermission(channel, perm)
 		return true
 	end
 
-	local rolePermission = guild.defaultRole.permissions
+	local rolePermissions = guild.defaultRole.permissions
 
 	for role in self.roles:iter() do
 		if role.id ~= guild.id then -- just in case
-			rolePermission = bor(rolePermission, role.permissions)
+			rolePermissions = bor(rolePermissions, role.permissions)
 		end
 	end
 
-	if band(rolePermission, permission.administrator) > 0 then
+	if has(rolePermissions, permission.administrator) then
 		return true
 	end
 
@@ -164,7 +164,7 @@ function Member:hasPermission(channel, perm)
 
 	end
 
-	return has(rolePermission, n)
+	return has(rolePermissions, n)
 
 end
 
