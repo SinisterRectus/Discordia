@@ -138,6 +138,7 @@ end
 --[=[
 @m getListenerCount
 @p name string
+@p fn function
 @r number
 @d Returns the number of callbacks registered to the named event.
 ]=]
