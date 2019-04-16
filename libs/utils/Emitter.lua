@@ -156,6 +156,7 @@ end
 --[=[
 @m removeListener
 @p name string
+@p fn function
 @r nil
 @d Unregisters all instances of the callback from the named event.
 ]=]
