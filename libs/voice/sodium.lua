@@ -5,7 +5,6 @@ if not loaded then
 	return nil, lib
 end
 
-local new = ffi.new
 local typeof = ffi.typeof
 local format = string.format
 
@@ -45,6 +44,7 @@ local KEYBYTES = lib.crypto_secretbox_keybytes()
 
 local key_t = typeof(format('const unsigned char[%i]', tonumber(KEYBYTES)))
 local nonce_t = typeof(format('unsigned char[%i] const', tonumber(NONCEBYTES)))
+local unsigned_char_array_t = typeof('unsigned char[?]')
 
 function sodium.key(key)
 	return key_t(key)
@@ -59,7 +59,7 @@ end
 function sodium.encrypt(decrypted, decrypted_len, nonce, key)
 
 	local encrypted_len = decrypted_len + MACBYTES
-	local encrypted = new('unsigned char[?]', encrypted_len)
+	local encrypted = unsigned_char_array_t(encrypted_len)
 
 	if lib.crypto_secretbox_easy(encrypted, decrypted, decrypted_len, nonce, key) < 0 then
 		return error('libsodium encryption failed')
@@ -72,7 +72,7 @@ end
 function sodium.decrypt(encrypted, encrypted_len, nonce, key)
 
 	local decrypted_len = encrypted_len - MACBYTES
-	local decrypted = new('unsigned char[?]', decrypted_len)
+	local decrypted = unsigned_char_array_t(decrypted_len)
 
 	if lib.crypto_secretbox_open_easy(decrypted, encrypted, encrypted_len, nonce, key) < 0 then
 		return error('libsodium decryption failed')
