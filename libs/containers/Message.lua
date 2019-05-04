@@ -507,4 +507,9 @@ function get.link(self)
 	return format('https://discordapp.com/channels/%s/%s/%s', guild and guild._id or '@me', self._parent._id, self._id)
 end
 
+--[=[@p webhookId string/nil The ID of the webhook that generated this message, if applicable.]=]
+function get.webhookId(self)
+	return self._webhook_id
+end
+
 return Message
