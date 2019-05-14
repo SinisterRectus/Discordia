@@ -400,7 +400,7 @@ function get.cleanContent(self)
 			:gsub('<@!?(%d+)>', users)
 			:gsub('<@&(%d+)>', roles)
 			:gsub('<#(%d+)>', channels)
-			:gsub('<a?:[%w_]+:(%d+)>', '%1')
+			:gsub('<a?(:[%w_]+:)%d+>', '%1')
 			:gsub('@everyone', everyone)
 			:gsub('@here', here)
 
