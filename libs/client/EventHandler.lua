@@ -42,7 +42,7 @@ end})
 
 function EventHandler.READY(d, client, shard)
 
-	shard:info('Received READY (%s)', concat(d._trace, ', '))
+	shard:info('Received READY')
 	shard:emit('READY')
 
 	shard._session_id = d.session_id
@@ -98,7 +98,7 @@ function EventHandler.READY(d, client, shard)
 end
 
 function EventHandler.RESUMED(d, client, shard)
-	shard:info('Received RESUMED (%s)', concat(d._trace, ', '))
+	shard:info('Received RESUMED')
 	return client:emit('shardResumed', shard._id)
 end
 

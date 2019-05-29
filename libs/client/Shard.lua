@@ -135,7 +135,7 @@ function Shard:handlePayload(payload)
 
 	elseif op == HELLO then
 
-		self:info('Received HELLO (%s)', concat(d._trace, ', '))
+		self:info('Received HELLO')
 		self:startHeartbeat(d.heartbeat_interval)
 		if self._session_id then
 			self:resume()
