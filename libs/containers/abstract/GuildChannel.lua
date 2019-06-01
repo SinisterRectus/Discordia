@@ -262,4 +262,12 @@ function get.category(self)
 	return self._parent._categories:get(self._parent_id)
 end
 
+--[=[@p private boolean Whether the "everyone" role has permission to view this
+channel. In the Discord channel, private text channels are indicated with a lock
+icon and private voice channels are not visible.]=]
+function get.private(self)
+	local overwrite = self._permission_overwrites:get(self._parent._id)
+	return overwrite and overwrite:getDeniedPermissions():has('readMessages')
+end
+
 return GuildChannel
