@@ -773,6 +773,18 @@ function get.explicitContentSetting(self)
 	return self._explicit_content_filter
 end
 
+--[=[@p premiumTier number The guild's premier tier affected by nitro server
+boosts. See the `premiumTier` enumeration for a human-readable representation]=]
+function get.premiumTier(self)
+	return self._premium_tier
+end
+
+--[=[@p premiumSubscriptionCount number The number of users that have upgraded
+the guild with nitro server boosting.]=]
+function get.premiumSubscriptionCount(self)
+	return self._premium_subscription_count
+end
+
 --[=[@p features table Raw table of VIP features that are enabled for the guild.]=]
 function get.features(self)
 	return self._features

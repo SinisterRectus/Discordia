@@ -479,6 +479,12 @@ function get.joinedAt(self)
 	return self._joined_at
 end
 
+--[=[@p premiumSince string/nil The date and time at which the current member boosted the guild, represented as
+an ISO 8601 string plus microseconds when available.]=]
+function get.premiumSince(self)
+	return self._premium_since
+end
+
 --[=[@p voiceChannel GuildVoiceChannel/nil The voice channel to which this member is connected in the current guild.]=]
 function get.voiceChannel(self)
 	local guild = self._parent
