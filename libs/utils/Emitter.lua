@@ -173,12 +173,19 @@ end
 
 --[=[
 @m removeAllListeners
-@p name string
+@p name string/nil
 @r nil
-@d Unregisters all callbacks from the named event.
+@d Unregisters all callbacks for the emitter. If a name is passed, then only
+callbacks for that specific event are unregistered.
 ]=]
 function Emitter:removeAllListeners(name)
-	self._listeners[name] = nil
+	if name then
+		self._listeners[name] = nil
+	else
+		for k in pairs(self._listeners) do
+			self._listeners[k] = nil
+		end
+	end
 end
 
 --[=[
