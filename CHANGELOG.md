@@ -1,5 +1,50 @@
 # Changelog
 
+## 2.7.0
+- Added support for status differentiation
+	- Added `UserPresence.webStatus` property
+	- Added `UserPresence.mobileStatus` property
+	- Added `UserPresence.desktopStatus` property
+- Added support for premium guilds
+	- Added `Guild.premiumTier` property
+	- Added `Guild.premiumSubscriptionCount` property
+	- Added `Member.premiumSince` property
+	- Added `messageType.preiumGuildSubscription` enumeration
+	- Added `messageType.premiumGuildSubscriptionTier1` enumeration
+	- Added `messageType.premiumGuildSubscriptionTier2` enumeration
+	- Added `messageType.premiumGuildSubscriptionTier3` enumeration
+- Added support for guild banners
+	- Added `Guild.banner` property
+	- Added `Guild.bannerURL` property
+	- Added `Guild:setBanner` method
+- Other additions
+	- Added `Guild.vanityCode` property
+	- Added `Guild.description` property
+	- Added `Guild.maxMembers` property
+	- Added `Guild.maxPresences` property
+	- Added `Iterable:pick` method
+	- Added `Permissions.fromMany` static method
+	- Added `Client:getApplicationInformation` method
+	- Added `Message.webhookId` property
+	- Added `Snowflake:getDate` method
+	- Added `AuditLogEntry.userId` property
+	- Added `GuildChannel.private` property
+- Other changes and bug fixes
+	- `Emitter:removeAllListeners` now does exactly that if no `name` is passed
+	- Added support for Discord's new count boolean in `Guild:pruneMembers`
+	- Added an optional format parameter to `Date:toString` that obeys the same rules as `os.date` rules.
+	- Removed parsing of `_trace` properties in gateway payloads
+	- Added basic support for guild news channels (Discordia treats them as text channels for now)
+	- Fixed a bug in emoji ID resolution
+	- Fixed `Member:hasPermission` returning false for administrators in some conditions
+	- Optimized libsodium char array construction
+	- Fixed emoji detection for `Message.cleanContent`
+	- Fixed issue converting `Date` to a snowflake on Windows
+	- Various documentation fixes
+- Dependency updates
+	- Updated `luvit/secure-socket` from `1.2.0` to `1.2.2`
+	- Updated `creationix/coro-http` from `3.0.0` to `3.1.0`
+
 ## 2.6.0
 - Added `GuildTextChannel.rateLimit` and `GuildTextChannel:setRateLimit` for slowmode handling
 - Added parsing of members in the VOICE_STATE_UPDATE event and the mentioned users array for message handling
