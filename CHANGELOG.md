@@ -9,7 +9,7 @@
 	- Added `Guild.premiumTier` property
 	- Added `Guild.premiumSubscriptionCount` property
 	- Added `Member.premiumSince` property
-	- Added `messageType.preiumGuildSubscription` enumeration
+	- Added `messageType.premiumGuildSubscription` enumeration
 	- Added `messageType.premiumGuildSubscriptionTier1` enumeration
 	- Added `messageType.premiumGuildSubscriptionTier2` enumeration
 	- Added `messageType.premiumGuildSubscriptionTier3` enumeration
