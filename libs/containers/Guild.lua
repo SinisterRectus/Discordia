@@ -41,11 +41,22 @@ function Guild:__init(data, parent)
 	end
 end
 
+function Guild:_load(data)
+	Snowflake._load(self, data)
+	return self:_loadMore(data)
+end
+
+function Guild:_loadMore(data)
+	if data.features then
+		self._features = data.features
+	end
+end
+
 function Guild:_makeAvailable(data)
 
 	self._roles:_load(data.roles)
 	self._emojis:_load(data.emojis)
-	self._features = data.features
+	self:_loadMore(data)
 
 	if not data.channels then return end -- incomplete guild
 
