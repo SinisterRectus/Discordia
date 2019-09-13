@@ -20,10 +20,10 @@ function FFmpegProcess:__init(path, rate, channels)
 
 	local stdout = uv.new_pipe(false)
 
-	self._child = uv.spawn('ffmpeg', {
+	self._child = assert(uv.spawn('ffmpeg', {
 		args = {'-i', path, '-ar', rate, '-ac', channels, '-f', 's16le', 'pipe:1', '-loglevel', 'warning'},
 		stdio = {0, stdout, 2},
-	}, onExit)
+	}, onExit), 'ffmpeg could not be started, is it installed and on your executable path?')
 
 	local buffer
 	local thread = running()
