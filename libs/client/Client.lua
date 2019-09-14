@@ -64,6 +64,7 @@ local defaultOptions = {
 	bitrate = 64000,
 	logFile = 'discordia.log',
 	logLevel = logLevel.info,
+	gatewayFile = 'gateway.json',
 	dateTime = '%F %T',
 	syncGuilds = false,
 }
@@ -159,7 +160,7 @@ local function run(self, token)
 	local now = time()
 	local url, count, owner
 
-	local cache = readFileSync('gateway.json')
+	local cache = readFileSync(options.gatewayFile)
 	cache = cache and decode(cache)
 
 	if cache then
@@ -215,7 +216,7 @@ local function run(self, token)
 
 		cache.url = url
 
-		writeFileSync('gateway.json', encode(cache))
+		writeFileSync(options.gatewayFile, encode(cache))
 
 	end
 
