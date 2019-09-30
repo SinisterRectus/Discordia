@@ -67,6 +67,7 @@ local defaultOptions = {
 	gatewayFile = 'gateway.json',
 	dateTime = '%F %T',
 	syncGuilds = false,
+	guildSubscriptions = true,
 }
 
 local function parseOptions(customOptions)
