@@ -2,7 +2,6 @@ local json = require('json')
 local timer = require('timer')
 local http = require('coro-http')
 local package = require('../../package.lua')
-local Date = require('utils/Date')
 local Mutex = require('utils/Mutex')
 local endpoints = require('endpoints')
 
@@ -11,7 +10,6 @@ local f, gsub, byte = string.format, string.gsub, string.byte
 local max, random = math.max, math.random
 local encode, decode, null = json.encode, json.decode, json.null
 local insert, concat = table.insert, table.concat
-local difftime = os.difftime
 local sleep = timer.sleep
 local running = coroutine.running
 
@@ -22,13 +20,12 @@ local BOUNDARY2 = '--' .. BOUNDARY1
 local BOUNDARY3 = BOUNDARY2 .. '--'
 
 local JSON = 'application/json'
+local PRECISION = 'millisecond'
 local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY1)
 local USER_AGENT = f('DiscordBot (%s, %s)', package.homepage, package.version)
 
 local majorRoutes = {guilds = true, channels = true, webhooks = true}
 local payloadRequired = {PUT = true, PATCH = true, POST = true}
-
-local parseDate = Date.parseHeader
 
 local function parseErrors(ret, errors, key)
 	for k, v in pairs(errors) do
@@ -110,17 +107,11 @@ local API = require('class')('API')
 
 function API:__init(client)
 	self._client = client
-	self._headers = {
-		{'User-Agent', USER_AGENT}
-	}
 	self._mutexes = setmetatable({}, mutexMeta)
 end
 
 function API:authenticate(token)
-	self._headers = {
-		{'Authorization', token},
-		{'User-Agent', USER_AGENT},
-	}
+	self._token = token
 	return self:getCurrentUser()
 end
 
@@ -144,13 +135,14 @@ function API:request(method, endpoint, payload, query, files)
 		url = concat(url)
 	end
 
-	local req
+	local req = {
+		{'User-Agent', USER_AGENT},
+		{'X-RateLimit-Precision', PRECISION},
+		{'Authorization', self._token},
+	}
+
 	if payloadRequired[method] then
 		payload = payload and encode(payload) or '{}'
-		req = {}
-		for i, v in ipairs(self._headers) do
-			req[i] = v
-		end
 		if files and next(files) then
 			payload = attachFiles(payload, files)
 			insert(req, {'Content-Type', MULTIPART})
@@ -158,8 +150,6 @@ function API:request(method, endpoint, payload, query, files)
 			insert(req, {'Content-Type', JSON})
 		end
 		insert(req, {'Content-Length', #payload})
-	else
-		req = self._headers
 	end
 
 	local mutex = self._mutexes[route(method, endpoint)]
@@ -193,12 +183,8 @@ function API:commit(method, url, req, payload, retries)
 		res[i] = nil
 	end
 
-	local reset = res['X-RateLimit-Reset']
-	local remaining = res['X-RateLimit-Remaining']
-
-	if reset and remaining == '0' then
-		local dt = difftime(reset, parseDate(res['Date']))
-		delay = max(1000 * dt, delay)
+	if res['X-RateLimit-Remaining'] == '0' then
+		delay = max(1000 * res['X-RateLimit-Reset-After'], delay)
 	end
 
 	local data = res['Content-Type'] == JSON and decode(msg, 1, null) or msg
