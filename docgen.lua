@@ -1,3 +1,22 @@
+--[=[
+@i?c ClassName [x base_1 x base_2 ... x base_n]
+@p parameterName type
+@op optionalParameterName type
+@d class description+
+]=]
+
+--[=[
+@s?m methodName
+@p parameterName type
+@op optionalParameterName type
+@r return
+@d description+
+]=]
+
+--[=[
+@p propertyName type description+
+]=]
+
 local fs = require('fs')
 local pathjoin = require('pathjoin')
 
@@ -16,77 +35,121 @@ local function scan(dir)
 	end
 end
 
-local function checkType(docstring, token)
-	return docstring:find(token) == 1
-end
-
-local function match(s, pattern) -- only useful for one return value
+local function match(s, pattern) -- only useful for one capture
 	return assert(s:match(pattern), s)
 end
 
+local function gmatch(s, pattern) -- only useful for one capture
+	local tbl = {}
+	for v in s:gmatch(pattern) do
+		insert(tbl, v)
+	end
+	return tbl
+end
+
+local function matchType(s)
+	return s:match('^@(%S+)')
+end
+
+local function matchComments(s)
+	return s:gmatch('--%[=%[%s*(.-)%s*%]=%]')
+end
+
+local function matchClassName(s)
+	return match(s, '@i?c (%S+)')
+end
+
+local function matchMethodName(s)
+	return match(s, '@s?m (%S+)')
+end
+
+local function matchDescription(s)
+	return match(s, '@d (.+)'):gsub('%s+', ' ')
+end
+
+local function matchParents(s)
+	return gmatch(s, 'x (%S+)')
+end
+
+local function matchReturns(s)
+	return gmatch(s, '@r (%S+)')
+end
+
+local function matchProperty(s)
+	local a, b, c = s:match('@p (%S+) (%S+) (.+)')
+	return {
+		name = assert(a, s),
+		type = assert(b, s),
+		desc = assert(c, s):gsub('%s+', ' '),
+	}
+end
+
+local function matchParameters(s)
+	local ret = {}
+	for optional, paramName, paramType in s:gmatch('@(o?)p (%S+) (%S+)') do
+		insert(ret, {paramName, paramType, optional == 'o'})
+	end
+	return ret
+end
+
+local function matchMethod(s)
+	return {
+		name = matchMethodName(s),
+		desc = matchDescription(s),
+		parameters = matchParameters(s),
+		returnTypes = matchReturns(s),
+	}
+end
+
+----
+
 local docs = {}
 
-for f in coroutine.wrap(function() scan('./libs') end) do
-
-	local d = assert(fs.readFileSync(f))
+local function newClass()
 
 	local class = {
 		methods = {},
 		statics = {},
 		properties = {},
-		parents = {},
 	}
 
-	for s in d:gmatch('--%[=%[%s*(.-)%s*%]=%]') do
-
-		if checkType(s, '@i?c') then
-
-			class.name = match(s, '@i?c (%w+)')
-			class.userInitialized = checkType(s, '@ic')
-			for parent in s:gmatch('x (%w+)') do
-				insert(class.parents, parent)
-			end
-			class.desc = match(s, '@d (.+)'):gsub('\r?\n', ' ')
-			class.parameters = {}
-			for optional, paramName, paramType in s:gmatch('@(o?)p ([%w%p]+)%s+([%w%p]+)') do
-				insert(class.parameters, {paramName, paramType, optional == 'o'})
-			end
-
-		elseif checkType(s, '@s?m') then
-
-			local method = {parameters = {}}
-			method.name = match(s, '@s?m ([%w%p]+)')
-			for optional, paramName, paramType in s:gmatch('@(o?)p ([%w%p]+)%s+([%w%p]+)') do
-				insert(method.parameters, {paramName, paramType, optional == 'o'})
-            end
-            local returnTypes = {}
-            for retType in s:gmatch('@r ([%w%p]+)') do
-                insert(returnTypes, retType)
-            end
-			method.returnTypes = returnTypes
-			method.desc = match(s, '@d (.+)'):gsub('\r?\n', ' ')
-			insert(checkType(s, '@sm') and class.statics or class.methods, method)
-
-		elseif checkType(s, '@p') then
-
-			local propertyName, propertyType, propertyDesc = s:match('@p (%w+)%s+([%w%p]+)%s+(.+)')
-			assert(propertyName, s); assert(propertyType, s); assert(propertyDesc, s)
-			propertyDesc = propertyDesc:gsub('\r?\n', ' ')
-			insert(class.properties, {
-				name = propertyName,
-				type = propertyType,
-				desc = propertyDesc,
-			})
-
-		end
-
-	end
-
-	if class.name then
+	local function init(s, userInitialized)
+		class.name = matchClassName(s)
+		class.parents = matchParents(s)
+		class.desc = matchDescription(s)
+		class.parameters = matchParameters(s)
+		class.userInitialized = userInitialized
+		assert(not docs[class.name], 'duplicate class: ' .. class.name)
 		docs[class.name] = class
 	end
 
+	return class, init
+
 end
+
+for f in coroutine.wrap(scan), './libs' do
+
+	local d = assert(fs.readFileSync(f))
+
+	local class, initClass = newClass()
+	for s in matchComments(d) do
+		local t = matchType(s)
+		if t == 'c' then
+			initClass(s)
+		elseif t == 'ic' then
+			initClass(s, true)
+		elseif t == 'sm' then
+			insert(class.statics, matchMethod(s))
+		elseif t == 'm' then
+			insert(class.methods, matchMethod(s))
+		elseif t == 'p' then
+			insert(class.properties, matchProperty(s))
+		end
+	end
+
+end
+
+----
 
 local function link(str)
 	local ret = {}
@@ -147,15 +210,12 @@ local function writeMethods(f, methods)
 	for _, method in ipairs(methods) do
 		f:write('### ', method.name)
 		writeParameters(f, method.parameters)
-        f:write('>\n>', method.desc, '\n>\n')
-        
-        local returns = { }
-
-        for i, retType in ipairs(method.returnTypes) do
-            returns[i] = link(retType)
-        end
-
-        f:write('>Returns: ', concat(returns, ', '), '\n\n')
+		f:write('>\n>', method.desc, '\n>\n')
+		local returns = {}
+		for i, retType in ipairs(method.returnTypes) do
+			returns[i] = link(retType)
+		end
+		f:write('>Returns: ', concat(returns, ', '), '\n\n')
 	end
 end
 
