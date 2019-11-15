@@ -1,14 +1,14 @@
 --[=[
 @c ClassName [x base_1 x base_2 ... x base_n]
-@t tag (one of: ui, abc)
+@t tag (available: ui, abc)
 @p parameterName type
 @op optionalParameterName type
-@d class description+
+@d description+
 ]=]
 
 --[=[
 @m methodName
-@t tag (one of: static)
+@t tag (available: static)
 @p parameterName type
 @op optionalParameterName type
 @r return
@@ -246,10 +246,10 @@ if not fs.existsSync(output) then
 	fs.mkdirSync(output)
 end
 
-local function collectParents(class, k, ret, seen)
+local function collectParents(parents, k, ret, seen)
 	ret = ret or {}
 	seen = seen or {}
-	for _, parent in ipairs(class.parents) do
+	for _, parent in ipairs(parents) do
 		parent = docs[parent]
 		if parent then
 			for _, v in ipairs(parent[k]) do
@@ -259,7 +259,7 @@ local function collectParents(class, k, ret, seen)
 				end
 			end
 		end
-		collectParents(parent, k, ret, seen)
+		collectParents(parent.parents, k, ret, seen)
 	end
 	return ret
 end
@@ -268,8 +268,11 @@ for _, class in pairs(docs) do
 
 	local f = io.open(pathJoin(output, class.name .. '.md'), 'w')
 
-	if next(class.parents) then
-		f:write('#### *extends ', link(class.parents), '*\n\n')
+	local parents = class.parents
+	local parentLinks = link(parents)
+
+	if next(parents) then
+		f:write('#### *extends ', parentLinks, '*\n\n')
 	end
 
 	f:write(class.desc, '\n\n')
@@ -282,9 +285,13 @@ for _, class in pairs(docs) do
 		f:write('*Instances of this class should not be constructed by users.*\n\n')
 	end
 
-	local properties = collectParents(class, 'properties')
+	if class.tags.abc then -- should be mutually exclusive with ui, but it's not enforced
+		f:write('*This is an abstract base class. Direct instances should never exist.*\n\n')
+	end
+
+	local properties = collectParents(parents, 'properties')
 	if next(properties) then
-		writeHeading(f, 'Properties Inherited ' .. link(class.parents))
+		writeHeading(f, 'Properties Inherited From ' .. parentLinks)
 		writeProperties(f, properties)
 	end
 
@@ -293,15 +300,15 @@ for _, class in pairs(docs) do
 		writeProperties(f, class.properties)
 	end
 
-	local statics = collectParents(class, 'statics')
+	local statics = collectParents(parents, 'statics')
 	if next(statics) then
-		writeHeading(f, 'Static Methods Inherited From ' .. link(class.parents))
+		writeHeading(f, 'Static Methods Inherited From ' .. parentLinks)
 		writeMethods(f, statics)
 	end
 
-	local methods = collectParents(class, 'methods')
+	local methods = collectParents(parents, 'methods')
 	if next(methods) then
-		writeHeading(f, 'Methods Inherited From ' .. link(class.parents))
+		writeHeading(f, 'Methods Inherited From ' .. parentLinks)
 		writeMethods(f, methods)
 	end
 
