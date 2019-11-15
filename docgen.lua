@@ -151,16 +151,30 @@ end
 
 ----
 
+local output = 'docs'
+
 local function link(str)
-	local ret = {}
-	for t in str:gmatch('[^/]+') do
-		insert(ret, docs[t] and format('[[%s]]', t) or t)
+	if type(str) == 'table' then
+		local ret = {}
+		for i, v in ipairs(str) do
+			ret[i] = link(v)
+		end
+		return concat(ret, ', ')
+	else
+		local ret = {}
+		for t in str:gmatch('[^/]+') do
+			insert(ret, docs[t] and format('[[%s]]', t) or t)
+		end
+		return concat(ret, '/')
 	end
-	return concat(ret, '/')
 end
 
 local function sorter(a, b)
 	return a.name < b.name
+end
+
+local function writeHeading(f, heading)
+	f:write('## ', heading, '\n\n')
 end
 
 local function writeProperties(f, properties)
@@ -170,12 +184,13 @@ local function writeProperties(f, properties)
 	for _, v in ipairs(properties) do
 		f:write('| ', v.name, ' | ', link(v.type), ' | ', v.desc, ' |\n')
 	end
+	f:write('\n')
 end
 
 local function writeParameters(f, parameters)
 	f:write('(')
 	local optional
-	if parameters[1] then
+	if #parameters > 0 then
 		for i, param in ipairs(parameters) do
 			f:write(param[1])
 			if i < #parameters then
@@ -185,23 +200,23 @@ local function writeParameters(f, parameters)
 				optional = true
 			end
 		end
-		f:write(')\n')
+		f:write(')\n\n')
 		if optional then
-			f:write('>| Parameter | Type | Optional |\n')
-			f:write('>|-|-|:-:|\n')
+			f:write('| Parameter | Type | Optional |\n')
+			f:write('|-|-|:-:|\n')
 			for _, param in ipairs(parameters) do
 				local o = param[3] and '✔' or ''
-				f:write('>| ', param[1], ' | ', param[2], ' | ', o, ' |\n')
+				f:write('| ', param[1], ' | ', link(param[2]), ' | ', o, ' |\n\n')
 			end
 		else
-			f:write('>| Parameter | Type |\n')
-			f:write('>|-|-|\n')
+			f:write('| Parameter | Type |\n')
+			f:write('|-|-|\n')
 			for _, param in ipairs(parameters) do
-				f:write('>| ', param[1], ' | ', link(param[2]), '|\n')
+				f:write('| ', param[1], ' | ', link(param[2]), ' |\n\n')
 			end
 		end
 	else
-		f:write(')\n')
+		f:write(')\n\n')
 	end
 end
 
@@ -210,46 +225,27 @@ local function writeMethods(f, methods)
 	for _, method in ipairs(methods) do
 		f:write('### ', method.name)
 		writeParameters(f, method.parameters)
-		f:write('>\n>', method.desc, '\n>\n')
-		local returns = {}
-		for i, retType in ipairs(method.returnTypes) do
-			returns[i] = link(retType)
-		end
-		f:write('>Returns: ', concat(returns, ', '), '\n\n')
+		f:write(method.desc, '\n\n')
+		f:write('**Returns:** ', link(method.returnTypes), '\n\n----\n\n')
 	end
 end
 
-if not fs.existsSync('docs') then
-	fs.mkdirSync('docs')
-end
-
-local function clean(input, seen)
-	local fields = {}
-	for _, field in ipairs(input) do
-		if not seen[field.name] then
-			insert(fields, field)
-		end
-	end
-	return fields
+if not fs.existsSync(output) then
+	fs.mkdirSync(output)
 end
 
 for _, class in pairs(docs) do
 
-	local seen = {}
-	for _, v in pairs(class.properties) do seen[v.name] = true end
-	for _, v in pairs(class.statics) do seen[v.name] = true	end
-	for _, v in pairs(class.methods) do seen[v.name] = true	end
-
-	local f = io.open(pathJoin('docs', class.name .. '.md'), 'w')
+	local f = io.open(pathJoin(output, class.name .. '.md'), 'w')
 
 	if next(class.parents) then
-		f:write('#### *extends ', '[[', concat(class.parents, ']], [['), ']]*\n\n')
+		f:write('#### *extends ', link(class.parents), '*\n\n')
 	end
 
 	f:write(class.desc, '\n\n')
 
 	if class.userInitialized then
-		f:write('## Constructor\n\n')
+		writeHeading(f, 'Constructor')
 		f:write('### ', class.name)
 		writeParameters(f, class.parameters)
 		f:write('\n')
@@ -261,14 +257,14 @@ for _, class in pairs(docs) do
 		if docs[parent] and next(docs[parent].properties) then
 			local properties = docs[parent].properties
 			if next(properties) then
-				f:write('## Properties Inherited From ', link(parent), '\n\n')
-				writeProperties(f, clean(properties, seen))
+				writeHeading(f, 'Properties Inherited From ' .. link(parent))
+				writeProperties(f, properties)
 			end
 		end
 	end
 
 	if next(class.properties) then
-		f:write('## Properties\n\n')
+		writeHeading(f, 'Properties')
 		writeProperties(f, class.properties)
 	end
 
@@ -276,8 +272,8 @@ for _, class in pairs(docs) do
 		if docs[parent] and next(docs[parent].statics) then
 			local statics = docs[parent].statics
 			if next(statics) then
-				f:write('## Static Methods Inherited From ', link(parent), '\n\n')
-				writeMethods(f, clean(statics, seen))
+				writeHeading(f, 'Static Methods Inherited From ' .. link(parent))
+				writeMethods(f, statics)
 			end
 		end
 	end
@@ -286,19 +282,19 @@ for _, class in pairs(docs) do
 		if docs[parent] and next(docs[parent].methods) then
 			local methods = docs[parent].methods
 			if next(methods) then
-				f:write('## Methods Inherited From ', link(parent), '\n\n')
-				writeMethods(f, clean(methods, seen))
+				writeHeading(f, 'Methods Inherited From ' .. link(parent))
+				writeMethods(f, methods)
 			end
 		end
 	end
 
 	if next(class.statics) then
-		f:write('## Static Methods\n\n')
+		writeHeading(f, 'Static Methods')
 		writeMethods(f, class.statics)
 	end
 
 	if next(class.methods) then
-		f:write('## Methods\n\n')
+		writeHeading(f, 'Methods')
 		writeMethods(f, class.methods)
 	end
 
