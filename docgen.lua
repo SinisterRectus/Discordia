@@ -216,14 +216,16 @@ local function writeParameters(f, parameters)
 			f:write('|-|-|:-:|\n')
 			for _, param in ipairs(parameters) do
 				local o = param[3] and '✔' or ''
-				f:write('| ', param[1], ' | ', link(param[2]), ' | ', o, ' |\n\n')
+				f:write('| ', param[1], ' | ', link(param[2]), ' | ', o, ' |\n')
 			end
+			f:write('\n')
 		else
 			f:write('| Parameter | Type |\n')
 			f:write('|-|-|\n')
 			for _, param in ipairs(parameters) do
-				f:write('| ', param[1], ' | ', link(param[2]), ' |\n\n')
+				f:write('| ', param[1], ' | ', link(param[2]), ' |\n')
 			end
+			f:write('\n')
 		end
 	else
 		f:write(')\n\n')
@@ -244,6 +246,24 @@ if not fs.existsSync(output) then
 	fs.mkdirSync(output)
 end
 
+local function collectParents(class, k, ret, seen)
+	ret = ret or {}
+	seen = seen or {}
+	for _, parent in ipairs(class.parents) do
+		parent = docs[parent]
+		if parent then
+			for _, v in ipairs(parent[k]) do
+				if not seen[v] then
+					seen[v] = true
+					insert(ret, v)
+				end
+			end
+		end
+		collectParents(parent, k, ret, seen)
+	end
+	return ret
+end
+
 for _, class in pairs(docs) do
 
 	local f = io.open(pathJoin(output, class.name .. '.md'), 'w')
@@ -258,19 +278,14 @@ for _, class in pairs(docs) do
 		writeHeading(f, 'Constructor')
 		f:write('### ', class.name)
 		writeParameters(f, class.parameters)
-		f:write('\n')
 	else
 		f:write('*Instances of this class should not be constructed by users.*\n\n')
 	end
 
-	for _, parent in ipairs(class.parents) do
-		if docs[parent] and next(docs[parent].properties) then
-			local properties = docs[parent].properties
-			if next(properties) then
-				writeHeading(f, 'Properties Inherited From ' .. link(parent))
-				writeProperties(f, properties)
-			end
-		end
+	local properties = collectParents(class, 'properties')
+	if next(properties) then
+		writeHeading(f, 'Properties Inherited ' .. link(class.parents))
+		writeProperties(f, properties)
 	end
 
 	if next(class.properties) then
@@ -278,24 +293,16 @@ for _, class in pairs(docs) do
 		writeProperties(f, class.properties)
 	end
 
-	for _, parent in ipairs(class.parents) do
-		if docs[parent] and next(docs[parent].statics) then
-			local statics = docs[parent].statics
-			if next(statics) then
-				writeHeading(f, 'Static Methods Inherited From ' .. link(parent))
-				writeMethods(f, statics)
-			end
-		end
+	local statics = collectParents(class, 'statics')
+	if next(statics) then
+		writeHeading(f, 'Static Methods Inherited From ' .. link(class.parents))
+		writeMethods(f, statics)
 	end
 
-	for _, parent in ipairs(class.parents) do
-		if docs[parent] and next(docs[parent].methods) then
-			local methods = docs[parent].methods
-			if next(methods) then
-				writeHeading(f, 'Methods Inherited From ' .. link(parent))
-				writeMethods(f, methods)
-			end
-		end
+	local methods = collectParents(class, 'methods')
+	if next(methods) then
+		writeHeading(f, 'Methods Inherited From ' .. link(class.parents))
+		writeMethods(f, methods)
 	end
 
 	if next(class.statics) then
