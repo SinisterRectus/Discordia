@@ -1,5 +1,6 @@
 --[=[
-@ic Date
+@c Date
+@t ui
 @op seconds number
 @op microseconds number
 @d Represents a single moment in time and provides utilities for converting to
@@ -125,7 +126,8 @@ function Date:__sub(other)
 end
 
 --[=[
-@sm parseISO
+@m parseISO
+@t static
 @p str string
 @r number
 @r number
@@ -145,7 +147,8 @@ function Date.parseISO(str)
 end
 
 --[=[
-@sm parseHeader
+@m parseHeader
+@t static
 @p str string
 @r number
 @d Converts an RFC 2822 string (an HTTP Date header) into a Unix time in seconds.
@@ -161,7 +164,8 @@ function Date.parseHeader(str)
 end
 
 --[=[
-@sm parseSnowflake
+@m parseSnowflake
+@t static
 @p id string
 @r number
 @d Converts a Discord Snowflake ID into a Unix time in seconds. Additional
@@ -173,7 +177,8 @@ function Date.parseSnowflake(id)
 end
 
 --[=[
-@sm parseTable
+@m parseTable
+@t static
 @p tbl table
 @r number
 @d Interprets a Lua date table as a local time and converts it to a Unix time in
@@ -184,7 +189,8 @@ function Date.parseTable(tbl)
 end
 
 --[=[
-@sm parseTableUTC
+@m parseTableUTC
+@t static
 @p tbl table
 @r number
 @d Interprets a Lua date table as a UTC time and converts it to a Unix time in
@@ -195,7 +201,8 @@ function Date.parseTableUTC(tbl)
 end
 
 --[=[
-@sm fromISO
+@m fromISO
+@t static
 @p str string
 @r Date
 @d Constructs a new Date object from an ISO 8601 string. Equivalent to
@@ -206,7 +213,8 @@ function Date.fromISO(str)
 end
 
 --[=[
-@sm fromHeader
+@m fromHeader
+@t static
 @p str string
 @r Date
 @d Constructs a new Date object from an RFC 2822 string. Equivalent to
@@ -217,7 +225,8 @@ function Date.fromHeader(str)
 end
 
 --[=[
-@sm fromSnowflake
+@m fromSnowflake
+@t static
 @p id string
 @r Date
 @d Constructs a new Date object from a Discord/Twitter Snowflake ID. Equivalent to
@@ -228,7 +237,8 @@ function Date.fromSnowflake(id)
 end
 
 --[=[
-@sm fromTable
+@m fromTable
+@t static
 @p tbl table
 @r Date
 @d Constructs a new Date object from a Lua date table interpreted as a local time.
@@ -239,7 +249,8 @@ function Date.fromTable(tbl)
 end
 
 --[=[
-@sm fromTableUTC
+@m fromTableUTC
+@t static
 @p tbl table
 @r Date
 @d Constructs a new Date object from a Lua date table interpreted as a UTC time.
@@ -250,7 +261,8 @@ function Date.fromTableUTC(tbl)
 end
 
 --[=[
-@sm fromSeconds
+@m fromSeconds
+@t static
 @p s number
 @r Date
 @d Constructs a new Date object from a Unix time in seconds.
@@ -260,7 +272,8 @@ function Date.fromSeconds(s)
 end
 
 --[=[
-@sm fromMilliseconds
+@m fromMilliseconds
+@t static
 @p ms number
 @r Date
 @d Constructs a new Date object from a Unix time in milliseconds.
@@ -270,7 +283,8 @@ function Date.fromMilliseconds(ms)
 end
 
 --[=[
-@sm fromMicroseconds
+@m fromMicroseconds
+@t static
 @p us number
 @r Date
 @d Constructs a new Date object from a Unix time in microseconds.

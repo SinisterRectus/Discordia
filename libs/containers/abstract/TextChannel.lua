@@ -1,7 +1,7 @@
 --[=[
 @c TextChannel x Channel
-@d Abstract base class that defines the base methods and properties for all
-Discord text channels.
+@t abc
+@d Defines the base methods and properties for all Discord text channels.
 ]=]
 
 local pathjoin = require('pathjoin')

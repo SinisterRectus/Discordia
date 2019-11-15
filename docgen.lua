@@ -1,12 +1,14 @@
 --[=[
-@i?c ClassName [x base_1 x base_2 ... x base_n]
+@c ClassName [x base_1 x base_2 ... x base_n]
+@t tag (one of: ui, abc)
 @p parameterName type
 @op optionalParameterName type
 @d class description+
 ]=]
 
 --[=[
-@s?m methodName
+@m methodName
+@t tag (one of: static)
 @p parameterName type
 @op optionalParameterName type
 @r return
@@ -39,10 +41,16 @@ local function match(s, pattern) -- only useful for one capture
 	return assert(s:match(pattern), s)
 end
 
-local function gmatch(s, pattern) -- only useful for one capture
+local function gmatch(s, pattern, hash) -- only useful for one capture
 	local tbl = {}
-	for v in s:gmatch(pattern) do
-		insert(tbl, v)
+	if hash then
+		for k in s:gmatch(pattern) do
+			tbl[k] = true
+		end
+	else
+		for v in s:gmatch(pattern) do
+			insert(tbl, v)
+		end
 	end
 	return tbl
 end
@@ -56,11 +64,11 @@ local function matchComments(s)
 end
 
 local function matchClassName(s)
-	return match(s, '@i?c (%S+)')
+	return match(s, '@c (%S+)')
 end
 
 local function matchMethodName(s)
-	return match(s, '@s?m (%S+)')
+	return match(s, '@m (%S+)')
 end
 
 local function matchDescription(s)
@@ -73,6 +81,10 @@ end
 
 local function matchReturns(s)
 	return gmatch(s, '@r (%S+)')
+end
+
+local function matchTags(s)
+	return gmatch(s, '@t (%S+)', true)
 end
 
 local function matchProperty(s)
@@ -98,6 +110,7 @@ local function matchMethod(s)
 		desc = matchDescription(s),
 		parameters = matchParameters(s),
 		returnTypes = matchReturns(s),
+		tags = matchTags(s),
 	}
 end
 
@@ -113,12 +126,12 @@ local function newClass()
 		properties = {},
 	}
 
-	local function init(s, userInitialized)
+	local function init(s)
 		class.name = matchClassName(s)
 		class.parents = matchParents(s)
 		class.desc = matchDescription(s)
 		class.parameters = matchParameters(s)
-		class.userInitialized = userInitialized
+		class.tags = matchTags(s)
 		assert(not docs[class.name], 'duplicate class: ' .. class.name)
 		docs[class.name] = class
 	end
@@ -136,12 +149,9 @@ for f in coroutine.wrap(scan), './libs' do
 		local t = matchType(s)
 		if t == 'c' then
 			initClass(s)
-		elseif t == 'ic' then
-			initClass(s, true)
-		elseif t == 'sm' then
-			insert(class.statics, matchMethod(s))
 		elseif t == 'm' then
-			insert(class.methods, matchMethod(s))
+			local method = matchMethod(s)
+			insert(method.tags.static and class.statics or class.methods, method)
 		elseif t == 'p' then
 			insert(class.properties, matchProperty(s))
 		end
@@ -244,7 +254,7 @@ for _, class in pairs(docs) do
 
 	f:write(class.desc, '\n\n')
 
-	if class.userInitialized then
+	if class.tags.ui then
 		writeHeading(f, 'Constructor')
 		f:write('### ', class.name)
 		writeParameters(f, class.parameters)

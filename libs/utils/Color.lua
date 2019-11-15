@@ -1,5 +1,6 @@
 --[=[
-@ic Color
+@c Color
+@t ui
 @p value number
 @d Wrapper for 24-bit colors packed as a decimal value. See the static constructors for more information.
 ]=]
@@ -83,7 +84,8 @@ function Color:__div(other)
 end
 
 --[=[
-@sm fromHex
+@m fromHex
+@t static
 @p hex string
 @r Color
 @d Constructs a new Color object from a hexadecimal string. The string may or may
@@ -94,7 +96,8 @@ function Color.fromHex(hex)
 end
 
 --[=[
-@sm fromRGB
+@m fromRGB
+@t static
 @p r number
 @p g number
 @p b number
@@ -153,7 +156,8 @@ local function toHue(r, g, b)
 end
 
 --[=[
-@sm fromHSV
+@m fromHSV
+@t static
 @p h number
 @p s number
 @p v number
@@ -172,7 +176,8 @@ function Color.fromHSV(h, s, v)
 end
 
 --[=[
-@sm fromHSL
+@m fromHSL
+@t static
 @p h number
 @p s number
 @p l number

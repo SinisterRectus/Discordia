@@ -1,5 +1,6 @@
 --[=[
-@ic Client x Emitter
+@c Client x Emitter
+@t ui
 @op options table
 @d The main point of entry into a Discordia application. All data relevant to
 Discord is accessible through a client instance or its child objects after a

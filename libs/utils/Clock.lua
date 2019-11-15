@@ -1,5 +1,6 @@
 --[=[
-@ic Clock x Emitter
+@c Clock x Emitter
+@t ui
 @d Used to periodically execute code according to the ticking of the system clock instead of arbitrary interval.
 ]=]
 

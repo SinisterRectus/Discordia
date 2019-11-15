@@ -1,7 +1,7 @@
 --[=[
 @c Channel x Snowflake
-@d Abstract base class that defines the base methods and properties for all
-Discord channel types.
+@t abc
+@d Defines the base methods and properties for all Discord channel types.
 ]=]
 
 local Snowflake = require('containers/abstract/Snowflake')

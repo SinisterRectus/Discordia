@@ -1,5 +1,6 @@
 --[=[
-@ic Time
+@c Time
+@t ui
 @d Represents a length of time and provides utilities for converting to and from
 different formats with millisecond precision.
 ]=]
@@ -118,7 +119,8 @@ function Time:__div(other)
 end
 
 --[=[
-@sm fromWeeks
+@m fromWeeks
+@t static
 @p t number
 @r Time
 @d Constructs a new Time object from a value interpreted as weeks, where a week
@@ -129,7 +131,8 @@ function Time.fromWeeks(t)
 end
 
 --[=[
-@sm fromDays
+@m fromDays
+@t static
 @p t number
 @r Time
 @d Constructs a new Time object from a value interpreted as days, where a day is
@@ -140,7 +143,8 @@ function Time.fromDays(t)
 end
 
 --[=[
-@sm fromHours
+@m fromHours
+@t static
 @p t number
 @r Time
 @d Constructs a new Time object from a value interpreted as hours, where an hour is
@@ -151,7 +155,8 @@ function Time.fromHours(t)
 end
 
 --[=[
-@sm fromMinutes
+@m fromMinutes
+@t static
 @p t number
 @r Time
 @d Constructs a new Time object from a value interpreted as minutes, where a minute
@@ -162,7 +167,8 @@ function Time.fromMinutes(t)
 end
 
 --[=[
-@sm fromSeconds
+@m fromSeconds
+@t static
 @p t number
 @r Time
 @d Constructs a new Time object from a value interpreted as seconds, where a second
@@ -173,7 +179,8 @@ function Time.fromSeconds(t)
 end
 
 --[=[
-@sm fromMilliseconds
+@m fromMilliseconds
+@t static
 @p t number
 @r Time
 @d Constructs a new Time object from a value interpreted as milliseconds, the base
@@ -184,7 +191,8 @@ function Time.fromMilliseconds(t)
 end
 
 --[=[
-@sm fromTable
+@m fromTable
+@t static
 @p t table
 @r Time
 @d Constructs a new Time object from a table of time values where the keys are

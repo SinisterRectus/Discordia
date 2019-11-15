@@ -1,5 +1,6 @@
 --[=[
-@ic Emitter
+@c Emitter
+@t ui
 @d Implements an asynchronous event emitter where callbacks can be subscribed to
 specific named events. When events are emitted, the callbacks are called in the
 order that they were originally registered.

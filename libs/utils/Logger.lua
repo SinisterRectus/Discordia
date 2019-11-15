@@ -1,5 +1,6 @@
 --[=[
-@ic Logger
+@c Logger
+@t ui
 @p level number
 @p dateTime string
 @op file string

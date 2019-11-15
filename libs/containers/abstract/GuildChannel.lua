@@ -1,7 +1,7 @@
 --[=[
 @c GuildChannel x Channel
-@d Abstract base class that defines the base methods and properties for all
-Discord guild channels.
+@t abc
+@d Defines the base methods and properties for all Discord guild channels.
 ]=]
 
 local json = require('json')

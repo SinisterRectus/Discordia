@@ -1,9 +1,10 @@
 --[=[
 @c UserPresence x Container
-@d Abstract base class that defines the base methods and/or properties for
-classes that represent a user's current presence information. Note that any
-method or property that exists for the User class is also available in the
-UserPresence class and its subclasses.
+@t abc
+@d Defines the base methods and/or properties for classes that represent a
+user's current presence information. Note that any method or property that
+exists for the User class is also available in the UserPresence class and its
+subclasses.
 ]=]
 
 local null = require('json').null
