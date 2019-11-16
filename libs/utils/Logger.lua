@@ -1,6 +1,7 @@
 --[=[
 @c Logger
 @t ui
+@mt mem
 @p level number
 @p dateTime string
 @op file string

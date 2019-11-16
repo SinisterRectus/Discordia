@@ -1,6 +1,7 @@
 --[=[
 @c Permissions
 @t ui
+@mt mem
 @d Wrapper for a bitfield that is more specifically used to represent Discord
 permissions. See the `permission` enumeration for acceptable permission values.
 ]=]

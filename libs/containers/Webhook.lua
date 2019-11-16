@@ -32,6 +32,7 @@ end
 
 --[=[
 @m getAvatarURL
+@t mem
 @op size number
 @op ext string
 @r string
@@ -45,6 +46,7 @@ end
 
 --[=[
 @m getDefaultAvatarURL
+@t mem
 @op size number
 @r string
 @d Returns a URL that can be used to view the webhooks's default avatar.
@@ -55,6 +57,7 @@ end
 
 --[=[
 @m setName
+@t http
 @p name string
 @r boolean
 @d Sets the webhook's name. This must be between 2 and 32 characters in length.
@@ -65,6 +68,7 @@ end
 
 --[=[
 @m setAvatar
+@t http
 @p avatar Base64-Resolvable
 @r boolean
 @d Sets the webhook's avatar. If `nil` is passed, the avatar is removed.
@@ -76,6 +80,7 @@ end
 
 --[=[
 @m delete
+@t http
 @r boolean
 @d Permanently deletes the webhook. This cannot be undone!
 ]=]

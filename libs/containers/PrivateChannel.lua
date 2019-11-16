@@ -15,6 +15,7 @@ end
 
 --[=[
 @m close
+@t http
 @r boolean
 @d Closes the channel. This does not delete the channel. To re-open the channel,
 use `User:getPrivateChannel`.

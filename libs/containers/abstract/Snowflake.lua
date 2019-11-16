@@ -25,6 +25,7 @@ end
 
 --[=[
 @m getDate
+@t mem
 @r Date
 @d Returns a unique Date object that represents when the object was created by Discord.
 

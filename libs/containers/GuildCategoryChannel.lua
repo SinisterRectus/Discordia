@@ -18,6 +18,7 @@ end
 
 --[=[
 @m createTextChannel
+@t http
 @p name string
 @r GuildTextChannel
 @d Creates a new GuildTextChannel with this category as it's parent. Similar to `Guild:createTextChannel(name)`
@@ -38,6 +39,7 @@ end
 
 --[=[
 @m createVoiceChannel
+@t http
 @p name string
 @r GuildVoiceChannel
 @d Creates a new GuildVoiceChannel with this category as it's parent. Similar to `Guild:createVoiceChannel(name)`

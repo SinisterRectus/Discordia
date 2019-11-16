@@ -1,5 +1,6 @@
 --[=[
 @c ArrayIterable x Iterable
+@mt mem
 @d Iterable class that contains objects in a constant, ordered fashion, although
 the order may change if the internal array is modified. Some versions may use a
 map function to shape the objects before they are accessed.

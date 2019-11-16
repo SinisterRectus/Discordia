@@ -110,6 +110,7 @@ end
 
 --[=[
 @m requestMembers
+@t ws
 @r boolean
 @d Asynchronously loads all members for this guild. You do not need to call this
 if the `cacheAllMembers` client option (and the `syncGuilds` option for
@@ -128,6 +129,7 @@ end
 
 --[=[
 @m sync
+@t ws
 @r boolean
 @d Asynchronously loads certain data and enables the receiving of certain events
 for this guild. You do not need to call this if the `syncGuilds` client option
@@ -148,6 +150,7 @@ end
 
 --[=[
 @m getMember
+@t http?
 @p id User-ID-Resolvable
 @r Member
 @d Gets a member object by ID. If the object is already cached, then the cached
@@ -170,6 +173,7 @@ end
 
 --[=[
 @m getRole
+@t mem
 @p id Role-ID-Resolvable
 @r Role
 @d Gets a role object by ID.
@@ -181,6 +185,7 @@ end
 
 --[=[
 @m getEmoji
+@t mem
 @p id Emoji-ID-Resolvable
 @r Emoji
 @d Gets a emoji object by ID.
@@ -192,6 +197,7 @@ end
 
 --[=[
 @m getChannel
+@t mem
 @p id Channel-ID-Resolvable
 @r GuildChannel
 @d Gets a text, voice, or category channel object by ID.
@@ -203,6 +209,7 @@ end
 
 --[=[
 @m createTextChannel
+@t http
 @p name string
 @r GuildTextChannel
 @d Creates a new text channel in this guild. The name must be between 2 and 100
@@ -219,6 +226,7 @@ end
 
 --[=[
 @m createVoiceChannel
+@t http
 @p name string
 @r GuildVoiceChannel
 @d Creates a new voice channel in this guild. The name must be between 2 and 100
@@ -235,6 +243,7 @@ end
 
 --[=[
 @m createCategory
+@t http
 @p name string
 @r GuildCategoryChannel
 @d Creates a channel category in this guild. The name must be between 2 and 100
@@ -251,6 +260,7 @@ end
 
 --[=[
 @m createRole
+@t http
 @p name string
 @r Role
 @d Creates a new role in this guild. The name must be between 1 and 100 characters
@@ -267,6 +277,7 @@ end
 
 --[=[
 @m createEmoji
+@t http
 @p name string
 @p image Base64-Resolvable
 @r Emoji
@@ -285,6 +296,7 @@ end
 
 --[=[
 @m setName
+@t http
 @p name string
 @r boolean
 @d Sets the guilds name. This must be between 2 and 100 characters in length.
@@ -295,6 +307,7 @@ end
 
 --[=[
 @m setRegion
+@t http
 @p region string
 @r boolean
 @d Sets the guild's voice region (eg: `us-east`). See `listVoiceRegions` for a list
@@ -306,6 +319,7 @@ end
 
 --[=[
 @m setVerificationLevel
+@t http
 @p verification_level number
 @r boolean
 @d Sets the guild's verification level setting. See the `verificationLevel`
@@ -317,6 +331,7 @@ end
 
 --[=[
 @m setNotificationSetting
+@t http
 @p default_message_notifications number
 @r boolean
 @d Sets the guild's default notification setting. See the `notficationSetting`
@@ -328,6 +343,7 @@ end
 
 --[=[
 @m setExplicitContentSetting
+@t http
 @p explicit_content_filter number
 @r boolean
 @d Sets the guild's explicit content level setting. See the `explicitContentLevel`
@@ -339,6 +355,7 @@ end
 
 --[=[
 @m setAFKTimeout
+@t http
 @p afk_timeout number
 @r number
 @d Sets the guild's AFK timeout in seconds.
@@ -349,6 +366,7 @@ end
 
 --[=[
 @m setAFKChannel
+@t http
 @p id Channel-ID-Resolvable
 @r boolean
 @d Sets the guild's AFK channel.
@@ -360,6 +378,7 @@ end
 
 --[=[
 @m setSystemChannel
+@t http
 @p id Channel-Id-Resolvable
 @r boolean
 @d Sets the guild's join message channel.
@@ -371,6 +390,7 @@ end
 
 --[=[
 @m setOwner
+@t http
 @p id User-ID-Resolvable
 @r boolean
 @d Transfers ownership of the guild to another user. Only the current guild owner
@@ -383,6 +403,7 @@ end
 
 --[=[
 @m setIcon
+@t http
 @p icon Base64-Resolvable
 @r boolean
 @d Sets the guild's icon. To remove the icon, pass `nil`.
@@ -394,6 +415,7 @@ end
 
 --[=[
 @m setBanner
+@t http
 @p banner Base64-Resolvable
 @r boolean
 @d Sets the guild's banner. To remove the banner, pass `nil`.
@@ -405,6 +427,7 @@ end
 
 --[=[
 @m setSplash
+@t http
 @p splash Base64-Resolvable
 @r boolean
 @d Sets the guild's splash. To remove the splash, pass `nil`.
@@ -416,6 +439,7 @@ end
 
 --[=[
 @m getPruneCount
+@t http
 @op days number
 @r number
 @d Returns the number of members that would be pruned from the guild if a prune
@@ -432,6 +456,7 @@ end
 
 --[=[
 @m pruneMembers
+@t http
 @op days number
 @op count boolean
 @r number
@@ -459,6 +484,7 @@ end
 
 --[=[
 @m getBans
+@t http
 @r Cache
 @d Returns a newly constructed cache of all ban objects for the guild. The
 cache and its objects are not automatically updated via gateway events. You must
@@ -475,6 +501,7 @@ end
 
 --[=[
 @m getBan
+@t http
 @p id User-ID-Resolvable
 @r Ban
 @d This will return a Ban object for a giver user if that user is banned
@@ -492,6 +519,7 @@ end
 
 --[=[
 @m getInvites
+@t http
 @r Cache
 @d Returns a newly constructed cache of all invite objects for the guild. The
 cache and its objects are not automatically updated via gateway events. You must
@@ -508,6 +536,7 @@ end
 
 --[=[
 @m getAuditLogs
+@t http
 @op query table
 @r Cache
 @d Returns a newly constructed cache of audit log entry objects for the guild. The
@@ -538,6 +567,7 @@ end
 
 --[=[
 @m getWebhooks
+@t http
 @r Cache
 @d Returns a newly constructed cache of all webhook objects for the guild. The
 cache and its objects are not automatically updated via gateway events. You must
@@ -554,6 +584,7 @@ end
 
 --[=[
 @m listVoiceRegions
+@t http
 @r table
 @d Returns a raw data table that contains a list of available voice regions for
 this guild, as provided by Discord, with no additional parsing.
@@ -564,6 +595,7 @@ end
 
 --[=[
 @m leave
+@t http
 @r boolean
 @d Removes the current user from the guild.
 ]=]
@@ -578,6 +610,7 @@ end
 
 --[=[
 @m delete
+@t http
 @r boolean
 @d Permanently deletes the guild. The current user must owner the server. This cannot be undone!
 ]=]
@@ -596,6 +629,7 @@ end
 
 --[=[
 @m kickUser
+@t http
 @p id User-ID-Resolvable
 @op reason string
 @r boolean
@@ -614,6 +648,7 @@ end
 
 --[=[
 @m banUser
+@t http
 @p id User-ID-Resolvable
 @op reason string
 @op days number
@@ -638,6 +673,7 @@ end
 
 --[=[
 @m unbanUser
+@t http
 @p id User-ID-Resolvable
 @op reason string
 @r boolean

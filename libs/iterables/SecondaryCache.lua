@@ -1,5 +1,6 @@
 --[=[
 @c SecondaryCache x Iterable
+@mt mem
 @d Iterable class that wraps another cache. Objects added to or removed from a
 secondary cache are also automatically added to or removed from the primary
 cache that it wraps.

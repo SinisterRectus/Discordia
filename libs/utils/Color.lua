@@ -1,6 +1,7 @@
 --[=[
 @c Color
 @t ui
+@mt mem
 @p value number
 @d Wrapper for 24-bit colors packed as a decimal value. See the static constructors for more information.
 ]=]

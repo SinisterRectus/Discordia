@@ -18,6 +18,7 @@ end
 
 --[=[
 @m delete
+@t http
 @r boolean
 @d Deletes the permission overwrite. This can be undone by creating a new version of
 the same overwrite.
@@ -37,6 +38,7 @@ end
 
 --[=[
 @m getObject
+@t http?
 @r Role/Member
 @d Returns the object associated with this overwrite, either a role or member.
 This may make an HTTP request if the object is not cached.
@@ -68,6 +70,7 @@ end
 
 --[=[
 @m getAllowedPermissions
+@t mem
 @r Permissions
 @d Returns a permissions object that represents the permissions that this overwrite
 explicitly allows.
@@ -78,6 +81,7 @@ end
 
 --[=[
 @m getDeniedPermissions
+@t mem
 @r Permissions
 @d Returns a permissions object that represents the permissions that this overwrite
 explicitly denies.
@@ -88,6 +92,7 @@ end
 
 --[=[
 @m setPermissions
+@t http
 @p allowed Permissions-Resolvables
 @p denied Permissions-Resolvables
 @r boolean
@@ -102,6 +107,7 @@ end
 
 --[=[
 @m setAllowedPermissions
+@t http
 @p allowed Permissions-Resolvables
 @r boolean
 @d Sets the permissions that this overwrite explicitly allows.
@@ -114,6 +120,7 @@ end
 
 --[=[
 @m setDeniedPermissions
+@t http
 @p denied Permissions-Resolvables
 @r boolean
 @d Sets the permissions that this overwrite explicitly denies.
@@ -126,6 +133,7 @@ end
 
 --[=[
 @m allowPermissions
+@t http
 @p ... Permission-Resolvables
 @r boolean
 @d Allows individual permissions in this overwrite.
@@ -138,6 +146,7 @@ end
 
 --[=[
 @m denyPermissions
+@t http
 @p ... Permission-Resolvables
 @r boolean
 @d Denies individual permissions in this overwrite.
@@ -150,6 +159,7 @@ end
 
 --[=[
 @m clearPermissions
+@t http
 @p ... Permission-Resolvables
 @r boolean
 @d Clears individual permissions in this overwrite.
@@ -162,6 +172,7 @@ end
 
 --[=[
 @m allowAllPermissions
+@t http
 @r boolean
 @d Allows all permissions in this overwrite.
 ]=]
@@ -173,6 +184,7 @@ end
 
 --[=[
 @m denyAllPermissions
+@t http
 @r boolean
 @d Denies all permissions in this overwrite.
 ]=]
@@ -184,6 +196,7 @@ end
 
 --[=[
 @m clearAllPermissions
+@t http
 @r boolean
 @d Clears all permissions in this overwrite.
 ]=]

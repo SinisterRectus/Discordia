@@ -143,6 +143,7 @@ end
 
 --[=[
 @m getBitrate
+@t mem
 @r nil
 @d Returns the bitrate of the interal Opus encoder in bits per second (bps).
 ]=]
@@ -152,6 +153,7 @@ end
 
 --[=[
 @m setBitrate
+@t mem
 @p bitrate number
 @r nil
 @d Sets the bitrate of the interal Opus encoder in bits per second (bps).
@@ -164,6 +166,7 @@ end
 
 --[=[
 @m getComplexity
+@t mem
 @r number
 @d Returns the complexity of the interal Opus encoder.
 ]=]
@@ -173,6 +176,7 @@ end
 
 --[=[
 @m setComplexity
+@t mem
 @p complexity number
 @r nil
 @d Sets the complexity of the interal Opus encoder.
@@ -290,6 +294,7 @@ end
 
 --[=[
 @m playPCM
+@t mem
 @p source string/function/table/userdata
 @op duration number
 @r number
@@ -326,6 +331,7 @@ end
 
 --[=[
 @m playFFmpeg
+@t mem
 @p path string
 @op duration number
 @r number
@@ -354,6 +360,7 @@ end
 
 --[=[
 @m pauseStream
+@t mem
 @r nil
 @d Temporarily pauses the audio stream for this connection, if one is active.
 Like most Discordia methods, this must be called inside of a coroutine, as it
@@ -368,6 +375,7 @@ end
 
 --[=[
 @m resumeStream
+@t mem
 @r nil
 @d Resumes the audio stream for this connection, if one is active and paused.
 Like most Discordia methods, this must be called inside of a coroutine, as it
@@ -384,6 +392,7 @@ end
 
 --[=[
 @m stopStream
+@t mem
 @r nil
 @d Irreversibly stops the audio stream for this connection, if one is active.
 Like most Discordia methods, this must be called inside of a coroutine, as it
@@ -399,6 +408,7 @@ end
 
 --[=[
 @m close
+@t ws
 @r boolean
 @d Stops the audio stream for this connection, if one is active, disconnects from
 the voice server, and leaves the corresponding voice channel. Like most Discordia

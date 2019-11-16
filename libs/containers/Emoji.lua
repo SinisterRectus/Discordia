@@ -47,6 +47,7 @@ end
 
 --[=[
 @m setName
+@t http
 @p name string
 @r boolean
 @d Sets the emoji's name. The name must be between 2 and 32 characters in length.
@@ -57,6 +58,7 @@ end
 
 --[=[
 @m setRoles
+@t http
 @p roles Role-ID-Resolvables
 @r boolean
 @d Sets the roles that can use the emoji.
@@ -68,6 +70,7 @@ end
 
 --[=[
 @m delete
+@t http
 @r boolean
 @d Permanently deletes the emoji. This cannot be undone!
 ]=]
@@ -86,6 +89,7 @@ end
 
 --[=[
 @m hasRole
+@t mem
 @p id Role-ID-Resolvable
 @r boolean
 @d Returns whether or not the provided role is allowed to use the emoji.

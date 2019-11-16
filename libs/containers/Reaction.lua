@@ -43,6 +43,7 @@ end
 
 --[=[
 @m getUsers
+@t http
 @op limit number
 @r SecondaryCache
 @d Returns a newly constructed cache of all users that have used this reaction in
@@ -56,6 +57,7 @@ end
 
 --[=[
 @m getUsersBefore
+@t http
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
@@ -71,6 +73,7 @@ end
 
 --[=[
 @m getUsersAfter
+@t http
 @p id User-ID-Resolvable
 @op limit number
 @r SecondaryCache
@@ -86,6 +89,7 @@ end
 
 --[=[
 @m delete
+@t http
 @op id User-ID-Resolvable
 @r boolean
 @d Equivalent to `Reaction.message:removeReaction(Reaction)`

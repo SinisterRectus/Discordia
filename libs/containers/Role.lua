@@ -35,6 +35,7 @@ end
 
 --[=[
 @m delete
+@t http
 @r boolean
 @d Permanently deletes the role. This cannot be undone!
 ]=]
@@ -85,6 +86,7 @@ end
 
 --[=[
 @m moveDown
+@t http
 @p n number
 @r boolean
 @d Moves a role down its list. The parameter `n` indicates how many spaces the
@@ -120,6 +122,7 @@ end
 
 --[=[
 @m moveUp
+@t http
 @p n number
 @r boolean
 @d Moves a role up its list. The parameter `n` indicates how many spaces the
@@ -155,6 +158,7 @@ end
 
 --[=[
 @m setName
+@t http
 @p name string
 @r boolean
 @d Sets the role's name. The name must be between 1 and 100 characters in length.
@@ -165,6 +169,7 @@ end
 
 --[=[
 @m setColor
+@t http
 @p color Color-Resolvable
 @r boolean
 @d Sets the role's display color.
@@ -176,6 +181,7 @@ end
 
 --[=[
 @m setPermissions
+@t http
 @p permissions Permissions-Resolvable
 @r boolean
 @d Sets the permissions that this role explicitly allows.
@@ -187,6 +193,7 @@ end
 
 --[=[
 @m hoist
+@t http
 @r boolean
 @d Causes members with this role to display above unhoisted roles in the member
 list.
@@ -197,6 +204,7 @@ end
 
 --[=[
 @m unhoist
+@t http
 @r boolean
 @d Causes member with this role to display amongst other unhoisted members.
 ]=]
@@ -206,6 +214,7 @@ end
 
 --[=[
 @m enableMentioning
+@t http
 @r boolean
 @d Allows anyone to mention this role in text messages.
 ]=]
@@ -215,6 +224,7 @@ end
 
 --[=[
 @m disableMentioning
+@t http
 @r boolean
 @d Disallows anyone to mention this role in text messages.
 ]=]
@@ -224,6 +234,7 @@ end
 
 --[=[
 @m enablePermissions
+@t http
 @p ... Permission-Resolvables
 @r boolean
 @d Enables individual permissions for this role. This does not necessarily fully
@@ -237,6 +248,7 @@ end
 
 --[=[
 @m disablePermissions
+@t http
 @p ... Permission-Resolvables
 @r boolean
 @d Disables individual permissions for this role. This does not necessarily fully
@@ -250,6 +262,7 @@ end
 
 --[=[
 @m enableAllPermissions
+@t http
 @r boolean
 @d Enables all permissions for this role. This does not necessarily fully
 allow the permissions.
@@ -262,6 +275,7 @@ end
 
 --[=[
 @m disableAllPermissions
+@t http
 @r boolean
 @d Disables all permissions for this role. This does not necessarily fully
 disallow the permissions.
@@ -274,6 +288,7 @@ end
 
 --[=[
 @m getColor
+@t mem
 @r Color
 @d Returns a color object that represents the role's display color.
 ]=]
@@ -283,6 +298,7 @@ end
 
 --[=[
 @m getPermissions
+@t mem
 @r Permissions
 @d Returns a permissions object that represents the permissions that this role
 has enabled.

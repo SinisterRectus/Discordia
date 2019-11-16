@@ -44,6 +44,7 @@ end
 
 --[=[
 @m delete
+@t http
 @r boolean
 @d Permanently deletes the invite. This cannot be undone!
 ]=]

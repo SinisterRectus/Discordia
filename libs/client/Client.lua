@@ -268,6 +268,7 @@ end
 
 --[=[
 @m run
+@t coro
 @p token string
 @op presence table
 @r nil
@@ -286,6 +287,7 @@ end
 
 --[=[
 @m stop
+@t ws
 @r nil
 @d Disconnects all shards and effectively stop their loops. This does not
 empty any data that the client may have cached.
@@ -309,6 +311,7 @@ end
 
 --[=[
 @m setUsername
+@t http
 @p username string
 @r boolean
 @d Sets the client's username. This must be between 2 and 32 characters in
@@ -320,6 +323,7 @@ end
 
 --[=[
 @m setAvatar
+@t http
 @p avatar Base64-Resolveable
 @r boolean
 @d Sets the client's avatar. To remove the avatar, pass an empty string or nil.
@@ -332,6 +336,7 @@ end
 
 --[=[
 @m createGuild
+@t http
 @p name string
 @r boolean
 @d Creates a new guild. The name must be between 2 and 100 characters in length.
@@ -350,6 +355,7 @@ end
 
 --[=[
 @m createGroupChannel
+@t http
 @r GroupChannel
 @d Creates a new group channel. This method is only available for user accounts.
 ]=]
@@ -364,6 +370,7 @@ end
 
 --[=[
 @m getWebhook
+@t http
 @p id string
 @r Webhook
 @d Gets a webhook object by ID. This always makes an HTTP request to obtain a
@@ -380,6 +387,7 @@ end
 
 --[=[
 @m getInvite
+@t http
 @p code string
 @op counts boolean
 @r Invite
@@ -397,6 +405,7 @@ end
 
 --[=[
 @m getUser
+@t http?
 @p id User-ID-Resolvable
 @r User
 @d Gets a user object by ID. If the object is already cached, then the cached
@@ -421,6 +430,7 @@ end
 
 --[=[
 @m getGuild
+@t mem
 @p id Guild-ID-Resolvable
 @r Guild
 @d Gets a guild object by ID. The current user must be in the guild and the client
@@ -434,6 +444,7 @@ end
 
 --[=[
 @m getChannel
+@t mem
 @p id Channel-ID-Resolvable
 @r Channel
 @d Gets a channel object by ID. For guild channels, the current user must be in
@@ -455,6 +466,7 @@ end
 
 --[=[
 @m getRole
+@t mem
 @p id Role-ID-Resolvable
 @r Role
 @d Gets a role object by ID. The current user must be in the role's guild and
@@ -468,6 +480,7 @@ end
 
 --[=[
 @m getEmoji
+@t mem
 @p id Emoji-ID-Resolvable
 @r Emoji
 @d Gets an emoji object by ID. The current user must be in the emoji's guild and
@@ -481,6 +494,7 @@ end
 
 --[=[
 @m listVoiceRegions
+@t http
 @r table
 @d Returns a raw data table that contains a list of voice regions as provided by
 Discord, with no formatting beyond what is provided by the Discord API.
@@ -491,6 +505,7 @@ end
 
 --[=[
 @m getConnections
+@t http
 @r table
 @d Returns a raw data table that contains a list of connections as provided by
 Discord, with no formatting beyond what is provided by the Discord API.
@@ -502,6 +517,7 @@ end
 
 --[=[
 @m getApplicationInformation
+@t http
 @r table
 @d Returns a raw data table that contains information about the current OAuth2
 application, with no formatting beyond what is provided by the Discord API.
@@ -523,6 +539,7 @@ end
 
 --[=[
 @m setStatus
+@t ws
 @p status string
 @r nil
 @d Sets the current users's status on all shards that are managed by this client.
@@ -545,6 +562,7 @@ end
 
 --[=[
 @m setGame
+@t ws
 @p game string/table
 @r nil
 @d Sets the current users's game on all shards that are managed by this client.
@@ -576,6 +594,7 @@ end
 
 --[=[
 @m setAFK
+@t ws
 @p afk boolean
 @r nil
 @d Set the current user's AFK status on all shards that are managed by this client.

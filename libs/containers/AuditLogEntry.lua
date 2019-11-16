@@ -29,6 +29,7 @@ end
 
 --[=[
 @m getBeforeAfter
+@t mem
 @r table
 @r table
 @d Returns two tables of the target's properties before the change, and after the change.
@@ -155,6 +156,7 @@ local targets = setmetatable({
 
 --[=[
 @m getTarget
+@t http?
 @r *
 @d Gets the target object of the affected entity. The returned object can be: [[Guild]],
 [[GuildChannel]], [[User]], [[Member]], [[Role]], [[Webhook]], [[Emoji]], nil
@@ -165,6 +167,7 @@ end
 
 --[=[
 @m getUser
+@t http?
 @r User
 @d Gets the user who performed the changes.
 ]=]
@@ -174,6 +177,7 @@ end
 
 --[=[
 @m getMember
+@t http?
 @r Member/nil
 @d Gets the member object of the user who performed the changes.
 ]=]

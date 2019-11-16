@@ -41,6 +41,7 @@ end
 
 --[=[
 @m setName
+@t http
 @p name string
 @r boolean
 @d Sets the channel's name. This must be between 2 and 100 characters in length.
@@ -51,6 +52,7 @@ end
 
 --[=[
 @m setCategory
+@t http
 @p id Channel-ID-Resolvable
 @r boolean
 @d Sets the channel's parent category.
@@ -101,6 +103,7 @@ end
 
 --[=[
 @m moveUp
+@t http
 @p n number
 @r boolean
 @d Moves a channel up its list. The parameter `n` indicates how many spaces the
@@ -135,6 +138,7 @@ end
 
 --[=[
 @m moveDown
+@t http
 @p n number
 @r boolean
 @d Moves a channel down its list. The parameter `n` indicates how many spaces the
@@ -169,6 +173,7 @@ end
 
 --[=[
 @m createInvite
+@t http
 @op payload table
 @r Invite
 @d Creates an invite to the channel. Optional payload fields are: max_age: number
@@ -188,6 +193,7 @@ end
 
 --[=[
 @m getInvites
+@t http
 @r Cache
 @d Returns a newly constructed cache of all invite objects for the channel. The
 cache and its objects are not automatically updated via gateway events. You must
@@ -204,6 +210,7 @@ end
 
 --[=[
 @m getPermissionOverwriteFor
+@t mem
 @p obj Role/Member
 @r PermissionOverwrite
 @d Returns a permission overwrite object corresponding to the provided member or
@@ -229,6 +236,7 @@ end
 
 --[=[
 @m delete
+@t http
 @r boolean
 @d Permanently deletes the channel. This cannot be undone!
 ]=]

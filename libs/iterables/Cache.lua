@@ -1,5 +1,6 @@
 --[=[
 @c Cache x Iterable
+@mt mem
 @d Iterable class that holds references to Discordia Class objects in no particular order.
 ]=]
 

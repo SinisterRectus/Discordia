@@ -57,6 +57,7 @@ end
 
 --[=[
 @m getColor
+@t mem
 @r Color
 @d Returns a color object that represents the member's color as determined by
 its highest colored role. If the member has no colored roles, then the default
@@ -77,6 +78,7 @@ end
 
 --[=[
 @m hasPermission
+@t mem
 @op channel GuildChannel
 @p perm Permissions-Resolvable
 @r boolean
@@ -170,6 +172,7 @@ end
 
 --[=[
 @m getPermissions
+@t mem
 @op channel GuildChannel
 @r Permissions
 @d Returns a permissions object that represents the member's total permissions for
@@ -238,6 +241,7 @@ end
 
 --[=[
 @m addRole
+@t http?
 @p id Role-ID-Resolvable
 @r boolean
 @d Adds a role to the member. If the member already has the role, then no action is
@@ -262,6 +266,7 @@ end
 
 --[=[
 @m removeRole
+@t http?
 @p id Role-ID-Resolvable
 @r boolean
 @d Removes a role from the member. If the member does not have the role, then no
@@ -296,6 +301,7 @@ end
 
 --[=[
 @m hasRole
+@t mem
 @p id Role-ID-Resolvable
 @r boolean
 @d Checks whether the member has a specific role. This will return true for the
@@ -317,6 +323,7 @@ end
 
 --[=[
 @m setNickname
+@t http
 @p nick string
 @r boolean
 @d Sets the member's nickname. This must be between 1 and 32 characters in length.
@@ -340,6 +347,7 @@ end
 
 --[=[
 @m setVoiceChannel
+@t http
 @p id Channel-ID-Resolvable
 @r boolean
 @d Moves the member to a new voice channel, but only if the member has an active
@@ -359,6 +367,7 @@ end
 
 --[=[
 @m mute
+@t http
 @r boolean
 @d Mutes the member in its guild.
 ]=]
@@ -374,6 +383,7 @@ end
 
 --[=[
 @m unmute
+@t http
 @r boolean
 @d Unmutes the member in its guild.
 ]=]
@@ -389,6 +399,7 @@ end
 
 --[=[
 @m deafen
+@t http
 @r boolean
 @d Deafens the member in its guild.
 ]=]
@@ -404,6 +415,7 @@ end
 
 --[=[
 @m undeafen
+@t http
 @r boolean
 @d Undeafens the member in its guild.
 ]=]
@@ -419,6 +431,7 @@ end
 
 --[=[
 @m kick
+@t http
 @p reason string
 @r boolean
 @d Equivalent to `Member.guild:kickUser(Member.user, reason)`
@@ -429,6 +442,7 @@ end
 
 --[=[
 @m ban
+@t http
 @p reason string
 @p days number
 @r boolean
@@ -440,6 +454,7 @@ end
 
 --[=[
 @m unban
+@t http
 @p reason string
 @r boolean
 @d Equivalent to `Member.guild:unbanUser(Member.user, reason)`

@@ -1,5 +1,6 @@
 --[=[
 @c FilteredIterable x Iterable
+@mt mem
 @d Iterable class that wraps another iterable and serves a subset of the objects
 that the original iterable contains.
 ]=]

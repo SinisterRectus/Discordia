@@ -1,6 +1,7 @@
 --[=[
 @c ClassName [x base_1 x base_2 ... x base_n]
-@t tag (available: ui, abc)
+@t tag
+@mt methodTag (applies to all class methods)
 @p parameterName type
 @op optionalParameterName type
 @d description+
@@ -8,7 +9,7 @@
 
 --[=[
 @m methodName
-@t tag (available: static)
+@t tag
 @p parameterName type
 @op optionalParameterName type
 @r return
@@ -87,6 +88,10 @@ local function matchTags(s)
 	return gmatch(s, '@t (%S+)', true)
 end
 
+local function matchMethodTags(s)
+	return gmatch(s, '@mt (%S+)', true)
+end
+
 local function matchProperty(s)
 	local a, b, c = s:match('@p (%S+) (%S+) (.+)')
 	return {
@@ -132,6 +137,7 @@ local function newClass()
 		class.desc = matchDescription(s)
 		class.parameters = matchParameters(s)
 		class.tags = matchTags(s)
+		class.methodTags = matchMethodTags(s)
 		assert(not docs[class.name], 'duplicate class: ' .. class.name)
 		docs[class.name] = class
 	end
@@ -151,6 +157,10 @@ for f in coroutine.wrap(scan), './libs' do
 			initClass(s)
 		elseif t == 'm' then
 			local method = matchMethod(s)
+			for k, v in pairs(class.methodTags) do
+				method.tags[k] = v
+			end
+			method.class = class
 			insert(method.tags.static and class.statics or class.methods, method)
 		elseif t == 'p' then
 			insert(class.properties, matchProperty(s))
@@ -232,14 +242,53 @@ local function writeParameters(f, parameters)
 	end
 end
 
+local methodTags = {}
+
+methodTags['http'] = 'This method always makes an HTTP request.'
+methodTags['http?'] = 'This method may make an HTTP request.'
+methodTags['ws'] = 'This method always makes a WebSocket request.'
+methodTags['mem'] = 'This method only operates on data in memory.'
+methodTags['coro'] = 'This method creates and runs a new coroutine.'
+methodTags['coro?'] = 'This method may create and run a new coroutine.'
+
+local function checkTags(tbl, check)
+	for i, v in ipairs(check) do
+		if tbl[v] then
+			for j, w in ipairs(check) do
+				if i ~= j then
+					if tbl[w] then
+						return error(string.format('mutually exclusive tags encountered: %s and %s', v, w), 1)
+					end
+				end
+			end
+		end
+	end
+end
+
 local function writeMethods(f, methods)
+
 	sort(methods, sorter)
 	for _, method in ipairs(methods) do
+
 		f:write('### ', method.name)
 		writeParameters(f, method.parameters)
 		f:write(method.desc, '\n\n')
+
+		local tags = method.tags
+		checkTags(tags, {'http', 'http?', 'mem'})
+		checkTags(tags, {'ws', 'mem'})
+
+		for k in pairs(tags) do
+			if k ~= 'static' then
+				assert(methodTags[k], k)
+				f:write('*', methodTags[k], '*\n\n')
+			end
+		end
+
 		f:write('**Returns:** ', link(method.returnTypes), '\n\n----\n\n')
+
 	end
+
 end
 
 if not fs.existsSync(output) then
@@ -277,16 +326,15 @@ for _, class in pairs(docs) do
 
 	f:write(class.desc, '\n\n')
 
+	checkTags(class.tags, {'ui', 'abc'})
 	if class.tags.ui then
 		writeHeading(f, 'Constructor')
 		f:write('### ', class.name)
 		writeParameters(f, class.parameters)
+	elseif class.tags.abc then
+		f:write('*This is an abstract base class. Direct instances should never exist.*\n\n')
 	else
 		f:write('*Instances of this class should not be constructed by users.*\n\n')
-	end
-
-	if class.tags.abc then -- should be mutually exclusive with ui, but it's not enforced
-		f:write('*This is an abstract base class. Direct instances should never exist.*\n\n')
 	end
 
 	local properties = collectParents(parents, 'properties')
