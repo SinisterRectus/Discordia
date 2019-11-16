@@ -20,7 +20,6 @@ local insert, remove = table.insert, table.remove
 local byte, char = string.byte, string.char
 local gmatch, match = string.gmatch, string.match
 local rep, find, sub = string.rep, string.find, string.sub
-local utf8_len, utf8_codes = utf8.len, utf8.codes
 local min, max, random = math.min, math.max, math.random
 local ceil, floor = math.ceil, math.floor
 
@@ -222,41 +221,48 @@ function string.random(len, mn, mx)
 	return concat(ret)
 end
 
-local utf8 = {}
+local utf8
 
-function utf8.levenshtein(str1, str2)
+if _G.utf8 then
 
-	if str1 == str2 then return 0 end
+	local utf8_len, utf8_codes = _G.utf8.len, _G.utf8.codes
+	utf8 = {}
 
-	local len1 = utf8_len(str1)
-	local len2 = utf8_len(str2)
+	function utf8.levenshtein(str1, str2)
 
-	if len1 == 0 then
-		return len2
-	elseif len2 == 0 then
-		return len1
-	end
+		if str1 == str2 then return 0 end
 
-	local matrix = {}
-	for i = 0, len1 do
-		matrix[i] = {[0] = i}
-	end
-	for j = 0, len2 do
-		matrix[0][j] = j
-	end
+		local len1 = utf8_len(str1)
+		local len2 = utf8_len(str2)
 
-	local i = 1
-	for _, a in utf8_codes(str1) do
-		local j = 1
-		for _, b in utf8_codes(str2) do
-			local cost = a == b and 0 or 1
-			matrix[i][j] = min(matrix[i-1][j] + 1, matrix[i][j-1] + 1, matrix[i-1][j-1] + cost)
-			j = j + 1
+		if len1 == 0 then
+			return len2
+		elseif len2 == 0 then
+			return len1
 		end
-		i = i + 1
-	end
 
-	return matrix[len1][len2]
+		local matrix = {}
+		for i = 0, len1 do
+			matrix[i] = {[0] = i}
+		end
+		for j = 0, len2 do
+			matrix[0][j] = j
+		end
+
+		local i = 1
+		for _, a in utf8_codes(str1) do
+			local j = 1
+			for _, b in utf8_codes(str2) do
+				local cost = a == b and 0 or 1
+				matrix[i][j] = min(matrix[i-1][j] + 1, matrix[i][j-1] + 1, matrix[i-1][j-1] + cost)
+				j = j + 1
+			end
+			i = i + 1
+		end
+
+		return matrix[len1][len2]
+
+	end
 
 end
 
