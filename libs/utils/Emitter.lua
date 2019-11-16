@@ -127,13 +127,15 @@ end
 function Emitter:getListeners(name)
 	local listeners = self._listeners[name]
 	if not listeners then return function() end end
-	return wrap(function()
-		for _, listener in ipairs(listeners) do
-			if listener then
-				yield(listener.fn)
+	local i = 0
+	return function()
+		while i < #listeners do
+			i = i + 1
+			if listeners[i] then
+				return listeners[i].fn
 			end
 		end
-	end)
+	end
 end
 
 --[=[

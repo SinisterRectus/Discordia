@@ -5,8 +5,6 @@ the order may change if the internal array is modified. Some versions may use a
 map function to shape the objects before they are accessed.
 ]=]
 
-local wrap, yield = coroutine.wrap, coroutine.yield
-
 local Iterable = require('iterables/Iterable')
 
 local ArrayIterable, get = require('class')('ArrayIterable', Iterable)
@@ -83,14 +81,20 @@ function ArrayIterable:iter()
 	end
 	local map = self._map
 	if map then
-		return wrap(function()
-			for _, v in ipairs(array) do
-				local obj = map(v)
-				if obj then
-					yield(obj)
+		local i = 0
+		return function()
+			while true do
+				i = i + 1
+				local v = array[i]
+				if not v then
+					return nil
+				end
+				v = map(array[i])
+				if v then
+					return v
 				end
 			end
-		end)
+		end
 	else
 		local i = 0
 		return function()

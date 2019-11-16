@@ -9,7 +9,6 @@ all stored objects should have a `__hash` method.
 ]=]
 
 local random = math.random
-local wrap, yield = coroutine.wrap, coroutine.yield
 local insert, sort, pack = table.insert, table.sort, table.pack
 
 local Iterable = require('class')('Iterable')
@@ -21,11 +20,14 @@ local Iterable = require('class')('Iterable')
 a `key, value` pair, where `key` is the result of calling `__hash` on the `value`.
 ]=]
 function Iterable:__pairs()
-	return wrap(function()
-		for obj in self:iter() do
-			yield(obj:__hash(), obj)
+	local gen = self:iter()
+	return function()
+		local obj = gen()
+		if not obj then
+			return nil
 		end
-	end)
+		return obj:__hash(), obj
+	end
 end
 
 --[=[
@@ -80,13 +82,18 @@ end
 @d Returns an iterator that returns all objects that satisfy a predicate.
 ]=]
 function Iterable:findAll(fn)
-	return wrap(function()
-		for obj in self:iter() do
+	local gen = self:iter()
+	return function()
+		while true do
+			local obj = gen()
+			if not obj then
+				return nil
+			end
 			if fn(obj) then
-				yield(obj)
+				return obj
 			end
 		end
-	end)
+	end
 end
 
 --[=[
@@ -249,19 +256,22 @@ function Iterable:pick(...)
 	local keys = pack(...)
 	local values = {}
 	local n = keys.n
-	return wrap(function()
-		for obj in self:iter() do
-			for i = 1, n do
-				local k = keys[i]
-				if type(k) == 'function' then
-					values[i] = k(obj)
-				else
-					values[i] = obj[k]
-				end
-			end
-			yield(unpack(values, 1, n))
+	local gen = self:iter()
+	return function()
+		local obj = gen()
+		if not obj then
+			return nil
 		end
-	end)
+		for i = 1, n do
+			local k = keys[i]
+			if type(k) == 'function' then
+				values[i] = k(obj)
+			else
+				values[i] = obj[k]
+			end
+		end
+		return unpack(values, 1, n)
+	end
 end
 
 return Iterable
