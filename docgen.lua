@@ -114,7 +114,7 @@ local function matchMethod(s)
 		name = matchMethodName(s),
 		desc = matchDescription(s),
 		parameters = matchParameters(s),
-		returnTypes = matchReturns(s),
+		returns = matchReturns(s),
 		tags = matchTags(s),
 	}
 end
@@ -248,8 +248,6 @@ methodTags['http'] = 'This method always makes an HTTP request.'
 methodTags['http?'] = 'This method may make an HTTP request.'
 methodTags['ws'] = 'This method always makes a WebSocket request.'
 methodTags['mem'] = 'This method only operates on data in memory.'
-methodTags['coro'] = 'This method creates and runs a new coroutine.'
-methodTags['coro?'] = 'This method may create and run a new coroutine.'
 
 local function checkTags(tbl, check)
 	for i, v in ipairs(check) do
@@ -285,7 +283,7 @@ local function writeMethods(f, methods)
 			end
 		end
 
-		f:write('**Returns:** ', link(method.returnTypes), '\n\n----\n\n')
+		f:write('**Returns:** ', link(method.returns), '\n\n----\n\n')
 
 	end
 

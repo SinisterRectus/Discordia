@@ -90,7 +90,7 @@ function ArrayIterable:iter()
 				if not v then
 					return nil
 				end
-				v = map(array[i])
+				v = map(v)
 				if v then
 					return v
 				end

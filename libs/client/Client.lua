@@ -268,7 +268,6 @@ end
 
 --[=[
 @m run
-@t coro
 @p token string
 @op presence table
 @r nil

@@ -84,7 +84,6 @@ end
 
 --[=[
 @m emit
-@t coro?
 @p name string
 @op ... *
 @r nil
