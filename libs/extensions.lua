@@ -221,51 +221,6 @@ function string.random(len, mn, mx)
 	return concat(ret)
 end
 
-local utf8
-
-if _G.utf8 then
-
-	local utf8_len, utf8_codes = _G.utf8.len, _G.utf8.codes
-	utf8 = {}
-
-	function utf8.levenshtein(str1, str2)
-
-		if str1 == str2 then return 0 end
-
-		local len1 = utf8_len(str1)
-		local len2 = utf8_len(str2)
-
-		if len1 == 0 then
-			return len2
-		elseif len2 == 0 then
-			return len1
-		end
-
-		local matrix = {}
-		for i = 0, len1 do
-			matrix[i] = {[0] = i}
-		end
-		for j = 0, len2 do
-			matrix[0][j] = j
-		end
-
-		local i = 1
-		for _, a in utf8_codes(str1) do
-			local j = 1
-			for _, b in utf8_codes(str2) do
-				local cost = a == b and 0 or 1
-				matrix[i][j] = min(matrix[i-1][j] + 1, matrix[i][j-1] + 1, matrix[i-1][j-1] + cost)
-				j = j + 1
-			end
-			i = i + 1
-		end
-
-		return matrix[len1][len2]
-
-	end
-
-end
-
 local math = {}
 
 function math.clamp(n, minValue, maxValue)
@@ -280,7 +235,6 @@ end
 local ext = setmetatable({
 	table = table,
 	string = string,
-	utf8 = utf8,
 	math = math,
 }, {__call = function(self)
 	for _, v in pairs(self) do
