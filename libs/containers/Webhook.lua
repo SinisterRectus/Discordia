@@ -118,6 +118,11 @@ function get.name(self)
 	return self._name
 end
 
+--[=[@p type number The type of the webhook. See the `webhookType` enum for a human-readable representation.]=]
+function get.type(self)
+	return self._type
+end
+
 --[=[@p avatar string/nil The hash for the webhook's custom avatar, if one is set.]=]
 function get.avatar(self)
 	return self._avatar

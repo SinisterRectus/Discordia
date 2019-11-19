@@ -54,6 +54,11 @@ enums.channelType = enum {
 	news     = 5,
 }
 
+enums.webhookType = enum {
+	incoming        = 1,
+	channelFollower = 2,
+}
+
 enums.messageType = enum {
 	default                       = 0,
 	recipientAdd                  = 1,
