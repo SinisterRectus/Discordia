@@ -187,6 +187,24 @@ function Message:setEmbed(embed)
 end
 
 --[=[
+@m update
+@t http
+@p data table
+@r boolean
+@d Sets multiple properties of the message at the same time using a table similar
+to the one supported by `TextChannel.send`, except only `content` and `embed`
+are valid fields; `mention(s)`, `file(s)`, etc are not supported. The message
+must be authored by the current user. (ie: you cannot change the embed of messages
+sent by other users).
+]=]
+function Message:update(data)
+	return self:_modify({
+		content = data.content or null,
+		embed = data.embed or null,
+	})
+end
+
+--[=[
 @m pin
 @t http
 @r boolean
