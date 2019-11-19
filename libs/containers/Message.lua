@@ -5,6 +5,7 @@ simple content strings, rich embeds, attachments, or reactions.
 ]=]
 
 local json = require('json')
+local enums = require('enums')
 local constants = require('constants')
 local Cache = require('iterables/Cache')
 local ArrayIterable = require('iterables/ArrayIterable')
@@ -15,6 +16,8 @@ local Resolver = require('client/Resolver')
 local insert = table.insert
 local null = json.null
 local format = string.format
+local messageFlag = enums.messageFlag
+local band, bor, bnot = bit.band, bit.bor, bit.bnot
 
 local Message, get = require('class')('Message', Snowflake)
 
@@ -184,6 +187,28 @@ end
 ]=]
 function Message:setEmbed(embed)
 	return self:_modify({embed = embed or null})
+end
+
+--[=[
+@m hideEmbeds
+@t http
+@r boolean
+@d Hides all embeds for this message.
+]=]
+function Message:hideEmbeds()
+	local flags = bor(self._flags or 0, messageFlag.suppressEmbed)
+	return self:_modify({flags = flags})
+end
+
+--[=[
+@m showEmbeds
+@t http
+@r boolean
+@d Shows all embeds for this message.
+]=]
+function Message:showEmbeds()
+	local flags = band(self._flags or 0, bnot(messageFlag.suppressEmbed))
+	return self:_modify({flags = flags})
 end
 
 --[=[

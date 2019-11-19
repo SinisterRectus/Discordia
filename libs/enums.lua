@@ -150,6 +150,12 @@ enums.permission = enum {
 	manageEmojis        = 0x40000000,
 }
 
+enums.messageFlag = enum {
+	crossposted         = 0x00000001,
+	isCrosspost         = 0x00000002,
+	suppressEmbeds      = 0x00000004,
+}
+
 enums.actionType = enum {
 	guildUpdate            = 1,
 	channelCreate          = 10,
