@@ -170,6 +170,9 @@ enums.actionType = enum {
 	memberBanRemove        = 23,
 	memberUpdate           = 24,
 	memberRoleUpdate       = 25,
+	memberMove             = 26,
+	memberDisconnect       = 27,
+	botAdd                 = 28,
 	roleCreate             = 30,
 	roleUpdate             = 31,
 	roleDelete             = 32,
@@ -183,6 +186,12 @@ enums.actionType = enum {
 	emojiUpdate            = 61,
 	emojiDelete            = 62,
 	messageDelete          = 72,
+	messageBulkDelete      = 73,
+	messagePin             = 74,
+	messageUnpin           = 75,
+	integrationCreate      = 80,
+	integrationUpdate      = 81,
+	integrationDelete      = 82,
 }
 
 enums.logLevel = enum {
