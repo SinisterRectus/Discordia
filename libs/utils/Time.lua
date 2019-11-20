@@ -3,7 +3,8 @@
 @t ui
 @mt mem
 @d Represents a length of time and provides utilities for converting to and from
-different formats with millisecond precision.
+different formats. Supported units are: weeks, days, hours, minutes, seconds,
+and milliseconds.
 ]=]
 
 local class = require('class')
@@ -15,22 +16,21 @@ local MS_PER_HOUR = MS_PER_MIN  * constants.MIN_PER_HOUR
 local MS_PER_DAY  = MS_PER_HOUR * constants.HOUR_PER_DAY
 local MS_PER_WEEK = MS_PER_DAY  * constants.DAY_PER_WEEK
 
-local DAY_PER_WEEK = constants.DAY_PER_WEEK
-local HOUR_PER_DAY = constants.HOUR_PER_DAY
-local MIN_PER_HOUR = constants.MIN_PER_HOUR
-local S_PER_MIN    = constants.S_PER_MIN
-
 local insert, concat = table.insert, table.concat
 local modf, fmod = math.modf, math.fmod
 local isInstance = class.isInstance
 
-local from = {
-	weeks = MS_PER_WEEK,
-	days = MS_PER_DAY,
-	hours = MS_PER_HOUR,
-	minutes = MS_PER_MIN,
-	seconds = MS_PER_S,
-	milliseconds = 1,
+local function decompose(value, mult)
+	return modf(value / mult), fmod(value, mult)
+end
+
+local units = {
+	{'weeks', MS_PER_WEEK},
+	{'days', MS_PER_DAY},
+	{'hours', MS_PER_HOUR},
+	{'minutes', MS_PER_MIN},
+	{'seconds', MS_PER_S},
+	{'milliseconds', 1},
 }
 
 local Time = class('Time')
@@ -45,14 +45,6 @@ function Time:__init(value)
 	self._value = tonumber(value) or 0
 end
 
-local function addString(unit, tbl, ret)
-	if tbl[unit] == 1 then
-		insert(ret, tbl[unit] .. ' ' .. unit:sub(1, #unit - 1))
-	elseif tbl[unit] > 0 then
-		insert(ret, tbl[unit] .. ' ' .. unit)
-	end
-end
-
 function Time:__tostring()
 	return 'Time: ' .. self:toString()
 end
@@ -60,18 +52,21 @@ end
 --[=[
 @m toString
 @r string
-@d Returns a string from the normalized time values that can be used to
-represent the time object in a string form.
+@d Returns a human-readable string built from the set of normalized time values
+that the object represents.
 ]=]
 function Time:toString()
-	local tbl = self:toTable()
 	local ret = {}
-	addString('weeks', tbl, ret)
-	addString('days', tbl, ret)
-	addString('hours', tbl, ret)
-	addString('minutes', tbl, ret)
-	addString('seconds', tbl, ret)
-	addString('milliseconds', tbl, ret)
+	local ms = self:toMilliseconds()
+	for _, unit in ipairs(units) do
+		local n
+		n, ms = decompose(ms, unit[2])
+		if n == 1 then
+			insert(ret, n .. ' ' .. unit[1]:sub(1, -2))
+		elseif n > 0 then
+			insert(ret, n .. ' ' .. unit[1])
+		end
+	end
 	return #ret > 0 and concat(ret, ', ') or '0 milliseconds'
 end
 
@@ -201,10 +196,10 @@ defined in the constructors above (eg: `weeks`, `days`, `hours`).
 ]=]
 function Time.fromTable(t)
 	local n = 0
-	for k, v in pairs(from) do
-		local m = tonumber(t[k])
+	for _, v in ipairs(units) do
+		local m = tonumber(t[v[1]])
 		if m then
-			n = n + m * v
+			n = n + m * v[2]
 		end
 	end
 	return Time(n)
@@ -267,19 +262,16 @@ end
 --[=[
 @m toTable
 @r number
-@d Returns a table of normalized time values that can be used to represent the
-time object in a more human-readable form.
+@d Returns a table of normalized time values that represent the time object in
+a more accessible form.
 ]=]
 function Time:toTable()
-	local v = self._value
-	return {
-		weeks = modf(v / MS_PER_WEEK),
-		days = modf(fmod(v / MS_PER_DAY, DAY_PER_WEEK)),
-		hours = modf(fmod(v / MS_PER_HOUR, HOUR_PER_DAY)),
-		minutes = modf(fmod(v / MS_PER_MIN, MIN_PER_HOUR)),
-		seconds = modf(fmod(v / MS_PER_S, S_PER_MIN)),
-		milliseconds = modf(fmod(v, MS_PER_S)),
-	}
+	local ret = {}
+	local ms = self:toMilliseconds()
+	for _, unit in ipairs(units) do
+		ret[unit[1]], ms = decompose(ms, unit[2])
+	end
+	return ret
 end
 
 return Time
