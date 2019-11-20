@@ -269,22 +269,22 @@ function API:createMessage(channel_id, payload, files) -- TextChannel:send
 end
 
 function API:createReaction(channel_id, message_id, emoji, payload) -- Message:addReaction
-	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, emoji)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, urlencode(emoji))
 	return self:request("PUT", endpoint, payload)
 end
 
 function API:deleteOwnReaction(channel_id, message_id, emoji) -- Message:removeReaction
-	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, emoji)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_ME, channel_id, message_id, urlencode(emoji))
 	return self:request("DELETE", endpoint)
 end
 
 function API:deleteUserReaction(channel_id, message_id, emoji, user_id) -- Message:removeReaction
-	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_USER, channel_id, message_id, emoji, user_id)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION_USER, channel_id, message_id, urlencode(emoji), user_id)
 	return self:request("DELETE", endpoint)
 end
 
 function API:getReactions(channel_id, message_id, emoji, query) -- Reaction:getUsers
-	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION, channel_id, message_id, emoji)
+	local endpoint = f(endpoints.CHANNEL_MESSAGE_REACTION, channel_id, message_id, urlencode(emoji))
 	return self:request("GET", endpoint, nil, query)
 end
 
