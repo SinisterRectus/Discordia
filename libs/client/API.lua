@@ -15,13 +15,9 @@ local running = coroutine.running
 
 local BASE_URL = "https://discordapp.com/api/v7"
 
-local BOUNDARY1 = 'Discordia' .. os.time()
-local BOUNDARY2 = '--' .. BOUNDARY1
-local BOUNDARY3 = BOUNDARY2 .. '--'
-
 local JSON = 'application/json'
 local PRECISION = 'millisecond'
-local MULTIPART = f('multipart/form-data;boundary=%s', BOUNDARY1)
+local MULTIPART = 'multipart/form-data;boundary='
 local USER_AGENT = f('DiscordBot (%s, %s)', package.homepage, package.version)
 
 local majorRoutes = {guilds = true, channels = true, webhooks = true}
@@ -70,21 +66,32 @@ local function route(method, endpoint)
 
 end
 
+local function generateBoundary(files, boundary)
+	boundary = boundary or tostring(random(0, 9))
+	for _, v in ipairs(files) do
+		if v[2]:find(boundary, 1, true) then
+			return generateBoundary(files, boundary .. random(0, 9))
+		end
+	end
+	return boundary
+end
+
 local function attachFiles(payload, files)
+	local boundary = generateBoundary(files)
 	local ret = {
-		BOUNDARY2,
+		'--' .. boundary,
 		'Content-Disposition:form-data;name="payload_json"',
 		'Content-Type:application/json\r\n',
 		payload,
 	}
 	for i, v in ipairs(files) do
-		insert(ret, BOUNDARY2)
+		insert(ret, '--' .. boundary)
 		insert(ret, f('Content-Disposition:form-data;name="file%i";filename=%q', i, v[1]))
 		insert(ret, 'Content-Type:application/octet-stream\r\n')
 		insert(ret, v[2])
 	end
-	insert(ret, BOUNDARY3)
-	return concat(ret, '\r\n')
+	insert(ret, '--' .. boundary .. '--')
+	return concat(ret, '\r\n'), boundary
 end
 
 local mutexMeta = {
@@ -144,8 +151,9 @@ function API:request(method, endpoint, payload, query, files)
 	if payloadRequired[method] then
 		payload = payload and encode(payload) or '{}'
 		if files and next(files) then
-			payload = attachFiles(payload, files)
-			insert(req, {'Content-Type', MULTIPART})
+			local boundary
+			payload, boundary = attachFiles(payload, files)
+			insert(req, {'Content-Type', MULTIPART .. boundary})
 		else
 			insert(req, {'Content-Type', JSON})
 		end
