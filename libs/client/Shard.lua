@@ -13,7 +13,6 @@ local null = json.null
 local format = string.format
 local sleep = timer.sleep
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
-local concat = table.concat
 local wrap = coroutine.wrap
 
 local ID_DELAY = constants.ID_DELAY
@@ -122,9 +121,7 @@ function Shard:handlePayload(payload)
 
 	elseif op == INVALID_SESSION then
 
-		local session_id = self._session_id
-		self._session_id = nil
-		if payload.d and session_id then
+		if payload.d and self._session_id then
 			self:info('Session invalidated, resuming...')
 			self:resume()
 		else
