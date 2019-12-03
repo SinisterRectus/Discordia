@@ -15,7 +15,7 @@ local fs = require('fs')
 
 local date = os.date
 local format = string.format
-local stdout = process.stdout.handle
+local stdout = _G.process.stdout.handle
 local openSync, writeSync = fs.openSync, fs.writeSync
 
 -- local BLACK   = 30

@@ -2,7 +2,7 @@ local enums = require('enums')
 local json = require('json')
 
 local channelType = enums.channelType
-local concat, insert = table.concat, table.insert
+local insert = table.insert
 local null = json.null
 
 local function warning(client, object, id, event)
@@ -97,7 +97,7 @@ function EventHandler.READY(d, client, shard)
 
 end
 
-function EventHandler.RESUMED(d, client, shard)
+function EventHandler.RESUMED(_, client, shard)
 	shard:info('Received RESUMED')
 	return client:emit('shardResumed', shard._id)
 end
