@@ -6,6 +6,7 @@ local enums = require('enums')
 
 local permission = enums.permission
 local actionType = enums.actionType
+local messageFlag = enums.messageFlag
 local base64 = ssl.base64
 local readFileSync = fs.readFileSync
 local classes = class.classes
@@ -22,8 +23,10 @@ local uint64_t = ffi.typeof('uint64_t')
 
 local function int(obj)
 	local t = type(obj)
-	if t == 'string' and tonumber(obj) then
-		return obj
+	if t == 'string' then
+		if tonumber(obj) then
+			return obj
+		end
 	elseif t == 'cdata' then
 		if istype(int64_t, obj) or istype(uint64_t, obj) then
 			return tostring(obj):match('%d*')
@@ -163,6 +166,17 @@ function Resolver.actionType(obj)
 		n = actionType[obj]
 	elseif t == 'number' then
 		n = actionType(obj) and obj
+	end
+	return n
+end
+
+function Resolver.messageFlag(obj)
+	local t = type(obj)
+	local n = nil
+	if t == 'string' then
+		n = messageFlag[obj]
+	elseif t == 'number' then
+		n = messageFlag(obj) and obj
 	end
 	return n
 end

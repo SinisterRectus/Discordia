@@ -212,6 +212,18 @@ function Message:showEmbeds()
 end
 
 --[=[
+@m hasFlag
+@t mem
+@p flag Message-Flag-Resolvable
+@r boolean
+@d Indicates whether the message has a particular flag set.
+]=]
+function Message:hasFlag(flag)
+	flag = Resolver.messageFlag(flag)
+	return band(self._flags or 0, flag) > 0
+end
+
+--[=[
 @m update
 @t http
 @p data table
