@@ -86,6 +86,7 @@ enums.activityType = enum {
 	default   = 0,
 	streaming = 1,
 	listening = 2,
+	custom    = 4,
 }
 
 enums.status = enum {
@@ -99,6 +100,7 @@ enums.gameType = enum { -- NOTE: deprecated; use activityType
 	default   = 0,
 	streaming = 1,
 	listening = 2,
+	custom    = 4,
 }
 
 enums.verificationLevel = enum {
