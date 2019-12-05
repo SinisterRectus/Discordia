@@ -1,5 +1,52 @@
 # Changelog
 
+## 2.8.0
+- Added support for custom statuses:
+	- Added `Activity.emojiId` property
+	- Added `Activity.emojiName` property
+	- Added `Activity.emojiHash` property
+	- Added `Activity` as a valid emoji and emojiId resolveable
+	- Added `activityType.custom` enumeration
+- Added support for message flags and embed suppression
+	- Added `Message:hasFlag` method
+	- Added `Message:hideEmbeds` method
+	- Added `Message:showEmbeds` method
+	- Added `messageFlag` enumerations:
+		- `crossposted`
+		- `isCrosspost`
+		- `suppressEmbeds`
+		- `sourceMessageDeleted`
+		- `urgent`
+- Added `Message:update` method
+- Added `webhookType` enumeration
+- Added `Webhook.type` property
+- Added `permission.stream` enumeration
+- Added `gatewayFile` client option
+- Switched to millisecond precision for HTTP ratelimiting
+	- Reduced default `routeDelay` client option from 300 to 250 ms
+	- Bots can now add and remove reactions more quickly
+- Added `actionType` enumerations:
+	- `memberMove`
+	- `memberdisconnect`
+	- `botAdd`
+	- `messageBulkDelete`
+	- `messagePin`
+	- `messageUnpin`
+	- `integrationCreate`
+	- `integrationUpdate`
+	- `integrationDelete`
+- Fixed issue where `Reaction.emojiURL` used `.png` for animated emojis
+- Fixed issue where `Guild.features` did not update
+- Fixed issue where deleted objects would be uncached prematurely
+- Fixed issue where internal session ID was removed before it was used
+- Refactored `docgen.lua` and improved class documentation
+- Other changes
+	- Added error message for missing `ffmpeg` executable
+	- Removed coroutine wrappers for internal iterators
+	- Switched to a dynamic multi-part file boundary
+	- Emojis are now properly URL-encoded
+	- Minor `Time` class refactor
+
 ## 2.7.0
 - Added support for status differentiation
 	- Added `UserPresence.webStatus` property
