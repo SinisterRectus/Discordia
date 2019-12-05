@@ -18,7 +18,9 @@
 		- `sourceMessageDeleted`
 		- `urgent`
 - Added `Message:update` method
-- Added `webhookType` enumeration
+- Added `webhookType` enumerations:
+	- `incoming`
+	- `channelFollower`
 - Added `Webhook.type` property
 - Added `permission.stream` enumeration
 - Added `gatewayFile` client option
@@ -27,7 +29,7 @@
 	- Bots can now add and remove reactions more quickly
 - Added `actionType` enumerations:
 	- `memberMove`
-	- `memberdisconnect`
+	- `memberDisconnect`
 	- `botAdd`
 	- `messageBulkDelete`
 	- `messagePin`
