@@ -79,6 +79,8 @@ function Resolver.emojiId(obj)
 		return obj.id
 	elseif isInstance(obj, classes.Reaction) then
 		return obj.emojiId
+	elseif isInstance(obj, classes.Activity) then
+		return obj.emojiId
 	end
 	return int(obj)
 end
@@ -129,6 +131,8 @@ function Resolver.emoji(obj)
 	if isInstance(obj, classes.Emoji) then
 		return obj.hash
 	elseif isInstance(obj, classes.Reaction) then
+		return obj.emojiHash
+	elseif isInstance(obj, classes.Activity) then
 		return obj.emojiHash
 	end
 	return tostring(obj)
