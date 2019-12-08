@@ -36,10 +36,11 @@ function FFmpegProcess:__init(path, rate, channels)
 		stdout:read_stop()
 		return assert(resume(thread))
 	end)
-	yield()
 
 	self._buffer = buffer or ''
 	self._stdout = stdout
+
+	yield()
 
 end
 
