@@ -42,6 +42,14 @@ function UserPresence:_loadPresence(presence)
 	if game == null then
 		self._activity = nil
 	elseif game then
+		local arr = presence.activities
+		if arr and arr[2] then
+			for i = 2, #arr do
+				for k, v in pairs(arr[i]) do
+					game[k] = v
+				end
+			end
+		end
 		if self._activity then
 			self._activity:_load(game)
 		else
