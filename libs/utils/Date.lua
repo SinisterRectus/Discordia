@@ -9,7 +9,6 @@ and from different date and time formats. Although microsecond precision is avai
 most formats are implemented with only second precision.
 ]=]
 
-local ffi = require('ffi')
 local class = require('class')
 local constants = require('constants')
 local Time = require('utils/Time')
@@ -17,7 +16,6 @@ local Time = require('utils/Time')
 local abs, modf, fmod, floor = math.abs, math.modf, math.fmod, math.floor
 local format = string.format
 local date, time, difftime = os.date, os.time, os.difftime
-local typeof = ffi.typeof
 local isInstance = class.isInstance
 
 local MS_PER_S = constants.MS_PER_S
@@ -25,8 +23,6 @@ local US_PER_MS = constants.US_PER_MS
 local US_PER_S = US_PER_MS * MS_PER_S
 
 local DISCORD_EPOCH = constants.DISCORD_EPOCH
-
-local uint64_t = typeof('uint64_t')
 
 local months = {
 	Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
@@ -330,11 +326,12 @@ end
 @m toSnowflake
 @r string
 @d Returns a synthetic Discord Snowflake ID based on the stored date and time.
-Note that `Date.fromSnowflake(id):toSnowflake()` may not return the original Snowflake.
+Due to the lack of native 64-bit support, the result may lack precision.
+In other words, `Date.fromSnowflake(id):toSnowflake() == id` may be `false`.
 ]=]
 function Date:toSnowflake()
-	local n = uint64_t(self:toMilliseconds() - DISCORD_EPOCH) * 2^22
-	return tostring(n):match('%d*')
+	local n = (self:toMilliseconds() - DISCORD_EPOCH) * 2^22
+	return format('%f', n):match('%d*')
 end
 
 --[=[
