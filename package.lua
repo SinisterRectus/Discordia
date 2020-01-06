@@ -1,6 +1,6 @@
 --[[The MIT License (MIT)
 
-Copyright (c) 2016-2019 SinisterRectus
+Copyright (c) 2016-2020 SinisterRectus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@ SOFTWARE.]]
 
 return {
 	name = 'SinisterRectus/discordia',
-	version = '2.8.0',
+	version = '2.8.1',
 	homepage = 'https://github.com/SinisterRectus/Discordia',
 	dependencies = {
 		'creationix/coro-http@3.1.0',
