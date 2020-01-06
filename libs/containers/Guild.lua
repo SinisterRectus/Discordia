@@ -511,7 +511,7 @@ function Guild:getBan(id)
 	id = Resolver.userId(id)
 	local data, err = self.client._api:getGuildBan(self._id, id)
 	if data then
-		return Ban(data, self._parent)
+		return Ban(data, self)
 	else
 		return nil, err
 	end
