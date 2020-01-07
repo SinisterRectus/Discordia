@@ -11,6 +11,8 @@ local null = json.null
 
 local Cache = require('class')('Cache', Iterable)
 
+local meta = {__mode = 'v'}
+
 function Cache:__init(array, constructor, parent)
 	local objects = {}
 	for _, data in ipairs(array) do
@@ -21,7 +23,7 @@ function Cache:__init(array, constructor, parent)
 	self._objects = objects
 	self._constructor = constructor
 	self._parent = parent
-	self._deleted = setmetatable({}, {__mode = 'v'})
+	self._deleted = setmetatable({}, meta)
 end
 
 function Cache:__pairs()

@@ -11,9 +11,11 @@ local Iterable = require('iterables/Iterable')
 
 local WeakCache = require('class')('WeakCache', Cache)
 
+local meta = {__mode = 'v'}
+
 function WeakCache:__init(array, constructor, parent)
 	Cache.__init(self, array, constructor, parent)
-	setmetatable(self._objects, {__mode = 'v'})
+	setmetatable(self._objects, meta)
 end
 
 function WeakCache:__len() -- NOTE: _count is not accurate for weak caches
