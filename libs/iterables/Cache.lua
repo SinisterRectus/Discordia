@@ -65,10 +65,12 @@ end
 
 function Cache:_insert(data)
 	local k = assert(hash(data))
-	local old = self._objects[k] or self._deleted[k]
+	local old = self._objects[k]
 	if old then
 		old:_load(data)
 		return old
+	elseif self._deleted[k] then
+		return insert(self, k, self._deleted[k])
 	else
 		local obj = self._constructor(data, self._parent)
 		return insert(self, k, obj)
@@ -77,19 +79,23 @@ end
 
 function Cache:_remove(data)
 	local k = assert(hash(data))
-	local old = self._objects[k] or self._deleted[k]
+	local old = self._objects[k]
 	if old then
 		old:_load(data)
 		return remove(self, k, old)
+	elseif self._deleted[k] then
+		return self._deleted[k]
 	else
 		return self._constructor(data, self._parent)
 	end
 end
 
 function Cache:_delete(k)
-	local old = self._objects[k] or self._deleted[k]
+	local old = self._objects[k]
 	if old then
 		return remove(self, k, old)
+	elseif self._deleted[k] then
+		return self._deleted[k]
 	else
 		return nil
 	end
