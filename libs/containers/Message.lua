@@ -165,21 +165,6 @@ function Message:_modify(payload)
 end
 
 --[=[
-@m getMember
-@t http?
-@r Member/nil
-@d Returns the `Member` object for the message's author if the message originates
-in a guild text channel and if the author is a guild member. Equivalent to calling
-`Message.guild:getMember(message.author.id)`.
-]=]
-function Message:getMember()
-	local guild = self._parent._parent
-	if guild then
-		return guild:getMember(self._author._id)
-	end
-end
-
---[=[
 @m setContent
 @t http
 @p content string
