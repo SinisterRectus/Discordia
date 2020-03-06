@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.2
+- Fixed issue where objects would not be cached if they were re-created after being recently deleted
+- Fixed issue where ratelimit headers were ignored
+
 ## 2.8.1
 - Multiple presences are now flattened into one
 - Fixed typo in `Guild.splashURL` result
