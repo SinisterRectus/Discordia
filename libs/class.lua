@@ -1,29 +1,23 @@
-local format = string.format
+local checkCalls = true
 
 local meta = {}
 local names = {}
 local classes = {}
 local objects = setmetatable({}, {__mode = 'k'})
 
+function meta:__index(k)
+	return self.__base[k]
+end
+
 function meta:__call(...)
 	local obj = setmetatable({}, self)
-	objects[obj] = true
 	obj:__init(...)
+	objects[obj] = true
 	return obj
 end
 
 function meta:__tostring()
-	return 'class ' .. self.__name
-end
-
-local default = {}
-
-function default:__tostring()
-	return self.__name
-end
-
-function default:__hash()
-	return self
+	return 'class: ' .. self.__name
 end
 
 local function isClass(cls)
@@ -36,15 +30,7 @@ end
 
 local function isSubclass(sub, cls)
 	if isClass(sub) and isClass(cls) then
-		if sub == cls then
-			return true
-		else
-			for _, base in ipairs(sub.__bases) do
-				if isSubclass(base, cls) then
-					return true
-				end
-			end
-		end
+		return sub == cls or isSubclass(sub.__base, cls)
 	end
 	return false
 end
@@ -54,111 +40,119 @@ local function isInstance(obj, cls)
 end
 
 local function profile()
-	local ret = setmetatable({}, {__index = function() return 0 end})
+	local counts = {}
+	for cls in pairs(classes) do
+		counts[cls.__name] = 0
+	end
 	for obj in pairs(objects) do
-		local name = obj.__name
-		ret[name] = ret[name] + 1
+		counts[obj.__name] = counts[obj.__name] + 1
 	end
-	return ret
+	return counts
 end
 
-local types = {['string'] = true, ['number'] = true, ['boolean'] = true}
-
-local function _getPrimitive(v)
-	return types[type(v)] and v or v ~= nil and tostring(v) or nil
-end
-
-local function serialize(obj)
-	if isObject(obj) then
-		local ret = {}
-		for k, v in pairs(obj.__getters) do
-			ret[k] = _getPrimitive(v(obj))
-		end
-		return ret
-	else
-		return _getPrimitive(obj)
+local function mixin(target, source)
+	for k, v in pairs(source) do
+		target[k] = v
 	end
 end
 
-local rawtype = type
-local function type(obj)
-	return isObject(obj) and obj.__name or rawtype(obj)
+local function isInit(class, fn)
+	if not isClass(class) then return false end
+	if class.__init == fn then return true end
+	return isInit(class.__base, fn)
+end
+
+local function isMember(class, fn)
+	if not isClass(class) then return false end
+	for _, v in pairs(class) do if v == fn then return true end end
+	for _, v in pairs(class.__getters) do if v == fn then return true end end
+	for _, v in pairs(class.__setters) do if v == fn then return true end end
+	return isMember(class.__base, fn)
+end
+
+local function checkInit(class, level)
+	local info = debug.getinfo(level, 'f')
+	if not isInit(class, info.func) then
+		error('cannot declare field outside of __init', level)
+	end
+end
+
+local function checkMember(class, level)
+	local info = debug.getinfo(level, 'f')
+	if not isMember(class, info.func) then
+		error('private field', level)
+	end
 end
 
 return setmetatable({
 
-	classes = names,
 	isClass = isClass,
 	isObject = isObject,
 	isSubclass = isSubclass,
 	isInstance = isInstance,
-	type = type,
 	profile = profile,
-	serialize = serialize,
+	mixin = mixin,
 
-}, {__call = function(_, name, ...)
+}, {__call = function(_, name, base)
 
-	if names[name] then return error(format('Class %q already defined', name)) end
+	assert(type(name) == 'string', 'name must be a string')
+	assert(base == nil or isClass(base), 'base must be a class')
+	assert(not names[name], 'class already defined')
 
 	local class = setmetatable({}, meta)
+	names[name] = true
 	classes[class] = true
 
-	for k, v in pairs(default) do
-		class[k] = v
-	end
-
-	local bases = {...}
-	local getters = {}
-	local setters = {}
-
-	for _, base in ipairs(bases) do
-		for k1, v1 in pairs(base) do
-			class[k1] = v1
-			for k2, v2 in pairs(base.__getters) do
-				getters[k2] = v2
-			end
-			for k2, v2 in pairs(base.__setters) do
-				setters[k2] = v2
-			end
-		end
-	end
+	local getters = base and setmetatable({}, {__index = base.__getters}) or {}
+	local setters = base and setmetatable({}, {__index = base.__setters}) or {}
 
 	class.__name = name
+	class.__base = base or {}
 	class.__class = class
-	class.__bases = bases
 	class.__getters = getters
 	class.__setters = setters
 
-	local pool = {}
-	local n = #pool
+	local properties = {}
+	local n = 0
 
 	function class:__index(k)
-		if getters[k] then
-			return getters[k](self)
-		elseif pool[k] then
-			return rawget(self, pool[k])
+		local getter = getters[k]
+		if getter then
+			return getter(self)
+		elseif properties[k] then
+			if checkCalls then checkMember(class, 3) end
+			return rawget(self, properties[k])
 		else
-			return class[k]
+			local parent = class[k]
+			if parent ~= nil then
+				return parent
+			end
+			return error('undefined field')
 		end
 	end
 
 	function class:__newindex(k, v)
-		if setters[k] then
-			return setters[k](self, v)
+		local setter = setters[k]
+		if setter then
+			return setter(self, v)
 		elseif class[k] or getters[k] then
-			return error(format('Cannot overwrite protected property: %s.%s', name, k))
-		elseif k:find('_', 1, true) ~= 1 then
-			return error(format('Cannot write property to object without leading underscore: %s.%s', name, k))
+			return error('cannot override field')
+		elseif k:sub(1, 1) ~= '_' then
+			return error('leading underscore required')
 		else
-			if not pool[k] then
+			if checkCalls then checkMember(class, 3) end
+			if not properties[k] then
+				if checkCalls then checkInit(class, 3) end
 				n = n + 1
-				pool[k] = n
+				properties[k] = n
 			end
-			return rawset(self, pool[k], v)
+			return rawset(self, properties[k], v)
 		end
 	end
 
-	names[name] = class
+	function class:__tostring()
+		return 'object: ' .. self.__name
+	end
 
 	return class, getters, setters
 

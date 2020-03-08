@@ -1,81 +1,76 @@
---[=[
-@c Logger
-@t ui
-@mt mem
-@p level number
-@p dateTime string
-@op file string
-@d Used to log formatted messages to stdout (the console) or to a file.
-The `dateTime` argument should be a format string that is accepted by `os.date`.
-The file argument should be a relative or absolute file path or `nil` if no log
-file is desired. See the `logLevel` enumeration for acceptable log level values.
-]=]
-
 local fs = require('fs')
+local pp = require('pretty-print')
+local class = require('../class')
 
 local date = os.date
 local format = string.format
-local stdout = _G.process.stdout.handle
+local stdout = pp.stdout
 local openSync, writeSync = fs.openSync, fs.writeSync
 
--- local BLACK   = 30
-local RED     = 31
-local GREEN   = 32
-local YELLOW  = 33
--- local BLUE    = 34
--- local MAGENTA = 35
-local CYAN    = 36
--- local WHITE   = 37
-
-local config = {
-	{'[ERROR]  ', RED},
-	{'[WARNING]', YELLOW},
-	{'[INFO]   ', GREEN},
-	{'[DEBUG]  ', CYAN},
+local colors = {
+	black   = 30,
+	red     = 31,
+	green   = 32,
+	yellow  = 33,
+	blue    = 34,
+	magenta = 35,
+	cyan    = 36,
+	white   = 37,
 }
 
-do -- parse config
-	local bold = 1
-	for _, v in ipairs(config) do
-		v[2] = format('\27[%i;%im%s\27[0m', bold, v[2], v[1])
-	end
-end
+local levels = {
+	{'error',   '[ERROR]  ', colors.red},
+	{'warning', '[WARNING]', colors.yellow},
+	{'info',    '[INFO]   ', colors.green},
+	{'debug',   '[DEBUG]  ', colors.cyan},
+}
 
-local Logger = require('class')('Logger')
+local Logger = class('Logger')
 
-function Logger:__init(level, dateTime, file)
+function Logger:__init(level, dateTime, filePath, useColors)
 	self._level = level
 	self._dateTime = dateTime
-	self._file = file and openSync(file, 'a')
+	self._file = filePath and openSync(filePath, 'a')
+	self._useColors = useColors
+	self._line = {nil, ' | ', nil, ' | ', nil, '\n'}
 end
 
---[=[
-@m log
-@p level number
-@p msg string
-@p ... *
-@r string
-@d If the provided level is less than or equal to the log level set on
-initialization, this logs a message to stdout as defined by Luvit's `process`
-module and to a file if one was provided on initialization. The `msg, ...` pair
-is formatted according to `string.format` and returned if the message is logged.
-]=]
+for i, v in ipairs(levels) do
+	v[3] = ('\27[%i;%im%s\27[0m'):format(1, v[3], v[2])
+	levels[v[1]] = i
+	Logger[v[1]] = function(self, fmt, ...)
+		return self:log(i, fmt, ...)
+	end
+end
+
 function Logger:log(level, msg, ...)
 
-	if self._level < level then return end
-
-	local tag = config[level]
-	if not tag then return end
-
-	msg = format(msg, ...)
-
-	local d = date(self._dateTime)
-	if self._file then
-		writeSync(self._file, -1, format('%s | %s | %s\n', d, tag[1], msg))
+	if type(level) == 'string' then
+		level = levels[level] -- convert name to index
 	end
-	stdout:write(format('%s | %s | %s\n', d, tag[2], msg))
 
-	return msg
+	if type(level) == 'number' then
+		if self._level < level then return end
+		level = levels[level] -- convert index to table
+	end
+
+	if not level then return end
+
+	local line = self._line
+	line[1] = date(self._dateTime)
+	line[3] = level[2]
+	line[5] = format(msg, ...)
+
+	if self._file then
+		writeSync(self._file, -1, line)
+	end
+
+	if self._useColors then
+		line[3] = level[3]
+	end
+	stdout:write(line)
+
+	return line[5]
 
 end
 

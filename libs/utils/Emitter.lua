@@ -1,133 +1,73 @@
---[=[
-@c Emitter
-@t ui
-@mt mem
-@d Implements an asynchronous event emitter where callbacks can be subscribed to
-specific named events. When events are emitted, the callbacks are called in the
-order that they were originally registered.
-]=]
-
 local timer = require('timer')
+local class = require('../class')
 
 local wrap, yield = coroutine.wrap, coroutine.yield
 local resume, running = coroutine.resume, coroutine.running
 local insert, remove = table.insert, table.remove
 local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
 
-local Emitter = require('class')('Emitter')
+local Emitter = class('Emitter')
+
+local meta = {
+	__index = function(self, k)
+		self[k] = {}
+		return self[k]
+	end
+}
+
+local function mark(listeners, i)
+	listeners[i] = false
+	listeners.marked = true
+end
+
+local function clean(listeners)
+	for i = #listeners, 1, -1 do
+		if not listeners[i] then
+			remove(listeners, i)
+		end
+	end
+	listeners.marked = nil
+end
 
 function Emitter:__init()
-	self._listeners = {}
+	self._listeners = setmetatable({}, meta)
 end
 
-local function new(self, name, listener)
-	local listeners = self._listeners[name]
-	if not listeners then
-		listeners = {}
-		self._listeners[name] = listeners
-	end
-	insert(listeners, listener)
-	return listener.fn
+function Emitter:on(name, fn, err)
+	insert(self._listeners[name], {fn = fn, err = err})
+	return fn
 end
 
---[=[
-@m on
-@p name string
-@p fn function
-@r function
-@d Subscribes a callback to be called every time the named event is emitted.
-Callbacks registered with this method will automatically be wrapped as a new
-coroutine when they are called. Returns the original callback for convenience.
-]=]
-function Emitter:on(name, fn)
-	return new(self, name, {fn = fn})
+function Emitter:once(name, fn, err)
+	insert(self._listeners[name], {fn = fn, err = err, once = true})
+	return fn
 end
 
---[=[
-@m once
-@p name string
-@p fn function
-@r function
-@d Subscribes a callback to be called only the first time this event is emitted.
-Callbacks registered with this method will automatically be wrapped as a new
-coroutine when they are called. Returns the original callback for convenience.
-]=]
-function Emitter:once(name, fn)
-	return new(self, name, {fn = fn, once = true})
-end
-
---[=[
-@m onSync
-@p name string
-@p fn function
-@r function
-@d Subscribes a callback to be called every time the named event is emitted.
-Callbacks registered with this method are not automatically wrapped as a
-coroutine. Returns the original callback for convenience.
-]=]
-function Emitter:onSync(name, fn)
-	return new(self, name, {fn = fn, sync = true})
-end
-
---[=[
-@m onceSync
-@p name string
-@p fn function
-@r function
-@d Subscribes a callback to be called only the first time this event is emitted.
-Callbacks registered with this method are not automatically wrapped as a coroutine.
-Returns the original callback for convenience.
-]=]
-function Emitter:onceSync(name, fn)
-	return new(self, name, {fn = fn, once = true, sync = true})
-end
-
---[=[
-@m emit
-@p name string
-@op ... *
-@r nil
-@d Emits the named event and a variable number of arguments to pass to the event callbacks.
-]=]
 function Emitter:emit(name, ...)
 	local listeners = self._listeners[name]
-	if not listeners then return end
 	for i = 1, #listeners do
 		local listener = listeners[i]
 		if listener then
-			local fn = listener.fn
 			if listener.once then
-				listeners[i] = false
+				mark(listeners, i)
 			end
-			if listener.sync then
-				fn(...)
+			if listener.err then
+				local success, err = pcall(wrap(listener.fn), ...)
+				if not success then
+					wrap(listener.err)(err, ...)
+				end
 			else
-				wrap(fn)(...)
+				wrap(listener.fn)(...)
 			end
 		end
 	end
-	if listeners._removed then
-		for i = #listeners, 1, -1 do
-			if not listeners[i] then
-				remove(listeners, i)
-			end
-		end
-		if #listeners == 0 then
-			self._listeners[name] = nil
-		end
-		listeners._removed = nil
+	if listeners.marked then
+		clean(listeners)
 	end
 end
 
---[=[
-@m getListeners
-@p name string
-@r function
-@d Returns an iterator for all callbacks registered to the named event.
-]=]
 function Emitter:getListeners(name)
 	local listeners = self._listeners[name]
-	if not listeners then return function() end end
 	local i = 0
 	return function()
 		while i < #listeners do
@@ -139,15 +79,8 @@ function Emitter:getListeners(name)
 	end
 end
 
---[=[
-@m getListenerCount
-@p name string
-@r number
-@d Returns the number of callbacks registered to the named event.
-]=]
 function Emitter:getListenerCount(name)
 	local listeners = self._listeners[name]
-	if not listeners then return 0 end
 	local n = 0
 	for _, listener in ipairs(listeners) do
 		if listener then
@@ -157,31 +90,16 @@ function Emitter:getListenerCount(name)
 	return n
 end
 
---[=[
-@m removeListener
-@p name string
-@p fn function
-@r nil
-@d Unregisters all instances of the callback from the named event.
-]=]
 function Emitter:removeListener(name, fn)
 	local listeners = self._listeners[name]
-	if not listeners then return end
 	for i, listener in ipairs(listeners) do
 		if listener and listener.fn == fn then
-			listeners[i] = false
+			mark(listeners, i)
+			break
 		end
 	end
-	listeners._removed = true
 end
 
---[=[
-@m removeAllListeners
-@p name string/nil
-@r nil
-@d Unregisters all callbacks for the emitter. If a name is passed, then only
-callbacks for that specific event are unregistered.
-]=]
 function Emitter:removeAllListeners(name)
 	if name then
 		self._listeners[name] = nil
@@ -192,35 +110,35 @@ function Emitter:removeAllListeners(name)
 	end
 end
 
---[=[
-@m waitFor
-@p name string
-@op timeout number
-@op predicate function
-@r boolean
-@r ...
-@d When called inside of a coroutine, this will yield the coroutine until the
-named event is emitted. If a timeout (in milliseconds) is provided, the function
-will return after the time expires, regardless of whether the event is emitted,
-and `false` will be returned; otherwise, `true` is returned. If a predicate is
-provided, events that do not pass the predicate will be ignored.
-]=]
 function Emitter:waitFor(name, timeout, predicate)
+
+	local t, fn
 	local thread = running()
-	local fn
-	fn = self:onSync(name, function(...)
-		if predicate and not predicate(...) then return end
-		if timeout then
-			clearTimeout(timeout)
+
+	local function complete(success, ...)
+		if t then
+			clearTimeout(t)
+			t = nil
 		end
-		self:removeListener(name, fn)
-		return assert(resume(thread, true, ...))
+		if fn then
+			self:removeListener(name, fn)
+			fn = nil
+			return assert(resume(thread, success, ...))
+		end
+	end
+
+	fn = self:on(name, function(...)
+		if type(predicate) ~= 'function' or predicate(...) then
+			return complete(true, ...)
+		end
 	end)
-	timeout = timeout and setTimeout(timeout, function()
-		self:removeListener(name, fn)
-		return assert(resume(thread, false))
-	end)
+
+	if tonumber(timeout) then
+		t = setTimeout(timeout, complete, false)
+	end
+
 	return yield()
+
 end
 
 return Emitter
