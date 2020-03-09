@@ -21,18 +21,18 @@ local GATEWAY_ENCODING = 'json'
 
 local Client, get = class('Client', Emitter)
 
-local defaultOptions = {
-	routeDelay = 250,
-	maxRetries = 5,
-	gatewayIntents = -1, -- nil
-	totalShardCount = -1, -- gateway.shards
-	payloadCompression = true,
-	logLevel = enums.logLevel.info,
-	dateTime = '%F %T',
-	logFile = 'discordia.log',
-	logColors = true,
-	status = '', -- null
-	activity = {}, -- null
+local defaultOptions = { -- {type, value}
+	routeDelay = {'number', 250},
+	maxRetries = {'number', 5},
+	gatewayIntents = {'number', nil},
+	totalShardCount = {'number', nil},
+	payloadCompression = {'boolean', true},
+	logLevel = {'number', enums.logLevel.info},
+	dateTime = {'string', '%F %T'},
+	logFile = {'string', 'discordia.log'},
+	logColors = {'boolean', true},
+	status = {'string', nil},
+	activity = {'table', nil},
 }
 
 local function checkOptions(customOptions)
@@ -41,18 +41,18 @@ local function checkOptions(customOptions)
 		for k, default in pairs(defaultOptions) do -- load options
 			local custom = customOptions[k]
 			if custom == nil then
-				options[k] = default
+				options[k] = default[2]
 			else
 				options[k] = custom
 			end
 		end
 		for k, v in pairs(customOptions) do -- validate options
-			local default = type(defaultOptions[k])
-			local custom = type(v)
-			if default ~= custom then
-				error(format('invalid option %q (%s expected, got %s)', k, default, custom), 4)
+			local expected = defaultOptions[k][1]
+			local received = type(v)
+			if expected ~= received then
+				error(format('invalid option %q (expected %s, received %s)', k, expected, received), 4)
 			end
-			if custom == 'number' and (v < 0 or v % 1 > 0) then
+			if received == 'number' and (v < 0 or v % 1 > 0) then
 				error(format('invalid option %q (number must be a positive integer)', k), 4)
 			end
 		end
@@ -125,7 +125,7 @@ function Client:_run(token)
 		return self:log('error', 'Could not get gateway information: %s', err2)
 	end
 
-	if shards < 0 then
+	if shards == nil then
 		shards = gateway.shards
 	elseif shards ~= gateway.shards then
 		self:log('warning', 'Indicated shard count (%i) is different from recommended (%i)', shards, gateway.shards)
