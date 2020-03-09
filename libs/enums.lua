@@ -56,4 +56,22 @@ enums.logLevel = enum {
 	debug   = 4,
 }
 
+enums.gatewayIntent = enum {
+	guilds                = 0x00000001, -- 1 << 0
+	guildMembers          = 0x00000002, -- 1 << 1
+	guildBans             = 0x00000004, -- 1 << 2
+	guildEmojis           = 0x00000008, -- 1 << 3
+	guildIntegrations     = 0x00000010, -- 1 << 4
+	guildWebhooks         = 0x00000020, -- 1 << 5
+	guildInvites          = 0x00000040, -- 1 << 6
+	guildVoiceStates      = 0x00000080, -- 1 << 7
+	guildPresences        = 0x00000100, -- 1 << 8
+	guildMessages         = 0x00000200, -- 1 << 9
+	guildMessageReactions = 0x00000400, -- 1 << 10
+	guildMessageTyping    = 0x00000800, -- 1 << 11
+	directMessage         = 0x00001000, -- 1 << 12
+	directMessageRections = 0x00002000, -- 1 << 13
+	directMessageTyping   = 0x00004000, -- 1 << 14
+}
+
 return enums

@@ -275,13 +275,14 @@ function Shard:identify()
 
 	local client = self._client
 
-	return self:send(IDENTIFY, { -- TODO: intents
+	return self:send(IDENTIFY, {
 		token = client.token,
 		properties = {
 			['$os'] = jit.os,
 			['$browser'] = 'Discordia',
 			['$device'] = 'Discordia',
 		},
+		intents = client.gatewayIntents,
 		compress = client.payloadCompression,
 		shard = {self._id, client.totalShardCount},
 		presence = client:_internalPresence(),

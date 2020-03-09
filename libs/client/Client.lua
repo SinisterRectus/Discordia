@@ -205,6 +205,10 @@ function get:maxRetries()
 	return self._maxRetries
 end
 
+function get:gatewayIntents()
+	return self._gatewayIntents
+end
+
 function get:totalShardCount()
 	return self._totalShardCount
 end
