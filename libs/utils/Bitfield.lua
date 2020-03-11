@@ -1,10 +1,32 @@
 local class = require('../class')
 
-local fmod = math.fmod
-local format = string.format
+local reverse = string.reverse
 local insert, concat = table.insert, table.concat
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local lshift = bit.lshift
+
+local codec = {}
+do
+	local alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+	local base = #alphabet
+	for char in alphabet:gmatch('.') do
+		codec[tonumber(char, base)] = char
+	end
+end
+
+local function checkBase(base)
+	if not pcall(tonumber, 0, base) then
+		return error('invalid base', 2)
+	end
+	return base
+end
+
+local function optBase(base, default)
+	if base == nil then
+		return default
+	end
+	return checkBase(base)
+end
 
 local function toNumber(value, base)
 	if type(value) == 'table' then
@@ -25,28 +47,35 @@ function Bitfield:__init(v)
 	self._value = toNumber(v) or 0
 end
 
-function Bitfield:toBin(len)
+function Bitfield:toString(base, len)
 	local n = self._value
 	local ret = {}
+	base = optBase(base, 2)
 	while n > 0 do
-		local rem = fmod(n, 2)
-		insert(ret, 1, rem)
-		n = (n - rem) / 2
+		local r = n % base
+		insert(ret, codec[r])
+		n = (n - r) / base
 	end
 	while #ret < (len or 1) do
-		insert(ret, 1, 0)
+		insert(ret, '0')
 	end
-	return concat(ret)
+	return reverse(concat(ret))
+end
+
+function Bitfield:toBin(len)
+	return self:toString(2, len)
+end
+
+function Bitfield:toOct(len)
+	return self:toString(8, len)
 end
 
 function Bitfield:toDec(len)
-	local fmt = format('%%0%ii', len)
-	return format(fmt, self._value)
+	return self:toString(10, len)
 end
 
 function Bitfield:toHex(len)
-	local fmt = format('%%0%ix', len)
-	return format(fmt, self._value)
+	return self:toString(16, len)
 end
 
 function Bitfield:enableBit(n) -- 1-indexed
