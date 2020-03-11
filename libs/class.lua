@@ -151,7 +151,11 @@ return setmetatable({
 	end
 
 	function class:__tostring()
-		return 'object: ' .. self.__name
+		if class.toString then
+			return self.__name .. ': ' .. self:toString()
+		else
+			return 'object: ' .. self.__name
+		end
 	end
 
 	return class, getters, setters
