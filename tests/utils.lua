@@ -21,11 +21,11 @@ end
 local function assertError(fn, expected)
 	local success, received = pcall(fn)
 	if success then
-		return error(f('expected error: %s', expected))
+		return error(f('expected: %s, received: success', expected))
 	end
 	local n = #received - #expected + 1
 	if received:find(expected, n, true) ~= n then
-		return error(f('expected error: %s', expected))
+		return error(f('expected: %s, received: %s', expected, received))
 	end
 end
 

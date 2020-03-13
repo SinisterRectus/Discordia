@@ -4,59 +4,121 @@ local reverse = string.reverse
 local insert, concat = table.insert, table.concat
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local lshift = bit.lshift
+local isInstance = class.isInstance
 
 local codec = {}
+local alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+local minBase = 2
+local maxBase = #alphabet
+
 do
-	local alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-	local base = #alphabet
+	local i = 0
 	for char in alphabet:gmatch('.') do
-		codec[tonumber(char, base)] = char
+		codec[i] = char
+		i = i + 1
 	end
 end
 
 local function checkBase(base)
-	if not pcall(tonumber, 0, base) then
+	base = tonumber(base)
+	if not base or base < minBase or base > maxBase then
 		return error('invalid base', 2)
 	end
 	return base
 end
 
-local function optBase(base, default)
-	if base == nil then
-		return default
+local function checkLength(len)
+	local n = tonumber(len)
+	if not n or n < 1 then
+		return error('invalid length', 2)
 	end
-	return checkBase(base)
+	return n
 end
 
-local function toNumber(value, base)
-	if type(value) == 'table' then
-		local n = 0
-		for _, v in pairs(value) do
-			v = toNumber(v, base)
-			n = bor(n, v)
-		end
-		return n
-	else
-		return tonumber(value, base)
+local function checkValue(value, base)
+	local n = tonumber(value, base and checkBase(base) or nil)
+	if not n or n < 0 or n > 0x7FFFFFFF or n % 1 > 0 then
+		return error('invalid value', 2)
 	end
+	return n
+end
+
+local function checkBit(bit)
+	local n = tonumber(bit)
+	if not n or n < 1 or n > 31 then
+		return error('invalid bit', 2)
+	end
+	return n
 end
 
 local Bitfield, get = class('Bitfield')
 
-function Bitfield:__init(v)
-	self._value = toNumber(v) or 0
+local function checkBitfield(obj)
+	if isInstance(obj, Bitfield) then
+		return obj.value
+	end
+	return error('cannot perform operation', 2)
+end
+
+function Bitfield:__init(v, base)
+	self._value = v and checkValue(v, base) or 0
+end
+
+function Bitfield:__eq(other)
+	return checkBitfield(self) == checkBitfield(other)
+end
+
+function Bitfield:__lt(other)
+	return checkBitfield(self) < checkBitfield(other)
+end
+
+function Bitfield:__le(other)
+	return checkBitfield(self) <= checkBitfield(other)
+end
+
+function Bitfield:__add(other)
+	return Bitfield(checkBitfield(self) + checkBitfield(other))
+end
+
+function Bitfield:__sub(other)
+	return Bitfield(checkBitfield(self) - checkBitfield(other))
+end
+
+function Bitfield:__mod(other)
+	return Bitfield(checkBitfield(self) % checkBitfield(other))
+end
+
+function Bitfield:__mul(other)
+	if tonumber(other) then
+		return Bitfield(checkBitfield(self) * other)
+	elseif tonumber(self) then
+		return Bitfield(self * checkBitfield(other))
+	else
+		return error('cannot perform operation')
+	end
+end
+
+function Bitfield:__div(other)
+	if tonumber(other) then
+		return Bitfield(checkBitfield(self) / other)
+	elseif tonumber(self) then
+		return error('division not commutative')
+	else
+		return error('cannot perform operation')
+	end
 end
 
 function Bitfield:toString(base, len)
-	local n = self._value
+	local n = self.value
 	local ret = {}
-	base = optBase(base, 2)
+	base = base and checkBase(base) or 2
+	len = len and checkLength(len) or 1
 	while n > 0 do
 		local r = n % base
 		insert(ret, codec[r])
 		n = (n - r) / base
 	end
-	while #ret < (len or 1) do
+	while #ret < len do
 		insert(ret, '0')
 	end
 	return reverse(concat(ret))
@@ -79,55 +141,59 @@ function Bitfield:toHex(len)
 end
 
 function Bitfield:enableBit(n) -- 1-indexed
+	n = checkBit(n)
 	return self:enableValue(lshift(1, n - 1))
 end
 
 function Bitfield:disableBit(n) -- 1-indexed
+	n = checkBit(n)
 	return self:disableValue(lshift(1, n - 1))
 end
 
 function Bitfield:toggleBit(n) -- 1-indexed
+	n = checkBit(n)
 	return self:toggleValue(lshift(1, n - 1))
 end
 
 function Bitfield:hasBit(n) -- 1-indexed
+	n = checkBit(n)
 	return self:hasValue(lshift(1, n - 1))
 end
 
 function Bitfield:enableValue(v, base)
-	v = toNumber(v, base)
+	v = checkValue(v, base)
 	self._value = bor(self._value, v)
 end
 
 function Bitfield:disableValue(v, base)
-	v = toNumber(v, base)
+	v = checkValue(v, base)
 	self._value = band(self._value, bnot(v))
 end
 
 function Bitfield:toggleValue(v, base)
-	v = toNumber(v, base)
+	v = checkValue(v, base)
 	self._value = bxor(self._value, v)
 end
 
 function Bitfield:hasValue(v, base)
-	v = toNumber(v, base)
+	v = checkValue(v, base)
 	return band(self._value, v) == v
 end
 
 function Bitfield:union(other) -- bits in either A or B
-	return Bitfield(bor(self.value, other.value))
+	return Bitfield(bor(checkBitfield(self), checkBitfield(other)))
 end
 
 function Bitfield:complement(other) -- bits in A but not in B
-	return Bitfield(band(self.value, bnot(other.value)))
+	return Bitfield(band(checkBitfield(self), bnot(checkBitfield(other))))
 end
 
 function Bitfield:difference(other) -- bits in A or B but not in both
-	return Bitfield(bxor(self.value, other.value))
+	return Bitfield(bxor(checkBitfield(self), checkBitfield(other)))
 end
 
 function Bitfield:intersection(other) -- bits in both A and B
-	return Bitfield(band(self.value, other.value))
+	return Bitfield(band(checkBitfield(self), checkBitfield(other)))
 end
 
 ----
