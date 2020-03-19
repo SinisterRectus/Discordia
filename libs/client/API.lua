@@ -53,7 +53,7 @@ function API:__init(client)
 end
 
 function API:setToken(token)
-	self._token = token:match('$Bot .*') or 'Bot ' .. token
+	self._token = token:match('^Bot .*') or 'Bot ' .. token
 end
 
 function API:log(level, res, method, url)
@@ -431,6 +431,12 @@ end
 
 function API:getGuild(guild_id, query)
 	local endpoint = endpoints.GUILD
+	local params = {guild_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:getGuildPreview(guild_id, query)
+	local endpoint = endpoints.GUILD_PREVIEW
 	local params = {guild_id}
 	return self:request("GET", endpoint, params, query)
 end
