@@ -1,5 +1,4 @@
 local class = require('../libs/class')
-
 local utils = require('./utils')
 
 local assertEqual = utils.assertEqual
