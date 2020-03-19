@@ -1,3 +1,5 @@
+local timer = require('timer')
+
 local f = string.format
 
 local function assertEqual(a, b)
@@ -30,6 +32,7 @@ local function assertError(fn, expected)
 end
 
 return {
+	sleep = timer.sleep,
 	assertEqual = assertEqual,
 	assertTrue = assertTrue,
 	assertFalse = assertFalse,

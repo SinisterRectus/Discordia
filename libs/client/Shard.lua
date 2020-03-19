@@ -7,6 +7,7 @@ local class = require('../class')
 local Mutex = require('../utils/Mutex')
 local Emitter = require('../utils/Emitter')
 local EventHandler = require('./EventHandler')
+local Stopwatch = require('../utils/Stopwatch')
 
 local wrap = coroutine.wrap
 local format = string.format
@@ -27,7 +28,7 @@ local CLOSE  = 8
 local DISPATCH              = 0
 local HEARTBEAT             = 1
 local IDENTIFY              = 2
-local PRESENCE_UPDATE         = 3
+local PRESENCE_UPDATE       = 3
 local VOICE_STATE_UPDATE    = 4
 local RESUME                = 6
 local RECONNECT             = 7
@@ -56,6 +57,7 @@ function Shard:__init(id, client)
 	self._id = id
 	self._client = client
 	self._sendMutex = Mutex()
+	self._stopwatch = Stopwatch()
 	self._reconnectDelay = MIN_RECONNECT_DELAY
 	self._seq = nil
 	self._write = nil
@@ -209,7 +211,7 @@ function Shard:handlePayload(payload)
 
 	elseif op == HEARTBEAT_ACK then
 
-		self._client:emit('heartbeat', self._id) -- TODO: latency stopwatch
+		self._client:emit('heartbeat', self._id, self._stopwatch.milliseconds)
 
 	elseif op then
 
@@ -259,6 +261,7 @@ function Shard:send(op, d)
 end
 
 function Shard:heartbeat()
+	self._stopwatch:reset()
 	return self:send(HEARTBEAT, self._seq or null)
 end
 

@@ -4,9 +4,11 @@ return {
 	enums = require('./libs/enums'),
 	Client = require('./libs/client/Client'),
 	Bitfield = require('./libs/utils/Bitfield'),
+	Clock = require('./libs/utils/Clock'),
 	Date = require('./libs/utils/Date'),
 	Emitter = require('./libs/utils/Emitter'),
 	Logger = require('./libs/utils/Logger'),
 	Mutex = require('./libs/utils/Mutex'),
+	Stopwatch = require('./libs/utils/Stopwatch'),
 	Time = require('./libs/utils/Time'),
 }
