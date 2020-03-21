@@ -18,7 +18,7 @@ for n = 0, 359 do -- HSL and HSV are usually not-reversible
 end
 
 local blurple = {
-	dec = 0x7289DA, hex = '#7289DA',
+	dec = 0x7289DA, hex = '7289DA',
 	r = 114, g = 137, b = 218,
 }
 
@@ -91,3 +91,8 @@ assertError(function() return Color() >= 1 end, 'cannot perform operation')
 assertError(function() return Color() + 1 end, 'cannot perform operation')
 assertError(function() return Color() - 1 end, 'cannot perform operation')
 assertError(function() return Color() % 1 end, 'cannot perform operation')
+
+assertError(function() return Color.fromRGB({}) end, 'expected number, received table')
+assertError(function() return Color.fromDec({}) end, 'expected number, received table')
+assertError(function() return Color.fromHex({}) end, 'expected number, received table')
+assertError(function() return Color.fromHex('G') end, 'expected number, received string')

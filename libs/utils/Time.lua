@@ -1,9 +1,11 @@
 local class = require('../class')
+local helpers = require('../helpers')
 local constants = require('../constants')
 
 local fmod, modf = math.fmod, math.modf
 local insert, concat = table.insert, table.concat
 local isInstance = class.isInstance
+local checkNumber = helpers.checkNumber
 
 local US_PER_MS   =               constants.US_PER_MS
 local US_PER_S    = US_PER_MS   * constants.MS_PER_S
@@ -24,14 +26,6 @@ local units = {
 
 local function decompose(a, b)
 	return modf(a / b), fmod(a, b)
-end
-
-local function checkNumber(n)
-	n = tonumber(n)
-	if not n then
-		return error('input must be a number', 2)
-	end
-	return n
 end
 
 local Time, get = class('Time')

@@ -1,6 +1,8 @@
 local class = require('../class')
+local helpers = require('../helpers')
 
 local isInstance = class.isInstance
+local checkNumber = helpers.checkNumber
 local min, max, abs, floor = math.min, math.max, math.abs, math.floor
 local lshift, rshift, band = bit.lshift, bit.rshift, bit.band
 local format = string.format
@@ -11,14 +13,6 @@ end
 
 local function lerp(a, b, t)
 	return a + t * (b - a)
-end
-
-local function checkNumber(n, base)
-	n = tonumber(n, base)
-	if not n then
-		return error('value must be number', 3)
-	end
-	return n
 end
 
 local function checkByte(n)
@@ -93,7 +87,7 @@ function Color.fromDec(dec)
 end
 
 function Color.fromHex(hex)
-	return Color(checkInteger(tostring(hex):match('#?(.*)'), 16))
+	return Color(checkInteger(hex, 16))
 end
 
 function Color.fromRGB(r, g, b)
@@ -188,7 +182,7 @@ function Color:lerp(other, t)
 end
 
 function Color:toString()
-	return format('%s (%i, %i, %i)', self:toHex(), self:toRGB())
+	return format('#%s (%i, %i, %i)', self:toHex(), self:toRGB())
 end
 
 function Color:toDec()
@@ -196,7 +190,7 @@ function Color:toDec()
 end
 
 function Color:toHex()
-	return format('#%06X', self._n)
+	return format('%06X', self._n)
 end
 
 function Color:toRGB()

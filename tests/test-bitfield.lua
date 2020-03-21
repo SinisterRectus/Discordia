@@ -120,17 +120,17 @@ assertError(function() return b:difference(1) end, 'cannot perform operation')
 assertError(function() return b:intersection(1) end, 'cannot perform operation')
 
 for _, v in ipairs {
-	{1, 1, 'invalid base'},
-	{1, 100, 'invalid base'},
-	{1, {}, 'invalid base'},
-	{-1, 10, 'invalid value'},
-	{1.1, 10, 'invalid value'},
-	{-1.1, 10, 'invalid value'},
-	{2^31, 10, 'invalid value'},
-	{2^32, 10, 'invalid value'},
-	{{}, 10, 'invalid value'},
-	{'a', 10, 'invalid value'},
-	{'b', 10, 'invalid value'},
+	{1, 1, 'expected minimum 2, received 1'},
+	{1, 100, 'expected maximum 36, received 100'},
+	{1, {}, 'expected number, received table'},
+	{-1, 10, 'expected minimum 0, received -1'},
+	{1.1, 10, 'expected integer, received 1.1'},
+	{-1.1, 10, 'expected integer, received -1.1'},
+	{2^31, 10, 'expected maximum 2147483647, received ' .. 2^31},
+	{2^32, 10, 'expected maximum 2147483647, received ' .. 2^32},
+	{{}, 10, 'expected number, received table'},
+	{'a', 10, 'expected number, received string'},
+	{'b', 10, 'expected number, received string'},
 } do
 	assertEqual(#v, 3)
 	assertError(function() return Bitfield(v[1], v[2]) end, v[3])
@@ -139,21 +139,19 @@ for _, v in ipairs {
 	assertError(function() return b:disableValue(v[1], v[2]) end, v[3])
 end
 
-assertError(function() return b:enableBit(0) end, 'invalid bit')
-assertError(function() return b:enableBit(32) end, 'invalid bit')
-assertError(function() return b:enableBit(33) end, 'invalid bit')
-assertError(function() return b:enableBit(64) end, 'invalid bit')
-assertError(function() return b:enableBit(-1) end, 'invalid bit')
+assertError(function() return b:enableBit(0) end, 'expected minimum 1, received 0')
+assertError(function() return b:enableBit(32) end, 'expected maximum 31, received 32')
+assertError(function() return b:enableBit(33) end, 'expected maximum 31, received 33')
+assertError(function() return b:enableBit(64) end, 'expected maximum 31, received 64')
+assertError(function() return b:enableBit(-1) end, 'expected minimum 1, received -1')
 
-assertError(function() return b:toString(2, 0) end, 'invalid length')
-assertError(function() return b:toString(2, -1) end, 'invalid length')
-assertError(function() return b:toBin(0) end, 'invalid length')
-assertError(function() return b:toBin(-1) end, 'invalid length')
+assertError(function() return b:toString(2, 0) end, 'expected minimum 1, received 0')
+assertError(function() return b:toString(2, -1) end, 'expected minimum 1, received -1')
+assertError(function() return b:toBin(0) end, 'expected minimum 1, received 0')
+assertError(function() return b:toBin(-1) end, 'expected minimum 1, received -1')
 
-assertError(function() return b:toString(2, {}) end, 'invalid length')
-assertError(function() return b:toString(2, {}) end, 'invalid length')
-assertError(function() return b:toBin(0, {}) end, 'invalid length')
-assertError(function() return b:toBin(-1, {}) end, 'invalid length')
+assertError(function() return b:toString(2, {}) end, 'expected number, received table')
+assertError(function() return b:toString(2, {}) end, 'expected number, received table')
 
 assertError(function() return 2 / Bitfield(2) end, 'division not commutative')
 assertError(function() return Bitfield(2) < {} end, 'cannot perform operation')

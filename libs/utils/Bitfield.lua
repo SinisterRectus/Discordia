@@ -1,15 +1,15 @@
 local class = require('../class')
+local helpers = require('../helpers')
 
 local reverse = string.reverse
 local insert, concat = table.insert, table.concat
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local lshift = bit.lshift
 local isInstance = class.isInstance
+local checkNumber = helpers.checkNumber
 
 local codec = {}
 local alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-local minBase = 2
-local maxBase = #alphabet
 
 do
 	local i = 0
@@ -20,35 +20,20 @@ do
 end
 
 local function checkBase(base)
-	base = tonumber(base)
-	if not base or base < minBase or base > maxBase then
-		return error('invalid base', 2)
-	end
-	return base
+	return checkNumber(base, 10, true, 2, 36)
 end
 
 local function checkLength(len)
-	local n = tonumber(len)
-	if not n or n < 1 then
-		return error('invalid length', 2)
-	end
-	return n
+	return checkNumber(len, 10, true, 1)
 end
 
 local function checkValue(value, base)
-	local n = tonumber(value, base and checkBase(base) or nil)
-	if not n or n < 0 or n > 0x7FFFFFFF or n % 1 > 0 then
-		return error('invalid value', 2)
-	end
-	return n
+	base = base and checkBase(base) or 10
+	return checkNumber(value, base, true, 0, 0x7FFFFFFF)
 end
 
 local function checkBit(bit)
-	local n = tonumber(bit)
-	if not n or n < 1 or n > 31 then
-		return error('invalid bit', 2)
-	end
-	return n
+	return checkNumber(bit, 10, true, 1, 31)
 end
 
 local Bitfield, get = class('Bitfield')

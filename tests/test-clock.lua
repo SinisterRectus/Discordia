@@ -5,7 +5,7 @@ local clock = Clock()
 
 local prev = os.time()
 clock:once('sec', function(now)
-	utils.assertEqual(os.time(now), prev + 1)
+	utils.assertTrue(os.time(now) > prev)
 	clock:stop()
 end)
 

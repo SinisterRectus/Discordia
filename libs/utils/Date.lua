@@ -1,11 +1,13 @@
 local uv = require('uv')
 local class = require('../class')
+local helpers = require('../helpers')
 local constants = require('../constants')
 
 local Time = require('./Time')
 
 local gettimeofday = uv.gettimeofday
 local isInstance = class.isInstance
+local checkNumber = helpers.checkNumber
 local floor, fmod, modf = math.floor, math.fmod, math.modf
 local format = string.format
 local date, time, difftime = os.date, os.time, os.difftime
@@ -20,11 +22,7 @@ local function offset()
 end
 
 local function checkPosInt(n)
-	n = tonumber(n)
-	if not n or n < 0 or n % 1 > 0 then
-		return error('input must be a positive integer', 2)
-	end
-	return n
+	return checkNumber(n, 10, true, 0)
 end
 
 local function decompose(a, b, c)
