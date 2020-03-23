@@ -6,11 +6,11 @@ local classes = {}
 local objects = setmetatable({}, {__mode = 'k'})
 
 function meta:__index(k)
-	return self.__base[k]
+	return self.__methods[k]
 end
 
 function meta:__call(...)
-	local obj = setmetatable({}, self)
+	local obj = setmetatable({}, self.__methods)
 	obj:__init(...)
 	objects[obj] = true
 	return obj
@@ -58,13 +58,13 @@ end
 
 local function isInit(class, fn)
 	if not isClass(class) then return false end
-	if class.__init == fn then return true end
+	if class.__methods.__init == fn then return true end
 	return isInit(class.__base, fn)
 end
 
 local function isMember(class, fn)
 	if not isClass(class) then return false end
-	for _, v in pairs(class) do if v == fn then return true end end
+	for _, v in pairs(class.__methods) do if v == fn then return true end end
 	for _, v in pairs(class.__getters) do if v == fn then return true end end
 	for _, v in pairs(class.__setters) do if v == fn then return true end end
 	return isMember(class.__base, fn)
@@ -103,19 +103,21 @@ return setmetatable({
 	names[name] = true
 	classes[class] = true
 
+	local methods = base and setmetatable({}, {__index = base.__methods}) or {}
 	local getters = base and setmetatable({}, {__index = base.__getters}) or {}
 	local setters = base and setmetatable({}, {__index = base.__setters}) or {}
 
 	class.__name = name
 	class.__base = base or {}
 	class.__class = class
+	class.__methods = methods
 	class.__getters = getters
 	class.__setters = setters
 
 	local properties = {}
 	local n = 0
 
-	function class:__index(k)
+	function methods:__index(k)
 		local getter = getters[k]
 		if getter then
 			return getter(self)
@@ -131,7 +133,7 @@ return setmetatable({
 		end
 	end
 
-	function class:__newindex(k, v)
+	function methods:__newindex(k, v)
 		local setter = setters[k]
 		if setter then
 			return setter(self, v)
@@ -150,14 +152,15 @@ return setmetatable({
 		end
 	end
 
-	function class:__tostring()
-		if class.toString then
-			return self.__name .. ': ' .. self:toString()
+	function methods:__tostring()
+		local fn = methods.toString
+		if fn then
+			return self.__name .. ': ' .. fn(self)
 		else
 			return 'object: ' .. self.__name
 		end
 	end
 
-	return class, getters, setters
+	return class, methods, getters, setters
 
 end})

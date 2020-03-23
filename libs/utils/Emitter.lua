@@ -6,7 +6,7 @@ local resume, running = coroutine.resume, coroutine.running
 local insert, remove = table.insert, table.remove
 local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
 
-local Emitter = class('Emitter')
+local Emitter, method = class('Emitter')
 
 local meta = {
 	__index = function(self, k)
@@ -29,21 +29,21 @@ local function clean(listeners)
 	listeners.marked = nil
 end
 
-function Emitter:__init()
+function method:__init()
 	self._listeners = setmetatable({}, meta)
 end
 
-function Emitter:on(name, fn, err)
+function method:on(name, fn, err)
 	insert(self._listeners[name], {fn = fn, err = err})
 	return fn
 end
 
-function Emitter:once(name, fn, err)
+function method:once(name, fn, err)
 	insert(self._listeners[name], {fn = fn, err = err, once = true})
 	return fn
 end
 
-function Emitter:emit(name, ...)
+function method:emit(name, ...)
 	local listeners = self._listeners[name]
 	for i = 1, #listeners do
 		local listener = listeners[i]
@@ -66,7 +66,7 @@ function Emitter:emit(name, ...)
 	end
 end
 
-function Emitter:getListeners(name)
+function method:getListeners(name)
 	local listeners = self._listeners[name]
 	local i = 0
 	return function()
@@ -79,7 +79,7 @@ function Emitter:getListeners(name)
 	end
 end
 
-function Emitter:getListenerCount(name)
+function method:getListenerCount(name)
 	local listeners = self._listeners[name]
 	local n = 0
 	for _, listener in ipairs(listeners) do
@@ -90,7 +90,7 @@ function Emitter:getListenerCount(name)
 	return n
 end
 
-function Emitter:removeListener(name, fn)
+function method:removeListener(name, fn)
 	local listeners = self._listeners[name]
 	for i, listener in ipairs(listeners) do
 		if listener and listener.fn == fn then
@@ -100,7 +100,7 @@ function Emitter:removeListener(name, fn)
 	end
 end
 
-function Emitter:removeAllListeners(name)
+function method:removeAllListeners(name)
 	if name then
 		self._listeners[name] = nil
 	else
@@ -110,7 +110,7 @@ function Emitter:removeAllListeners(name)
 	end
 end
 
-function Emitter:waitFor(name, timeout, predicate)
+function method:waitFor(name, timeout, predicate)
 
 	local t, fn
 	local thread = running()

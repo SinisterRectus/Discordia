@@ -7,14 +7,14 @@ local running = coroutine.running
 local setTimeout = timer.setTimeout
 local insert, remove = table.insert, table.remove
 
-local Mutex = class('Mutex')
+local Mutex, method = class('Mutex')
 
-function Mutex:__init()
+function method:__init()
 	self._queue = {}
 	self._active = false
 end
 
-function Mutex:lock()
+function method:lock()
 	if self._active then
 		local thread = running()
 		insert(self._queue, thread)
@@ -24,7 +24,7 @@ function Mutex:lock()
 	end
 end
 
-function Mutex:unlock()
+function method:unlock()
 	local thread = remove(self._queue, 1)
 	if thread then
 		return assert(resume(thread))
@@ -33,7 +33,7 @@ function Mutex:unlock()
 	end
 end
 
-function Mutex:unlockAfter(delay)
+function method:unlockAfter(delay)
 	return setTimeout(delay, self.unlock, self)
 end
 

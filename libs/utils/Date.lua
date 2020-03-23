@@ -68,7 +68,7 @@ local function toDate(fmt, t)
 	return d
 end
 
-local Date = class('Date')
+local Date, method = class('Date')
 
 local function checkDate(obj)
 	if isInstance(obj, Date) then
@@ -85,7 +85,7 @@ local function checkSeparator(sep)
 	return sep
 end
 
-function Date:__init(s, us)
+function method:__init(s, us)
 	if s or us then
 		s = s and checkPosInt(s) or 0
 		us = us and checkPosInt(us) or 0
@@ -95,19 +95,19 @@ function Date:__init(s, us)
 	self._s, self._us = s, us
 end
 
-function Date:__eq(other)
+function method:__eq(other)
 	return checkDate(self) == checkDate(other)
 end
 
-function Date:__lt(other)
+function method:__lt(other)
 	return checkDate(self) < checkDate(other)
 end
 
-function Date:__le(other)
+function method:__le(other)
 	return checkDate(self) <= checkDate(other)
 end
 
-function Date:__add(other)
+function method:__add(other)
 	if isInstance(other, Time) then
 		local n = self:toMicroseconds() + other:toMicroseconds()
 		if n >= 0 and n % 1 == 0 then
@@ -117,7 +117,7 @@ function Date:__add(other)
 	return error('cannot perform operation')
 end
 
-function Date:__sub(other)
+function method:__sub(other)
 	if isInstance(other, Date) then
 		return Time.fromMicroseconds(self:toMicroseconds() - other:toMicroseconds())
 	elseif isInstance(other, Time) then
@@ -129,15 +129,15 @@ function Date:__sub(other)
 	return error('cannot perform operation')
 end
 
-function Date.__mod()
+function method.__mod()
 	return error('cannot perform operation')
 end
 
-function Date.__mul()
+function method.__mul()
 	return error('cannot perform operation')
 end
 
-function Date.__div()
+function method.__div()
 	return error('cannot perform operation')
 end
 
@@ -182,7 +182,7 @@ function Date.fromMicroseconds(us)
 	return Date(0, checkPosInt(us))
 end
 
-function Date:toISO(sep)
+function method:toISO(sep)
 	sep = sep and checkSeparator(sep) or 'T'
 	local s, us = self:toParts()
 	if us > 0 then
@@ -194,41 +194,41 @@ function Date:toISO(sep)
 	end
 end
 
-function Date:toSnowflake()
+function method:toSnowflake()
 	return format('%i', (self:toMilliseconds() - DISCORD_EPOCH) * 2^22)
 end
 
-function Date:toTable()
+function method:toTable()
 	local sec, usec = self:toParts()
 	local tbl = toDate('*t', sec)
 	tbl.usec = usec
 	return tbl
 end
 
-function Date:toTableUTC()
+function method:toTableUTC()
 	local sec, usec = self:toParts()
 	local tbl = toDate('!*t', sec)
 	tbl.usec = usec
 	return tbl
 end
 
-function Date:toString(fmt)
+function method:toString(fmt)
 	return toDate(fmt, self:toSeconds())
 end
 
-function Date:toSeconds()
+function method:toSeconds()
 	return self._s + self._us / US_PER_S
 end
 
-function Date:toMilliseconds()
+function method:toMilliseconds()
 	return self._s * MS_PER_S + self._us / US_PER_MS
 end
 
-function Date:toMicroseconds()
+function method:toMicroseconds()
 	return self._s * US_PER_S + self._us
 end
 
-function Date:toParts()
+function method:toParts()
 	return normalize(self._s, self._us, US_PER_S)
 end
 

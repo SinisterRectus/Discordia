@@ -5,14 +5,14 @@ local Emitter = require('./Emitter')
 local date = os.date
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 
-local Clock = class('Clock', Emitter)
+local Clock, method = class('Clock', Emitter)
 
-function Clock:__init()
+function method:__init()
 	Emitter.__init(self)
 	self._interval = nil
 end
 
-function Clock:start(utc)
+function method:start(utc)
 	if self._interval then return end
 	local fmt = utc and '!*t' or '*t'
 	local prev = date(fmt)
@@ -27,7 +27,7 @@ function Clock:start(utc)
 	end)
 end
 
-function Clock:stop()
+function method:stop()
 	if not self._interval then return end
 	clearInterval(self._interval)
 	self._interval = nil
