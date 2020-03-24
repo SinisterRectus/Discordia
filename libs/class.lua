@@ -3,6 +3,7 @@ local checkCalls = true
 local meta = {}
 local names = {}
 local classes = {}
+local members = {}
 local objects = setmetatable({}, {__mode = 'k'})
 
 function meta:__index(k)
@@ -64,24 +65,47 @@ end
 
 local function isMember(class, fn)
 	if not isClass(class) then return false end
-	for _, v in pairs(class.__methods) do if v == fn then return true end end
-	for _, v in pairs(class.__getters) do if v == fn then return true end end
-	for _, v in pairs(class.__setters) do if v == fn then return true end end
+	if members[fn] == class then return true end
 	return isMember(class.__base, fn)
 end
 
 local function checkInit(class, level)
 	local info = debug.getinfo(level, 'f')
 	if not isInit(class, info.func) then
-		error('cannot declare field outside of __init', level)
+		error('cannot declare class property outside of __init', level)
 	end
 end
 
 local function checkMember(class, level)
 	local info = debug.getinfo(level, 'f')
 	if not isMember(class, info.func) then
-		error('private field', level)
+		error('cannot access private class property', level)
 	end
+end
+
+local function proxy(class, base)
+	local tbl = base and setmetatable({}, {__index = base}) or {}
+	return setmetatable({}, {
+		__index = tbl,
+		__newindex = function(self, k, v)
+			if type(v) ~= 'function' or members[v] then
+				return error('class member must be a unique function')
+			end
+			members[v] = class
+			if k:sub(1, 2) == '__' then
+				return rawset(self, k, v)
+			end
+			if tbl[k] then
+				return error('class member already defined')
+			end
+			tbl[k] = function(obj, ...)
+				if not isInstance(obj, class) then
+					return error('invalid self; check method:syntax()')
+				end
+				return v(obj, ...)
+			end
+		end,
+	})
 end
 
 return setmetatable({
@@ -103,9 +127,9 @@ return setmetatable({
 	names[name] = true
 	classes[class] = true
 
-	local methods = base and setmetatable({}, {__index = base.__methods}) or {}
-	local getters = base and setmetatable({}, {__index = base.__getters}) or {}
-	local setters = base and setmetatable({}, {__index = base.__setters}) or {}
+	local methods = proxy(class, base and base.__methods)
+	local getters = proxy(class, base and base.__getters)
+	local setters = proxy(class, base and base.__setters)
 
 	class.__name = name
 	class.__base = base or {}
@@ -129,7 +153,7 @@ return setmetatable({
 			if parent ~= nil then
 				return parent
 			end
-			return error('undefined field')
+			return error('undefined class member')
 		end
 	end
 
@@ -138,7 +162,7 @@ return setmetatable({
 		if setter then
 			return setter(self, v)
 		elseif class[k] or getters[k] then
-			return error('cannot override field')
+			return error('cannot override class member')
 		elseif k:sub(1, 1) ~= '_' then
 			return error('leading underscore required')
 		else
