@@ -1,11 +1,13 @@
 local timer = require('timer')
 local class = require('../class')
+local helpers = require('../helpers')
 
 local yield = coroutine.yield
 local resume = coroutine.resume
 local running = coroutine.running
 local setTimeout = timer.setTimeout
 local insert, remove = table.insert, table.remove
+local checkNumber = helpers.checkNumber
 
 local Mutex, method = class('Mutex')
 
@@ -34,7 +36,7 @@ function method:unlock()
 end
 
 function method:unlockAfter(delay)
-	return setTimeout(delay, self.unlock, self)
+	return setTimeout(checkNumber(delay, nil, nil, 0), self.unlock, self)
 end
 
 return Mutex

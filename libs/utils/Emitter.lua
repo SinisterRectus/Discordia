@@ -1,10 +1,13 @@
 local timer = require('timer')
 local class = require('../class')
+local helpers = require('../helpers')
 
 local wrap, yield = coroutine.wrap, coroutine.yield
 local resume, running = coroutine.resume, coroutine.running
 local insert, remove = table.insert, table.remove
 local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
+local checkType = helpers.checkType
+local checkNumber = helpers.checkNumber
 
 local Emitter, method = class('Emitter')
 
@@ -34,17 +37,24 @@ function method:__init()
 end
 
 function method:on(name, fn, err)
-	insert(self._listeners[name], {fn = fn, err = err})
+	insert(self._listeners[checkType('string', name)], {
+		fn = checkType('function', fn),
+		err = err and checkType('function', err),
+	})
 	return fn
 end
 
 function method:once(name, fn, err)
-	insert(self._listeners[name], {fn = fn, err = err, once = true})
+	insert(self._listeners[checkType('string', name)], {
+		fn = checkType('function', fn),
+		err = err and checkType('function', err),
+		once = true
+	})
 	return fn
 end
 
 function method:emit(name, ...)
-	local listeners = self._listeners[name]
+	local listeners = self._listeners[checkType('string', name)]
 	for i = 1, #listeners do
 		local listener = listeners[i]
 		if listener then
@@ -67,7 +77,7 @@ function method:emit(name, ...)
 end
 
 function method:getListeners(name)
-	local listeners = self._listeners[name]
+	local listeners = self._listeners[checkType('string', name)]
 	local i = 0
 	return function()
 		while i < #listeners do
@@ -80,7 +90,7 @@ function method:getListeners(name)
 end
 
 function method:getListenerCount(name)
-	local listeners = self._listeners[name]
+	local listeners = self._listeners[checkType('string', name)]
 	local n = 0
 	for _, listener in ipairs(listeners) do
 		if listener then
@@ -91,7 +101,7 @@ function method:getListenerCount(name)
 end
 
 function method:removeListener(name, fn)
-	local listeners = self._listeners[name]
+	local listeners = self._listeners[checkType('string', name)]
 	for i, listener in ipairs(listeners) do
 		if listener and listener.fn == fn then
 			mark(listeners, i)
@@ -102,7 +112,7 @@ end
 
 function method:removeAllListeners(name)
 	if name then
-		self._listeners[name] = nil
+		self._listeners[checkType('string', name)] = nil
 	else
 		for k in pairs(self._listeners) do
 			self._listeners[k] = nil
@@ -111,6 +121,9 @@ function method:removeAllListeners(name)
 end
 
 function method:waitFor(name, timeout, predicate)
+
+	name = checkType('string', name)
+	predicate = predicate and checkType('function', predicate)
 
 	local t, fn
 	local thread = running()
@@ -128,13 +141,13 @@ function method:waitFor(name, timeout, predicate)
 	end
 
 	fn = self:on(name, function(...)
-		if type(predicate) ~= 'function' or predicate(...) then
+		if not predicate or predicate(...) then
 			return complete(true, ...)
 		end
 	end)
 
-	if tonumber(timeout) then
-		t = setTimeout(timeout, complete, false)
+	if timeout then
+		t = setTimeout(checkNumber(timeout, nil, nil, 0), complete, false)
 	end
 
 	return yield()

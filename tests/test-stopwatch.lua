@@ -1,6 +1,7 @@
 local Stopwatch = require('../libs/utils/Stopwatch')
 local utils = require('./utils')
 
+local sleep = utils.sleep
 local assertEqual = utils.assertEqual
 local assertTrue = utils.assertTrue
 
@@ -9,13 +10,13 @@ coroutine.wrap(function()
 	local sw = Stopwatch()
 
 	local t1 = sw:getTime()
-	utils.sleep(10)
+	sleep(10)
 	sw:stop()
 	local t2 = sw:getTime()
-	utils.sleep(10)
+	sleep(10)
 	local t3 = sw:getTime()
 	sw:start()
-	utils.sleep(10)
+	sleep(10)
 	local t4 = sw:getTime()
 	sw:stop()
 	sw:reset()
