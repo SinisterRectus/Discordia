@@ -69,7 +69,9 @@ local function toHue(r, g, b)
 	return checkAngle(h * 60), c, v
 end
 
-local Color, method, get = class('Color')
+local Color, property, method, get = class('Color')
+
+property('_n')
 
 local function checkColor(obj)
 	if isInstance(obj, Color) then

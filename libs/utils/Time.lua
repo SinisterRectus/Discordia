@@ -28,7 +28,9 @@ local function decompose(a, b)
 	return modf(a / b), fmod(a, b)
 end
 
-local Time, method, get = class('Time')
+local Time, property, method, get = class('Time')
+
+property('_value')
 
 local function checkTime(obj)
 	if isInstance(obj, Time) then

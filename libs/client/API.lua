@@ -42,14 +42,19 @@ end
 
 local meta = {__mode = 'v'}
 
-local API, method = class('API')
+local API, property, method = class('API')
+
+property('_client')
+property('_routeBuckets')
+property('_bucketMutexes')
+property('_routeMutexes')
+property('_token')
 
 function method:__init(client)
 	self._client = assert(client)
 	self._routeBuckets = {}
 	self._bucketMutexes = {}
 	self._routeMutexes = setmetatable({}, meta)
-	self._token = nil
 end
 
 function method:setToken(token)
@@ -169,8 +174,8 @@ function method:commit(method, url, req, payload, route, retries)
 	end
 
 	local retry
-	if res.code == 429 then -- TODO: global ratelimiting
-		delay = data.retry_after or delay
+	if res.code == 429 and data.retry_after then -- TODO: global ratelimiting
+		delay = data.retry_after
 		retry = retries < client.maxRetries
 	elseif res.code == 502 then
 		delay = delay + random(1000, 4000)

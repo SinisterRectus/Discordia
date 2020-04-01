@@ -50,7 +50,18 @@ end
 
 local globalMutex = Mutex()
 
-local Shard, method = class('Shard', Emitter)
+local Shard, property, method = class('Shard', Emitter)
+
+property('_id')
+property('_client')
+property('_sendMutex')
+property('_stopwatch')
+property('_reconnectDelay')
+property('_seq')
+property('_write')
+property('_sessionId')
+property('_heartbeat')
+property('_reconnect')
 
 function method:__init(id, client)
 	Emitter.__init(self)
@@ -59,11 +70,6 @@ function method:__init(id, client)
 	self._sendMutex = Mutex()
 	self._stopwatch = Stopwatch()
 	self._reconnectDelay = MIN_RECONNECT_DELAY
-	self._seq = nil
-	self._write = nil
-	self._sessionId = nil
-	self._heartbeat = nil
-	self._reconnect = nil
 end
 
 function method:__tostring()

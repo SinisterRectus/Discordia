@@ -30,7 +30,9 @@ local function checkBit(bit)
 	return checkNumber(bit, 10, true, 1, 31)
 end
 
-local Bitfield, method, get = class('Bitfield')
+local Bitfield, property, method, get = class('Bitfield')
+
+property('_value')
 
 local function checkBitfield(obj)
 	if isInstance(obj, Bitfield) then

@@ -5,11 +5,12 @@ local Emitter = require('./Emitter')
 local date = os.date
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 
-local Clock, method = class('Clock', Emitter)
+local Clock, property, method = class('Clock', Emitter)
+
+property('_interval')
 
 function method:__init()
 	Emitter.__init(self)
-	self._interval = nil
 end
 
 function method:start(utc)

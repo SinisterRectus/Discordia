@@ -68,7 +68,10 @@ local function toDate(fmt, t)
 	return d
 end
 
-local Date, method = class('Date')
+local Date, property, method = class('Date')
+
+property('_s')
+property('_us')
 
 local function checkDate(obj)
 	if isInstance(obj, Date) then

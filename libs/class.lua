@@ -3,7 +3,6 @@ local checkCalls = true
 local meta = {}
 local names = {}
 local classes = {}
-local members = {}
 local objects = setmetatable({}, {__mode = 'k'})
 
 function meta:__index(k)
@@ -57,23 +56,12 @@ local function mixin(target, source)
 	end
 end
 
-local function isInit(class, fn)
-	if not isClass(class) then return false end
-	if class.__methods.__init == fn then return true end
-	return isInit(class.__base, fn)
-end
-
 local function isMember(class, fn)
 	if not isClass(class) then return false end
-	if members[fn] == class then return true end
+	for _, v in pairs(class.__methods) do if v == fn then return true end end
+	for _, v in pairs(class.__getters) do if v == fn then return true end end
+	for _, v in pairs(class.__setters) do if v == fn then return true end end
 	return isMember(class.__base, fn)
-end
-
-local function checkInit(class, level)
-	local info = debug.getinfo(level, 'f')
-	if not isInit(class, info.func) then
-		error('cannot declare class property outside of __init', level)
-	end
 end
 
 local function checkMember(class, level)
@@ -81,31 +69,6 @@ local function checkMember(class, level)
 	if not isMember(class, info.func) then
 		error('cannot access private class property', level)
 	end
-end
-
-local function proxy(class, base)
-	local tbl = base and setmetatable({}, {__index = base}) or {}
-	return setmetatable({}, {
-		__index = tbl,
-		__newindex = function(self, k, v)
-			if type(v) ~= 'function' or members[v] then
-				return error('class member must be a unique function')
-			end
-			members[v] = class
-			if k:sub(1, 2) == '__' then
-				return rawset(self, k, v)
-			end
-			if tbl[k] then
-				return error('class member already defined')
-			end
-			tbl[k] = function(obj, ...)
-				if not isInstance(obj, class) then
-					return error('invalid self; check method:syntax()')
-				end
-				return v(obj, ...)
-			end
-		end,
-	})
 end
 
 return setmetatable({
@@ -127,51 +90,56 @@ return setmetatable({
 	names[name] = true
 	classes[class] = true
 
-	local methods = proxy(class, base and base.__methods)
-	local getters = proxy(class, base and base.__getters)
-	local setters = proxy(class, base and base.__setters)
+	local methods = {}
+	local getters = {}
+	local setters = {}
+
+	local properties = setmetatable({}, {__call = function(self, k)
+		if self[k] then
+			return error('property already defined')
+		end
+		local n = 1
+		for _ in pairs(self) do
+			n = n + 1
+		end
+		self[k] = n
+	end})
+
+	if base then
+		mixin(methods, base.__methods)
+		mixin(getters, base.__getters)
+		mixin(setters, base.__setters)
+		mixin(properties, base.__properties)
+	end
 
 	class.__name = name
-	class.__base = base or {}
+	class.__base = base
 	class.__class = class
 	class.__methods = methods
 	class.__getters = getters
 	class.__setters = setters
-
-	local properties = {}
-	local n = 0
+	class.__properties = properties
 
 	function methods:__index(k)
-		local getter = getters[k]
-		if getter then
-			return getter(self)
+		if getters[k] then
+			return getters[k](self)
 		elseif properties[k] then
 			if checkCalls then checkMember(class, 3) end
 			return rawget(self, properties[k])
+		elseif class[k] ~= nil then
+			return class[k]
 		else
-			local parent = class[k]
-			if parent ~= nil then
-				return parent
-			end
 			return error('undefined class member')
 		end
 	end
 
 	function methods:__newindex(k, v)
-		local setter = setters[k]
-		if setter then
-			return setter(self, v)
-		elseif class[k] or getters[k] then
-			return error('cannot override class member')
-		elseif k:sub(1, 1) ~= '_' then
-			return error('leading underscore required')
+		if setters[k] then
+			return setters[k](self, v)
+		elseif not properties[k] then
+			return error('undefined class property')
 		else
 			if checkCalls then checkMember(class, 3) end
-			if not properties[k] then
-				if checkCalls then checkInit(class, 3) end
-				n = n + 1
-				properties[k] = n
-			end
 			return rawset(self, properties[k], v)
 		end
 	end
@@ -185,6 +153,6 @@ return setmetatable({
 		end
 	end
 
-	return class, methods, getters, setters
+	return class, properties, methods, getters, setters
 
 end})
