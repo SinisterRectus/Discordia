@@ -9,9 +9,7 @@ local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
 local checkType = helpers.checkType
 local checkNumber = helpers.checkNumber
 
-local Emitter, property, method = class('Emitter')
-
-property('_listeners')
+local Emitter, method = class('Emitter')
 
 local meta = {
 	__index = function(self, k)

@@ -42,19 +42,14 @@ end
 
 local meta = {__mode = 'v'}
 
-local API, property, method = class('API')
-
-property('_client')
-property('_routeBuckets')
-property('_bucketMutexes')
-property('_routeMutexes')
-property('_token')
+local API, method = class('API')
 
 function method:__init(client)
 	self._client = assert(client)
 	self._routeBuckets = {}
 	self._bucketMutexes = {}
 	self._routeMutexes = setmetatable({}, meta)
+	self._token = nil
 end
 
 function method:setToken(token)

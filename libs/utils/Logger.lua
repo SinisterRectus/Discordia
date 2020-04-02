@@ -25,13 +25,7 @@ local levels = {
 	{'debug',   '[DEBUG]  ', colors.cyan},
 }
 
-local Logger, property, method = class('Logger')
-
-property('_level')
-property('_dateTime')
-property('_file')
-property('_useColors')
-property('_line')
+local Logger, method = class('Logger')
 
 function method:__init(level, dateTime, filePath, useColors)
 	self._level = level

@@ -9,10 +9,7 @@ local setTimeout = timer.setTimeout
 local insert, remove = table.insert, table.remove
 local checkNumber = helpers.checkNumber
 
-local Mutex, property, method = class('Mutex')
-
-property('_queue')
-property('_active')
+local Mutex, method = class('Mutex')
 
 function method:__init()
 	self._queue = {}

@@ -19,7 +19,7 @@ local attachQuery = helpers.attachQuery
 local GATEWAY_VERSION = 6
 local GATEWAY_ENCODING = 'json'
 
-local Client, property, method, get = class('Client', Emitter)
+local Client, method, get = class('Client', Emitter)
 
 local defaultOptions = { -- {type, value}
 	routeDelay = {'number', 250},
@@ -78,17 +78,6 @@ local function optActivity(activity)
 	} or null
 end
 
-property('_routeDelay')
-property('_maxRetries')
-property('_gatewayIntents')
-property('_totalShardCount')
-property('_payloadCompression')
-property('_logger')
-property('_api')
-property('_shards')
-property('_token')
-property('_presence')
-
 function method:__init(opt)
 	Emitter.__init(self)
 	opt = checkOptions(opt)
@@ -100,6 +89,7 @@ function method:__init(opt)
 	self._logger = Logger(opt.logLevel, opt.dateTime, opt.logFile, opt.logColors)
 	self._api = API(self)
 	self._shards = {}
+	self._token = nil
 	self._presence = {
 		status = optStatus(opt.status),
 		game = optActivity(opt.activity),

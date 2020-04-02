@@ -56,12 +56,25 @@ local function mixin(target, source)
 	end
 end
 
+local function isInit(class, fn)
+	if not isClass(class) then return false end
+	if class.__methods.__init == fn then return true end
+	return isInit(class.__base, fn)
+end
+
 local function isMember(class, fn)
 	if not isClass(class) then return false end
 	for _, v in pairs(class.__methods) do if v == fn then return true end end
 	for _, v in pairs(class.__getters) do if v == fn then return true end end
 	for _, v in pairs(class.__setters) do if v == fn then return true end end
 	return isMember(class.__base, fn)
+end
+
+local function checkInit(class, level)
+	local info = debug.getinfo(level, 'f')
+	if not isInit(class, info.func) then
+		error('cannot declare class property outside of __init', level)
+	end
 end
 
 local function checkMember(class, level)
@@ -94,23 +107,14 @@ return setmetatable({
 	local getters = {}
 	local setters = {}
 
-	local properties = setmetatable({}, {__call = function(self, k)
-		if self[k] then
-			return error('property already defined')
-		end
-		local n = 1
-		for _ in pairs(self) do
-			n = n + 1
-		end
-		self[k] = n
-	end})
-
 	if base then
 		mixin(methods, base.__methods)
 		mixin(getters, base.__getters)
 		mixin(setters, base.__setters)
-		mixin(properties, base.__properties)
 	end
+
+	local properties = {}
+	local n = 0
 
 	class.__name = name
 	class.__base = base
@@ -118,7 +122,6 @@ return setmetatable({
 	class.__methods = methods
 	class.__getters = getters
 	class.__setters = setters
-	class.__properties = properties
 
 	function methods:__index(k)
 		if getters[k] then
@@ -134,12 +137,20 @@ return setmetatable({
 	end
 
 	function methods:__newindex(k, v)
-		if setters[k] then
-			return setters[k](self, v)
-		elseif not properties[k] then
-			return error('undefined class property')
+		local setter = setters[k]
+		if setter then
+			return setter(self, v)
+		elseif class[k] or getters[k] then
+			return error('cannot override class member')
+		elseif k:sub(1, 1) ~= '_' then
+			return error('leading underscore required')
 		else
 			if checkCalls then checkMember(class, 3) end
+			if not properties[k] then
+				if checkCalls then checkInit(class, 3) end
+				n = n + 1
+				properties[k] = n
+			end
 			return rawset(self, properties[k], v)
 		end
 	end
@@ -153,6 +164,6 @@ return setmetatable({
 		end
 	end
 
-	return class, properties, methods, getters, setters
+	return class, methods, getters, setters
 
 end})

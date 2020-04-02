@@ -7,10 +7,7 @@ local hrtime = uv.hrtime
 
 local NS_PER_US = constants.NS_PER_US
 
-local Stopwatch, property, method = class('Stopwatch')
-
-property('_initial')
-property('_final')
+local Stopwatch, method = class('Stopwatch')
 
 function method:__init(stopped)
 	local t = hrtime()
