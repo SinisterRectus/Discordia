@@ -116,7 +116,6 @@ function WebSocket:disconnect(reconnect)
 	self._write()
 	self._read = nil
 	self._write = nil
-	self._session_id = nil
 end
 
 return WebSocket
