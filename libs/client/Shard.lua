@@ -37,6 +37,15 @@ local INVALID_SESSION       = 9
 local HELLO                 = 10
 local HEARTBEAT_ACK         = 11
 
+local recoverable = { -- when to reconnect; default is true
+	[4004] = false,
+	[4010] = false,
+	[4011] = false,
+	[4012] = false,
+	[4013] = false,
+	[4014] = false,
+}
+
 local sessionless = {
 	[IDENTIFY] = true,
 	[HEARTBEAT] = true,
@@ -139,7 +148,10 @@ end
 
 function method:disconnect(reconnect)
 	self._reconnect = not not reconnect
-	return self._write and self._write {opcode = CLOSE, payload = string.pack('>I2', 1000)}
+	return self._write and self._write {
+		opcode = CLOSE,
+		payload = string.pack('>I2', reconnect and 4000 or 1000)
+	}
 end
 
 function method:parseMessage(message)
@@ -159,6 +171,7 @@ function method:parseMessage(message)
 	elseif opcode == CLOSE then -- TODO: only reconnect on certain closes
 
 		local code, msg = string.unpack('>I2z', payload)
+		self._reconnect = recoverable[code]
 		return nil, self:log('warning', '%i - %s', code, #msg > 0 and msg or 'Connection closed')
 
 	end
