@@ -7,35 +7,35 @@ local hrtime = uv.hrtime
 
 local NS_PER_US = constants.NS_PER_US
 
-local Stopwatch, method = class('Stopwatch')
+local Stopwatch = class('Stopwatch')
 
-function method:__init(stopped)
+function Stopwatch:__init(stopped)
 	local t = hrtime()
 	self._initial = t
 	self._final = stopped and t or nil
 end
 
-function method:toString()
+function Stopwatch:toString()
 	return self:getTime():toString()
 end
 
-function method:getTime()
+function Stopwatch:getTime()
 	local ns = (self._final or hrtime()) - self._initial
 	return Time.fromMicroseconds(ns / NS_PER_US)
 end
 
-function method:start()
+function Stopwatch:start()
 	if not self._final then return end
 	self._initial = self._initial + hrtime() - self._final
 	self._final = nil
 end
 
-function method:stop()
+function Stopwatch:stop()
 	if self._final then return end
 	self._final = hrtime()
 end
 
-function method:reset()
+function Stopwatch:reset()
 	self._initial = self._final or hrtime()
 end
 

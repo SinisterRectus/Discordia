@@ -69,7 +69,7 @@ local function toHue(r, g, b)
 	return checkAngle(h * 60), c, v
 end
 
-local Color, method, get = class('Color')
+local Color, get = class('Color')
 
 local function checkColor(obj)
 	if isInstance(obj, Color) then
@@ -78,7 +78,7 @@ local function checkColor(obj)
 	return error('cannot perform operation', 2)
 end
 
-function method:__init(n)
+function Color:__init(n)
 	self._n = n and checkInteger(n) or 0
 end
 
@@ -117,37 +117,37 @@ function Color.fromHSL(h, s, l)
 	return Color.fromRGB(r, g, b)
 end
 
-function method:__eq(other)
+function Color:__eq(other)
 	local r1, g1, b1 = checkColor(self)
 	local r2, g2, b2 = checkColor(other)
 	return r1 == r2 and g1 == g2 and b1 == b2
 end
 
-function method:__lt(other)
+function Color:__lt(other)
 	local r1, g1, b1 = checkColor(self)
 	local r2, g2, b2 = checkColor(other)
 	return r1 < r2 and g1 < g2 and b1 < b2
 end
 
-function method:__le(other)
+function Color:__le(other)
 	local r1, g1, b1 = checkColor(self)
 	local r2, g2, b2 = checkColor(other)
 	return r1 <= r2 and g1 <= g2 and b1 <= b2
 end
 
-function method:__add(other)
+function Color:__add(other)
 	local r1, g1, b1 = checkColor(self)
 	local r2, g2, b2 = checkColor(other)
 	return Color.fromRGB(r1 + r2, g1 + g2, b1 + b2)
 end
 
-function method:__sub(other)
+function Color:__sub(other)
 	local r1, g1, b1 = checkColor(self)
 	local r2, g2, b2 = checkColor(other)
 	return Color.fromRGB(r1 - r2, g1 - g2, b1 - b2)
 end
 
-function method:__mul(other)
+function Color:__mul(other)
 	if tonumber(other) then
 		local r, g, b = checkColor(self)
 		return Color.fromRGB(r * other, g * other, b * other)
@@ -159,11 +159,11 @@ function method:__mul(other)
 	end
 end
 
-function method.__mod()
+function Color.__mod()
 	return error('cannot perform operation')
 end
 
-function method:__div(other)
+function Color:__div(other)
 	if tonumber(other) then
 		local r, g, b = checkColor(self)
 		return Color.fromRGB(r / other, g / other, b / other)
@@ -174,36 +174,36 @@ function method:__div(other)
 	end
 end
 
-function method:lerp(other, t)
+function Color:lerp(other, t)
 	t = checkFloat(t)
 	local r1, g1, b1 = checkColor(self)
 	local r2, g2, b2 = checkColor(other)
 	return Color.fromRGB(lerp(r1, r2, t), lerp(g1, g2, t), lerp(b1, b2, t))
 end
 
-function method:toString()
+function Color:toString()
 	return format('#%s (%i, %i, %i)', self:toHex(), self:toRGB())
 end
 
-function method:toDec()
+function Color:toDec()
 	return self._n
 end
 
-function method:toHex()
+function Color:toHex()
 	return format('%06X', self._n)
 end
 
-function method:toRGB()
+function Color:toRGB()
 	return self.r, self.g, self.b
 end
 
-function method:toHSV()
+function Color:toHSV()
 	local h, c, v = toHue(self:toRGB())
 	local s = v == 0 and 0 or c / v
 	return h, s, v
 end
 
-function method:toHSL()
+function Color:toHSL()
 	local h, c, v = toHue(self:toRGB())
 	local l = v - c * 0.5
 	local s = (l == 0 or l == 1) and 0 or c / (1 - abs(2 * v - c - 1))

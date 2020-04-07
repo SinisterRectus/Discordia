@@ -9,7 +9,7 @@ local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
 local checkType = helpers.checkType
 local checkNumber = helpers.checkNumber
 
-local Emitter, method = class('Emitter')
+local Emitter = class('Emitter')
 
 local meta = {
 	__index = function(self, k)
@@ -32,11 +32,11 @@ local function clean(listeners)
 	listeners.marked = nil
 end
 
-function method:__init()
+function Emitter:__init()
 	self._listeners = setmetatable({}, meta)
 end
 
-function method:on(name, fn, err)
+function Emitter:on(name, fn, err)
 	insert(self._listeners[checkType('string', name)], {
 		fn = checkType('function', fn),
 		err = err and checkType('function', err),
@@ -44,7 +44,7 @@ function method:on(name, fn, err)
 	return fn
 end
 
-function method:once(name, fn, err)
+function Emitter:once(name, fn, err)
 	insert(self._listeners[checkType('string', name)], {
 		fn = checkType('function', fn),
 		err = err and checkType('function', err),
@@ -53,7 +53,7 @@ function method:once(name, fn, err)
 	return fn
 end
 
-function method:emit(name, ...)
+function Emitter:emit(name, ...)
 	local listeners = self._listeners[checkType('string', name)]
 	for i = 1, #listeners do
 		local listener = listeners[i]
@@ -76,7 +76,7 @@ function method:emit(name, ...)
 	end
 end
 
-function method:getListeners(name)
+function Emitter:getListeners(name)
 	local listeners = self._listeners[checkType('string', name)]
 	local i = 0
 	return function()
@@ -89,7 +89,7 @@ function method:getListeners(name)
 	end
 end
 
-function method:getListenerCount(name)
+function Emitter:getListenerCount(name)
 	local listeners = self._listeners[checkType('string', name)]
 	local n = 0
 	for _, listener in ipairs(listeners) do
@@ -100,7 +100,7 @@ function method:getListenerCount(name)
 	return n
 end
 
-function method:removeListener(name, fn)
+function Emitter:removeListener(name, fn)
 	local listeners = self._listeners[checkType('string', name)]
 	for i, listener in ipairs(listeners) do
 		if listener and listener.fn == fn then
@@ -110,7 +110,7 @@ function method:removeListener(name, fn)
 	end
 end
 
-function method:removeAllListeners(name)
+function Emitter:removeAllListeners(name)
 	if name then
 		self._listeners[checkType('string', name)] = nil
 	else
@@ -120,7 +120,7 @@ function method:removeAllListeners(name)
 	end
 end
 
-function method:waitFor(name, timeout, predicate)
+function Emitter:waitFor(name, timeout, predicate)
 
 	name = checkType('string', name)
 	predicate = predicate and checkType('function', predicate)

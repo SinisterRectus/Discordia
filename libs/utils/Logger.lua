@@ -25,9 +25,9 @@ local levels = {
 	{'debug',   '[DEBUG]  ', colors.cyan},
 }
 
-local Logger, method = class('Logger')
+local Logger = class('Logger')
 
-function method:__init(level, dateTime, filePath, useColors)
+function Logger:__init(level, dateTime, filePath, useColors)
 	self._level = level
 	self._dateTime = dateTime
 	self._file = filePath and openSync(filePath, 'a')
@@ -43,7 +43,7 @@ for i, v in ipairs(levels) do
 	end
 end
 
-function method:log(level, msg, ...)
+function Logger:log(level, msg, ...)
 
 	if type(level) == 'string' then
 		level = levels[level] -- convert name to index

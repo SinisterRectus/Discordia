@@ -59,9 +59,9 @@ end
 
 local globalMutex = Mutex()
 
-local Shard, method = class('Shard', Emitter)
+local Shard = class('Shard', Emitter)
 
-function method:__init(id, client)
+function Shard:__init(id, client)
 	Emitter.__init(self)
 	self._id = id
 	self._client = client
@@ -75,36 +75,36 @@ function method:__init(id, client)
 	self._reconnect = nil
 end
 
-function method:__tostring()
+function Shard:__tostring()
 	return format('Shard: %i', self._id)
 end
 
-function method:log(level, msg, ...)
+function Shard:log(level, msg, ...)
 	msg = format(msg, ...)
 	self._client:log(level, 'Shard %i: %s', self._id, msg)
 	return msg
 end
 
-function method:ready(sessionId)
+function Shard:ready(sessionId)
 	self._sessionId = sessionId
 	self:emit('READY')
 	self:log('info', 'Session ready')
 	self._client:emit('sessionReady', self._id)
 end
 
-function method:resumed()
+function Shard:resumed()
 	self:emit('RESUMED')
 	self:log('info', 'Session resumed')
 	self._client:emit('sessionResumed', self._id)
 end
 
-function method:identifyWait()
+function Shard:identifyWait()
 	if self:waitFor('READY', IDENTIFY_DELAY) then
 		sleep(IDENTIFY_DELAY)
 	end
 end
 
-function method:connect(url, path)
+function Shard:connect(url, path)
 
 	local success, res, read, write = pcall(connect, url, path)
 
@@ -134,19 +134,19 @@ function method:connect(url, path)
 
 end
 
-function method:incrementReconnectDelay()
+function Shard:incrementReconnectDelay()
 	local delay = self._reconnectDelay
 	self._reconnectDelay = min(delay * 2, MAX_RECONNECT_DELAY)
 	return delay
 end
 
-function method:decrementReconnectDelay()
+function Shard:decrementReconnectDelay()
 	local delay = self._reconnectDelay
 	self._reconnectDelay = max(delay / 2, MIN_RECONNECT_DELAY)
 	return delay
 end
 
-function method:disconnect(reconnect)
+function Shard:disconnect(reconnect)
 	self._reconnect = not not reconnect
 	return self._write and self._write {
 		opcode = CLOSE,
@@ -154,7 +154,7 @@ function method:disconnect(reconnect)
 	}
 end
 
-function method:parseMessage(message)
+function Shard:parseMessage(message)
 
 	local opcode = message.opcode
 	local payload = message.payload
@@ -178,7 +178,7 @@ function method:parseMessage(message)
 
 end
 
-function method:handlePayload(payload)
+function Shard:handlePayload(payload)
 
 	local op = payload.op
 
@@ -234,7 +234,7 @@ function method:handlePayload(payload)
 
 end
 
-function method:startHeartbeat(interval)
+function Shard:startHeartbeat(interval)
 	if self._heartbeat then
 		clearInterval(self._heartbeat)
 	end
@@ -244,14 +244,14 @@ function method:startHeartbeat(interval)
 	end)
 end
 
-function method:stopHeartbeat()
+function Shard:stopHeartbeat()
 	if self._heartbeat then
 		clearInterval(self._heartbeat)
 	end
 	self._heartbeat = nil
 end
 
-function method:send(op, d)
+function Shard:send(op, d)
 
 	if not self._write then
 		return nil, self:log('error', 'Attempted to send OP %s while not connected', op)
@@ -273,12 +273,12 @@ function method:send(op, d)
 
 end
 
-function method:heartbeat()
+function Shard:heartbeat()
 	self._stopwatch:reset()
 	return self:send(HEARTBEAT, self._seq or null)
 end
 
-function method:identify()
+function Shard:identify()
 
 	self._seq = nil
 	self._sessionId = nil
@@ -306,7 +306,7 @@ function method:identify()
 
 end
 
-function method:resume()
+function Shard:resume()
 	return self:send(RESUME, {
 		token = self._client.token,
 		session_id = self._sessionId,
@@ -314,7 +314,7 @@ function method:resume()
 	})
 end
 
-function method:updatePresence(presence)
+function Shard:updatePresence(presence)
 	return self:send(PRESENCE_UPDATE, presence)
 end
 

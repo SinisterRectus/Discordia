@@ -9,14 +9,14 @@ local setTimeout = timer.setTimeout
 local insert, remove = table.insert, table.remove
 local checkNumber = helpers.checkNumber
 
-local Mutex, method = class('Mutex')
+local Mutex = class('Mutex')
 
-function method:__init()
+function Mutex:__init()
 	self._queue = {}
 	self._active = false
 end
 
-function method:lock()
+function Mutex:lock()
 	if self._active then
 		local thread = running()
 		insert(self._queue, thread)
@@ -26,7 +26,7 @@ function method:lock()
 	end
 end
 
-function method:unlock()
+function Mutex:unlock()
 	local thread = remove(self._queue, 1)
 	if thread then
 		return assert(resume(thread))
@@ -35,7 +35,7 @@ function method:unlock()
 	end
 end
 
-function method:unlockAfter(delay)
+function Mutex:unlockAfter(delay)
 	return setTimeout(checkNumber(delay, nil, nil, 0), self.unlock, self)
 end
 

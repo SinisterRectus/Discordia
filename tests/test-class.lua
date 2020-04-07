@@ -26,28 +26,28 @@ do
 end
 
 do
-	local method, get, set
-	Foo, method, get, set = class('Foo', nil)
-	class.mixin(method, methods)
+	local get, set
+	Foo, get, set = class('Foo', nil)
+	class.mixin(Foo, methods)
 	class.mixin(get, getters)
 	class.mixin(set, setters)
-	function method:__init()
+	function Foo:__init()
 		self._foo = 'foo'
 		self._method_foo = 'method-foo'
 		self._mixin_property = nil
 	end
 	function get:foo() return self._foo	end
 	function set:foo(new) self._foo = new	end
-	function method:getFoo() return self._method_foo end
-	function method:setFoo(new) self._method_foo = new end
-	function method:testFoo() self._undefined = 'test' end
+	function Foo:getFoo() return self._method_foo end
+	function Foo:setFoo(new) self._method_foo = new end
+	function Foo:testFoo() self._undefined = 'test' end
 	foo = Foo()
 end
 
 do
-	local method, get, set
-	Bar, method, get, set = class('Bar', Foo)
-	function method:__init()
+	local get, set
+	Bar, get, set = class('Bar', Foo)
+	function Bar:__init()
 		Foo.__init(self)
 		self._bar = 'bar'
 		self._method_bar = 'method-bar'
@@ -55,16 +55,16 @@ do
 	end
 	function get:bar() return self._bar	end
 	function set:bar(new) self._bar = new	end
-	function method:getBar() return self._method_bar end
-	function method:setBar(new) self._method_bar = new end
-	function method:testBar() self._undefined = 'test' end
+	function Bar:getBar() return self._method_bar end
+	function Bar:setBar(new) self._method_bar = new end
+	function Bar:testBar() self._undefined = 'test' end
 	bar = Bar()
 end
 
 do
-	local method, get, set
-	Baz, method, get, set = class('Baz', Bar)
-	function method:__init()
+	local get, set
+	Baz, get, set = class('Baz', Bar)
+	function Baz:__init()
 		Bar.__init(self)
 		self._baz = 'baz'
 		self._method_baz = 'method-baz'
@@ -72,9 +72,9 @@ do
 	end
 	function get:baz() return self._baz	end
 	function set:baz(new) self._baz = new	end
-	function method:getBaz() return self._method_baz end
-	function method:setBaz(new) self._method_baz = new end
-	function method:testBaz() self._undefined = 'test' end
+	function Baz:getBaz() return self._method_baz end
+	function Baz:setBaz(new) self._method_baz = new end
+	function Baz:testBaz() self._undefined = 'test' end
 	baz = Baz()
 end
 

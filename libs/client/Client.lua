@@ -19,7 +19,7 @@ local attachQuery = helpers.attachQuery
 local GATEWAY_VERSION = 6
 local GATEWAY_ENCODING = 'json'
 
-local Client, method, get = class('Client', Emitter)
+local Client, get = class('Client', Emitter)
 
 local defaultOptions = { -- {type, value}
 	routeDelay = {'number', 250},
@@ -78,7 +78,7 @@ local function optActivity(activity)
 	} or null
 end
 
-function method:__init(opt)
+function Client:__init(opt)
 	Emitter.__init(self)
 	opt = checkOptions(opt)
 	self._routeDelay = opt.routeDelay
@@ -98,7 +98,7 @@ function method:__init(opt)
 	}
 end
 
-function method:_run(token)
+function Client:_run(token)
 
 	self:log('info', 'Discordia %s', package.version)
 	self:log('info', 'Connecting to Discord...')
@@ -156,39 +156,39 @@ function method:_run(token)
 
 end
 
-function method:_internalPresence()
+function Client:_internalPresence()
 	return self._presence
 end
 
 ----
 
-function method:log(level, msg, ...)
+function Client:log(level, msg, ...)
 	return self._logger:log(level, msg, ...)
 end
 
-function method:run(token)
+function Client:run(token)
 	return wrap(self._run)(self, token)
 end
 
-function method:stop()
+function Client:stop()
 	for _, shard in pairs(self._shards) do
 		shard:disconnect(false)
 	end
 end
 
-function method:setToken(token)
+function Client:setToken(token)
 	self._token = token
 	self._api:setToken(token)
 end
 
-function method:setStatus(status)
+function Client:setStatus(status)
 	self._presence.status = optStatus(status)
 	for _, shard in pairs(self._shards) do
 		shard:updatePresence(self._presence)
 	end
 end
 
-function method:setActivity(activity)
+function Client:setActivity(activity)
 	self._presence.game = optActivity(activity)
 	for _, shard in pairs(self._shards) do
 		shard:updatePresence(self._presence)

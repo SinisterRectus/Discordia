@@ -30,7 +30,7 @@ local function checkBit(bit)
 	return checkNumber(bit, 10, true, 1, 31)
 end
 
-local Bitfield, method, get = class('Bitfield')
+local Bitfield, get = class('Bitfield')
 
 local function checkBitfield(obj)
 	if isInstance(obj, Bitfield) then
@@ -39,35 +39,35 @@ local function checkBitfield(obj)
 	return error('cannot perform operation', 2)
 end
 
-function method:__init(v, base)
+function Bitfield:__init(v, base)
 	self._value = v and checkValue(v, base) or 0
 end
 
-function method:__eq(other)
+function Bitfield:__eq(other)
 	return checkBitfield(self) == checkBitfield(other)
 end
 
-function method:__lt(other)
+function Bitfield:__lt(other)
 	return checkBitfield(self) < checkBitfield(other)
 end
 
-function method:__le(other)
+function Bitfield:__le(other)
 	return checkBitfield(self) <= checkBitfield(other)
 end
 
-function method:__add(other)
+function Bitfield:__add(other)
 	return Bitfield(checkBitfield(self) + checkBitfield(other))
 end
 
-function method:__sub(other)
+function Bitfield:__sub(other)
 	return Bitfield(checkBitfield(self) - checkBitfield(other))
 end
 
-function method:__mod(other)
+function Bitfield:__mod(other)
 	return Bitfield(checkBitfield(self) % checkBitfield(other))
 end
 
-function method:__mul(other)
+function Bitfield:__mul(other)
 	if tonumber(other) then
 		return Bitfield(checkBitfield(self) * other)
 	elseif tonumber(self) then
@@ -77,7 +77,7 @@ function method:__mul(other)
 	end
 end
 
-function method:__div(other)
+function Bitfield:__div(other)
 	if tonumber(other) then
 		return Bitfield(checkBitfield(self) / other)
 	elseif tonumber(self) then
@@ -87,7 +87,7 @@ function method:__div(other)
 	end
 end
 
-function method:toString(base, len)
+function Bitfield:toString(base, len)
 	local n = self.value
 	local ret = {}
 	base = base and checkBase(base) or 2
@@ -103,75 +103,75 @@ function method:toString(base, len)
 	return reverse(concat(ret))
 end
 
-function method:toBin(len)
+function Bitfield:toBin(len)
 	return self:toString(2, len)
 end
 
-function method:toOct(len)
+function Bitfield:toOct(len)
 	return self:toString(8, len)
 end
 
-function method:toDec(len)
+function Bitfield:toDec(len)
 	return self:toString(10, len)
 end
 
-function method:toHex(len)
+function Bitfield:toHex(len)
 	return self:toString(16, len)
 end
 
-function method:enableBit(n) -- 1-indexed
+function Bitfield:enableBit(n) -- 1-indexed
 	n = checkBit(n)
 	return self:enableValue(lshift(1, n - 1))
 end
 
-function method:disableBit(n) -- 1-indexed
+function Bitfield:disableBit(n) -- 1-indexed
 	n = checkBit(n)
 	return self:disableValue(lshift(1, n - 1))
 end
 
-function method:toggleBit(n) -- 1-indexed
+function Bitfield:toggleBit(n) -- 1-indexed
 	n = checkBit(n)
 	return self:toggleValue(lshift(1, n - 1))
 end
 
-function method:hasBit(n) -- 1-indexed
+function Bitfield:hasBit(n) -- 1-indexed
 	n = checkBit(n)
 	return self:hasValue(lshift(1, n - 1))
 end
 
-function method:enableValue(v, base)
+function Bitfield:enableValue(v, base)
 	v = checkValue(v, base)
 	self._value = bor(self._value, v)
 end
 
-function method:disableValue(v, base)
+function Bitfield:disableValue(v, base)
 	v = checkValue(v, base)
 	self._value = band(self._value, bnot(v))
 end
 
-function method:toggleValue(v, base)
+function Bitfield:toggleValue(v, base)
 	v = checkValue(v, base)
 	self._value = bxor(self._value, v)
 end
 
-function method:hasValue(v, base)
+function Bitfield:hasValue(v, base)
 	v = checkValue(v, base)
 	return band(self._value, v) == v
 end
 
-function method:union(other) -- bits in either A or B
+function Bitfield:union(other) -- bits in either A or B
 	return Bitfield(bor(checkBitfield(self), checkBitfield(other)))
 end
 
-function method:complement(other) -- bits in A but not in B
+function Bitfield:complement(other) -- bits in A but not in B
 	return Bitfield(band(checkBitfield(self), bnot(checkBitfield(other))))
 end
 
-function method:difference(other) -- bits in A or B but not in both
+function Bitfield:difference(other) -- bits in A or B but not in both
 	return Bitfield(bxor(checkBitfield(self), checkBitfield(other)))
 end
 
-function method:intersection(other) -- bits in both A and B
+function Bitfield:intersection(other) -- bits in both A and B
 	return Bitfield(band(checkBitfield(self), checkBitfield(other)))
 end
 

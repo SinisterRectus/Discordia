@@ -28,7 +28,7 @@ local function decompose(a, b)
 	return modf(a / b), fmod(a, b)
 end
 
-local Time, method, get = class('Time')
+local Time, get = class('Time')
 
 local function checkTime(obj)
 	if isInstance(obj, Time) then
@@ -37,35 +37,35 @@ local function checkTime(obj)
 	return error('cannot perform operation', 2)
 end
 
-function method:__init(value)
+function Time:__init(value)
 	self._value = value and checkNumber(value) or 0
 end
 
-function method:__eq(other)
+function Time:__eq(other)
 	return checkTime(self) == checkTime(other)
 end
 
-function method:__lt(other)
+function Time:__lt(other)
 	return checkTime(self) < checkTime(other)
 end
 
-function method:__le(other)
+function Time:__le(other)
 	return checkTime(self) <= checkTime(other)
 end
 
-function method:__add(other)
+function Time:__add(other)
 	return Time(checkTime(self) + checkTime(other))
 end
 
-function method:__sub(other)
+function Time:__sub(other)
 	return Time(checkTime(self) - checkTime(other))
 end
 
-function method:__mod(other)
+function Time:__mod(other)
 	return Time(checkTime(self) % checkTime(other))
 end
 
-function method:__mul(other)
+function Time:__mul(other)
 	if tonumber(other) then
 		return Time(checkTime(self) * other)
 	elseif tonumber(self) then
@@ -75,7 +75,7 @@ function method:__mul(other)
 	end
 end
 
-function method:__div(other)
+function Time:__div(other)
 	if tonumber(other) then
 		return Time(checkTime(self) / other)
 	elseif tonumber(self) then
@@ -85,7 +85,7 @@ function method:__div(other)
 	end
 end
 
-function method:toString()
+function Time:toString()
 	local ret = {}
 	local v = self._value
 	for _, unit in ipairs(units) do
@@ -138,35 +138,35 @@ function Time.fromTable(t)
 	return Time(n)
 end
 
-function method:toWeeks()
+function Time:toWeeks()
 	return self._value / US_PER_WEEK
 end
 
-function method:toDays()
+function Time:toDays()
 	return self._value / US_PER_DAY
 end
 
-function method:toHours()
+function Time:toHours()
 	return self._value / US_PER_HOUR
 end
 
-function method:toMinutes()
+function Time:toMinutes()
 	return self._value / US_PER_MIN
 end
 
-function method:toSeconds()
+function Time:toSeconds()
 	return self._value / US_PER_S
 end
 
-function method:toMilliseconds()
+function Time:toMilliseconds()
 	return self._value / US_PER_MS
 end
 
-function method:toMicroseconds()
+function Time:toMicroseconds()
 	return self._value
 end
 
-function method:toTable()
+function Time:toTable()
 	local ret = {}
 	local v = self._value
 	for _, unit in ipairs(units) do
