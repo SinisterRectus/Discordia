@@ -1,11 +1,11 @@
 local class = require('../class')
-local helpers = require('../helpers')
+local typing = require('../typing')
 local constants = require('../constants')
 
 local fmod, modf = math.fmod, math.modf
 local insert, concat = table.insert, table.concat
 local isInstance = class.isInstance
-local checkNumber = helpers.checkNumber
+local checkNumber = typing.checkNumber
 
 local US_PER_MS   =               constants.US_PER_MS
 local US_PER_S    = US_PER_MS   * constants.MS_PER_S

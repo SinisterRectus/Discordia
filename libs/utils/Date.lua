@@ -1,13 +1,13 @@
 local uv = require('uv')
 local class = require('../class')
-local helpers = require('../helpers')
+local typing = require('../typing')
 local constants = require('../constants')
 
 local Time = require('./Time')
 
 local gettimeofday = uv.gettimeofday
 local isInstance = class.isInstance
-local checkNumber = helpers.checkNumber
+local checkNumber = typing.checkNumber
 local floor, fmod, modf = math.floor, math.fmod, math.modf
 local format = string.format
 local date, time, difftime = os.date, os.time, os.difftime

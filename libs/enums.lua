@@ -1,6 +1,7 @@
 local function enum(tbl)
 	local call = {}
 	for k, v in pairs(tbl) do
+		assert(type(k) == 'string', 'enum name must be a string')
 		call[v] = k
 	end
 	return setmetatable({}, {
@@ -36,7 +37,7 @@ local enums = {enum = enum}
 enums.status = enum {
 	online       = 'online',
 	idle         = 'idle',
-	doNotDisturb = 'dnd',
+	dnd          = 'dnd',
 	invisible    = 'invisible', -- only sent?
 	offline      = 'offline', -- only received?
 }

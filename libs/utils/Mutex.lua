@@ -1,13 +1,13 @@
 local timer = require('timer')
 local class = require('../class')
-local helpers = require('../helpers')
+local typing = require('../typing')
 
 local yield = coroutine.yield
 local resume = coroutine.resume
 local running = coroutine.running
 local setTimeout = timer.setTimeout
 local insert, remove = table.insert, table.remove
-local checkNumber = helpers.checkNumber
+local checkNumber = typing.checkNumber
 
 local Mutex = class('Mutex')
 

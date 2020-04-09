@@ -1,12 +1,12 @@
 local class = require('../class')
-local helpers = require('../helpers')
+local typing = require('../typing')
 
 local reverse = string.reverse
 local insert, concat = table.insert, table.concat
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local lshift = bit.lshift
 local isInstance = class.isInstance
-local checkNumber = helpers.checkNumber
+local checkNumber = typing.checkNumber
 
 local codec = {}
 for n, char in ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'):gmatch('()(.)') do

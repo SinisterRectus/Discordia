@@ -1,8 +1,8 @@
 local class = require('../class')
-local helpers = require('../helpers')
+local typing = require('../typing')
 
 local isInstance = class.isInstance
-local checkNumber = helpers.checkNumber
+local checkNumber = typing.checkNumber
 local min, max, abs, floor = math.min, math.max, math.abs, math.floor
 local lshift, rshift, band = bit.lshift, bit.rshift, bit.band
 local format = string.format
