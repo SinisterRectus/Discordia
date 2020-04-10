@@ -37,13 +37,13 @@ local INVALID_SESSION       = 9
 local HELLO                 = 10
 local HEARTBEAT_ACK         = 11
 
-local recoverable = { -- when to reconnect; default is true
-	[4004] = false,
-	[4010] = false,
-	[4011] = false,
-	[4012] = false,
-	[4013] = false,
-	[4014] = false,
+local fatalClose = {
+	[4004] = true, -- authentication failed
+	[4010] = true, -- invalid shard
+	[4011] = true, -- sharding required
+	[4012] = true, -- invalid api version
+	[4013] = true, -- invalid intent(s)
+	[4014] = true, -- disallowed intent(s)
 }
 
 local sessionless = {
@@ -113,16 +113,14 @@ function Shard:connect(url, path)
 		self._reconnect = nil
 		self:log('info', 'Connected to %s', url)
 		for message in read do
-			local payload = self:parseMessage(message)
-			if payload then
-				self:handlePayload(payload)
-			end
+			self:parseMessage(message)
 		end
 		self:stopHeartbeat()
 		self._write = nil
 		self:log('info', 'Disconnected')
 	else
-		self:log('error', 'Could not connect to %s (%s)', url, res) -- TODO: get new url
+		self:log('error', 'Could not connect to %s (%s)', url, res)
+		url = self._client:getGatewayURL() or url
 	end
 
 	if self._reconnect ~= false then
@@ -161,18 +159,26 @@ function Shard:parseMessage(message)
 
 	if opcode == TEXT then
 
-		return decode(payload, 1, null)
+		payload = decode(payload)
+		return self:handlePayload(payload)
 
 	elseif opcode == BINARY then
 
 		payload = inflate(payload, 1)
-		return decode(payload, 1, null)
+		payload = decode(payload)
+		return self:handlePayload(payload)
 
-	elseif opcode == CLOSE then -- TODO: only reconnect on certain closes
+	elseif opcode == CLOSE then
 
 		local code, msg = string.unpack('>I2z', payload)
-		self._reconnect = recoverable[code]
-		return nil, self:log('warning', '%i - %s', code, #msg > 0 and msg or 'Connection closed')
+		msg = #msg > 0 and msg or 'Unknown reason'
+		if fatalClose[code] then
+			self._reconnect = false
+			return self:log('error', 'Connection closed : %i - %s', code, msg)
+		else
+			self._reconnect = true
+			return self:log('warning', 'Connection closed : %i - %s', code, msg)
+		end
 
 	end
 
@@ -224,7 +230,8 @@ function Shard:handlePayload(payload)
 
 	elseif op == HEARTBEAT_ACK then
 
-		self._client:emit('heartbeat', self._id, self._stopwatch.milliseconds)
+		local t = self._stopwatch:getTime()
+		self._client:emit('heartbeat', self._id, t:toMilliseconds())
 
 	elseif op then
 
