@@ -36,7 +36,7 @@ function Mutex:unlock()
 end
 
 function Mutex:unlockAfter(delay)
-	return setTimeout(checkNumber(delay, nil, nil, 0), self.unlock, self)
+	return setTimeout(checkNumber(delay, 10, 0), self.unlock, self)
 end
 
 return Mutex

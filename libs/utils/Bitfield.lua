@@ -6,7 +6,7 @@ local insert, concat = table.insert, table.concat
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local lshift = bit.lshift
 local isInstance = class.isInstance
-local checkNumber = typing.checkNumber
+local checkInteger = typing.checkInteger
 
 local codec = {}
 for n, char in ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'):gmatch('()(.)') do
@@ -14,20 +14,20 @@ for n, char in ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'):gmatch('()(.)') do
 end
 
 local function checkBase(base)
-	return checkNumber(base, 10, true, 2, 36)
+	return checkInteger(base, 10, 2, 36)
 end
 
 local function checkLength(len)
-	return checkNumber(len, 10, true, 1)
+	return checkInteger(len, 10, 1)
 end
 
 local function checkValue(value, base)
 	base = base and checkBase(base) or 10
-	return checkNumber(value, base, true, 0, 0x7FFFFFFF)
+	return checkInteger(value, base, 0, 0x7FFFFFFF)
 end
 
 local function checkBit(bit)
-	return checkNumber(bit, 10, true, 1, 31)
+	return checkInteger(bit, 10, 1, 31)
 end
 
 local Bitfield, get = class('Bitfield')

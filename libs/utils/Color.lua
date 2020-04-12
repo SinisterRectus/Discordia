@@ -19,7 +19,7 @@ local function checkByte(n)
 	return clamp(floor(checkNumber(n)), 0, 0xFF)
 end
 
-local function checkInteger(n, base)
+local function checkValue(n, base)
 	return clamp(floor(checkNumber(n, base)), 0, 0xFFFFFF)
 end
 
@@ -79,15 +79,15 @@ local function checkColor(obj)
 end
 
 function Color:__init(n)
-	self._n = n and checkInteger(n) or 0
+	self._n = n and checkValue(n) or 0
 end
 
 function Color.fromDec(dec)
-	return Color(checkInteger(dec))
+	return Color(checkValue(dec))
 end
 
 function Color.fromHex(hex)
-	return Color(checkInteger(hex, 16))
+	return Color(checkValue(hex, 16))
 end
 
 function Color.fromRGB(r, g, b)

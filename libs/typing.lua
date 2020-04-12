@@ -1,10 +1,17 @@
+local fs = require('fs')
+local ssl = require('openssl')
+
+local base64 = ssl.base64
 local format = string.format
+local readFileSync = fs.readFileSync
 
 local function typeError(expected, received)
 	return error(format('expected %s, received %s', expected, received), 2)
 end
 
-local function checkType(expected, obj)
+local typing = {}
+
+function typing.checkType(expected, obj)
 	local received = type(obj)
 	if received ~= expected then
 		return typeError(expected, received)
@@ -12,12 +19,26 @@ local function checkType(expected, obj)
 	return obj
 end
 
-local function checkNumber(obj, base, int, mn, mx)
+function typing.checkNumber(obj, base, mn, mx)
 	local success, n = pcall(tonumber, obj, base)
 	if not success or not n then
 		return typeError('number', type(obj))
 	end
-	if int and n % 1 ~= 0 then
+	if mn and n < mn then
+		return typeError('minimum ' .. mn, n)
+	end
+	if mx and n > mx then
+		return typeError('maximum ' .. mx, n)
+	end
+	return n
+end
+
+function typing.checkInteger(obj, base, mn, mx)
+	local success, n = pcall(tonumber, obj, base)
+	if not success or not n then
+		return typeError('number', type(obj))
+	end
+	if n % 1 ~= 0 then
 		return typeError('integer', n)
 	end
 	if mn and n < mn then
@@ -29,7 +50,7 @@ local function checkNumber(obj, base, int, mn, mx)
 	return n
 end
 
-local function checkCallable(obj)
+function typing.checkCallable(obj)
 	if type(obj) == 'function' then
 		return obj
 	else
@@ -41,17 +62,40 @@ local function checkCallable(obj)
 	return typeError('callable', type(obj))
 end
 
-local function checkEnum(enum, obj)
-	if type(obj) == 'string' then
-		return enum[obj]
-	else
-		return enum(obj) and obj
+function typing.checkEnum(enum, obj)
+	local n = enum[obj] or enum(obj) and obj
+	if not n then
+		return typeError(tostring(enum), type(obj))
+	end
+	return n
+end
+
+local imageTypes = {
+	['\xFF\xD8\xFF'] = 'image/jpeg',
+	['\x47\x49\x46\x38\x37\x61'] = 'image/gif',
+	['\x47\x49\x46\x38\x39\x61'] = 'image/gif',
+	['\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'] = 'image/png',
+}
+
+local function imageType(data)
+	for k, v in pairs(imageTypes) do
+		if data:sub(1, #k) == k then
+			return v
+		end
 	end
 end
 
-return {
-	checkNumber = checkNumber,
-	checkCallable = checkCallable,
-	checkType = checkType,
-	checkEnum = checkEnum,
-}
+function typing.checkImage(str)
+	local t = type(str)
+	if t ~= 'string' then
+		return typeError('image', t)
+	end
+	local data = readFileSync(str) or str
+	t = imageType(data)
+	if not t then
+		return typeError('image', type(data))
+	end
+	return 'data:' .. t .. ';base64,' .. base64(data)
+end
+
+return typing

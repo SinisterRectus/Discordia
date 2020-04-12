@@ -147,7 +147,7 @@ function Emitter:waitFor(name, timeout, predicate)
 	end)
 
 	if timeout then
-		t = setTimeout(checkNumber(timeout, nil, nil, 0), complete, false)
+		t = setTimeout(checkNumber(timeout, 10, 0), complete, false)
 	end
 
 	return yield()

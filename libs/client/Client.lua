@@ -3,6 +3,7 @@ local json = require('json')
 local class = require('../class')
 local enums = require('../enums')
 local helpers = require('../helpers')
+local typing = require('../typing')
 local package = require('../../package')
 
 local Logger = require('../utils/Logger')
@@ -15,6 +16,7 @@ local wrap = coroutine.wrap
 local concat = table.concat
 local format = string.format
 local attachQuery = helpers.attachQuery
+local checkEnum = typing.checkEnum
 
 local GATEWAY_VERSION = 6
 local GATEWAY_ENCODING = 'json'
@@ -66,10 +68,6 @@ local function checkOptions(customOptions)
 	end
 end
 
-local function optStatus(status)
-	return type(status) == 'string' and #status > 0 and status or null
-end
-
 local function optActivity(activity)
 	return type(activity) == 'table' and type(activity.name) == 'string' and #activity.name > 0 and {
 		name = activity.name,
@@ -91,7 +89,7 @@ function Client:__init(opt)
 	self._shards = {}
 	self._token = nil
 	self._presence = {
-		status = optStatus(opt.status),
+		status = opt.status and checkEnum(enums.status, opt.status) or null,
 		game = optActivity(opt.activity),
 		since = null,
 		afk = null,
@@ -182,7 +180,7 @@ function Client:setToken(token)
 end
 
 function Client:setStatus(status)
-	self._presence.status = optStatus(status)
+	self._presence.status = status and checkEnum(enums.status, status) or null
 	for _, shard in pairs(self._shards) do
 		shard:updatePresence(self._presence)
 	end

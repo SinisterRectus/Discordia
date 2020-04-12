@@ -103,7 +103,7 @@ return setmetatable({
 
 	assert(type(name) == 'string', 'name must be a string')
 	assert(base == nil or isClass(base), 'base must be a class')
-	assert(not has(names, name), 'class already defined')
+	assert(not has(names, name), 'class already defined: ' .. name)
 
 	local class = setmetatable({}, meta)
 	classes[class] = true
@@ -134,7 +134,7 @@ return setmetatable({
 		elseif class[k] ~= nil then
 			return class[k]
 		else
-			return error('undefined class member')
+			return error('undefined class member: ' .. tostring(k))
 		end
 	end
 
@@ -142,9 +142,9 @@ return setmetatable({
 		if set[k] then
 			return set[k](self, v)
 		elseif class[k] or get[k] then
-			return error('cannot override class member')
+			return error('cannot override class member: ' .. tostring(k))
 		elseif k:sub(1, 1) ~= '_' then
-			return error('leading underscore required')
+			return error('leading underscore required: ' .. tostring(k))
 		else
 			if checkCalls then checkMember(class, 3) end
 			if not properties[k] then

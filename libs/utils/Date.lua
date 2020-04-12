@@ -7,7 +7,7 @@ local Time = require('./Time')
 
 local gettimeofday = uv.gettimeofday
 local isInstance = class.isInstance
-local checkNumber = typing.checkNumber
+local checkInteger = typing.checkInteger
 local floor, fmod, modf = math.floor, math.fmod, math.modf
 local format = string.format
 local date, time, difftime = os.date, os.time, os.difftime
@@ -22,7 +22,7 @@ local function offset()
 end
 
 local function checkPosInt(n)
-	return checkNumber(n, 10, true, 0)
+	return checkInteger(n, 10, 0)
 end
 
 local function decompose(a, b, c)

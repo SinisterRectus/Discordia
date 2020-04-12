@@ -1,3 +1,5 @@
+local names = {}
+
 local function enum(tbl)
 	local call = {}
 	for k, v in pairs(tbl) do
@@ -6,18 +8,10 @@ local function enum(tbl)
 	end
 	return setmetatable({}, {
 		__call = function(_, k)
-			if call[k] then
-				return call[k]
-			else
-				return error('invalid enumeration: ' .. tostring(k))
-			end
+			return call[k]
 		end,
 		__index = function(_, k)
-			if tbl[k] then
-				return tbl[k]
-			else
-				return error('invalid enumeration: ' .. tostring(k))
-			end
+			return tbl[k]
 		end,
 		__pairs = function()
 			local k, v
@@ -29,12 +23,35 @@ local function enum(tbl)
 		__newindex = function()
 			return error('cannot overwrite enumeration')
 		end,
+		__tostring = function(self)
+			return 'enumeration: ' .. names[self]
+		end,
 	})
 end
 
-local enums = {enum = enum}
+local enums = {}
+local proxy = setmetatable({}, {
+	__index = function(_, k)
+		return enums[k]
+	end,
+	__newindex = function(_, k, v)
+		if enums[k] then
+			return error('cannot overwrite enumeration')
+		end
+		v = enum(v)
+		names[v] = k
+		enums[k] = v
+	end,
+	__pairs = function()
+		local k, v
+		return function()
+			k, v = next(enums, k)
+			return k, v
+		end
+	end,
+})
 
-enums.status = enum {
+proxy.status = {
 	online       = 'online',
 	idle         = 'idle',
 	dnd          = 'dnd',
@@ -42,14 +59,14 @@ enums.status = enum {
 	offline      = 'offline', -- only received?
 }
 
-enums.activityType = enum {
+proxy.activityType = {
 	playing   = 0,
 	streaming = 1,
 	listening = 2,
 	custom    = 4,
 }
 
-enums.logLevel = enum {
+proxy.logLevel = {
 	none    = 0,
 	error   = 1,
 	warning = 2,
@@ -57,7 +74,7 @@ enums.logLevel = enum {
 	debug   = 4,
 }
 
-enums.gatewayIntent = enum {
+proxy.gatewayIntent = {
 	guilds                = 0x00000001, -- 1 << 0
 	guildMembers          = 0x00000002, -- 1 << 1
 	guildBans             = 0x00000004, -- 1 << 2
@@ -75,4 +92,4 @@ enums.gatewayIntent = enum {
 	directMessageTyping   = 0x00004000, -- 1 << 14
 }
 
-return enums
+return proxy
