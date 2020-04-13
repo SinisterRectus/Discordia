@@ -26,6 +26,7 @@ local Client, get = class('Client', Emitter)
 local defaultOptions = { -- {type, value}
 	routeDelay = {'number', 250},
 	maxRetries = {'number', 5},
+	tokenPrefix = {'string', 'Bot '},
 	gatewayIntents = {'number', nil},
 	totalShardCount = {'number', nil},
 	payloadCompression = {'boolean', true},
@@ -81,6 +82,7 @@ function Client:__init(opt)
 	opt = checkOptions(opt)
 	self._routeDelay = opt.routeDelay
 	self._maxRetries = opt.maxRetries
+	self._tokenPrefix = opt.tokenPrefix
 	self._gatewayIntents = opt.gatewayIntents
 	self._totalShardCount = opt.totalShardCount
 	self._payloadCompression = opt.payloadCompression
@@ -205,6 +207,10 @@ end
 
 function get:maxRetries()
 	return self._maxRetries
+end
+
+function get:tokenPrefix()
+	return self._tokenPrefix
 end
 
 function get:gatewayIntents()

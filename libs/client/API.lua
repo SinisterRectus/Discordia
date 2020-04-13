@@ -53,7 +53,12 @@ function API:__init(client)
 end
 
 function API:setToken(token)
-	self._token = token:match('^Bot .*') or 'Bot ' .. token
+	local prefix = self._client.tokenPrefix
+	if token:sub(1, #prefix) == prefix then
+		self._token = token
+	else
+		self._token = prefix .. token
+	end
 end
 
 function API:log(level, res, method, url)
