@@ -3,6 +3,7 @@ require('./test-class')
 require('./test-bitfield')
 require('./test-color')
 require('./test-emitter')
+require('./test-logger')
 require('./test-time')
 require('./test-mutex')
 

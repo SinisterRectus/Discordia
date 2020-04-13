@@ -36,7 +36,7 @@ end
 function typing.checkInteger(obj, base, mn, mx)
 	local success, n = pcall(tonumber, obj, base)
 	if not success or not n then
-		return typeError('number', type(obj))
+		return typeError('integer', type(obj))
 	end
 	if n % 1 ~= 0 then
 		return typeError('integer', n)

@@ -122,15 +122,15 @@ assertError(function() return b:intersection(1) end, 'cannot perform operation')
 for _, v in ipairs {
 	{1, 1, 'expected minimum 2, received 1'},
 	{1, 100, 'expected maximum 36, received 100'},
-	{1, {}, 'expected number, received table'},
+	{1, {}, 'expected integer, received table'},
 	{-1, 10, 'expected minimum 0, received -1'},
 	{1.1, 10, 'expected integer, received 1.1'},
 	{-1.1, 10, 'expected integer, received -1.1'},
 	{2^31, 10, 'expected maximum 2147483647, received ' .. 2^31},
 	{2^32, 10, 'expected maximum 2147483647, received ' .. 2^32},
-	{{}, 10, 'expected number, received table'},
-	{'a', 10, 'expected number, received string'},
-	{'b', 10, 'expected number, received string'},
+	{{}, 10, 'expected integer, received table'},
+	{'a', 10, 'expected integer, received string'},
+	{'b', 10, 'expected integer, received string'},
 } do
 	assertEqual(#v, 3)
 	assertError(function() return Bitfield(v[1], v[2]) end, v[3])
@@ -150,8 +150,8 @@ assertError(function() return b:toString(2, -1) end, 'expected minimum 1, receiv
 assertError(function() return b:toBin(0) end, 'expected minimum 1, received 0')
 assertError(function() return b:toBin(-1) end, 'expected minimum 1, received -1')
 
-assertError(function() return b:toString(2, {}) end, 'expected number, received table')
-assertError(function() return b:toString(2, {}) end, 'expected number, received table')
+assertError(function() return b:toString(2, {}) end, 'expected integer, received table')
+assertError(function() return b:toString(2, {}) end, 'expected integer, received table')
 
 assertError(function() return 2 / Bitfield(2) end, 'division not commutative')
 assertError(function() return Bitfield(2) < {} end, 'cannot perform operation')
