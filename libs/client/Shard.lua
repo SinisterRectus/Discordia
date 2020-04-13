@@ -59,7 +59,7 @@ end
 
 local globalMutex = Mutex()
 
-local Shard = class('Shard', Emitter)
+local Shard, get = class('Shard', Emitter)
 
 function Shard:__init(id, client)
 	Emitter.__init(self)
@@ -70,6 +70,7 @@ function Shard:__init(id, client)
 	self._reconnectDelay = MIN_RECONNECT_DELAY
 	self._seq = nil
 	self._write = nil
+	self._ready = nil
 	self._sessionId = nil
 	self._heartbeat = nil
 	self._reconnect = nil
@@ -85,14 +86,14 @@ function Shard:log(level, msg, ...)
 	return msg
 end
 
-function Shard:ready(sessionId)
+function Shard:readySession(sessionId)
 	self._sessionId = sessionId
 	self:emit('READY')
 	self:log('info', 'Session ready')
 	self._client:emit('sessionReady', self._id)
 end
 
-function Shard:resumed()
+function Shard:resumeSession()
 	self:emit('RESUMED')
 	self:log('info', 'Session resumed')
 	self._client:emit('sessionResumed', self._id)
@@ -120,7 +121,8 @@ function Shard:connect(url, path)
 		self:log('info', 'Disconnected')
 	else
 		self:log('error', 'Could not connect to %s (%s)', url, res)
-		url = self._client:getGatewayURL() or url
+		local gateway = self._client.api:getGateway()
+		url = gateway and gateway.url or url
 	end
 
 	if self._reconnect ~= false then
@@ -288,6 +290,7 @@ end
 function Shard:identify()
 
 	self._seq = nil
+	self._ready = nil
 	self._sessionId = nil
 
 	globalMutex:lock()
@@ -309,7 +312,11 @@ function Shard:identify()
 		intents = options.gatewayIntents,
 		compress = options.payloadCompression,
 		shard = {self._id, options.totalShardCount},
-		presence = client.presence,
+		presence = {
+			status = options.status or null,
+			game = options.activity or null,
+			since = null, afk = null,
+		},
 	})
 
 end
@@ -322,8 +329,24 @@ function Shard:resume()
 	})
 end
 
-function Shard:updatePresence(presence)
-	return self:send(PRESENCE_UPDATE, presence)
+function Shard:updatePresence(status, activity)
+	return self:send(PRESENCE_UPDATE, {
+		status = status or null,
+		game = activity or null,
+		since = null, afk = null,
+	})
+end
+
+function Shard:setReady(ready)
+	self._ready = ready
+end
+
+function get:id()
+	return self._id
+end
+
+function get:ready()
+	return not not self._ready
 end
 
 return Shard

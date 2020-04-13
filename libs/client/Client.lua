@@ -16,6 +16,8 @@ local wrap = coroutine.wrap
 local concat = table.concat
 local format = string.format
 local attachQuery, newProxy = helpers.attachQuery, helpers.newProxy
+local checkType = typing.checkType
+local checkImage = typing.checkImage
 local checkEnum = typing.checkEnum
 
 local GATEWAY_VERSION = 6
@@ -66,12 +68,18 @@ local function checkOptions(customOptions)
 	return options
 end
 
-local function optActivity(activity)
-	return type(activity) == 'table' and type(activity.name) == 'string' and #activity.name > 0 and {
-		name = activity.name,
-		type = type(activity.type) == 'number' and activity.type or 0,
-		url = type(activity.url) == 'string' and activity.url or nil,
-	} or null
+local function checkActivity(activity)
+	local t = type(activity)
+	if t == 'string' then
+		return {name = activity, type = 0}
+	elseif t == 'table' then
+		return {
+			name = type(activity.name) == 'string' and activity.name or '',
+			type = type(activity.type) == 'number' and activity.type or 0,
+			url = type(activity.url) == 'string' and activity.url or nil,
+		}
+	end
+	return error('invalid activity', 2)
 end
 
 function Client:__init(opt)
@@ -82,12 +90,8 @@ function Client:__init(opt)
 	self._api = API(self)
 	self._shards = {}
 	self._token = nil
-	self._presence = {
-		status = opt.status and checkEnum(enums.status, opt.status) or null,
-		game = optActivity(opt.activity),
-		since = null,
-		afk = null,
-	}
+	opt.status = opt.status and checkEnum(enums.status, opt.status)
+	opt.activity = opt.activity and checkActivity(opt.activity)
 end
 
 function Client:_run(token)
@@ -148,6 +152,15 @@ function Client:_run(token)
 
 end
 
+function Client:_modify(payload)
+	local data, err = self._api:modifyCurrentUser(payload)
+	if data then -- TODO: load user data
+		return true
+	else
+		return false, err
+	end
+end
+
 ----
 
 function Client:log(level, msg, ...)
@@ -170,17 +183,27 @@ function Client:setToken(token)
 end
 
 function Client:setStatus(status)
-	self._presence.status = status and checkEnum(enums.status, status) or null
+	local options = self._options
+	options.status = status and checkEnum(enums.status, status)
 	for _, shard in pairs(self._shards) do
-		shard:updatePresence(self._presence)
+		shard:updatePresence(options.status, options.activity)
 	end
 end
 
 function Client:setActivity(activity)
-	self._presence.game = optActivity(activity)
+	local options = self._options
+	options.activity = activity and checkActivity(activity)
 	for _, shard in pairs(self._shards) do
-		shard:updatePresence(self._presence)
+		shard:updatePresence(options.status, options.activity)
 	end
+end
+
+function Client:setUsername(username)
+	return self:_modify {username = username and checkType('string', username) or null}
+end
+
+function Client:setAvatar(avatar)
+	return self:_modify {avatar = avatar and checkImage(avatar) or null}
 end
 
 ----
@@ -190,16 +213,13 @@ function get:token()
 end
 
 function get:options()
-	local options = self._options
-	return newProxy(options, function(_, k, v)
-		options[k] = checkOption(k, v, 2)
+	return newProxy(self._options, function()
+		return error('cannot overwrite options table')
 	end)
 end
 
-function get:presence()
-	return newProxy(self._presence, function()
-		return error('cannot overwrite presence table')
-	end)
+function get:api()
+	return self._api
 end
 
 return Client
