@@ -174,7 +174,7 @@ function Shard:parseMessage(message)
 		msg = #msg > 0 and msg or 'Unknown reason'
 		if fatalClose[code] then
 			self._reconnect = false
-			return self:log('error', 'Connection closed : %i - %s', code, msg)
+			return self:log('critical', 'Connection closed : %i - %s', code, msg)
 		else
 			self._reconnect = true
 			return self:log('warning', 'Connection closed : %i - %s', code, msg)

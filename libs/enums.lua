@@ -66,12 +66,32 @@ proxy.activityType = {
 	custom    = 4,
 }
 
+proxy.ansiColor = {
+	black   = 30,
+	red     = 31,
+	green   = 32,
+	yellow  = 33,
+	blue    = 34,
+	magenta = 35,
+	cyan    = 36,
+	white   = 37,
+}
+
 proxy.logLevel = {
-	none    = 0,
-	error   = 1,
-	warning = 2,
-	info    = 3,
-	debug   = 4,
+	none     = 0,
+	critical = 1,
+	error    = 2,
+	warning  = 3,
+	info     = 4,
+	debug    = 5,
+}
+
+proxy.logColor = {
+	critical = enums.ansiColor.magenta,
+	error    = enums.ansiColor.red,
+	warning  = enums.ansiColor.yellow,
+	info     = enums.ansiColor.green,
+	debug    = enums.ansiColor.cyan,
 }
 
 proxy.gatewayIntent = {

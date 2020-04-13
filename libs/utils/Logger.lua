@@ -1,29 +1,25 @@
 local fs = require('fs')
 local pp = require('pretty-print')
 local class = require('../class')
+local enums = require('../enums')
+local typing = require('../typing')
 
 local date = os.date
 local format = string.format
 local stdout = pp.stdout
 local openSync, writeSync = fs.openSync, fs.writeSync
+local checkEnum = typing.checkEnum
 
-local colors = {
-	black   = 30,
-	red     = 31,
-	green   = 32,
-	yellow  = 33,
-	blue    = 34,
-	magenta = 35,
-	cyan    = 36,
-	white   = 37,
-}
-
-local levels = {
-	{'error',   '[ERROR]  ', colors.red},
-	{'warning', '[WARNING]', colors.yellow},
-	{'info',    '[INFO]   ', colors.green},
-	{'debug',   '[DEBUG]  ', colors.cyan},
-}
+local labels = {} do
+	local n = 0
+	for k in pairs(enums.logColor) do
+		n = math.max(n, #k)
+	end
+	for k, v in pairs(enums.logColor) do
+		local label = '[' .. k:upper() .. ']' .. string.rep(' ', n - #k)
+		labels[enums.logLevel[k]] = {label, format('\27[%i;%im%s\27[0m', 1, v, label)}
+	end
+end
 
 local Logger = class('Logger')
 
@@ -35,30 +31,15 @@ function Logger:__init(level, dateTime, filePath, useColors)
 	self._line = {nil, ' | ', nil, ' | ', nil, '\n'}
 end
 
-for i, v in ipairs(levels) do
-	v[3] = ('\27[%i;%im%s\27[0m'):format(1, v[3], v[2])
-	levels[v[1]] = i
-	Logger[v[1]] = function(self, fmt, ...)
-		return self:log(i, fmt, ...)
-	end
-end
-
 function Logger:log(level, msg, ...)
 
-	if type(level) == 'string' then
-		level = levels[level] -- convert name to index
-	end
-
-	if type(level) == 'number' then
-		if self._level < level then return end
-		level = levels[level] -- convert index to table
-	end
-
-	if not level then return end
+	level = checkEnum(enums.logLevel, level)
+	if self._level < level then return end
+	local label = labels[level]
 
 	local line = self._line
 	line[1] = date(self._dateTime)
-	line[3] = level[2]
+	line[3] = label[1]
 	line[5] = format(msg, ...)
 
 	if self._file then
@@ -66,7 +47,7 @@ function Logger:log(level, msg, ...)
 	end
 
 	if self._useColors then
-		line[3] = level[3]
+		line[3] = label[2]
 	end
 	stdout:write(line)
 

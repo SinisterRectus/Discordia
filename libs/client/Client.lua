@@ -112,7 +112,7 @@ function Client:_run(token)
 
 	local user, err1 = self._api:getCurrentUser()
 	if not user then
-		return self:log('error', 'Could not get user information: %s', err1)
+		return self:log('critical', 'Could not get user information: %s', err1)
 	end
 	self:log('info', 'Authenticated as %s#%s', user.username, user.discriminator)
 
@@ -124,7 +124,7 @@ function Client:_run(token)
 
 	local gateway, err2 = self._api:getGatewayBot()
 	if not gateway then
-		return self:log('error', 'Could not get gateway information: %s', err2)
+		return self:log('critical', 'Could not get gateway information: %s', err2)
 	end
 
 	if shards == nil then
