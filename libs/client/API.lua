@@ -10,7 +10,7 @@ local Mutex = require('../utils/Mutex')
 local request = http.request
 local format, lower = string.format, string.lower
 local max, random = math.max, math.random
-local encode, decode, null = json.encode, json.decode, json.null
+local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
 local running = coroutine.running
 local urlEncode, attachQuery = helpers.urlEncode, helpers.attachQuery
@@ -53,7 +53,7 @@ function API:__init(client)
 end
 
 function API:setToken(token)
-	local prefix = self._client.tokenPrefix
+	local prefix = self._client.options.tokenPrefix
 	if token:sub(1, #prefix) == prefix then
 		self._token = token
 	else
@@ -143,7 +143,8 @@ end
 function API:commit(method, url, req, payload, route, retries)
 
 	local client = self._client
-	local delay = client.routeDelay
+	local options = client.options
+	local delay = options.routeDelay
 
 	local success, res, msg = pcall(request, method, url, req, payload)
 	if not success then
@@ -166,7 +167,7 @@ function API:commit(method, url, req, payload, route, retries)
 		self._bucketMutexes[bucket] = self._bucketMutexes[bucket] or Mutex()
 	end
 
-	local data = res['content-type'] == JSON and decode(msg, 1, null) or {}
+	local data = res['content-type'] == JSON and decode(msg) or {}
 
 	if res.code < 300 then
 		self:log('debug', res, method, url)
@@ -176,10 +177,10 @@ function API:commit(method, url, req, payload, route, retries)
 	local retry
 	if res.code == 429 and data.retry_after then -- TODO: global ratelimiting
 		delay = data.retry_after
-		retry = retries < client.maxRetries
+		retry = retries < options.maxRetries
 	elseif res.code == 502 then
 		delay = delay + random(1000, 4000)
-		retry = retries < client.maxRetries
+		retry = retries < options.maxRetries
 	end
 
 	if retry then

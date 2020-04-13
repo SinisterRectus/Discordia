@@ -43,8 +43,25 @@ local function benchmark(n, fn, ...)
 
 end
 
+local function newProxy(tbl, newIndex)
+	return setmetatable({}, {
+		__index = function(_, k)
+			return tbl[k]
+		end,
+		__newindex = newIndex,
+		__pairs = function()
+			local k, v
+			return function()
+				k, v = next(tbl, k)
+				return k, v
+			end
+		end
+	})
+end
+
 return {
 	urlEncode = urlEncode,
 	attachQuery = attachQuery,
 	benchmark = benchmark,
+	newProxy = newProxy,
 }

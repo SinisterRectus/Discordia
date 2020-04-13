@@ -15,7 +15,7 @@ local null = json.null
 local wrap = coroutine.wrap
 local concat = table.concat
 local format = string.format
-local attachQuery = helpers.attachQuery
+local attachQuery, newProxy = helpers.attachQuery, helpers.newProxy
 local checkEnum = typing.checkEnum
 
 local GATEWAY_VERSION = 6
@@ -38,35 +38,32 @@ local defaultOptions = { -- {type, value}
 	activity = {'table', nil},
 }
 
-local function checkOptions(customOptions)
-	if type(customOptions) == 'table' then
-		local options = {}
-		for k, default in pairs(defaultOptions) do -- load options
-			local custom = customOptions[k]
-			if custom == nil then
-				options[k] = default[2]
-			else
-				options[k] = custom
-			end
-		end
-		for k, v in pairs(customOptions) do -- validate options
-			local expected = defaultOptions[k][1]
-			local received = type(v)
-			if expected ~= received then
-				error(format('invalid option %q (expected %s, received %s)', k, expected, received), 4)
-			end
-			if received == 'number' and (v < 0 or v % 1 > 0) then
-				error(format('invalid option %q (number must be a positive integer)', k), 4)
-			end
-		end
-		return options
-	else
-		local ret = {}
-		for k, v in pairs(defaultOptions) do
-			ret[k] = v[2]
-		end
-		return ret
+local function checkOption(k, v, level)
+	if not defaultOptions[k] then
+		return error('invalid client option: ' .. k, level)
 	end
+	local expected = defaultOptions[k][1]
+	local received = type(v)
+	if expected ~= received then
+		return error(format('invalid option %q (expected %s, received %s)', k, expected, received), level)
+	end
+	if received == 'number' and (v < 0 or v % 1 > 0) then
+		return error(format('invalid option %q (number must be a positive integer)', k), level)
+	end
+	return v
+end
+
+local function checkOptions(customOptions)
+	local options = {}
+	for k, v in pairs(defaultOptions) do
+		options[k] = v[2]
+	end
+	if type(customOptions) == 'table' then
+		for k, v in pairs(customOptions) do
+			options[k] = checkOption(k, v, 4)
+		end
+	end
+	return options
 end
 
 local function optActivity(activity)
@@ -80,12 +77,7 @@ end
 function Client:__init(opt)
 	Emitter.__init(self)
 	opt = checkOptions(opt)
-	self._routeDelay = opt.routeDelay
-	self._maxRetries = opt.maxRetries
-	self._tokenPrefix = opt.tokenPrefix
-	self._gatewayIntents = opt.gatewayIntents
-	self._totalShardCount = opt.totalShardCount
-	self._payloadCompression = opt.payloadCompression
+	self._options = opt
 	self._logger = Logger(opt.logLevel, opt.dateTime, opt.logFile, opt.logColors)
 	self._api = API(self)
 	self._shards = {}
@@ -118,7 +110,8 @@ function Client:_run(token)
 	end
 	self:log('info', 'Authenticated as %s#%s', user.username, user.discriminator)
 
-	local shards = self._totalShardCount
+	local options = self._options
+	local shards = options.totalShardCount
 	if shards == 0 then
 		self:log('info', 'Readying client with no gateway connection(s)')
 		return self:emit('ready')
@@ -134,8 +127,7 @@ function Client:_run(token)
 	elseif shards ~= gateway.shards then
 		self:log('warning', 'Indicated shard count (%i) is different from recommended (%i)', shards, gateway.shards)
 	end
-
-	self._totalShardCount = shards
+	options.totalShardCount = shards
 
 	local l = gateway.session_start_limit
 	self:log('info', '%i of %i session starts consumed', l.total - l.remaining, l.total)
@@ -154,10 +146,6 @@ function Client:_run(token)
 		shard:identifyWait()
 	end
 
-end
-
-function Client:_internalPresence()
-	return self._presence
 end
 
 ----
@@ -201,28 +189,17 @@ function get:token()
 	return self._token
 end
 
-function get:routeDelay()
-	return self._routeDelay
+function get:options()
+	local options = self._options
+	return newProxy(options, function(_, k, v)
+		options[k] = checkOption(k, v, 2)
+	end)
 end
 
-function get:maxRetries()
-	return self._maxRetries
-end
-
-function get:tokenPrefix()
-	return self._tokenPrefix
-end
-
-function get:gatewayIntents()
-	return self._gatewayIntents
-end
-
-function get:totalShardCount()
-	return self._totalShardCount
-end
-
-function get:payloadCompression()
-	return self._payloadCompression
+function get:presence()
+	return newProxy(self._presence, function()
+		return error('cannot overwrite presence table')
+	end)
 end
 
 return Client
