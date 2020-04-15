@@ -33,7 +33,7 @@ do
 			mutex:lock()
 			sleep(a ^ i)
 			done[i] = true
-			for j = n, i do
+			for j = i, n do
 				assertTrue(done[j])
 			end
 			mutex:unlock()
@@ -49,7 +49,7 @@ do
 			mutex:lock()
 			mutex:unlockAfter(a ^ i)
 			done[i] = true
-			for j = n, i do
+			for j = i, n do
 				assertTrue(done[j])
 			end
 		end)

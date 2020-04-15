@@ -16,10 +16,14 @@ function Mutex:__init()
 	self._active = false
 end
 
-function Mutex:lock()
+function Mutex:lock(prepend)
 	if self._active then
 		local thread = running()
-		insert(self._queue, thread)
+		if prepend then
+			insert(self._queue, 1, thread)
+		else
+			insert(self._queue, thread)
+		end
 		return yield()
 	else
 		self._active = true

@@ -46,7 +46,8 @@ local fatalClose = {
 	[4014] = true, -- disallowed intent(s)
 }
 
-local sessionless = {
+local priority = {
+	[RESUME] = true,
 	[IDENTIFY] = true,
 	[HEARTBEAT] = true,
 }
@@ -266,11 +267,11 @@ function Shard:send(op, d)
 		return nil, self:log('error', 'Attempted to send OP %s while not connected', op)
 	end
 
-	if not sessionless[op] and not self._sessionId then
+	if not priority[op] and not self._sessionId then
 		return nil, self:log('error', 'Attempted to send OP %s while not authenticated', op)
 	end
 
-	self._sendMutex:lock()
+	self._sendMutex:lock(priority[op])
 	local success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
 	self._sendMutex:unlockAfter(SEND_DELAY)
 
