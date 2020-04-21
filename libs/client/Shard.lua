@@ -72,7 +72,6 @@ function Shard:__init(id, client)
 	self._id = id
 	self._client = client
 	self._sendMutex = Mutex()
-	self._stopwatch = Stopwatch()
 	self._reconnectDelay = MIN_RECONNECT_DELAY
 	self._seq = nil
 	self._write = nil
@@ -238,8 +237,7 @@ function Shard:handlePayload(payload)
 
 	elseif op == HEARTBEAT_ACK then
 
-		local t = self._stopwatch:getTime()
-		self._client:emit('heartbeat', self._id, t:toMilliseconds())
+		self._client:emit('heartbeat', self._id)
 
 	elseif op then
 
@@ -268,29 +266,24 @@ end
 
 function Shard:send(op, d)
 
-	local mutex = self._sendMutex
+	local sessionId = self._sessionId
+	self._sendMutex:lock(priority[op])
 
-	if sessionless[op] then
-		mutex:lock(priority[op])
-	else
-		local sessionId = self._sessionId
-		if not sessionId then
-			return nil, self:log('error', 'Attempted to send OP %s while not authenticated', op)
-		end
-		mutex:lock(priority[op])
-		if sessionId ~= self._sessionId then
-			mutex:unlockAfter(SEND_DELAY)
-			return nil, self:log('error', 'Attempted to send OP %s for a previous session', op)
-		end
-	end
-
+	local success, err
 	if not self._write then
-		mutex:unlockAfter(SEND_DELAY)
-		return nil, self:log('error', 'Attempted to send OP %s while not connected', op)
+		err = 'Not connected'
+	elseif not sessionless[op] then
+		if not self._sessionId then
+			err = 'Not authenticated'
+		end
+		if sessionId ~= self._sessionId then
+			err = 'Expired session'
+		end
+	else
+		success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
 	end
 
-	local success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
-	mutex:unlockAfter(SEND_DELAY)
+	self._sendMutex:unlockAfter(SEND_DELAY)
 
 	if success then
 		return success, self:log('debug', 'Sent OP %s', op)
@@ -301,7 +294,6 @@ function Shard:send(op, d)
 end
 
 function Shard:heartbeat()
-	self._stopwatch:reset()
 	return self:send(HEARTBEAT, self._seq or null)
 end
 
