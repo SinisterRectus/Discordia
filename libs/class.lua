@@ -129,7 +129,7 @@ return setmetatable({
 		if get[k] then
 			return get[k](self)
 		elseif properties[k] then
-			if checkCalls then checkMember(class, 3) end
+			if checkCalls and k:sub(1, 1) == '_' then checkMember(class, 3) end
 			return rawget(self, properties[k])
 		elseif class[k] ~= nil then
 			return class[k]
@@ -143,10 +143,8 @@ return setmetatable({
 			return set[k](self, v)
 		elseif class[k] or get[k] then
 			return error('cannot override class member: ' .. tostring(k))
-		elseif k:sub(1, 1) ~= '_' then
-			return error('leading underscore required: ' .. tostring(k))
 		else
-			if checkCalls then checkMember(class, 3) end
+			if checkCalls and k:sub(1, 1) == '_' then checkMember(class, 3) end
 			if not properties[k] then
 				if checkCalls then checkInit(class, 3) end
 				n = n + 1
