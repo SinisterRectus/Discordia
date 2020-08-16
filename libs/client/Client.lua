@@ -15,7 +15,7 @@ local null = json.null
 local wrap = coroutine.wrap
 local concat = table.concat
 local format = string.format
-local attachQuery, newProxy = helpers.attachQuery, helpers.newProxy
+local attachQuery = helpers.attachQuery
 local checkType = typing.checkType
 local checkImage = typing.checkImage
 local checkEnum = typing.checkEnum
@@ -177,6 +177,14 @@ function Client:stop()
 	end
 end
 
+function Client:getOptions()
+	local ret = {}
+	for k, v in pairs(self._options) do
+		ret[k] = v
+	end
+	return ret
+end
+
 function Client:setToken(token)
 	self._token = token
 	self._api:setToken(token)
@@ -210,12 +218,6 @@ end
 
 function get:token()
 	return self._token
-end
-
-function get:options()
-	return newProxy(self._options, function()
-		return error('cannot overwrite options table')
-	end)
 end
 
 function get:api()

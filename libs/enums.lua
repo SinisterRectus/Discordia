@@ -1,6 +1,3 @@
-local helpers = require('./helpers')
-local newProxy = helpers.newProxy
-
 local names = {}
 
 local function enum(tbl)
@@ -11,28 +8,50 @@ local function enum(tbl)
 		end
 		call[v] = k
 	end
-	local proxy = newProxy(tbl, function()
-		return error('cannot overwrite enumeration')
-	end)
-	local meta = getmetatable(proxy)
-	meta.__call = function(_, k)
-		return call[k]
-	end
-	meta.__tostring = function(self)
-		return 'enumeration: ' .. names[self]
-	end
-	return proxy
+	return setmetatable({}, {
+		__index = function(_, k)
+			return tbl[k]
+		end,
+		__newindex = function()
+			return error('cannot overwrite enumeration')
+		end,
+		__pairs = function()
+			local k, v
+			return function()
+				k, v = next(tbl, k)
+				return k, v
+			end
+		end,
+		__call = function(_, k)
+			return call[k]
+		end,
+		__tostring = function(self)
+			return 'enumeration: ' .. names[self]
+		end
+	})
 end
 
 local enums = {}
-local proxy = newProxy(enums, function(_, k, v)
-	if enums[k] then
-		return error('cannot overwrite enumeration')
-	end
-	v = enum(v)
-	names[v] = k
-	enums[k] = v
-end)
+local proxy = setmetatable({}, {
+	__index = function(_, k)
+		return enums[k]
+	end,
+	__newindex = function(_, k, v)
+		if enums[k] then
+			return error('cannot overwrite enumeration')
+		end
+		v = enum(v)
+		names[v] = k
+		enums[k] = v
+	end,
+	__pairs = function()
+		local k, v
+		return function()
+			k, v = next(enums, k)
+			return k, v
+		end
+	end,
+})
 
 proxy.status = {
 	online       = 'online',

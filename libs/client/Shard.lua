@@ -310,7 +310,7 @@ function Shard:identify()
 	end)()
 
 	local client = self._client
-	local options = client.options
+	local options = client:getOptions()
 
 	return self:send(IDENTIFY, {
 		token = client.token,
