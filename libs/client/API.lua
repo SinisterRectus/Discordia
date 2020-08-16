@@ -15,7 +15,7 @@ local insert, concat = table.insert, table.concat
 local running = coroutine.running
 local urlEncode, attachQuery = helpers.urlEncode, helpers.attachQuery
 
-local BASE_URL = "https://discordapp.com/api/v7"
+local BASE_URL = "https://discord.com/api/v7"
 local JSON = 'application/json'
 local PRECISION = 'millisecond'
 local USER_AGENT = format('DiscordBot (%s, %s)', package.homepage, package.version)
@@ -53,7 +53,8 @@ function API:__init(client)
 end
 
 function API:setToken(token)
-	local prefix = self._client.options.tokenPrefix
+	local options = self._client:getOptions()
+	local prefix = options.tokenPrefix
 	if token:sub(1, #prefix) == prefix then
 		self._token = token
 	else
@@ -143,7 +144,7 @@ end
 function API:commit(method, url, req, payload, route, retries)
 
 	local client = self._client
-	local options = client.options
+	local options = client:getOptions()
 	local delay = options.routeDelay
 
 	local success, res, msg = pcall(request, method, url, req, payload)
