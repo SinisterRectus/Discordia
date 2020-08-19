@@ -1,5 +1,6 @@
 local class = require('../class')
 local typing = require('../typing')
+local helpers = require('../helpers')
 
 local reverse = string.reverse
 local insert, concat = table.insert, table.concat
@@ -7,6 +8,7 @@ local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local lshift = bit.lshift
 local isInstance = class.isInstance
 local checkInteger = typing.checkInteger
+local str2int = helpers.str2int
 
 local codec = {}
 for n, char in ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'):gmatch('()(.)') do
@@ -23,11 +25,19 @@ end
 
 local function checkValue(value, base)
 	base = base and checkBase(base) or 10
-	return checkInteger(value, base, 0, 0x7FFFFFFF)
+	checkInteger(value, base, 0, 0xFFFFFFFFFFFFFFFF)
+	local t = type(value)
+	if t == 'number' then
+		return value + 0ULL
+	elseif t == 'string' then
+		return str2int(value, base)
+	elseif t == 'cdata' then
+		return value
+	end
 end
 
 local function checkBit(bit)
-	return checkInteger(bit, 10, 1, 31)
+	return checkInteger(bit, 10, 1, 64)
 end
 
 local Bitfield, get = class('Bitfield')
@@ -40,7 +50,7 @@ local function checkBitfield(obj)
 end
 
 function Bitfield:__init(v, base)
-	self._value = v and checkValue(v, base) or 0
+	self._value = v and checkValue(v, base) or 0ULL
 end
 
 function Bitfield:__eq(other)
@@ -94,7 +104,7 @@ function Bitfield:toString(base, len)
 	len = len and checkLength(len) or 1
 	while n > 0 do
 		local r = n % base
-		insert(ret, codec[r])
+		insert(ret, codec[tonumber(r)])
 		n = (n - r) / base
 	end
 	while #ret < len do
@@ -121,22 +131,22 @@ end
 
 function Bitfield:enableBit(n) -- 1-indexed
 	n = checkBit(n)
-	return self:enableValue(lshift(1, n - 1))
+	return self:enableValue(lshift(1ULL, n - 1))
 end
 
 function Bitfield:disableBit(n) -- 1-indexed
 	n = checkBit(n)
-	return self:disableValue(lshift(1, n - 1))
+	return self:disableValue(lshift(1ULL, n - 1))
 end
 
 function Bitfield:toggleBit(n) -- 1-indexed
 	n = checkBit(n)
-	return self:toggleValue(lshift(1, n - 1))
+	return self:toggleValue(lshift(1ULL, n - 1))
 end
 
 function Bitfield:hasBit(n) -- 1-indexed
 	n = checkBit(n)
-	return self:hasValue(lshift(1, n - 1))
+	return self:hasValue(lshift(1ULL, n - 1))
 end
 
 function Bitfield:enableValue(v, base)

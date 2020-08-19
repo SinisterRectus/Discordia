@@ -8,69 +8,73 @@ local assertError = utils.assertError
 
 local b = Bitfield()
 
-assertEqual(b:toString(2), '0')
-assertEqual(b:toString(8), '0')
-assertEqual(b:toString(10), '0')
-assertEqual(b:toString(16), '0')
+for _, v in ipairs {
+	{0, '0','0', '0', '0',},
+	{2^4 - 1, '1111', '17', '15', 'F'},
+	{2^8 - 1, '11111111', '377', '255', 'FF'},
+	{2^16 - 1, '1111111111111111', '177777', '65535', 'FFFF'},
+	{2^31 - 1, '1111111111111111111111111111111', '17777777777', '2147483647', '7FFFFFFF'},
+	{2^32 - 1, '11111111111111111111111111111111', '37777777777', '4294967295', 'FFFFFFFF'},
+	{2^64 - 1, string.rep('1', 64), '1777777777777777777777', '18446744073709551615', 'FFFFFFFFFFFFFFFF'},
+} do
 
-assertEqual(b:toString(2, 2), '00')
-assertEqual(b:toString(8, 2), '00')
-assertEqual(b:toString(10, 2), '00')
-assertEqual(b:toString(16, 2), '00')
+	assertEqual(Bitfield(v[2], 2):toBin(), v[2])
+	assertEqual(Bitfield(v[3], 8):toBin(), v[2])
+	assertEqual(Bitfield(v[4], 10):toBin(), v[2])
+	assertEqual(Bitfield(v[5], 16):toBin(), v[2])
 
-assertEqual(b:toBin(1), '0')
-assertEqual(b:toBin(2), '00')
-assertEqual(b:toBin(3), '000')
+	assertEqual(Bitfield(v[2], 2):toOct(), v[3])
+	assertEqual(Bitfield(v[3], 8):toOct(), v[3])
+	assertEqual(Bitfield(v[4], 10):toOct(), v[3])
+	assertEqual(Bitfield(v[5], 16):toOct(), v[3])
 
-assertEqual(Bitfield(15):toHex(), 'F')
-assertEqual(Bitfield('F', 16):toHex(), 'F')
-assertEqual(Bitfield(15):toHex(8), '0000000F')
-assertEqual(Bitfield('F', 16):toHex(8), '0000000F')
+	assertEqual(Bitfield(v[2], 2):toDec(), v[4])
+	assertEqual(Bitfield(v[3], 8):toDec(), v[4])
+	assertEqual(Bitfield(v[4], 10):toDec(), v[4])
+	assertEqual(Bitfield(v[5], 16):toDec(), v[4])
 
-assertEqual(Bitfield(15):toBin(), '1111')
-assertEqual(Bitfield('F', 16):toBin(), '1111')
-assertEqual(Bitfield(15):toBin(8), '00001111')
-assertEqual(Bitfield('F', 16):toBin(8), '00001111')
+	assertEqual(Bitfield(v[2], 2):toHex(), v[5])
+	assertEqual(Bitfield(v[3], 8):toHex(), v[5])
+	assertEqual(Bitfield(v[4], 10):toHex(), v[5])
+	assertEqual(Bitfield(v[5], 16):toHex(), v[5])
 
-assertEqual(Bitfield(15):toOct(), '17')
-assertEqual(Bitfield('F', 16):toOct(), '17')
-assertEqual(Bitfield(15):toOct(8), '00000017')
-assertEqual(Bitfield('F', 16):toOct(8), '00000017')
+	assertEqual(Bitfield(v[2], 2):toString(16), v[5])
+	assertEqual(Bitfield(v[3], 8):toString(16), v[5])
+	assertEqual(Bitfield(v[4], 10):toString(16), v[5])
+	assertEqual(Bitfield(v[5], 16):toString(16), v[5])
 
-assertEqual(Bitfield(15):toDec(), '15')
-assertEqual(Bitfield('F', 16):toDec(), '15')
-assertEqual(Bitfield(15):toDec(8), '00000015')
-assertEqual(Bitfield('F', 16):toDec(8), '00000015')
-
-assertEqual(Bitfield(15):toString(16), 'F')
-assertEqual(Bitfield('F', 16):toString(16), 'F')
-assertEqual(Bitfield(15):toString(16, 8), '0000000F')
-assertEqual(Bitfield('F', 16):toString(16, 8), '0000000F')
+end
 
 b:enableBit(5)
 assertTrue(b:hasBit(5))
 assertTrue(b:hasValue(16))
+assertTrue(b:hasValue(16ULL))
 assertEqual(b:toBin(), '10000')
+assertEqual(b:toBin(8), '00010000')
 
 b:toggleBit(4)
 assertTrue(b:hasBit(4))
 assertTrue(b:hasValue(8))
 assertEqual(b:toBin(), '11000')
+assertEqual(b:toBin(8), '00011000')
 
 b:toggleBit(4)
 assertFalse(b:hasBit(4))
 assertFalse(b:hasValue(8))
 assertEqual(b:toBin(), '10000')
+assertEqual(b:toBin(8), '00010000')
 
 b:disableBit(5)
 assertFalse(b:hasBit(5))
 assertFalse(b:hasValue(16))
 assertEqual(b:toBin(), '0')
+assertEqual(b:toBin(8), '00000000')
 
 b:enableValue(8)
 assertTrue(b:hasBit(4))
 assertTrue(b:hasValue(8))
 assertEqual(b:toBin(), '1000')
+assertEqual(b:toBin(8), '00001000')
 
 b:enableValue(7)
 assertTrue(b:hasBit(4))
@@ -92,7 +96,7 @@ assertEqual(b1:difference(b2):toBin(4), '1100')
 assertEqual(b1:intersection(b2):toBin(4), '0001')
 
 local b3 = Bitfield()
-for i = 1, 31 do
+for i = 1, 63 do
 	b3:enableBit(i)
 	assertTrue(b3:hasBit(i))
 	b3:disableBit(i)
@@ -126,8 +130,7 @@ for _, v in ipairs {
 	{-1, 10, 'expected minimum 0, received -1'},
 	{1.1, 10, 'expected integer, received 1.1'},
 	{-1.1, 10, 'expected integer, received -1.1'},
-	{2^31, 10, 'expected maximum 2147483647, received ' .. 2^31},
-	{2^32, 10, 'expected maximum 2147483647, received ' .. 2^32},
+	{2^65, 10, 'expected maximum 1.844674407371e+19, received 3.6893488147419e+19'},
 	{{}, 10, 'expected integer, received table'},
 	{'a', 10, 'expected integer, received string'},
 	{'b', 10, 'expected integer, received string'},
@@ -140,9 +143,7 @@ for _, v in ipairs {
 end
 
 assertError(function() return b:enableBit(0) end, 'expected minimum 1, received 0')
-assertError(function() return b:enableBit(32) end, 'expected maximum 31, received 32')
-assertError(function() return b:enableBit(33) end, 'expected maximum 31, received 33')
-assertError(function() return b:enableBit(64) end, 'expected maximum 31, received 64')
+assertError(function() return b:enableBit(65) end, 'expected maximum 64, received 65')
 assertError(function() return b:enableBit(-1) end, 'expected minimum 1, received -1')
 
 assertError(function() return b:toString(2, 0) end, 'expected minimum 1, received 0')

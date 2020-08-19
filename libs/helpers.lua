@@ -43,8 +43,40 @@ local function benchmark(n, fn, ...)
 
 end
 
+local function str2int(str, base)
+
+	local i = 1
+	local n = 0ULL
+	local neg = false
+	base = base or 10
+
+	str = str:match('^%s*(.*)')
+
+	if str:sub(i, i) == '-' then
+		neg = true
+		i = i + 1
+	elseif str:sub(i, i) == '+' then
+		i = i + 1
+	end
+
+	local char = str:sub(i, i)
+	repeat
+		local digit = tonumber(char, base)
+		if not digit then
+			return nil
+		end
+		n = n * base + digit
+		i = i + 1
+		char = str:sub(i, i)
+	until not char:find('%w')
+
+	return neg and -n or n
+
+end
+
 return {
 	urlEncode = urlEncode,
 	attachQuery = attachQuery,
 	benchmark = benchmark,
+	str2int = str2int,
 }
