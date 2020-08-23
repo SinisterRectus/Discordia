@@ -163,6 +163,16 @@ return setmetatable({
 		end
 	end
 
+	function class:__pairs()
+		local k, fn
+		return function()
+			k, fn = next(get, k)
+			if k then
+				return k, fn(self)
+			end
+		end
+	end
+
 	return class, get, set
 
 end})

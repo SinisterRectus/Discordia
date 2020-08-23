@@ -48,7 +48,6 @@ end
 b:enableBit(5)
 assertTrue(b:hasBit(5))
 assertTrue(b:hasValue(16))
-assertTrue(b:hasValue(16ULL))
 assertEqual(b:toBin(), '10000')
 assertEqual(b:toBin(8), '00010000')
 
@@ -96,7 +95,7 @@ assertEqual(b1:difference(b2):toBin(4), '1100')
 assertEqual(b1:intersection(b2):toBin(4), '0001')
 
 local b3 = Bitfield()
-for i = 1, 63 do
+for i = 1, 64 do
 	b3:enableBit(i)
 	assertTrue(b3:hasBit(i))
 	b3:disableBit(i)

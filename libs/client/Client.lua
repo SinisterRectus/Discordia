@@ -11,7 +11,6 @@ local Emitter = require('../utils/Emitter')
 local API = require('./API')
 local Shard = require('./Shard')
 
-local null = json.null
 local wrap = coroutine.wrap
 local concat = table.concat
 local format = string.format
@@ -207,11 +206,11 @@ function Client:setActivity(activity)
 end
 
 function Client:setUsername(username)
-	return self:_modify {username = username and checkType('string', username) or null}
+	return self:_modify {username = username and checkType('string', username) or json.null}
 end
 
 function Client:setAvatar(avatar)
-	return self:_modify {avatar = avatar and checkImage(avatar) or null}
+	return self:_modify {avatar = avatar and checkImage(avatar) or json.null}
 end
 
 ----

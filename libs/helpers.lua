@@ -13,11 +13,13 @@ local function urlEncode(obj)
 end
 
 local function attachQuery(url, query)
+	local first = true
 	for k, v in pairs(query) do
-		insert(url, #url == 1 and '?' or '&')
+		insert(url, first and '?' or '&')
 		insert(url, urlEncode(k))
 		insert(url, '=')
 		insert(url, urlEncode(v))
+		first = false
 	end
 end
 
