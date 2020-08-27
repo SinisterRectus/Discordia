@@ -56,12 +56,6 @@ local function mixin(target, source)
 	end
 end
 
-local function isInit(class, fn)
-	if not isClass(class) then return false end
-	if class.__init == fn then return true end
-	return isInit(bases[class], fn)
-end
-
 local function has(tbl, value)
 	for _, v in pairs(tbl) do
 		if v == value then return true end
@@ -74,13 +68,6 @@ local function isMember(class, fn)
 	if has(getters[class], fn) then return true end
 	if has(setters[class], fn) then return true end
 	return isMember(bases[class], fn)
-end
-
-local function checkInit(class, level)
-	local info = debug.getinfo(level, 'f')
-	if not isInit(class, info.func) then
-		error('cannot declare class property outside of __init', level)
-	end
 end
 
 local function checkMember(class, level)
@@ -146,7 +133,6 @@ return setmetatable({
 		else
 			if checkCalls and k:sub(1, 1) == '_' then checkMember(class, 3) end
 			if not properties[k] then
-				if checkCalls then checkInit(class, 3) end
 				n = n + 1
 				properties[k] = n
 			end
