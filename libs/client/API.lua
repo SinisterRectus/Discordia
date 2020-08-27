@@ -40,6 +40,34 @@ local function parseErrors(ret, errors, key) -- TODO: optimize if possible
 	return concat(ret, '\n\t')
 end
 
+local function generateBoundary(files, boundary)
+	boundary = boundary or tostring(random(0, 9))
+	for _, v in ipairs(files) do
+		if v[2]:find(boundary, 1, true) then
+			return generateBoundary(files, boundary .. random(0, 9))
+		end
+	end
+	return boundary
+end
+
+local function attachFiles(payload, files)
+	local boundary = generateBoundary(files)
+	local ret = {
+		'--' .. boundary,
+		'Content-Disposition:form-data;name="payload_json"',
+		'Content-Type:application/json\r\n',
+		payload,
+	}
+	for i, v in ipairs(files) do
+		insert(ret, '--' .. boundary)
+		insert(ret, format('Content-Disposition:form-data;name="file%i";filename=%q', i, v[1]))
+		insert(ret, 'Content-Type:application/octet-stream\r\n')
+		insert(ret, v[2])
+	end
+	insert(ret, '--' .. boundary .. '--')
+	return concat(ret, '\r\n'), boundary
+end
+
 local meta = {__mode = 'v'}
 
 local API = class('API')
@@ -66,7 +94,7 @@ function API:log(level, res, method, url)
 	return self._client:log(level, '%i - %s : %s %s', res.code, res.reason, method, url)
 end
 
-function API:request(method, endpoint, params, query, payload)
+function API:request(method, endpoint, params, query, payload, files)
 
 	local _, main = running()
 	if main then
@@ -104,7 +132,13 @@ function API:request(method, endpoint, params, query, payload)
 
 	if payloadRequired[method] then
 		payload = payload and encode(payload) or '{}'
-		insert(req, {'Content-Type', JSON})
+		if files and #files > 0 then
+			local boundary
+			payload, boundary = attachFiles(payload, files)
+			insert(req, {'Content-Type', 'multipart/form-data;boundary=' .. boundary})
+		else
+			insert(req, {'Content-Type', JSON})
+		end
 		insert(req, {'Content-Length', #payload})
 	end
 
@@ -280,10 +314,10 @@ function API:getChannelMessage(channel_id, message_id, query)
 	return self:request("GET", endpoint, params, query)
 end
 
-function API:createMessage(channel_id, payload, query)
+function API:createMessage(channel_id, payload, query, files)
 	local endpoint = endpoints.CHANNEL_MESSAGES
 	local params = {channel_id}
-	return self:request("POST", endpoint, params, query, payload)
+	return self:request("POST", endpoint, params, query, payload, files)
 end
 
 function API:createReaction(channel_id, message_id, emoji, payload, query)
