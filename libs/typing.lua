@@ -70,6 +70,18 @@ function typing.checkEnum(enum, obj)
 	return n
 end
 
+function typing.checkSnowflake(id)
+	local t = type(id)
+	if t == 'string' and tonumber(id) then
+		return id
+	elseif t == 'number' and id < 2^32 then
+		return format('%i', id)
+	elseif t == 'cdata' and tonumber(id) then
+		return tostring(id):match('%d*')
+	end
+	return error('Snowflake ID should be an integral string', 2)
+end
+
 local imageTypes = {
 	['\xFF\xD8\xFF'] = 'image/jpeg',
 	['\x47\x49\x46\x38\x37\x61'] = 'image/gif',
@@ -85,7 +97,7 @@ local function imageType(data)
 	end
 end
 
-function typing.checkImage(str)
+function typing.checkImageData(str)
 	local t = type(str)
 	if t ~= 'string' then
 		return typeError('image', t)
@@ -96,6 +108,35 @@ function typing.checkImage(str)
 		return typeError('image', type(data))
 	end
 	return 'data:' .. t .. ';base64,' .. base64(data)
+end
+
+local sizes = {
+	[16] = true, [32] = true,
+	[64] = true, [128] = true,
+	[256] = true, [1024] = true,
+	[2048] = true, [4096] = true,
+}
+
+function typing.checkImageSize(size)
+	if not sizes[size] then
+		return error('invalid image size; must be a power of 2 between 16 and 4096', 2)
+	end
+	return size
+end
+
+local extensions = {
+	['jpg'] = true,
+	['jpeg'] = true,
+	['png'] = true,
+	['webp'] = true,
+	['gif'] = true,
+}
+
+function typing.checkImageExtension(ext)
+	if not extensions[ext] then
+		return error('invalid image extension; must be one of: jpg, jpeg, png, webp, gif', 2)
+	end
+	return ext
 end
 
 return typing

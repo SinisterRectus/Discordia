@@ -11,6 +11,12 @@ local Emitter = require('../utils/Emitter')
 local API = require('./API')
 local Shard = require('./Shard')
 
+local Channel = require('../containers/Channel')
+local Guild = require('../containers/Guild')
+local Invite = require('../containers/Invite')
+local User = require('../containers/User')
+local Webhook = require('../containers/Webhook')
+
 local wrap = coroutine.wrap
 local concat = table.concat
 local format = string.format
@@ -89,6 +95,7 @@ function Client:__init(opt)
 	self._api = API(self)
 	self._shards = {}
 	self._token = nil
+	self._userId = nil
 	opt.status = opt.status and checkEnum(enums.status, opt.status)
 	opt.activity = opt.activity and checkActivity(opt.activity)
 end
@@ -107,10 +114,11 @@ function Client:_run(token)
 
 	self:setToken(token)
 
-	local user, err1 = self._api:getCurrentUser()
+	local user, err1 = self.api:getCurrentUser()
 	if not user then
 		return self:log('critical', 'Could not get user information: %s', err1)
 	end
+	self._userId = user.id
 	self:log('info', 'Authenticated as %s#%s', user.username, user.discriminator)
 
 	local options = self._options
@@ -120,7 +128,7 @@ function Client:_run(token)
 		return self:emit('ready')
 	end
 
-	local gateway, err2 = self._api:getGatewayBot()
+	local gateway, err2 = self.api:getGatewayBot()
 	if not gateway then
 		return self:log('critical', 'Could not get gateway information: %s', err2)
 	end
@@ -152,8 +160,8 @@ function Client:_run(token)
 end
 
 function Client:_modify(payload)
-	local data, err = self._api:modifyCurrentUser(payload)
-	if data then -- TODO: load user data
+	local data, err = self.api:modifyCurrentUser(payload)
+	if data then
 		return true
 	else
 		return false, err
@@ -186,7 +194,7 @@ end
 
 function Client:setToken(token)
 	self._token = token
-	self._api:setToken(token)
+	self.api:setToken(token)
 end
 
 function Client:setStatus(status)
@@ -213,6 +221,51 @@ function Client:setAvatar(avatar)
 	return self:_modify {avatar = avatar and checkImage(avatar) or json.null}
 end
 
+function Client:getChannel(channelId)
+	local data, err = self.api:getChannel(channelId)
+	if data then
+		return Channel(data, self)
+	else
+		return nil, err
+	end
+end
+
+function Client:getGuild(guildId, counts)
+	local data, err = self.api:getGuild(guildId, counts)
+	if data then
+		return Guild(data, self)
+	else
+		return nil, err
+	end
+end
+
+function Client:getWebhook(webhookId)
+	local data, err = self.api:getWebhook(webhookId)
+	if data then
+		return Webhook(data, self)
+	else
+		return nil, err
+	end
+end
+
+function Client:getInvite(code, counts)
+	local data, err = self.api:getInvite(code, {with_counts = counts})
+	if data then
+		return Invite(data, self)
+	else
+		return nil, err
+	end
+end
+
+function Client:getUser(userId)
+	local data, err = self.api:getUser(userId)
+	if data then
+		return User(data, self)
+	else
+		return nil, err
+	end
+end
+
 ----
 
 function get:token()
@@ -221,6 +274,10 @@ end
 
 function get:api()
 	return self._api
+end
+
+function get:userId()
+	return self._userId
 end
 
 return Client

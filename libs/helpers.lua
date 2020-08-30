@@ -52,7 +52,7 @@ local function str2int(str, base)
 	local neg = false
 	base = base or 10
 
-	str = str:match('^%s*(.*)')
+	str = str:match('^%s*(.-)%s*$')
 
 	if str:sub(i, i) == '-' then
 		neg = true
@@ -61,16 +61,15 @@ local function str2int(str, base)
 		i = i + 1
 	end
 
-	local char = str:sub(i, i)
+	local s = #str
 	repeat
-		local digit = tonumber(char, base)
+		local digit = tonumber(str:sub(i, i), base)
 		if not digit then
 			return nil
 		end
 		n = n * base + digit
 		i = i + 1
-		char = str:sub(i, i)
-	until not char:find('%w')
+	until i > s
 
 	return neg and -n or n
 
