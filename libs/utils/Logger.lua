@@ -7,7 +7,7 @@ local typing = require('../typing')
 local date = os.date
 local format = string.format
 local stdout = pp.stdout
-local openSync, writeSync = fs.openSync, fs.writeSync
+local openSync, writeSync, closeSync = fs.openSync, fs.writeSync, fs.closeSync
 local checkEnum, checkType = typing.checkEnum, typing.checkType
 
 local colors = {
@@ -35,12 +35,37 @@ end
 
 local Logger = class('Logger')
 
-function Logger:__init(level, dateTime, filePath, useColors)
+function Logger:__init(level, dateFormat, filePath, useColors)
 	self._level = checkEnum(enums.logLevel, level)
-	self._dateTime = dateTime and checkType('string', dateTime)
+	self._dateFormat = dateFormat and checkType('string', dateFormat)
 	self._file = filePath and openSync(filePath, 'a')
 	self._useColors = not not useColors
 	self._line = {nil, ' | ', nil, ' | ', nil, '\n'}
+end
+
+function Logger:setLevel(level)
+	self._level = checkEnum(enums.logLevel, level)
+end
+
+function Logger:setDateTime(dateFormat)
+	self._dateFormat = dateFormat and checkType('string', dateFormat) or nil
+end
+
+function Logger:setFile(path)
+	if self._file then
+		closeSync(self._file)
+	end
+	if path then
+		self._file = assert(openSync(path, 'a'))
+	end
+end
+
+function Logger:enableColors()
+	self._useColors = true
+end
+
+function Logger:disableColors()
+	self._useColors = false
 end
 
 function Logger:log(level, msg, ...)
@@ -52,7 +77,7 @@ function Logger:log(level, msg, ...)
 	local label = labels[level]
 
 	local line = self._line
-	line[1] = date(self._dateTime)
+	line[1] = date(self._dateFormat)
 	line[3] = label[1]
 	line[5] = format(msg, ...)
 

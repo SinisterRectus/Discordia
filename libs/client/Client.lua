@@ -38,7 +38,7 @@ local defaultOptions = { -- {type, value}
 	totalShardCount = {'number', nil},
 	payloadCompression = {'boolean', true},
 	logLevel = {'number', enums.logLevel.info},
-	dateTime = {'string', '%F %T'},
+	dateFormat = {'string', '%F %T'},
 	logFile = {'string', 'discordia.log'},
 	logColors = {'boolean', true},
 	status = {'string', nil},
@@ -52,10 +52,10 @@ local function checkOption(k, v, level)
 	local expected = defaultOptions[k][1]
 	local received = type(v)
 	if expected ~= received then
-		return error(format('invalid option %q (expected %s, received %s)', k, expected, received), level)
+		return error(format('invalid client option %q (expected %s, received %s)', k, expected, received), level)
 	end
 	if received == 'number' and (v < 0 or v % 1 > 0) then
-		return error(format('invalid option %q (number must be a positive integer)', k), level)
+		return error(format('invalid client option %q (number must be a positive integer)', k), level)
 	end
 	return v
 end
@@ -91,7 +91,7 @@ function Client:__init(opt)
 	Emitter.__init(self)
 	opt = checkOptions(opt)
 	self._options = opt
-	self._logger = Logger(opt.logLevel, opt.dateTime, opt.logFile, opt.logColors)
+	self._logger = Logger(opt.logLevel, opt.dateFormat, opt.logFile, opt.logColors)
 	self._api = API(self)
 	self._shards = {}
 	self._token = nil
@@ -267,6 +267,10 @@ function Client:getUser(userId)
 end
 
 ----
+
+function get:logger()
+	return self._logger
+end
 
 function get:token()
 	return self._token
