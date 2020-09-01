@@ -11,7 +11,6 @@ local checkImageSize = typing.checkImageSize
 local checkImageExtension = typing.checkImageExtenstion
 local band = bit.band
 local format = string.format
-local CDN_URL = constants.CDN_URL
 local DEFAULT_AVATARS = constants.DEFAULT_AVATARS
 
 local User, get = class('User', Snowflake)
@@ -31,29 +30,20 @@ function User:hasFlag(flag)
 	return band(self.flags, flag) == flag
 end
 
-function User:getAvatarURL(size, ext)
+function User:getAvatarURL(ext, size)
 	size = size and checkImageSize(size)
-	local avatar = self.avatar
-	if avatar then
-		ext = ext and checkImageExtension(ext) or avatar:sub(1, 2) == 'a_' and 'gif' or 'png'
-		if size then
-			return format('%s/avatars/%s/%s.%s?size=%s', CDN_URL, self.id, avatar, ext, size)
-		else
-			return format('%s/avatars/%s/%s.%s', CDN_URL, self.id, avatar, ext)
-		end
+	ext = ext and checkImageExtension(ext)
+	if self.avatar then
+		return self.cdn:getUserAvatarURL(self.id, self.avatar, ext, size)
 	else
-		return self:getDefaultAvatarURL(size)
+		return self.cdn:getDefaultUserAvatarURL(self.defaultAvatar, ext, size)
 	end
 end
 
-function User:getDefaultAvatarURL(size)
+function User:getDefaultAvatarURL(ext, size)
 	size = size and checkImageSize(size)
-	local avatar = self.defaultAvatar
-	if size then
-		return format('%s/embed/avatars/%s.png?size=%s', CDN_URL, avatar, size)
-	else
-		return format('%s/embed/avatars/%s.png', CDN_URL, avatar)
-	end
+	ext = ext and checkImageExtension(ext)
+	return self.cdn:getDefaultUserAvatarURL(self.defaultAvatar, ext, size)
 end
 
 function User:getPrivateChannel()

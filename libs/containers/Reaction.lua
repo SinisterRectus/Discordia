@@ -8,6 +8,7 @@ local enums = require('../enums')
 local checkEnum = typing.checkEnum
 local checkSnowflake = typing.checkSnowflake
 local checkInteger = typing.checkInteger
+local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
 
 local Reaction, get = class('Reaction', Container)
 
@@ -39,6 +40,15 @@ function Reaction:getUsers(limit, whence, userId)
 	else
 		return nil, err
 	end
+end
+
+function Reaction:getEmojiURL(ext, size)
+	if not self.emojiId then
+		return nil, 'Cannot provide URL for default emoji'
+	end
+	ext = ext and checkImageExtension(ext)
+	size = size and checkImageSize(size)
+	return self.cdn:getCustomEmojiURL(self.emojiId, ext, size)
 end
 
 function Reaction:delete(userId)

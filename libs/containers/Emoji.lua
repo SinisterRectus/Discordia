@@ -5,11 +5,10 @@ local User = require('./User')
 local class = require('../class')
 local typing = require('../typing')
 local json = require('json')
-local constants = require('../constants')
 
-local CDN_URL = constants.CDN_URL
 local checkType = typing.checkType
 local checkSnowflake = typing.checkSnowflake
+local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
 local format = string.format
 local insert = table.insert
 
@@ -61,6 +60,12 @@ function Emoji:delete()
 	end
 end
 
+function Emoji:getURL(ext, size)
+	ext = ext and checkImageExtension(ext)
+	size = size and checkImageSize(size)
+	return self.cdn:getCustomEmojiURL(self.id, ext, size)
+end
+
 function Emoji:getGuild()
 	return self.client:getGuild(self.guildId)
 end
@@ -109,11 +114,6 @@ end
 function get:mentionString()
 	local fmt = self.animated and '<a:%s:%s>' or '<:%s:%s>'
 	return format(fmt, self.name, self.id)
-end
-
-function get:url()
-	local ext = self.animated and 'gif' or 'png'
-	return format('%s/emojis/%s.%s', CDN_URL, self.id, ext)
 end
 
 function get:managed()

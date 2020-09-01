@@ -13,6 +13,7 @@ local class = require('../class')
 local typing = require('../typing')
 local enums = require('../enums')
 
+local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
 local checkSnowflake, checkInteger = typing.checkSnowflake, typing.checkInteger
 local checkType, checkEnum = typing.checkType, typing.checkEnum
 local checkImageData = typing.checkImageData
@@ -72,6 +73,42 @@ function Guild:_modify(payload)
 	else
 		return false, err
 	end
+end
+
+function Guild:getIconURL(ext, size)
+	if not self.icon then
+		return nil, 'Guild has no icon'
+	end
+	size = size and checkImageSize(size)
+	ext = ext and checkImageExtension(ext)
+	return self.cdn:getGuildIconURL(self.id, self.icon, ext, size)
+end
+
+function Guild:getBannerURL(ext, size)
+	if not self.banner then
+		return nil, 'Guild has no banner'
+	end
+	size = size and checkImageSize(size)
+	ext = ext and checkImageExtension(ext)
+	return self.cdn:getGuildBannerURL(self.id, self.banner, ext, size)
+end
+
+function Guild:getSplashURL(ext, size)
+	if not self.splash then
+		return nil, 'Guild has no splash'
+	end
+	size = size and checkImageSize(size)
+	ext = ext and checkImageExtension(ext)
+	return self.cdn:getGuildSplashURL(self.id, self.splash, ext, size)
+end
+
+function Guild:getDiscoverySplashURL(ext, size)
+	if not self.discoverySplash then
+		return nil, 'Guild has no discovery splash'
+	end
+	size = size and checkImageSize(size)
+	ext = ext and checkImageExtension(ext)
+	return self.cdn:getGuildDiscoverySplashURL(self.id, self.discoverySplash, ext, size)
 end
 
 function Guild:getMember(userId)

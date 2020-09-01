@@ -9,6 +9,7 @@ local package = require('../../package')
 local Logger = require('../utils/Logger')
 local Emitter = require('../utils/Emitter')
 local API = require('./API')
+local CDN = require('./CDN')
 local Shard = require('./Shard')
 
 local Channel = require('../containers/Channel')
@@ -43,6 +44,8 @@ local defaultOptions = { -- {type, value}
 	logColors = {'boolean', true},
 	status = {'string', nil},
 	activity = {'table', nil},
+	defaultImageExtension = {'string', 'png'},
+	defaultImageSize = {'number', 1024},
 }
 
 local function checkOption(k, v, level)
@@ -93,6 +96,7 @@ function Client:__init(opt)
 	self._options = opt
 	self._logger = Logger(opt.logLevel, opt.dateFormat, opt.logFile, opt.logColors)
 	self._api = API(self)
+	self._cdn = CDN(self)
 	self._shards = {}
 	self._token = nil
 	self._userId = nil
@@ -274,6 +278,10 @@ end
 
 function get:api()
 	return self._api
+end
+
+function get:cdn()
+	return self._cdn
 end
 
 function get:userId()

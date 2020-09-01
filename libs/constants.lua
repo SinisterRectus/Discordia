@@ -7,5 +7,4 @@ return {
 	HOUR_PER_DAY = 24,
 	DAY_PER_WEEK = 7,
 	DEFAULT_AVATARS = 5,
-	CDN_URL = "https://cdn.discordapp.com",
 }
