@@ -185,11 +185,7 @@ function Client:stop()
 end
 
 function Client:getOptions()
-	local ret = {}
-	for k, v in pairs(self._options) do
-		ret[k] = v
-	end
-	return ret
+	return setmetatable({}, {__index = self._options})
 end
 
 function Client:setToken(token)

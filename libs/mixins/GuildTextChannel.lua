@@ -48,19 +48,19 @@ function methods:bulkDelete(messages)
 end
 
 function methods:setTopic(topic)
-	return self:_modify({topic = topic and checkType('string', topic) or json.null})
+	return self:_modify {topic = topic and checkType('string', topic) or json.null}
 end
 
 function methods:setRateLimit(limit)
-	return self:_modify({rate_limit_per_user = limit and checkInteger(limit) or json.null})
+	return self:_modify {rate_limit_per_user = limit and checkInteger(limit) or json.null}
 end
 
 function methods:enableNSFW()
-	return self:_modify({nsfw = true})
+	return self:_modify {nsfw = true}
 end
 
 function methods:disableNSFW()
-	return self:_modify({nsfw = false})
+	return self:_modify {nsfw = false}
 end
 
 local getters = {}

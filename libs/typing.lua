@@ -70,14 +70,16 @@ function typing.checkEnum(enum, obj)
 	return n
 end
 
-function typing.checkSnowflake(id)
-	local t = type(id)
-	if t == 'string' and tonumber(id) then
-		return id
-	elseif t == 'number' and id < 2^32 then
-		return format('%i', id)
-	elseif t == 'cdata' and tonumber(id) then
-		return tostring(id):match('%d*')
+function typing.checkSnowflake(obj)
+	local t = type(obj)
+	if t == 'string' and tonumber(obj) then
+		return obj
+	elseif t == 'number' and obj < 2^32 then
+		return format('%i', obj)
+	elseif t == 'table' then
+		return typing.checkSnowflake(obj.id)
+	elseif t == 'cdata' and tonumber(obj) then
+		return tostring(obj):match('%d*')
 	end
 	return error('Snowflake ID should be an integral string', 2)
 end

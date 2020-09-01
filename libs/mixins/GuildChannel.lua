@@ -13,7 +13,7 @@ function methods:setName(name)
 end
 
 function methods:setCategory(parentId)
-	return self:_modify({parent_id = parentId and checkSnowflake(parentId) or json.null})
+	return self:_modify {parent_id = parentId and checkSnowflake(parentId) or json.null}
 end
 
 -- TODO: sorting

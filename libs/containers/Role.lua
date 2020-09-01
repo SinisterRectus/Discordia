@@ -54,15 +54,15 @@ function Role:getGuild()
 end
 
 function Role:setName(name)
-	return self:_modify({name = name and checkType('string', name) or json.null})
+	return self:_modify {name = name and checkType('string', name) or json.null}
 end
 
 function Role:setColor(color)
-	return self:_modify({color = color and checkInteger(color) or json.null})
+	return self:_modify {color = color and checkInteger(color) or json.null}
 end
 
 function Role:setPermissions(permissions)
-	return self:_modify({permissions = permissions and checkInteger(permissions) or json.null})
+	return self:_modify {permissions = permissions and checkInteger(permissions) or json.null}
 end
 
 function Role:enablePermissions(...)
@@ -84,19 +84,19 @@ function Role:disablePermissions(...)
 end
 
 function Role:hoist()
-	return self:_modify({hoist = true})
+	return self:_modify {hoist = true}
 end
 
 function Role:unhoist()
-	return self:_modify({hoist = false})
+	return self:_modify {hoist = false}
 end
 
 function Role:enableMentioning()
-	return self:_modify({mentionable = true})
+	return self:_modify {mentionable = true}
 end
 
 function Role:disableMentioning()
-	return self:_modify({mentionable = false})
+	return self:_modify {mentionable = false}
 end
 
 function get:hoisted()

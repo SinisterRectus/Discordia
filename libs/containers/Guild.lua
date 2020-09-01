@@ -205,63 +205,63 @@ function Guild:createChannel(payload)
 end
 
 function Guild:setName(name)
-	return self:_modify({name = name and checkType('string', name) or json.null})
+	return self:_modify {name = name and checkType('string', name) or json.null}
 end
 
 function Guild:setRegion(region)
-	return self:_modify({region = region and checkType('string', region) or json.null})
+	return self:_modify {region = region and checkType('string', region) or json.null}
 end
 
 function Guild:setVerificationLevel(level)
-	return self:_modify({verification_level = level and checkEnum(enums.verificationLevel, level) or json.null})
+	return self:_modify {verification_level = level and checkEnum(enums.verificationLevel, level) or json.null}
 end
 
 function Guild:setNotificationSetting(setting)
-	return self:_modify({default_message_notifications = setting and checkEnum(enums.notificationSetting, setting) or json.null})
+	return self:_modify {default_message_notifications = setting and checkEnum(enums.notificationSetting, setting) or json.null}
 end
 
 function Guild:setExplicitContentLevel(level)
-	return self:_modify({explicit_content_filter = level and checkEnum(enums.explicitContentLevel, level) or json.null})
+	return self:_modify {explicit_content_filter = level and checkEnum(enums.explicitContentLevel, level) or json.null}
 end
 
 function Guild:setAFKTimeout(timeout)
-	return self:_modify({afk_timeout = timeout and checkType('number', timeout) or json.null})
+	return self:_modify {afk_timeout = timeout and checkType('number', timeout) or json.null}
 end
 
 function Guild:setAFKChannel(id)
-	return self:_modify({afk_channel_id = id and checkSnowflake(id) or json.null})
+	return self:_modify {afk_channel_id = id and checkSnowflake(id) or json.null}
 end
 
 function Guild:setSystemChannel(id)
-	return self:_modify({system_channel_id = id and checkSnowflake(id) or json.null})
+	return self:_modify {system_channel_id = id and checkSnowflake(id) or json.null}
 end
 
 function Guild:setRulesChannel(id)
-	return self:_modify({rules_channel_id = id and checkSnowflake(id) or json.null})
+	return self:_modify {rules_channel_id = id and checkSnowflake(id) or json.null}
 end
 
 function Guild:setPublicUpdatesChannel(id)
-	return self:_modify({public_updates_channel_id = id and checkSnowflake(id) or json.null})
+	return self:_modify {public_updates_channel_id = id and checkSnowflake(id) or json.null}
 end
 
 function Guild:setOwner(id)
-	return self:_modify({owner_id = id and checkSnowflake(id) or json.null})
+	return self:_modify {owner_id = id and checkSnowflake(id) or json.null}
 end
 
 function Guild:setIcon(icon)
-	return self:_modify({icon = icon and checkImageData(icon) or json.null})
+	return self:_modify {icon = icon and checkImageData(icon) or json.null}
 end
 
 function Guild:setBanner(banner)
-	return self:_modify({banner = banner and checkImageData(banner) or json.null})
+	return self:_modify {banner = banner and checkImageData(banner) or json.null}
 end
 
 function Guild:setSplash(splash)
-	return self:_modify({splash = splash and checkImageData(splash) or json.null})
+	return self:_modify {splash = splash and checkImageData(splash) or json.null}
 end
 
 function Guild:setDiscoverySplash(splash)
-	return self:_modify({discovery_splash = splash and checkImageData(splash) or json.null})
+	return self:_modify {discovery_splash = splash and checkImageData(splash) or json.null}
 end
 
 function Guild:getPruneCount(days)

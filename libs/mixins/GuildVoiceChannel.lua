@@ -6,11 +6,11 @@ local checkInteger= typing.checkInteger
 local methods = {}
 
 function methods:setBitrate(bitrate)
-	return self:_modify({bitrate = bitrate and checkInteger(bitrate) or json.null})
+	return self:_modify {bitrate = bitrate and checkInteger(bitrate) or json.null}
 end
 
 function methods:setUserLimit(userLimit)
-	return self:_modify({user_limit = userLimit or json.null})
+	return self:_modify {user_limit = userLimit or json.null}
 end
 
 -- TODO: join/leave

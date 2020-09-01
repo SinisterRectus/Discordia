@@ -42,14 +42,14 @@ function Emoji:_modify(payload)
 end
 
 function Emoji:setName(name)
-	return self:_modify({name = name and checkType('string', name) or json.null})
+	return self:_modify {name = name and checkType('string', name) or json.null}
 end
 
 function Emoji:setRoles(roles)
 	for i, v in ipairs(checkType('table', roles)) do
 		roles[i] = checkSnowflake(v)
 	end
-	return self:_modify({roles = roles or json.null})
+	return self:_modify {roles = roles or json.null}
 end
 
 function Emoji:delete()
