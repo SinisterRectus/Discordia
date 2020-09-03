@@ -4,9 +4,11 @@ local Role = require('./Role')
 
 local class = require('../class')
 local typing = require('../typing')
+local helpers = require('../helpers')
 
 local checkType, checkSnowflake = typing.checkType, typing.checkSnowflake
 local insert, remove, sort = table.insert, table.remove, table.sort
+local readOnly = helpers.readOnly
 
 local Member, get = class('Member', Container)
 
@@ -69,8 +71,8 @@ function Member:getColor()
 			insert(sorted, role)
 		end
 	end
-	sort(sorted, roles, sorter)
-	return sorted[1] and sorted[1].color or 0 -- TODO: return Color or number?
+	sort(sorted, sorter)
+	return sorted[1] and sorted[1].color or 0
 end
 
 -- TODO: permissions
@@ -217,8 +219,12 @@ function get:deafened()
 	return self._deaf
 end
 
+function get:guildId()
+	return self._guild_id
+end
+
 function get:roleIds()
-	return self._roles or {}
+	return readOnly(self._roles)
 end
 
 return Member

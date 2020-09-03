@@ -14,6 +14,7 @@ local Reaction, get = class('Reaction', Container)
 
 function Reaction:__init(data, client)
 	Container.__init(self, client)
+	self._guild_id = assert(data.guild_id)
 	self._channel_id = assert(data.channel_id)
 	self._message_id = assert(data.message_id)
 	self._count = data.count
@@ -48,7 +49,7 @@ function Reaction:getEmojiURL(ext, size)
 	end
 	ext = ext and checkImageExtension(ext)
 	size = size and checkImageSize(size)
-	return self.cdn:getCustomEmojiURL(self.emojiId, ext, size)
+	return self.client.cdn:getCustomEmojiURL(self.emojiId, ext, size)
 end
 
 function Reaction:delete(userId)
@@ -71,6 +72,10 @@ end
 
 function get:count()
 	return self._count
+end
+
+function get:guildId()
+	return self._guild_id
 end
 
 function get:channelId()

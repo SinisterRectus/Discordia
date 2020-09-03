@@ -34,16 +34,16 @@ function User:getAvatarURL(ext, size)
 	size = size and checkImageSize(size)
 	ext = ext and checkImageExtension(ext)
 	if self.avatar then
-		return self.cdn:getUserAvatarURL(self.id, self.avatar, ext, size)
+		return self.client.cdn:getUserAvatarURL(self.id, self.avatar, ext, size)
 	else
-		return self.cdn:getDefaultUserAvatarURL(self.defaultAvatar, ext, size)
+		return self.client.cdn:getDefaultUserAvatarURL(self.defaultAvatar, ext, size)
 	end
 end
 
 function User:getDefaultAvatarURL(ext, size)
 	size = size and checkImageSize(size)
 	ext = ext and checkImageExtension(ext)
-	return self.cdn:getDefaultUserAvatarURL(self.defaultAvatar, ext, size)
+	return self.client.cdn:getDefaultUserAvatarURL(self.defaultAvatar, ext, size)
 end
 
 function User:getPrivateChannel()

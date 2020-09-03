@@ -21,7 +21,7 @@ local Webhook = require('../containers/Webhook')
 local wrap = coroutine.wrap
 local concat = table.concat
 local format = string.format
-local attachQuery = helpers.attachQuery
+local attachQuery, readOnly = helpers.attachQuery, helpers.readOnly
 local checkType = typing.checkType
 local checkImage = typing.checkImage
 local checkEnum = typing.checkEnum
@@ -189,7 +189,7 @@ function Client:stop()
 end
 
 function Client:getOptions()
-	return setmetatable({}, {__index = self._options})
+	return readOnly(self._options)
 end
 
 function Client:setToken(token)

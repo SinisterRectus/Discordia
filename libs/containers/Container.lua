@@ -14,14 +14,6 @@ function Container.__eq()
 	return error('__eq not implemented')
 end
 
-function Container.__hash()
-	return error('__hash not implemented')
-end
-
-function Container._update()
-	return error('_update not implemented')
-end
-
 function get:client()
 	return clients[self]
 end

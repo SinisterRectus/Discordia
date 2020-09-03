@@ -43,6 +43,10 @@ function get:userId()
 	return self._user_id
 end
 
+function get:guildId()
+	return self._guild_id
+end
+
 function get:reason()
 	return self._reason
 end

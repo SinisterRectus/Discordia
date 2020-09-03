@@ -11,12 +11,14 @@ local Webhook = require('./Webhook')
 local json = require('json')
 local class = require('../class')
 local typing = require('../typing')
+local helpers = require('../helpers')
 local enums = require('../enums')
 
 local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
 local checkSnowflake, checkInteger = typing.checkSnowflake, typing.checkInteger
 local checkType, checkEnum = typing.checkType, typing.checkEnum
 local checkImageData = typing.checkImageData
+local readOnly = helpers.readOnly
 
 local Guild, get = class('Guild', Snowflake)
 
@@ -81,7 +83,7 @@ function Guild:getIconURL(ext, size)
 	end
 	size = size and checkImageSize(size)
 	ext = ext and checkImageExtension(ext)
-	return self.cdn:getGuildIconURL(self.id, self.icon, ext, size)
+	return self.client.cdn:getGuildIconURL(self.id, self.icon, ext, size)
 end
 
 function Guild:getBannerURL(ext, size)
@@ -90,7 +92,7 @@ function Guild:getBannerURL(ext, size)
 	end
 	size = size and checkImageSize(size)
 	ext = ext and checkImageExtension(ext)
-	return self.cdn:getGuildBannerURL(self.id, self.banner, ext, size)
+	return self.client.cdn:getGuildBannerURL(self.id, self.banner, ext, size)
 end
 
 function Guild:getSplashURL(ext, size)
@@ -99,7 +101,7 @@ function Guild:getSplashURL(ext, size)
 	end
 	size = size and checkImageSize(size)
 	ext = ext and checkImageExtension(ext)
-	return self.cdn:getGuildSplashURL(self.id, self.splash, ext, size)
+	return self.client.cdn:getGuildSplashURL(self.id, self.splash, ext, size)
 end
 
 function Guild:getDiscoverySplashURL(ext, size)
@@ -108,7 +110,7 @@ function Guild:getDiscoverySplashURL(ext, size)
 	end
 	size = size and checkImageSize(size)
 	ext = ext and checkImageExtension(ext)
-	return self.cdn:getGuildDiscoverySplashURL(self.id, self.discoverySplash, ext, size)
+	return self.client.cdn:getGuildDiscoverySplashURL(self.id, self.discoverySplash, ext, size)
 end
 
 function Guild:getMember(userId)
@@ -510,12 +512,12 @@ function get:notificationSetting()
 	return self._default_message_notifications
 end
 
-function get:explicitContentFilter()
+function get:explicitContentSetting()
 	return self._explicit_content_filter
 end
 
 function get:features()
-	return self._features
+	return readOnly(self._features)
 end
 
 function get:mfaLevel()

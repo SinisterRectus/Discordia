@@ -75,9 +75,24 @@ local function str2int(str, base)
 
 end
 
+local function readOnly(tbl)
+	tbl = tbl or {}
+	return setmetatable({}, {
+		__index = tbl,
+		__pairs = function()
+			local k, v
+			return function()
+				k, v = next(tbl, k)
+				return k, v
+			end
+		end,
+	})
+end
+
 return {
 	urlEncode = urlEncode,
 	attachQuery = attachQuery,
 	benchmark = benchmark,
 	str2int = str2int,
+	readOnly = readOnly,
 }

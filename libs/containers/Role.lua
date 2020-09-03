@@ -68,8 +68,7 @@ end
 function Role:enablePermissions(...)
 	local permissions = Bitfield(self.permissions)
 	for i = 1, select('#', ...) do
-		local permission = select(i, ...)
-		permissions:enableValue(checkEnum(enums.permission, permission))
+		permissions:enableValue(checkEnum(enums.permission, select(i, ...)))
 	end
 	return self:setPermissions(permissions.value)
 end
@@ -77,8 +76,7 @@ end
 function Role:disablePermissions(...)
 	local permissions = Bitfield(self.permissions)
 	for i = 1, select('#', ...) do
-		local permission = select(i, ...)
-		permissions:disableValue(checkEnum(enums.permission, permission))
+		permissions:disableValue(checkEnum(enums.permission, select(i, ...)))
 	end
 	return self:setPermissions(permissions.value)
 end

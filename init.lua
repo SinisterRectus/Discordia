@@ -5,6 +5,7 @@ return {
 	Client = require('./libs/client/Client'),
 	Bitfield = require('./libs/utils/Bitfield'),
 	Clock = require('./libs/utils/Clock'),
+	Color = require('./libs/utils/Color'),
 	Date = require('./libs/utils/Date'),
 	Emitter = require('./libs/utils/Emitter'),
 	Logger = require('./libs/utils/Logger'),

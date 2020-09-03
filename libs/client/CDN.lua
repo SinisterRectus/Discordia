@@ -19,12 +19,12 @@ local endpoints = {
 local CDN = class('CDN')
 
 function CDN:__init(client)
-	self.client = assert(client)
+	self._client = assert(client)
 end
 
 function CDN:buildURL(endpoint, params, ext, size)
 
-	local options = self.client:getOptions()
+	local options = self._client:getOptions()
 
 	endpoint = endpoint:format(unpack(params))
 	ext = ext or options.defaultImageExtension
