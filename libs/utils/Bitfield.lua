@@ -7,7 +7,7 @@ local insert, concat = table.insert, table.concat
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local lshift = bit.lshift
 local isInstance = class.isInstance
-local checkInteger = typing.checkInteger
+local checkInteger, checkType = typing.checkInteger, typing.checkType
 local str2int = helpers.str2int
 
 local codec = {}
@@ -95,6 +95,24 @@ function Bitfield:__div(other)
 	else
 		return error('cannot perform operation')
 	end
+end
+
+function Bitfield:toArray(filter)
+	local arr = {}
+	for k, v in pairs(checkType('table', filter)) do
+		if self:hasValue(v) then
+			insert(arr, k)
+		end
+	end
+	return arr
+end
+
+function Bitfield:toTable(filter)
+	local tbl = {}
+	for k, v in pairs(checkType('table', filter)) do
+		tbl[k] = self:hasValue(v)
+	end
+	return tbl
 end
 
 function Bitfield:toString(base, len)

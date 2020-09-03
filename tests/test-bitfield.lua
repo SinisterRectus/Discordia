@@ -6,8 +6,6 @@ local assertTrue = utils.assertTrue
 local assertFalse = utils.assertFalse
 local assertError = utils.assertError
 
-local b = Bitfield()
-
 for _, v in ipairs {
 	{0, '0','0', '0', '0',},
 	{2^4 - 1, '1111', '17', '15', 'F'},
@@ -44,6 +42,8 @@ for _, v in ipairs {
 	assertEqual(Bitfield(v[5], 16):toString(16), v[5])
 
 end
+
+local b = Bitfield()
 
 b:enableBit(5)
 assertTrue(b:hasBit(5))
@@ -86,6 +86,21 @@ assertTrue(b:hasValue(8))
 assertFalse(b:hasValue(7))
 assertFalse(b:hasValue(15))
 assertEqual(b:toBin(), '1000')
+
+local b0 = Bitfield()
+
+local filter = {
+	red = 1,
+	green = 2,
+	blue = 3,
+}
+
+b0:enableValue(filter.green)
+assertEqual(b0:toArray(filter)[1], "green")
+assertFalse(b0:toTable(filter).red)
+assertTrue(b0:toTable(filter).green)
+assertFalse(b0:toTable(filter).blue)
+b0:disableValue(filter.green)
 
 local b1 = Bitfield('0101', 2)
 local b2 = Bitfield('1001', 2)
