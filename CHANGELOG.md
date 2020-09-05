@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.4
+- Updated the `discordapp` domain name to `discord` where necessary (CDN links remain the same)
+
 ## 2.8.3
 - Fixed an issue where the gateway session would not attempt to resume after a reconnection
 
