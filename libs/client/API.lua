@@ -13,7 +13,7 @@ local insert, concat = table.insert, table.concat
 local sleep = timer.sleep
 local running = coroutine.running
 
-local BASE_URL = "https://discordapp.com/api/v7"
+local BASE_URL = "https://discord.com/api/v7"
 
 local JSON = 'application/json'
 local PRECISION = 'millisecond'

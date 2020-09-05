@@ -568,7 +568,7 @@ end
 --[=[@p link string URL that can be used to jump-to the message in the Discord client.]=]
 function get.link(self)
 	local guild = self.guild
-	return format('https://discordapp.com/channels/%s/%s/%s', guild and guild._id or '@me', self._parent._id, self._id)
+	return format('https://discord.com/channels/%s/%s/%s', guild and guild._id or '@me', self._parent._id, self._id)
 end
 
 --[=[@p webhookId string/nil The ID of the webhook that generated this message, if applicable.]=]
