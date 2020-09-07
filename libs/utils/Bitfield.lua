@@ -15,29 +15,37 @@ for n, char in ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'):gmatch('()(.)') do
 	codec[n - 1] = char
 end
 
-local function checkBase(base)
-	return checkInteger(base, 10, 2, 36)
-end
-
-local function checkLength(len)
-	return checkInteger(len, 10, 1)
-end
+local MIN_BIT, MAX_BIT = 1, 64
+local MIN_BASE, MAX_BASE = 2, 36
+local MIN_VALUE, MAX_VALUE = 0, 2^MAX_BIT - 1
 
 local function checkValue(value, base)
-	base = base and checkBase(base) or 10
-	checkInteger(value, base, 0, 0xFFFFFFFFFFFFFFFF)
-	local t = type(value)
-	if t == 'number' then
-		return value + 0ULL
-	elseif t == 'string' then
-		return str2int(value, base)
-	elseif t == 'cdata' then
-		return value
+	if base then
+		base = checkInteger(base, 10, MIN_BASE, MAX_BASE)
+		checkInteger(value, base, MIN_VALUE, MAX_VALUE)
+		local t = type(value)
+		if t == 'number' then
+			return tonumber(value, base) + 0ULL
+		elseif t == 'string' then
+			return str2int(value, base)
+		elseif t == 'cdata' then
+			return str2int(tostring(value:match('%d*'), base))
+		end
+	else
+		checkInteger(value, base, MIN_VALUE, MAX_VALUE)
+		local t = type(value)
+		if t == 'number' then
+			return value + 0ULL
+		elseif t == 'string' then
+			return str2int(value)
+		elseif t == 'cdata' then
+			return value
+		end
 	end
 end
 
 local function checkBit(bit)
-	return checkInteger(bit, 10, 1, 64)
+	return checkInteger(bit, 10, MIN_BIT, MAX_BIT)
 end
 
 local Bitfield, get = class('Bitfield')
@@ -116,10 +124,10 @@ function Bitfield:toTable(filter)
 end
 
 function Bitfield:toString(base, len)
-	local n = self.value
+	local n = self._value
 	local ret = {}
-	base = base and checkBase(base) or 2
-	len = len and checkLength(len) or 1
+	base = base and checkInteger(base, 10, MIN_BASE, MAX_BASE) or 2
+	len = len and checkInteger(len, 10, 1) or 1
 	while n > 0 do
 		local r = n % base
 		insert(ret, codec[tonumber(r)])

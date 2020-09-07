@@ -1,5 +1,6 @@
 local Snowflake = require('./Snowflake')
 local Bitfield = require('../utils/Bitfield')
+local Color = require('../utils/Color')
 
 local class = require('../class')
 local typing = require('../typing')
@@ -9,6 +10,28 @@ local json = require('json')
 local checkType, checkInteger = typing.checkType, typing.checkInteger
 local checkEnum = typing.checkEnum
 local format = string.format
+
+local function checkColor(obj)
+	if class.isInstance(obj, Color) then
+		return obj:toDec()
+	end
+	return checkInteger(obj, 10, 0, 0xFFFFFF)
+end
+
+local function checkPermissions(obj)
+	if class.isInstance(obj, Bitfield) then
+		return obj:toDec()
+	end
+	local t = type(obj)
+	if t == 'string' and tonumber(obj) then
+		return obj
+	elseif t == 'number' and obj < 2^32 then
+		return format('%i', obj)
+	elseif t == 'cdata' and tonumber(obj) then
+		return tostring(obj):match('%d*')
+	end
+	return error('Permissions should be an integral string', 2)
+end
 
 local Role, get = class('Role', Snowflake)
 
@@ -58,11 +81,11 @@ function Role:setName(name)
 end
 
 function Role:setColor(color)
-	return self:_modify {color = color and checkInteger(color) or json.null}
+	return self:_modify {color = color and checkColor(color) or json.null}
 end
 
 function Role:setPermissions(permissions)
-	return self:_modify {permissions = permissions and checkInteger(permissions) or json.null}
+	return self:_modify {permissions = permissions and checkPermissions(permissions) or json.null}
 end
 
 function Role:enablePermissions(...)
@@ -70,7 +93,7 @@ function Role:enablePermissions(...)
 	for i = 1, select('#', ...) do
 		permissions:enableValue(checkEnum(enums.permission, select(i, ...)))
 	end
-	return self:setPermissions(permissions.value)
+	return self:setPermissions(permissions)
 end
 
 function Role:disablePermissions(...)
@@ -78,7 +101,7 @@ function Role:disablePermissions(...)
 	for i = 1, select('#', ...) do
 		permissions:disableValue(checkEnum(enums.permission, select(i, ...)))
 	end
-	return self:setPermissions(permissions.value)
+	return self:setPermissions(permissions)
 end
 
 function Role:hoist()
