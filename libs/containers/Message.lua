@@ -75,21 +75,21 @@ function Message:_load(data)
 end
 
 function Message:setContent(content)
-	return self:editMessage(self.channelId, self.id, {content = content or json.null})
+	return self.client:editMessage(self.channelId, self.id, {content = content or json.null})
 end
 
 function Message:setEmbed(embed)
-	return self:editMessage(self.channelId, self.id, {embed = embed or json.null})
+	return self.client:editMessage(self.channelId, self.id, {embed = embed or json.null})
 end
 
 function Message:hideEmbeds()
 	local flags = bor(self.flags, enums.messageFlag.suppressEmbeds)
-	return self:editMessage({flags = flags})
+	return self.client:editMessage({flags = flags})
 end
 
 function Message:showEmbeds()
 	local flags = band(self.flags, bnot(enums.messageFlag.suppressEmbeds))
-	return self:editMessage({flags = flags})
+	return self.client:editMessage({flags = flags})
 end
 
 function Message:hasFlag(flag)
@@ -228,7 +228,7 @@ function get:editedTimestamp()
 end
 
 function get:mentionsEveryone()
-	return self._mentions_everyone
+	return self._mention_everyone
 end
 
 function get:embed()

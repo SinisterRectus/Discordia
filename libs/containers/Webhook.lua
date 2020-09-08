@@ -32,11 +32,11 @@ function Webhook:getDefaultAvatarURL(size)
 end
 
 function Webhook:setName(name)
-	return self:modifyWebhook(self.id, {name = name or json.null})
+	return self.client:modifyWebhook(self.id, {name = name or json.null})
 end
 
 function Webhook:setAvatar(avatar)
-	return self:modifyWebhook(self.id, {avatar = avatar or json.null})
+	return self.client:modifyWebhook(self.id, {avatar = avatar or json.null})
 end
 
 function Webhook:delete()

@@ -611,7 +611,7 @@ function methods:getChannelMessages(channelId, limit, whence, messageId)
 	local data, err = self.api:getChannelMessages(channelId, query)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = self:_newMessage(channelId, v, self)
+			data[i] = newMessage(channelId, v, self)
 		end
 		return data
 	else
@@ -624,7 +624,7 @@ function methods:getPinnedMessages(channelId)
 	local data, err = self.api:getPinnedMessages(channelId)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = self:_newMessage(channelId, v, self)
+			data[i] = newMessage(channelId, v, self)
 		end
 		return data
 	else
@@ -739,7 +739,7 @@ function methods:createMessage(channelId, payload)
 	end
 
 	if data then
-		return Message(data, self)
+		return newMessage(channelId, data, self)
 	else
 		return nil, err
 	end
@@ -765,7 +765,7 @@ function methods:editMessage(channelId, messageId, payload)
 	messageId = checkSnowflake(messageId)
 	local data, err = self.api:editMessage(channelId, messageId, payload) -- TODO: parse payload
 	if data then
-		self:_newMessage(channelId, data, self)
+		return newMessage(channelId, data, self)
 	else
 		return nil, err
 	end

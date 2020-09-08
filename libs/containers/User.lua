@@ -52,7 +52,7 @@ end
 -- TODO: send shortcut
 
 function get:bot()
-	return not not self._bot
+	return self._bot or false
 end
 
 function get:name()

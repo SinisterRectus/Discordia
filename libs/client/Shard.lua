@@ -355,7 +355,7 @@ function get:id()
 end
 
 function get:ready()
-	return not not self._ready
+	return self._ready
 end
 
 return Shard

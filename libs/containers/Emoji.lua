@@ -31,14 +31,14 @@ function Emoji:_load(data)
 end
 
 function Emoji:setName(name)
-	return self:modifyGuildEmoji(self.guildId, self.id, {name = name or json.null})
+	return self.client:modifyGuildEmoji(self.guildId, self.id, {name = name or json.null})
 end
 
 function Emoji:setRoles(roles)
 	for i, v in ipairs(checkType('table', roles)) do
 		roles[i] = checkSnowflake(v)
 	end
-	return self:modifyGuildEmoji(self.guildId, self.id, {roles = roles or json.null})
+	return self.client:modifyGuildEmoji(self.guildId, self.id, {roles = roles or json.null})
 end
 
 function Emoji:delete()
@@ -101,11 +101,11 @@ function get:mentionString()
 end
 
 function get:managed()
-	return not not self._managed
+	return self._managed or false
 end
 
 function get:requireColons()
-	return not not self._require_colons
+	return self._require_colons or false
 end
 
 function get:hash()
@@ -113,7 +113,11 @@ function get:hash()
 end
 
 function get:animated()
-	return not not self._animated
+	return self._animated or false
+end
+
+function get:available()
+	return self._available or false
 end
 
 function get:roleIds()
