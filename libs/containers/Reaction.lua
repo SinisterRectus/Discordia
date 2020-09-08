@@ -1,13 +1,8 @@
 local Container = require('./Container')
-local User = require('./User')
 
 local class = require('../class')
 local typing = require('../typing')
-local enums = require('../enums')
 
-local checkEnum = typing.checkEnum
-local checkSnowflake = typing.checkSnowflake
-local checkInteger = typing.checkInteger
 local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
 
 local Reaction, get = class('Reaction', Container)
@@ -27,20 +22,20 @@ function Reaction:__eq(other)
 	return self.messageId == other.messageId and self.emojiHash == other.emojiHash
 end
 
+function Reaction:getGuild()
+	return self.client:getGuild(self.guildId)
+end
+
+function Reaction:getChannel()
+	return self.client:getChannel(self.channelId)
+end
+
+function Reaction:getMessage()
+	return self.client:getMessage(self.messageId)
+end
+
 function Reaction:getUsers(limit, whence, userId)
-	local query = {limit = limit and checkInteger(limit)}
-	if whence then
-		query[checkEnum(enums.whence, whence)] = checkSnowflake(userId)
-	end
-	local data, err = self.client.api:getReactions(self.channelId, self.messageId, self.emojiHash, query)
-	if data then
-		for i, v in ipairs(data) do
-			data[i] = User(v, self.client)
-		end
-		return data
-	else
-		return nil, err
-	end
+	return self.client:getReactionUsers(self.channelId, self.messageId, self.emojiHash, limit, whence, userId)
 end
 
 function Reaction:getEmojiURL(ext, size)
@@ -53,17 +48,7 @@ function Reaction:getEmojiURL(ext, size)
 end
 
 function Reaction:delete(userId)
-	local data, err
-	if userId then
-		data, err = self.client.api:deleteUserReaction(self.channelId, self.messageId, self.emojiHash, checkSnowflake(userId))
-	else
-		data, err = self.client.api:deleteOwnReaction(self.channelId, self.messageId, self.emojiHash)
-	end
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:removeReaction(self.channelId, self.messageId, self.emojiHash, userId)
 end
 
 function get:me()

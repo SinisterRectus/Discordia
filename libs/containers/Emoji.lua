@@ -1,10 +1,8 @@
 local Snowflake = require('./Snowflake')
-local Role = require('./Role')
 local User = require('./User')
 
 local class = require('../class')
 local typing = require('../typing')
-local helpers = require('../helpers')
 local json = require('json')
 
 local checkType = typing.checkType
@@ -32,34 +30,19 @@ function Emoji:_load(data)
 	self._user = data.user and User(data.user, self.client) or nil -- only availble via HTTP
 end
 
-function Emoji:_modify(payload)
-	local data, err = self.client.api:modifyGuildEmoji(self.guildId, self.id, payload)
-	if data then
-		self:_load(data)
-		return true
-	else
-		return false, err
-	end
-end
-
 function Emoji:setName(name)
-	return self:_modify {name = name and checkType('string', name) or json.null}
+	return self:modifyGuildEmoji(self.guildId, self.id, {name = name or json.null})
 end
 
 function Emoji:setRoles(roles)
 	for i, v in ipairs(checkType('table', roles)) do
 		roles[i] = checkSnowflake(v)
 	end
-	return self:_modify {roles = roles or json.null}
+	return self:modifyGuildEmoji(self.guildId, self.id, {roles = roles or json.null})
 end
 
 function Emoji:delete()
-	local data, err = self.client.api:deleteGuildEmoji(self.guildId, self.id)
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:deleteGuildEmoji(self.guildId, self.id)
 end
 
 function Emoji:getURL(ext, size)
@@ -83,23 +66,22 @@ function Emoji:hasRole(roleId)
 end
 
 function Emoji:getRoles()
-	local roles = {}
+	local filtered = {}
 	if #self.roleIds == 0 then
-		return roles
+		return filtered
 	end
 	local filter = {}
 	for _, id in ipairs(self.roleIds) do
 		filter[id] = true
 	end
-	local data, err = self.client.api:getGuildRoles(self.guildId)
-	if data then
-		for _, v in ipairs(data) do
-			if filter[v.id] then
-				v.guild_id = self.guildId
-				insert(roles, Role(v, self.client))
+	local roles, err = self.client:getGuildRoles(self.guildId)
+	if roles then
+		for _, role in pairs(roles) do
+			if filter[role.id] then
+				insert(filtered, role)
 			end
 		end
-		return roles
+		return filtered
 	else
 		return nil, err
 	end

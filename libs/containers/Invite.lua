@@ -24,12 +24,7 @@ function Invite:__eq(other)
 end
 
 function Invite:delete()
-	local data, err = self.client.api:deleteInvite(self._code)
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:deleteInvite(self.code)
 end
 
 function get:code()

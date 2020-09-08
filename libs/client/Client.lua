@@ -8,28 +8,22 @@ local package = require('../../package')
 
 local Logger = require('../utils/Logger')
 local Emitter = require('../utils/Emitter')
+local ContainerClient = require('../mixins/ContainerClient')
 local API = require('./API')
 local CDN = require('./CDN')
 local Shard = require('./Shard')
-
-local Channel = require('../containers/Channel')
-local Guild = require('../containers/Guild')
-local Invite = require('../containers/Invite')
-local User = require('../containers/User')
-local Webhook = require('../containers/Webhook')
 
 local wrap = coroutine.wrap
 local concat = table.concat
 local format = string.format
 local attachQuery, readOnly = helpers.attachQuery, helpers.readOnly
-local checkType = typing.checkType
-local checkImage = typing.checkImage
 local checkEnum = typing.checkEnum
 
 local GATEWAY_VERSION = 6
 local GATEWAY_ENCODING = 'json'
 
 local Client, get = class('Client', Emitter)
+class.mixin(Client, ContainerClient.methods)
 
 local defaultOptions = { -- {type, value}
 	routeDelay = {'number', 250},
@@ -163,15 +157,6 @@ function Client:_run(token)
 
 end
 
-function Client:_modify(payload)
-	local data, err = self.api:modifyCurrentUser(payload)
-	if data then
-		return true
-	else
-		return false, err
-	end
-end
-
 ----
 
 function Client:log(level, msg, ...)
@@ -214,56 +199,11 @@ function Client:setActivity(activity)
 end
 
 function Client:setUsername(username)
-	return self:_modify {username = username and checkType('string', username) or json.null}
+	return self:modifyCurrentUser({username = username or json.null})
 end
 
 function Client:setAvatar(avatar)
-	return self:_modify {avatar = avatar and checkImage(avatar) or json.null}
-end
-
-function Client:getChannel(channelId)
-	local data, err = self.api:getChannel(channelId)
-	if data then
-		return Channel(data, self)
-	else
-		return nil, err
-	end
-end
-
-function Client:getGuild(guildId, counts)
-	local data, err = self.api:getGuild(guildId, counts)
-	if data then
-		return Guild(data, self)
-	else
-		return nil, err
-	end
-end
-
-function Client:getWebhook(webhookId)
-	local data, err = self.api:getWebhook(webhookId)
-	if data then
-		return Webhook(data, self)
-	else
-		return nil, err
-	end
-end
-
-function Client:getInvite(code, counts)
-	local data, err = self.api:getInvite(code, {with_counts = counts})
-	if data then
-		return Invite(data, self)
-	else
-		return nil, err
-	end
-end
-
-function Client:getUser(userId)
-	local data, err = self.api:getUser(userId)
-	if data then
-		return User(data, self)
-	else
-		return nil, err
-	end
+	return self:modifyCurrentUser({avatar = avatar or json.null})
 end
 
 ----

@@ -1,23 +1,11 @@
 local Snowflake = require('./Snowflake')
-local AuditLogEntry = require('./AuditLogEntry')
-local Ban = require('./Ban')
-local Channel = require('./Channel')
-local Emoji = require('./Emoji')
-local Invite = require('./Invite')
-local Member = require('./Member')
-local Role = require('./Role')
-local Webhook = require('./Webhook')
 
 local json = require('json')
 local class = require('../class')
 local typing = require('../typing')
 local helpers = require('../helpers')
-local enums = require('../enums')
 
 local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
-local checkSnowflake, checkInteger = typing.checkSnowflake, typing.checkInteger
-local checkType, checkEnum = typing.checkType, typing.checkEnum
-local checkImageData = typing.checkImageData
 local readOnly = helpers.readOnly
 
 local Guild, get = class('Guild', Snowflake)
@@ -67,15 +55,7 @@ function Guild:_load(data)
 	-- TODO: GUILD_CREATE properties
 end
 
-function Guild:_modify(payload)
-	local data, err = self.client.api:modifyGuild(self.id, payload)
-	if data then
-		self:_load(data)
-		return true
-	else
-		return false, err
-	end
-end
+-- TODO: requestMembers
 
 function Guild:getIconURL(ext, size)
 	if not self.icon then
@@ -114,347 +94,166 @@ function Guild:getDiscoverySplashURL(ext, size)
 end
 
 function Guild:getMember(userId)
-	local data, err = self.client.api:getGuildMember(self.id, checkSnowflake(userId))
-	if data then
-		data.guild_id = self.id
-		return Member(data, self.client)
-	else
-		return nil, err
-	end
+	return self.client:getGuildMember(self.id, userId)
 end
 
 function Guild:getEmoji(emojiId)
-	local data, err = self.client.api:getGuildEmoji(self.id, checkSnowflake(emojiId))
-	if data then
-		data.guild_id = self.id
-		return Emoji(data, self.client)
-	else
-		return nil, err
-	end
+	return self.client:getGuildEmoji(self.id, emojiId)
 end
 
 function Guild:getMembers(limit, after)
-	local query = {
-		limit = limit and checkInteger(limit),
-		after = after and checkSnowflake(after),
-	}
-	local data, err = self.client.api:listGuildMembers(self.id, query)
-	if data then
-		for i, v in ipairs(data) do
-			v.guild_id = self.id
-			data[i] = Member(v, self.client)
-		end
-		return data
-	else
-		return nil, err
-	end
+	return self.client:getGuildMembers(self.id, limit, after)
 end
 
 function Guild:getRoles()
-	local data, err = self.client.api:getGuildRoles(self.id)
-	if data then
-		for i, v in ipairs(data) do
-			v.guild_id = self.id
-			data[i] = Role(v, self.client)
-		end
-		return data
-	else
-		return nil, err
-	end
+	return self.client:getGuildRoles(self.id)
 end
 
 function Guild:getEmojis()
-	local data, err = self.client.api:listGuildEmojis(self.id)
-	if data then
-		for i, v in ipairs(data) do
-			v.guild_id = self.id
-			data[i] = Emoji(v, self.client)
-		end
-		return data
-	else
-		return nil, err
-	end
+	return self.client:getGuildEmojis(self.id)
 end
 
 function Guild:getChannels()
-	local data, err = self.client.api:getGuildChannels(self.id)
-	if data then
-		for i, v in ipairs(data) do
-			v.guild_id = self.id
-			data[i] = Channel(v, self.client)
-		end
-		return data
-	else
-		return nil, err
-	end
+	return self.client:getGuildChannels(self.id)
 end
 
 function Guild:createRole(payload)
-	local data, err
-	if type(payload) == 'table' then
-		data, err = self.client.api:createGuildRole(self.id, {
-			name = checkType('string', payload.name),
-			permissions = payload.permissions and checkInteger(payload.permissions),
-			color = payload.color and checkInteger(payload.color),
-			hoist = payload.hoist ~= nil and checkType('boolean', payload.hoist),
-			mentionable = payload.mentionable ~= nil and checkType('boolean', payload.mentionable),
-		})
-	else
-		data, err = self.client.api:createGuildRole(self.id, {name = checkType('string', payload)})
-	end
-	if data then
-		data.guild_id = self.id
-		return Role(data, self.client)
-	else
-		return nil, err
-	end
+	return self.client:createGuildRole(self.id, payload)
 end
 
 function Guild:createEmoji(name, image)
-	local data, err = self.client.api:createGuildEmoji(self.id, {
-		name = checkType('string', name),
-		image = checkImageData(image),
-	})
-	if data then
-		data.guild_id = self.id
-		return Emoji(data, self.client)
-	else
-		return nil, err
-	end
+	return self.client:createGuildEmoji(self.id, name, image)
 end
 
 function Guild:createChannel(payload)
-	local data, err
-	if type(payload) == 'table' then
-		data, err = self.client.api:createGuildChannel(self.id, {
-			name = checkType('string', payload.name),
-			type = payload.type and checkEnum(enums.channelType, payload.type),
-			topic = payload.topic and checkType('string', payload.topic),
-			nsfw = payload.nsfw ~= nil and checkType('boolean', payload.nsfw),
-		})
-	else
-		data, err = self.client.api:createGuildChannel(self.id, {name = checkType('string', payload)})
-	end
-	if data then
-		data.guild_id = self.id
-		return Channel(data, self.client)
-	else
-		return nil, err
-	end
+	return self.client:createGuildChannel(self.id, payload)
 end
 
 function Guild:setName(name)
-	return self:_modify {name = name and checkType('string', name) or json.null}
+	return self.client:modifyGuild(self.id, {name = name or json.null})
 end
 
 function Guild:setRegion(region)
-	return self:_modify {region = region and checkType('string', region) or json.null}
+	return self.client:modifyGuild(self.id, {region = region or json.null})
 end
 
 function Guild:setVerificationLevel(level)
-	return self:_modify {verification_level = level and checkEnum(enums.verificationLevel, level) or json.null}
+	return self.client:modifyGuild(self.id, {verification_level = level or json.null})
 end
 
 function Guild:setNotificationSetting(setting)
-	return self:_modify {default_message_notifications = setting and checkEnum(enums.notificationSetting, setting) or json.null}
+	return self.client:modifyGuild(self.id, {default_message_notifications = setting or json.null})
 end
 
 function Guild:setExplicitContentLevel(level)
-	return self:_modify {explicit_content_filter = level and checkEnum(enums.explicitContentLevel, level) or json.null}
+	return self.client:modifyGuild(self.id, {explicit_content_filter = level or json.null})
 end
 
 function Guild:setAFKTimeout(timeout)
-	return self:_modify {afk_timeout = timeout and checkType('number', timeout) or json.null}
+	return self.client:modifyGuild(self.id, {afk_timeout = timeout or json.null})
 end
 
 function Guild:setAFKChannel(id)
-	return self:_modify {afk_channel_id = id and checkSnowflake(id) or json.null}
+	return self.client:modifyGuild(self.id, {afk_channel_id = id or json.null})
 end
 
 function Guild:setSystemChannel(id)
-	return self:_modify {system_channel_id = id and checkSnowflake(id) or json.null}
+	return self.client:modifyGuild(self.id, {system_channel_id = id or json.null})
 end
 
 function Guild:setRulesChannel(id)
-	return self:_modify {rules_channel_id = id and checkSnowflake(id) or json.null}
+	return self.client:modifyGuild(self.id, {rules_channel_id = id or json.null})
 end
 
 function Guild:setPublicUpdatesChannel(id)
-	return self:_modify {public_updates_channel_id = id and checkSnowflake(id) or json.null}
+	return self.client:modifyGuild(self.id, {public_updates_channel_id = id or json.null})
 end
 
 function Guild:setOwner(id)
-	return self:_modify {owner_id = id and checkSnowflake(id) or json.null}
+	return self.client:modifyGuild(self.id, {owner_id = id or json.null})
 end
 
 function Guild:setIcon(icon)
-	return self:_modify {icon = icon and checkImageData(icon) or json.null}
+	return self.client:modifyGuild(self.id, {icon = icon or json.null})
 end
 
 function Guild:setBanner(banner)
-	return self:_modify {banner = banner and checkImageData(banner) or json.null}
+	return self.client:modifyGuild(self.id, {banner = banner or json.null})
 end
 
 function Guild:setSplash(splash)
-	return self:_modify {splash = splash and checkImageData(splash) or json.null}
+	return self.client:modifyGuild(self.id, {splash = splash or json.null})
 end
 
 function Guild:setDiscoverySplash(splash)
-	return self:_modify {discovery_splash = splash and checkImageData(splash) or json.null}
+	return self.client:modifyGuild(self.id, {discovery_splash = splash or json.null})
 end
 
 function Guild:getPruneCount(days)
-	local query = days and {days = checkInteger(days)} or nil
-	local data, err = self.client.api:getGuildPruneCount(self.id, query)
-	if data then
-		return data.pruned
-	else
-		return nil, err
-	end
+	return self.client:getGuildPruneCount(self.id, days)
 end
 
 function Guild:pruneMembers(payload)
-	local data, err
-	if type(payload) == 'table' then
-		data, err = self.client.api:beginGuildPrune(self.id, {
-			days = payload.days and checkInteger(payload.days),
-			compute_prune_count = payload.compute ~= nil and checkType('boolean', payload.compute),
-		})
-	else
-		data, err = self.client.api:beginGuildPrune(self.id)
-	end
-	if data then
-		return data.pruned
-	else
-		return nil, err
-	end
+	return self.client:pruneGuildMembers(self.id, payload)
 end
 
 function Guild:getBan(userId)
-	local data, err = self.client.api:getGuildBan(self.id, checkSnowflake(userId))
-	if data then
-		data.guild_id = self.id
-		return Ban(data, self.client)
-	else
-		return nil, err
-	end
+	return self.client:getGuildBan(self.id, userId)
 end
 
 function Guild:getBans()
-	local data, err = self.client.api:getGuildBans(self.id)
-	if data then
-		for i, v in ipairs(data) do
-			v.guild_id = self.id
-			data[i] = Ban(v, self.client)
-		end
-		return data
-	else
-		return nil, err
-	end
+	return self.client:getGuildBans(self.id)
 end
 
 function Guild:getInvites()
-	local data, err = self.client.api:getGuildInvites(self.id)
-	if data then
-		for i, v in ipairs(data) do
-			v.guild_id = self.id
-			data[i] = Invite(v, self.client)
-		end
-		return data
-	else
-		return nil, err
-	end
+	return self.client:getGuildInvites(self.id)
 end
 
 function Guild:getWebhooks()
-	local data, err = self.client.api:getGuildWebhooks(self.id)
-	if data then
-		for i, v in ipairs(data) do
-			v.guild_id = self.id
-			data[i] = Webhook(v, self.client)
-		end
-		return data
-	else
-		return nil, err
-	end
+	return self.client:getGuildWebhooks(self.id)
 end
 
 function Guild:getAuditLogs(payload)
-	payload = checkType('table', payload)
-	local data, err = self.client.api:getGuildAuditLog(self.id, {
-		limit = checkInteger(payload.limit),
-		user_id = checkSnowflake(payload.userId),
-		before = checkSnowflake(payload.before),
-		action_type = checkEnum(enums.actionType, payload.actionType),
-	})
-	if data then
-		for i, v in ipairs(data.audit_log_entries) do
-			v.guild_id = self.id
-			data.audit_log_entries[i] = AuditLogEntry(v, self.client)
-		end
-		-- TODO: users and webhooks
-		return data.audit_log_entries
-	else
-		return nil, err
-	end
+	return self.client:getGuildAuditLogs(self.id, payload)
 end
 
 function Guild:getVoiceRegions()
-	return self.client.api:getGuildVoiceRegions() -- raw table
+	-- TODO
 end
 
 function Guild:leave()
-	local data, err = self.client.api:leaveGuild(self.id)
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:leaveGuild(self.id)
 end
 
 function Guild:delete()
-	local data, err = self.client.api:deleteGuild(self.id)
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:deleteGuild(self.id)
 end
 
-function Guild:kickUser(userId, reason)
-	local query = reason and {reason = checkType('string', reason)} or nil
-	local data, err = self.client.api:removeGuildMember(self.id, checkSnowflake(userId), query)
-	if data then
-		return true
-	else
-		return false, err
-	end
+function Guild:removeMember(userId, reason)
+	return self.client:removeGuildMember(self.id, userId, reason)
 end
 
-function Guild:banUser(userId, reason, days)
-	local query = {
-		reason = reason and checkType('string', reason),
-		delete_message_days = days and checkInteger(days),
-	}
-	local data, err = self.client.api:createGuildBan(self.id, checkSnowflake(userId), query)
-	if data then
-		return true
-	else
-		return false, err
-	end
+function Guild:createBan(userId, reason, days)
+	return self.client:createGuildBan(self.id, userId, reason, days)
 end
 
-function Guild:unbanUser(userId, reason)
-	local query = reason and {reason = checkType('string', reason)} or nil
-	local data, err = self.client.api:removeGuildBan(self.id, checkSnowflake(userId), query)
-	if data then
-		return true
-	else
-		return false, err
-	end
+function Guild:removeBan(userId, reason)
+	return self.client:removeGuildBan(self.id, userId, reason)
 end
 
 ----
+
+function get:shardId() -- TODO
+end
+
+function get:large() -- TODO
+end
+
+function get:joinedAt() -- TODO
+end
+
+function get:unavailable() -- TODO
+end
 
 function get:name()
 	return self._name
@@ -470,10 +269,6 @@ end
 
 function get:discoverySplash()
 	return self._discovery_splash
-end
-
-function get:owner() -- boolean for current user, not the owner object
-	return self._owner
 end
 
 function get:ownerId()

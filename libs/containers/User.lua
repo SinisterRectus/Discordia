@@ -1,5 +1,4 @@
 local Snowflake = require('./Snowflake')
-local Channel = require('./Channel')
 
 local typing = require('../typing')
 local class = require('../class')
@@ -47,13 +46,10 @@ function User:getDefaultAvatarURL(ext, size)
 end
 
 function User:getPrivateChannel()
-	local data, err = self.client.api:createDM {recipient_id = self.id}
-	if data then
-		return Channel(data, self.client)
-	else
-		return nil, err
-	end
+	return self.client:createDM(self.id)
 end
+
+-- TODO: send shortcut
 
 function get:bot()
 	return not not self._bot

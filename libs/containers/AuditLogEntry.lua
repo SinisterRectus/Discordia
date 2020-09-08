@@ -27,6 +27,10 @@ function AuditLogEntry:getUser()
 	return self.client:getUser(self.userId)
 end
 
+function AuditLogEntry:getMember()
+	return self.client:getGuildMember(self.guildId, self.userId)
+end
+
 function AuditLogEntry:getGuild()
 	return self.client:getGuild(self.guildId)
 end

@@ -54,23 +54,8 @@ function Channel:_load(data)
 	-- TODO: recipients -- private, group
 end
 
-function Channel:_modify(payload)
-	local data, err = self.client.api:modifyChannel(self.id, payload)
-	if data then
-		self:_load(data)
-		return true
-	else
-		return false, err
-	end
-end
-
 function Channel:delete()
-	local data, err = self.client.api:deleteChannel(self.id)
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:deleteChannel(self.id)
 end
 
 function get:type()

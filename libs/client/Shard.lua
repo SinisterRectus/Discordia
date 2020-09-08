@@ -126,8 +126,7 @@ function Shard:connect(url, path)
 		self:log('info', 'Disconnected')
 	else
 		self:log('error', 'Could not connect to %s (%s)', url, res)
-		local gateway = self._client.api:getGateway()
-		url = gateway and gateway.url or url
+		url = self.client:getGatewayURL() or url
 	end
 
 	if self._reconnect ~= false then

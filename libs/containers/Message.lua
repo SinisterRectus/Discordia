@@ -1,15 +1,15 @@
 local Snowflake = require('./Snowflake')
-local Channel = require('./Channel')
-local Member = require('./Member')
-local Role = require('./Role')
 local User = require('./User')
 
+local json = require('json')
+local enums = require('../enums')
 local class = require('../class')
 local typing = require('../typing')
 
 local format = string.format
 local insert = table.insert
-local checkSnowflake = typing.checkSnowflake
+local bor, band, bnot = bit.bor, bit.band, bit.bnot
+local checkEnum = typing.checkEnum
 local LINK_FMT = "https://discord.com/channels/%s/%s/%s"
 
 local USER_PATTERN = '<@!?(%d+)>'
@@ -30,15 +30,15 @@ local function parseMentionIds(content, pattern)
 	return ids
 end
 
-local function parseMentions(content, pattern, constructor, data, client)
-	local hashed = {}
-	for _, v in ipairs(data) do
+local function parseMentions(content, pattern, objects)
+	local hashed = {} -- NOTE: avoid re-hashing in the future
+	for _, v in pairs(objects) do
 		hashed[v.id] = v
 	end
 	local mentions = {}
 	for id in content:gmatch(pattern) do
 		if hashed[id] then
-			insert(mentions, constructor(hashed[id], client))
+			insert(mentions, hashed[id])
 			hashed[id] = nil
 		end
 	end
@@ -64,6 +64,9 @@ function Message:_load(data)
 	self._nonce = data.nonce
 	self._pinned = data.pinned
 	self._flags = data.flags
+	for i, v in ipairs(data.mentions) do
+		data.mentions[i] = User(v, self.client)
+	end
 	self._mentions = data.mentions
 	self._embeds = data.embeds
 	self._attachments = data.attachments
@@ -71,27 +74,55 @@ function Message:_load(data)
 	-- TODO: reactions, activity, application, reference
 end
 
+function Message:setContent(content)
+	return self:editMessage(self.channelId, self.id, {content = content or json.null})
+end
+
+function Message:setEmbed(embed)
+	return self:editMessage(self.channelId, self.id, {embed = embed or json.null})
+end
+
+function Message:hideEmbeds()
+	local flags = bor(self.flags, enums.messageFlag.suppressEmbeds)
+	return self:editMessage({flags = flags})
+end
+
+function Message:showEmbeds()
+	local flags = band(self.flags, bnot(enums.messageFlag.suppressEmbeds))
+	return self:editMessage({flags = flags})
+end
+
+function Message:hasFlag(flag)
+	flag = checkEnum(enums.messageFlag, flag)
+	return band(self.flags, flag) == flag
+end
+
+function Message:pin()
+	return self.client:pinMessage(self.channelId, self.id)
+end
+
+function Message:unpin()
+	return self.client:unpinMessage(self.channelId, self.id)
+end
+
 function Message:addReaction(emojiHash)
-	local data, err = self.client.api:createReaction(self.channelId, self.id, emojiHash)
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:addReaction(self.channelId, self.id, emojiHash)
 end
 
 function Message:removeReaction(emojiHash, userId)
-	local data, err
-	if userId then
-		data, err = self.client.api:deleteUserReaction(self.channelId, self.id, emojiHash, checkSnowflake(userId))
-	else
-		data, err = self.client.api:deleteOwnReaction(self.channelId, self.id, emojiHash)
-	end
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:removeReaction(self.channelId, self.id, emojiHash, userId)
+end
+
+function Message:clearAllReactions(emojiHash)
+	return self.client:clearAllReactions(self.channel, self.id, emojiHash)
+end
+
+function Message:delete()
+	return self.client:deleteMessage(self.channelId, self.id)
+end
+
+function Message:reply(payload)
+	return self.client:createMessage(self.channelId, payload)
 end
 
 function Message:getChannel()
@@ -115,16 +146,16 @@ function Message:getMentionedEmojiIds()
 end
 
 function Message:getMentionedUsers()
-	return parseMentions(self.content, USER_PATTERN, User, self._mentions, self.client)
+	return parseMentions(self.content, USER_PATTERN, self._mentions)
 end
 
 function Message:getMentionedRoles()
 	if not self.guildId then
 		return nil, 'Not a guild message'
 	end
-	local data, err = self.client.api:getGuildRoles(self.guildId)
-	if data then
-		return parseMentions(self.content, ROLE_PATTERN, Role, data, self.client)
+	local roles, err = self.client:getGuildRoles(self.guildId)
+	if roles then
+		return parseMentions(self.content, ROLE_PATTERN, roles)
 	else
 		return nil, err
 	end
@@ -134,9 +165,9 @@ function Message:getMentionedChannels()
 	if not self.guildId then
 		return nil, 'Not a guild message'
 	end
-	local data, err = self.client.api:getGuildChannels(self.guildId)
-	if data then
-		return parseMentions(self.content, CHANNEL_PATTERN, Channel, data, self.client)
+	local channels, err = self.client:getGuildChannels(self.guildId)
+	if channels then
+		return parseMentions(self.content, CHANNEL_PATTERN, channels)
 	else
 		return nil, err
 	end
@@ -146,9 +177,9 @@ function Message:getMentionedEmojis()
 	if not self.guildId then
 		return nil, 'Not a guild message'
 	end
-	local data, err = self.client.api:getGuildEmojis(self.guildId)
-	if data then
-		return parseMentions(self.content, EMOJI_PATTERN, Channel, data, self.client)
+	local emojis, err = self.client:getGuildEmojis(self.guildId)
+	if emojis then
+		return parseMentions(self.content, EMOJI_PATTERN, emojis)
 	else
 		return nil, err
 	end
@@ -158,13 +189,7 @@ function Message:getMember()
 	if not self.guildId then
 		return nil, 'Not a guild message'
 	end
-	local data, err = self.client.api:getGuildMember(self.id, self.author.id)
-	if data then
-		data.guild_id = self.id
-		return Member(data, self)
-	else
-		return nil, err
-	end
+	return self.client:getGuildMember(self.guildId, self.author.id)
 end
 
 function Message:getGuild()
@@ -176,6 +201,30 @@ end
 
 function get:type()
 	return self._type
+end
+
+function get:pinned()
+	return self._pinned
+end
+
+function get:tts()
+	return self._tts
+end
+
+function get:nonce()
+	return self._nonce
+end
+
+function get:author()
+	return self._author
+end
+
+function get:editedTimestamp()
+	return self._edited_timestamp
+end
+
+function get:mentionsEveryone()
+	return self._mentions_everyone
 end
 
 function get:embed()

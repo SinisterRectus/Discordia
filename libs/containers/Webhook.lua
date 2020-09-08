@@ -2,10 +2,7 @@ local Snowflake = require('./Snowflake')
 local User = require('./User')
 
 local class = require('../class')
-local typing = require('../typing')
 local json = require('json')
-
-local checkType, checkImage = typing.checkType, typing.checkImage
 
 local Webhook, get = class('Webhook', Snowflake)
 
@@ -26,16 +23,6 @@ function Webhook:_load(data)
 	-- TODO: data.source_channel and data.source_guild
 end
 
-function Webhook:_modify(payload)
-	local data, err = self.client.api:modifyWebhook(self.id, payload)
-	if data then
-		self:_load(data)
-		return true
-	else
-		return false, err
-	end
-end
-
 function Webhook:getAvatarURL(size, ext)
 	return User.getAvatarURL(self, size, ext)
 end
@@ -45,20 +32,15 @@ function Webhook:getDefaultAvatarURL(size)
 end
 
 function Webhook:setName(name)
-	return self:_modify {name = name and checkType('string', name) or json.null}
+	return self:modifyWebhook(self.id, {name = name or json.null})
 end
 
 function Webhook:setAvatar(avatar)
-	return self:_modify {avatar = avatar and checkImage(avatar) or json.null}
+	return self:modifyWebhook(self.id, {avatar = avatar or json.null})
 end
 
 function Webhook:delete()
-	local data, err = self.client.api:deleteWebhook(self.id)
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self.client:deleteWebhook(self.id)
 end
 
 function get:guildId()

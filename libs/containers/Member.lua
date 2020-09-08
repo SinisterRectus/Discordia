@@ -1,13 +1,13 @@
 local Container = require('./Container')
 local User = require('./User')
-local Role = require('./Role')
 
 local class = require('../class')
 local typing = require('../typing')
 local helpers = require('../helpers')
+local json = require('json')
 
-local checkType, checkSnowflake = typing.checkType, typing.checkSnowflake
-local insert, remove, sort = table.insert, table.remove, table.sort
+local checkSnowflake = typing.checkSnowflake
+local insert, sort = table.insert, table.sort
 local readOnly = helpers.readOnly
 
 local Member, get = class('Member', Container)
@@ -29,23 +29,22 @@ function Member:__eq(other)
 end
 
 function Member:getRoles()
-	local roles = {}
+	local filtered = {}
 	if #self.roleIds == 0 then
-		return roles
+		return filtered
 	end
 	local filter = {}
 	for _, id in ipairs(self.roleIds) do
 		filter[id] = true
 	end
-	local data, err = self.client.api:getGuildRoles(self.guildId)
-	if data then
-		for _, v in ipairs(data) do
-			if filter[v.id] then
-				v.guild_id = self.guildId
-				insert(roles, Role(v, self.client))
+	local roles, err = self.client:getGuildRoles(self.guildId)
+	if roles then
+		for _, role in pairs(roles) do
+			if filter[role.id] then
+				insert(filtered, role)
 			end
 		end
-		return roles
+		return filtered
 	else
 		return nil, err
 	end
@@ -61,6 +60,16 @@ local function sorter(a, b)
 	else
 		return a.position > b.position -- greater position = greater role
 	end
+end
+
+function Member:getHighestRole()
+	local roles = self:getRoles()
+	local sorted = {}
+	for _, role in pairs(roles) do
+		insert(sorted, role)
+	end
+	sort(sorted, sorter)
+	return sorted[1]
 end
 
 function Member:getColor()
@@ -87,38 +96,11 @@ local function has(arr, value)
 end
 
 function Member:addRole(roleId)
-	roleId = checkSnowflake(roleId)
-	if roleId == self.guildId then
-		return nil, 'Cannot add "everyone" role'
-	end
-	local data, err = self.client.api:addGuildMemberRole(self.guildId, self.id, roleId)
-	if data then
-		if not has(self._roles, roleId) then
-			insert(self._roles, roleId)
-		end
-		return true
-	else
-		return false, err
-	end
+	return self.client:addGuildMemberRole(self.guildId, self.user.id, roleId)
 end
 
 function Member:removeRole(roleId)
-	roleId = checkSnowflake(roleId)
-	if roleId == self.guildId then
-		return nil, 'Cannot remove "everyone" role'
-	end
-	local data, err = self.client.api:removeGuildMemberRole(self.guildId, self.id, roleId)
-	if data then
-		for i, v in ipairs(self._roles) do
-			if v == roleId then
-				remove(self._roles, i)
-				break
-			end
-		end
-		return true
-	else
-		return false, err
-	end
+	return self.client:removeGuildMemberRole(self.guildId, self.user.id, roleId)
 end
 
 function Member:hasRole(roleId)
@@ -130,69 +112,27 @@ function Member:hasRole(roleId)
 end
 
 function Member:setNickname(nick)
-	nick = nick and checkType('string', nick) or ''
-	local data, err
-	if self.user.id == self.client.userId then
-		data, err = self.client.api:modifyCurrentUsersNick(self.guildId, {nick = nick})
-	else
-		data, err = self.client.api:modifyGuildMember(self.guildId, self.id, {nick = nick})
-	end
-	if data then
-		self._nick = nick ~= '' and nick or nil
-		return true
-	else
-		return false, err
-	end
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {nick = nick or json.null})
 end
 
 function Member:setVoiceChannel(channelId)
-	local data, err = self.client.api:modifyGuildMember(self.guildId, self.id, {channel_id = checkSnowflake(channelId)})
-	if data then
-		-- TODO: load data
-		return true
-	else
-		return false, err
-	end
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {channel_id = channelId or json.null})
 end
 
 function Member:mute()
-	local data, err = self.client.api:modifyGuildMember(self._parent._id, self.id, {mute = true})
-	if data then
-		self._mute = true
-		return true
-	else
-		return false, err
-	end
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {mute = true})
 end
 
 function Member:unmute()
-	local data, err = self.client.api:modifyGuildMember(self.guildId, self.id, {mute = false})
-	if data then
-		self._mute = false
-		return true
-	else
-		return false, err
-	end
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {mute = false})
 end
 
 function Member:deafen()
-	local data, err = self.client.api:modifyGuildMember(self.guildId, self.id, {deaf = true})
-	if data then
-		self._deaf = true
-		return true
-	else
-		return false, err
-	end
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {deaf = true})
 end
 
 function Member:undeafen()
-	local data, err = self.client.api:modifyGuildMember(self.guildId, self.id, {deaf = false})
-	if data then
-		self._deaf = false
-		return true
-	else
-		return false, err
-	end
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {deaf = false})
 end
 
 function get:name()
