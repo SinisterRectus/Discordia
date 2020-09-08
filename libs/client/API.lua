@@ -320,6 +320,12 @@ function API:createMessage(channel_id, payload, query, files)
 	return self:request("POST", endpoint, params, query, payload, files)
 end
 
+function API:crosspostMessage(channel_id, message_id, payload, query)
+	local endpoint = endpoints.CHANNEL_MESSAGE_CROSSPOST
+	local params = {channel_id, message_id}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
 function API:createReaction(channel_id, message_id, emoji, payload, query)
 	local endpoint = endpoints.CHANNEL_MESSAGE_REACTION_ME
 	local params = {channel_id, message_id, urlEncode(emoji)}
@@ -396,6 +402,12 @@ function API:deleteChannelPermission(channel_id, overwrite_id, query)
 	local endpoint = endpoints.CHANNEL_PERMISSION
 	local params = {channel_id, overwrite_id}
 	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:followNewsChannel(channel_id, payload, query)
+	local endpoint = endpoints.CHANNEL_FOLLOWERS
+	local params = {channel_id}
+	return self:request("POST", endpoint, params, query, payload)
 end
 
 function API:triggerTypingIndicator(channel_id, payload, query)
@@ -668,10 +680,22 @@ function API:syncGuildIntegration(guild_id, integration_id, payload, query)
 	return self:request("POST", endpoint, params, query, payload)
 end
 
+function API:getGuildWidget(guild_id, query)
+	local endpoint = endpoints.GUILD_WIDGET
+	local params = {guild_id}
+	return self:request("GET", endpoint, params, query)
+end
+
 function API:getGuildEmbed(guild_id, query)
 	local endpoint = endpoints.GUILD_EMBED
 	local params = {guild_id}
 	return self:request("GET", endpoint, params, query)
+end
+
+function API:modifyGuildWidget(guild_id, payload, query)
+	local endpoint = endpoints.GUILD_WIDGET
+	local params = {guild_id}
+	return self:request("PATCH", endpoint, params, query, payload)
 end
 
 function API:modifyGuildEmbed(guild_id, payload, query)

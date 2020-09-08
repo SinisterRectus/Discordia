@@ -870,6 +870,29 @@ function methods:getReactionUsers(channelId, messageId, emojiHash, limit, whence
 	end
 end
 
+function methods:crosspostMessage(channelId, messageId)
+	channelId = checkSnowflake(channelId)
+	messageId = checkSnowflake(messageId)
+	local data, err = self.api:crosspostMessage(channelId, messageId)
+	if data then
+		return newMessage(channelId, data, self)
+	else
+		return nil, err
+	end
+end
+
+function methods:followNewsChannel(channelId, targetId)
+	channelId = checkSnowflake(channelId)
+	local data, err = self.api:followNewsChannel(channelId, {
+		webhook_channel_id = checkSnowflake(targetId),
+	})
+	if data then
+		return data.webhook_id
+	else
+		return nil, err
+	end
+end
+
 ---- User ----
 
 function methods:createDM(userId)

@@ -185,6 +185,10 @@ function Message:getMentionedEmojis()
 	end
 end
 
+function Message:crosspost()
+	return self.client:crosspostMessage(self.channelId, self.id)
+end
+
 function Message:getMember()
 	if not self.guildId then
 		return nil, 'Not a guild message'
