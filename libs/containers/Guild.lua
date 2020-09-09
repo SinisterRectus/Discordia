@@ -16,43 +16,48 @@ function Guild:__init(data, client)
 end
 
 function Guild:_load(data)
-	self._name = data.name
-	self._icon = data.icon
-	self._splash = data.splash
-	self._discovery_splash = data.discovery_splash
-	self._owner = data.owner
-	self._owner_id = data.owner_id
-	self._permissions = data.permissions
-	self._region = data.region
-	self._afk_channel_id = data.afk_channel_id
-	self._afk_timeout = data.afk_timeout
-	self._embed_enabled = data.embed_enabled
-	self._embed_channel_id = data.embed_channel_id
-	self._verification_level = data.verification_level
-	self._default_message_notifications = data.default_message_notifications
-	self._explicit_content_filter = data.explicit_content_filter
-	self._features = data.features -- raw table
-	self._mfa_level = data.mfa_level
-	self._application_id = data.application_id
-	self._widget_enabled = data.widget_enabled
-	self._widget_channel_id = data.widget_channel_id
-	self._system_channel_id = data.system_channel_id
-	self._system_channel_flags = data.system_channel_flags
-	self._rules_channel_id = data.rules_channel_id
-	self._max_presences = data.max_presences
-	self._max_members = data.max_members
-	self._vanity_url_code = data.vanity_url_code
-	self._description = data.description
-	self._banner = data.banner
-	self._premium_tier = data.premium_tier
-	self._premium_subscription_count = data.premium_subscription_count
-	self._preferred_locale = data.preferred_locale
-	self._public_updates_channel_id = data.public_updates_channel_id
-	self._max_video_channel_users = data.max_video_channel_users
-	self._approximate_member_count = data.approximate_member_count
-	self._approximate_presence_count = data.approximate_presence_count
+
+	self._name = data.name -- http and wss
+	self._icon = data.icon -- http and wss
+	self._splash = data.splash -- http and wss
+	self._discovery_splash = data.discovery_splash -- http and wss
+	self._owner_id = data.owner_id -- http and wss
+	self._region = data.region -- http and wss
+	self._afk_channel_id = data.afk_channel_id -- http and wss
+	self._afk_timeout = data.afk_timeout -- http and wss
+	self._verification_level = data.verification_level -- http and wss
+	self._default_message_notifications = data.default_message_notifications -- http and wss
+	self._explicit_content_filter = data.explicit_content_filter -- http and wss
+	self._features = data.features -- http and wss
+	self._mfa_level = data.mfa_level -- http and wss
+	self._application_id = data.application_id -- http and wss
+	self._system_channel_id = data.system_channel_id -- http and wss
+	self._system_channel_flags = data.system_channel_flags -- http and wss
+	self._rules_channel_id = data.rules_channel_id -- http and wss
+	self._vanity_url_code = data.vanity_url_code -- http and wss
+	self._description = data.description -- http and wss
+	self._banner = data.banner -- http and wss
+	self._premium_tier = data.premium_tier -- http and wss
+	self._premium_subscription_count = data.premium_subscription_count -- http and wss
+	self._preferred_locale = data.preferred_locale -- http and wss
+	self._public_updates_channel_id = data.public_updates_channel_id -- http and wss
+	self._max_video_channel_users = data.max_video_channel_users -- http and wss
+
+	self._owner = data.owner -- oauth only?
+	self._permissions = data.permissions -- http only?
+
+	self._max_members = data.max_members -- http and GUILD_UPDATE only
+	self._max_presences = data.max_presences -- http and GUILD_UPDATE only
+	self._widget_enabled = data.widget_enabled -- http and GUILD_UPDATE only
+	self._widget_channel_id = data.widget_channel_id -- http and GUILD_UPDATE only
+
+	self._approximate_member_count = data.approximate_member_count -- http "with_counts" only
+	self._approximate_presence_count = data.approximate_presence_count -- http "with_counts" only
+
 	-- TODO: data.roles and data.emojis
-	-- TODO: GUILD_CREATE properties
+	-- TODO: gateway properties: joined_at, large, lazy, member_count
+	-- TODO: gateway arrays: channels, members, presences, voice_states
+
 end
 
 -- TODO: requestMembers
@@ -137,40 +142,40 @@ function Guild:setRegion(region)
 	return self.client:modifyGuild(self.id, {region = region or json.null})
 end
 
-function Guild:setVerificationLevel(level)
-	return self.client:modifyGuild(self.id, {verification_level = level or json.null})
+function Guild:setVerificationLevel(verificationLevel)
+	return self.client:modifyGuild(self.id, {verificationLevel = verificationLevel or json.null})
 end
 
-function Guild:setNotificationSetting(setting)
-	return self.client:modifyGuild(self.id, {default_message_notifications = setting or json.null})
+function Guild:setNotificationSetting(notificationSetting)
+	return self.client:modifyGuild(self.id, {notificationSetting = notificationSetting or json.null})
 end
 
-function Guild:setExplicitContentLevel(level)
-	return self.client:modifyGuild(self.id, {explicit_content_filter = level or json.null})
+function Guild:setExplicitContentLevel(explicitContentLevel)
+	return self.client:modifyGuild(self.id, {explicitContentLevel = explicitContentLevel or json.null})
 end
 
-function Guild:setAFKTimeout(timeout)
-	return self.client:modifyGuild(self.id, {afk_timeout = timeout or json.null})
+function Guild:setAFKTimeout(afkTimeout)
+	return self.client:modifyGuild(self.id, {afkTimeout = afkTimeout or json.null})
 end
 
-function Guild:setAFKChannel(id)
-	return self.client:modifyGuild(self.id, {afk_channel_id = id or json.null})
+function Guild:setAFKChannel(afkChannelId)
+	return self.client:modifyGuild(self.id, {afkChannelId = afkChannelId or json.null})
 end
 
-function Guild:setSystemChannel(id)
-	return self.client:modifyGuild(self.id, {system_channel_id = id or json.null})
+function Guild:setSystemChannel(systemChannelId)
+	return self.client:modifyGuild(self.id, {systemChannelId = systemChannelId or json.null})
 end
 
-function Guild:setRulesChannel(id)
-	return self.client:modifyGuild(self.id, {rules_channel_id = id or json.null})
+function Guild:setRulesChannel(rulesChannelId)
+	return self.client:modifyGuild(self.id, {rulesChannelId = rulesChannelId or json.null})
 end
 
-function Guild:setPublicUpdatesChannel(id)
-	return self.client:modifyGuild(self.id, {public_updates_channel_id = id or json.null})
+function Guild:setPublicUpdatesChannel(publicUpdatesChannelId)
+	return self.client:modifyGuild(self.id, {publicUpdatesChannelId = publicUpdatesChannelId or json.null})
 end
 
-function Guild:setOwner(id)
-	return self.client:modifyGuild(self.id, {owner_id = id or json.null})
+function Guild:setOwner(ownerId)
+	return self.client:modifyGuild(self.id, {ownerId = ownerId or json.null})
 end
 
 function Guild:setIcon(icon)
@@ -185,8 +190,16 @@ function Guild:setSplash(splash)
 	return self.client:modifyGuild(self.id, {splash = splash or json.null})
 end
 
-function Guild:setDiscoverySplash(splash)
-	return self.client:modifyGuild(self.id, {discovery_splash = splash or json.null})
+function Guild:setDiscoverySplash(discoverySplash)
+	return self.client:modifyGuild(self.id, {discoverySplash = discoverySplash or json.null})
+end
+
+function Guild:setPreferredLocale(preferredLocale)
+	return self.client:modifyGuild(self.id, {preferredLocale = preferredLocale or json.null})
+end
+
+function Guild:setDescription(description)
+	return self.client:modifyGuild(self.id, {description = description or json.null})
 end
 
 function Guild:getPruneCount(days)
@@ -275,10 +288,6 @@ function get:ownerId()
 	return self._owner_id
 end
 
-function get:permissions()
-	return self._permissions
-end
-
 function get:region()
 	return self._region
 end
@@ -289,14 +298,6 @@ end
 
 function get:afkTimeout()
 	return self._afk_timeout
-end
-
-function get:embedEnabled()
-	return self._embed_enabled
-end
-
-function get:embedChannelId()
-	return self._embed_channel_id
 end
 
 function get:verificationLevel()

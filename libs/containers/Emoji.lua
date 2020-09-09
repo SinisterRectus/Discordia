@@ -34,11 +34,8 @@ function Emoji:setName(name)
 	return self.client:modifyGuildEmoji(self.guildId, self.id, {name = name or json.null})
 end
 
-function Emoji:setRoles(roles)
-	for i, v in ipairs(checkType('table', roles)) do
-		roles[i] = checkSnowflake(v)
-	end
-	return self.client:modifyGuildEmoji(self.guildId, self.id, {roles = roles or json.null})
+function Emoji:setRoles(roleIds)
+	return self.client:modifyGuildEmoji(self.guildId, self.id, {roleIds = roleIds or json.null})
 end
 
 function Emoji:delete()

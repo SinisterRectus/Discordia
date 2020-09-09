@@ -66,11 +66,11 @@ function Role:disablePermissions(...)
 end
 
 function Role:hoist()
-	return self.client:modifyGuildRole(self.guildId, self.id, {hoist = true})
+	return self.client:modifyGuildRole(self.guildId, self.id, {hoisted = true})
 end
 
 function Role:unhoist()
-	return self.client:modifyGuildRole(self.guildId, self.id, {hoist = false})
+	return self.client:modifyGuildRole(self.guildId, self.id, {hoisted = false})
 end
 
 function Role:enableMentioning()

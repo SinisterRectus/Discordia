@@ -94,8 +94,8 @@ function Channel:getPinnedMessages()
 	return self.client:getPinnedMessages(self.id)
 end
 
-function Channel:bulkDelete(messages)
-	return self.client:bulkDeleteMessages(self.id, messages)
+function Channel:bulkDelete(messageIds)
+	return self.client:bulkDeleteMessages(self.id, messageIds)
 end
 
 function Channel:triggerTyping()
@@ -106,8 +106,8 @@ function Channel:send(payload)
 	return self.client:createMessage(self.id, payload)
 end
 
-function Channel:createWebhook(name)
-	return self.client:createWebhook(self.id, name)
+function Channel:createWebhook(payload)
+	return self.client:createWebhook(self.id, payload)
 end
 
 function Channel:getWebhooks()
@@ -123,7 +123,7 @@ function Channel:setName(name)
 end
 
 function Channel:setCategory(parentId)
-	return self.client:modifyChannel(self.id, {parent_id = parentId or json.null})
+	return self.client:modifyChannel(self.id, {parentId = parentId or json.null})
 end
 
 function Channel:setTopic(topic)
@@ -138,8 +138,8 @@ function Channel:disableNSFW()
 	return self.client:modifyChannel(self.id, {nsfw = false})
 end
 
-function Channel:setRateLimit(limit)
-	return self.client:modifyChannel(self.id, {rate_limit_per_user = limit or json.null})
+function Channel:setRateLimit(rateLimit)
+	return self.client:modifyChannel(self.id, {rateLimit = rateLimit or json.null})
 end
 
 function Channel:setBitrate(bitrate)
@@ -147,7 +147,7 @@ function Channel:setBitrate(bitrate)
 end
 
 function Channel:setUserLimit(userLimit)
-	return self.client:modifyChannel(self.id, {user_limit = userLimit or json.null})
+	return self.client:modifyChannel(self.id, {userLimit = userLimit or json.null})
 end
 
 ----

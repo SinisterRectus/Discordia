@@ -11,6 +11,7 @@ local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
 
 local fs = require('fs')
+local json = require('json')
 local pathjoin = require('pathjoin')
 local enums = require('../enums')
 local typing = require('../typing')
@@ -20,14 +21,24 @@ local checkSnowflake = typing.checkSnowflake
 local checkInteger = typing.checkInteger
 local checkType = typing.checkType
 local checkImageData = typing.checkImageData
+local checkSnowflakeArray = typing.checkSnowflakeArray
 local format = string.format
 local concat, insert, remove = table.concat, table.insert, table.remove
 local readFileSync = fs.readFileSync
 local splitPath = pathjoin.splitPaths
 
-local channelMap = {}
+local function opt(obj, fn, extra)
+	if obj == nil or obj == json.null then
+		return obj
+	end
+	if extra then
+		return fn(extra, obj)
+	else
+		return fn(obj)
+	end
+end
 
-local methods = {}
+local channelMap = {}
 
 local function newMessage(channelId, data, client)
 	local guildId = channelMap[channelId]
@@ -46,6 +57,8 @@ local function newMessage(channelId, data, client)
 	return Message(data, client)
 end
 
+local methods = {}
+
 ---- base ----
 
 function methods:getGatewayURL()
@@ -58,7 +71,11 @@ function methods:getGatewayURL()
 end
 
 function methods:modifyCurrentUser(payload)
-	local data, err = self.api:modifyCurrentUser(payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyCurrentUser {
+		avatar = opt(payload.avatar, checkImageData),
+		username = opt(payload.username, checkType, 'string'),
+	}
 	if data then
 		return User(data, self)
 	else
@@ -123,7 +140,26 @@ end
 
 function methods:modifyGuild(guildId, payload)
 	guildId = checkSnowflake(guildId)
-	local data, err = self.api:modifyGuild(guildId, payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyGuild(guildId, {
+		name                          = opt(payload.name, checkType, 'string'),
+		region                        = opt(payload.region, checkType, 'string'),
+		description                   = opt(payload.description, checkType, 'string'),
+		preferred_locale              = opt(payload.preferredLocale, checkType, 'string'),
+		verification_level            = opt(payload.verificationLevel, checkEnum, enums.verificationLevel),
+		default_message_notifications = opt(payload.notificationSetting, checkEnum, enums.notificationSetting),
+		explicit_content_filter       = opt(payload.explicitContentLevel, checkEnum, enums.explicitContentLevel),
+		afk_timeout                   = opt(payload.aftTimeout, checkInteger),
+		afk_channel_id                = opt(payload.afkChannelId, checkSnowflake),
+		system_channel_id             = opt(payload.systemChannelId, checkSnowflake),
+		rules_channel_id              = opt(payload.rulesChannelId, checkSnowflake),
+		public_updates_channel_id     = opt(payload.publicUpdatesChannelId, checkSnowflake),
+		owner_id                      = opt(payload.ownerId, checkSnowflake),
+		icon                          = opt(payload.icon, checkImageData),
+		banner                        = opt(payload.banner, checkImageData),
+		splash                        = opt(payload.splash, checkImageData),
+		discovery_splash              = opt(payload.discoverySplash, checkImageData),
+	})
 	if data then
 		return Guild(data, self)
 	else
@@ -218,7 +254,13 @@ function methods:createGuildRole(guildId, payload)
 	guildId = checkSnowflake(guildId)
 	local data, err
 	if type(payload) == 'table' then
-		data, err = self.api:createGuildRole(guildId, payload) -- TODO: parse payload
+		data, err = self.api:createGuildRole(guildId, {
+			name        = opt(payload.name, checkType, 'string'),
+			permissions = opt(payload.permissions, checkPermissions),
+			color       = opt(payload.color, checkColor),
+			hoist       = opt(payload.hoisted, checkType, 'boolean'),
+			mentionable = opt(payload.mentionable, checkType, 'boolean'),
+		})
 	else
 		data, err = self.api:createGuildRole(guildId, {name = checkType('string', payload)})
 	end
@@ -247,7 +289,18 @@ end
 function methods:createGuildChannel(guildId, payload)
 	local data, err
 	if type(payload) == 'table' then
-		data, err = self.api:createGuildChannel(guildId, payload) -- TODO: parse payload
+		data, err = self.api:createGuildChannel(guildId, {
+			name = opt(payload.name, checkType, 'string'),
+			type = opt(payload.type, checkEnum, enums.channelType),
+			topic = opt(payload.topic, checkType, 'string'),
+			bitrate = opt(payload.bitrate, checkInteger),
+			user_limit = opt(payload.userLimit, checkInteger),
+			rate_limit_per_user = opt(payload.rateLimit, checkInteger),
+			position = opt(payload.position, checkInteger),
+			parent_id = opt(payload.parentId, checkInteger),
+			nsfw = opt(payload.nsfw, checkType, 'boolean'),
+			-- TODO: permission_overwrites
+		})
 	else
 		data, err = self.api:createGuildChannel(guildId, {name = checkType('string', payload)})
 	end
@@ -274,7 +327,11 @@ function methods:pruneGuildMembers(guildId, payload)
 	guildId = checkSnowflake(guildId)
 	local data, err
 	if type(payload) == 'table' then
-		data, err = self.api:beginGuildPrune(guildId, payload) -- TODO: parse payload
+		data, err = self.api:beginGuildPrune(guildId, {
+			days = opt(payload.days, checkInteger),
+			compute_prune_count = opt(payload.compute, checkType, 'boolean'),
+			include_roles = opt(payload.roleIds, checkSnowflakeArray),
+		})
 	else
 		data, err = self.api:beginGuildPrune(guildId)
 	end
@@ -339,7 +396,13 @@ end
 
 function methods:getGuildAuditLogs(guildId, payload)
 	guildId = checkSnowflake(guildId)
-	local data, err = self.api:getGuildAuditLog(guildId, payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:getGuildAuditLog(guildId, {
+		user_id = opt(payload.userId, checkSnowflake),
+		action_type = opt(payload.actionType, checkEnum, enums.actionType),
+		before = opt(payload.before, checkSnowflake),
+		limit = opt(payload.limit, checkInteger),
+	})
 	if data then
 		for i, v in ipairs(data.audit_log_entries) do
 			v.guild_id = guildId
@@ -415,7 +478,11 @@ end
 function methods:modifyGuildEmoji(guildId, emojiId, payload)
 	guildId = checkSnowflake(guildId)
 	emojiId = checkSnowflake(emojiId)
-	local data, err = self.api:modifyGuildEmoji(guildId, emojiId, payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyGuildEmoji(guildId, emojiId, {
+		name = opt(payload.name, checkType, 'string'),
+		roles = opt(payload.roleIds, checkSnowflakeArray),
+	})
 	if data then
 		data.guild_id = guildId
 		return Emoji(data, self)
@@ -440,7 +507,14 @@ end
 function methods:modifyGuildRole(guildId, roleId, payload)
 	guildId = checkSnowflake(guildId)
 	roleId = checkSnowflake(roleId)
-	local data, err = self.api:modifyGuildRole(guildId, roleId, payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyGuildRole(guildId, roleId, {
+		name        = opt(payload.name, checkType, 'string'),
+		permissions = opt(payload.permissions, checkPermissions),
+		color       = opt(payload.color, checkColor),
+		hoist       = opt(payload.hoisted, checkType, 'boolean'),
+		mentionable = opt(payload.mentionable, checkType, 'boolean'),
+	})
 	if data then
 		data.guild_id = guildId
 		return Role(data, self)
@@ -465,7 +539,14 @@ end
 function methods:modifyGuildMember(guildId, userId, payload)
 	guildId = checkSnowflake(guildId)
 	userId = checkSnowflake(userId)
-	local data, err = self.api:modifyGuildMember(guildId, userId, payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyGuildMember(guildId, userId, {
+		nick = opt(payload.nickname, checkType, 'string'),
+		roles = opt(payload.roleIds, checkSnowflakeArray),
+		mute = opt(payload.muted, checkType, 'boolean'),
+		deaf = opt(payload.deafened, checkType, 'boolean'),
+		channel_id = opt(payload.channelId, checkSnowflake),
+	})
 	if data then
 		return true -- 204
 	else
@@ -507,7 +588,19 @@ end
 
 function methods:modifyChannel(channelId, payload)
 	channelId = checkSnowflake(channelId)
-	local data, err = self.api:modifyChannel(channelId, payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyChannel(channelId, {
+		name = opt(payload.name, checkType, 'string'),
+		type = opt(payload.type, checkEnum, enums.channelType),
+		topic = opt(payload.topic, checkType, 'string'),
+		bitrate = opt(payload.bitrate, checkInteger),
+		user_limit = opt(payload.userLimit, checkInteger),
+		rate_limit_per_user = opt(payload.rateLimit, checkInteger),
+		position = opt(payload.position, checkInteger),
+		parent_id = opt(payload.parentId, checkInteger),
+		nsfw = opt(payload.nsfw, checkType, 'boolean'),
+		-- TODO: permission_overwrites
+	})
 	if data then
 		channelMap[data.id] = data.guild_id or '@me'
 		return Channel(data, self)
@@ -528,7 +621,17 @@ end
 
 function methods:createChannelInvite(channelId, payload)
 	channelId = checkSnowflake(channelId)
-	local data, err = self.api:createChannelInvite(channelId, payload) -- TODO: parse payload
+	local data, err
+	if type(payload) == 'table' then
+		data, err = self.api:createChannelInvite(channelId, {
+			max_age = opt(payload.maxAge, checkInteger),
+			max_uses = opt(payload.maxUses, checkInteger),
+			temporary = opt(payload.temporary, checkType, 'boolean'),
+			unique = opt(payload.unique, checkType, 'boolean'),
+		})
+	else
+		data, err = self.api:createChannelInvite(channelId)
+	end
 	if data then
 		return Invite(data, self)
 	else
@@ -549,10 +652,17 @@ function methods:getChannelInvites(channelId)
 	end
 end
 
-function methods:createWebhook(channelId, name)
+function methods:createWebhook(channelId, payload)
 	channelId = checkSnowflake(channelId)
-	name = checkType('string', name)
-	local data, err = self.api:createWebhook(channelId, {name = name})
+	local data, err
+	if type(payload) == 'table' then
+		data, err = self.api:createWebhook(channelId, {
+			name = opt(payload.name, checkType, 'string'),
+			avatar = opt(payload.avatar, checkImageData),
+		})
+	else
+		data, err = self.api:createWebhook(channelId, {name = checkType('string', payload)})
+	end
 	if data then
 		return Webhook(data, self)
 	else
@@ -573,16 +683,14 @@ function methods:getChannelWebhooks(channelId)
 	end
 end
 
-function methods:bulkDeleteMessages(channelId, messages)
+function methods:bulkDeleteMessages(channelId, messageIds)
 	channelId = checkSnowflake(channelId)
-	for i, v in ipairs(checkType('table', messages)) do
-		messages[i] = checkSnowflake(v)
-	end
+	messageIds = checkSnowflakeArray(messageIds)
 	local data, err
-	if #messages == 1 then
-		data, err = self.api:deleteMessage(channelId, messages[1])
+	if #messageIds == 1 then
+		data, err = self.api:deleteMessage(channelId, messageIds[1])
 	else
-		data, err = self.api:bulkDeleteMessages(channelId, {messages = messages})
+		data, err = self.api:bulkDeleteMessages(channelId, {messages = messageIds})
 	end
 	if data then
 		return true -- 204
@@ -727,9 +835,9 @@ function methods:createMessage(channelId, payload)
 
 		data, err = self.api:createMessage(channelId, {
 			content = content,
-			tts = payload.tts,
-			nonce = payload.nonce,
-			embed = payload.embed,
+			tts = opt(payload.tts, checkType, 'boolean'),
+			nonce = opt(payload.nonce, checkSnowflake),
+			embed = opt(payload.embed, checkType, 'table'),
 		}, nil, files)
 
 	else
@@ -763,7 +871,12 @@ end
 function methods:editMessage(channelId, messageId, payload)
 	channelId = checkSnowflake(channelId)
 	messageId = checkSnowflake(messageId)
-	local data, err = self.api:editMessage(channelId, messageId, payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:editMessage(channelId, messageId, {
+		content = opt(payload.content, checkType, 'string'),
+		embed = opt(payload.embed, checkType, 'table'),
+		flags = opt(payload.flags, checkInteger),
+	})
 	if data then
 		return newMessage(channelId, data, self)
 	else
@@ -910,7 +1023,12 @@ end
 
 function methods:modifyWebhook(guildId, payload)
 	guildId = checkSnowflake(guildId)
-	local data, err = self.api:modifyWebhook(guildId, payload) -- TODO: parse payload
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyWebhook(guildId, {
+		name = opt(payload.name, checkType, 'string'),
+		avatar = opt(payload.avatar, checkImageData),
+		channel_id = opt(payload.channelId, checkSnowflake),
+	})
 	if data then
 		return Webhook(data, self)
 	else

@@ -111,28 +111,32 @@ function Member:hasRole(roleId)
 	return has(self._roles, roleId)
 end
 
-function Member:setNickname(nick)
-	return self.client:modifyGuildMember(self.guildId, self.user.id, {nick = nick or json.null})
+function Member:setRoles(roleIds)
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {roleIds = roleIds or json.null})
+end
+
+function Member:setNickname(nickname)
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {nickname = nickname or json.null})
 end
 
 function Member:setVoiceChannel(channelId)
-	return self.client:modifyGuildMember(self.guildId, self.user.id, {channel_id = channelId or json.null})
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {channelId = channelId or json.null})
 end
 
 function Member:mute()
-	return self.client:modifyGuildMember(self.guildId, self.user.id, {mute = true})
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {muted = true})
 end
 
 function Member:unmute()
-	return self.client:modifyGuildMember(self.guildId, self.user.id, {mute = false})
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {muted = false})
 end
 
 function Member:deafen()
-	return self.client:modifyGuildMember(self.guildId, self.user.id, {deaf = true})
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {deafened = true})
 end
 
 function Member:undeafen()
-	return self.client:modifyGuildMember(self.guildId, self.user.id, {deaf = false})
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {deafened = false})
 end
 
 function get:name()

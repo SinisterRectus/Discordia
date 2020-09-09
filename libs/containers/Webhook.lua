@@ -39,6 +39,10 @@ function Webhook:setAvatar(avatar)
 	return self.client:modifyWebhook(self.id, {avatar = avatar or json.null})
 end
 
+function Webhook:setChannel(channelId)
+	return self.client:modifyWebhook(self.id, {channelId = channelId or json.null})
+end
+
 function Webhook:delete()
 	return self.client:deleteWebhook(self.id)
 end

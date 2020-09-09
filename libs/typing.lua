@@ -84,6 +84,18 @@ function typing.checkSnowflake(obj)
 	return error('Snowflake ID should be an integral string', 2)
 end
 
+function typing.checkSnowflakeArray(obj)
+	local t = type(obj)
+	if t ~= 'table' then
+		return typeError('table', t)
+	end
+	local arr = {}
+	for _, v in pairs(obj) do
+		arr[#arr + 1] = typing.checkSnowflake(v)
+	end
+	return arr
+end
+
 local function imageType(data)
 	if data:sub(1, 8) == '\x89\x50\x4E\x47\x0D\x0A\x1A\x0A' then
 		return 'image/png'
