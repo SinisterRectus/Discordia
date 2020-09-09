@@ -84,18 +84,17 @@ function typing.checkSnowflake(obj)
 	return error('Snowflake ID should be an integral string', 2)
 end
 
-local imageTypes = {
-	['\xFF\xD8\xFF'] = 'image/jpeg',
-	['\x47\x49\x46\x38\x37\x61'] = 'image/gif',
-	['\x47\x49\x46\x38\x39\x61'] = 'image/gif',
-	['\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'] = 'image/png',
-}
-
 local function imageType(data)
-	for k, v in pairs(imageTypes) do
-		if data:sub(1, #k) == k then
-			return v
-		end
+	if data:sub(1, 8) == '\x89\x50\x4E\x47\x0D\x0A\x1A\x0A' then
+		return 'image/png'
+	elseif data:sub(1, 3) == '\xFF\xD8\xFF' then
+		return 'image/jpeg'
+	elseif data:sub(1, 6) == '\x47\x49\x46\x38\x37\x61' then
+		return 'image/gif'
+	elseif data:sub(1, 6) == '\x47\x49\x46\x38\x39\x61' then
+		return 'image/gif'
+	elseif data:sub(1, 4) == 'RIFF' and data:sub(9, 12) == 'WEBP' then
+		return 'image/webp'
 	end
 end
 
