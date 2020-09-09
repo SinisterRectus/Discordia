@@ -62,7 +62,7 @@ end
 function EventHandler.GUILD_ROLE_CREATE() -- GUILDS
 end
 
-function EventHandler.GUILD_ROLE_UDPATE() -- GUILDS
+function EventHandler.GUILD_ROLE_UPDATE() -- GUILDS
 end
 
 function EventHandler.GUILD_ROLE_DELETE() -- GUILDS

@@ -7,7 +7,7 @@ local constants = require('../constants')
 
 local checkEnum = typing.checkEnum
 local checkImageSize = typing.checkImageSize
-local checkImageExtension = typing.checkImageExtenstion
+local checkImageExtension = typing.checkImageExtension
 local band = bit.band
 local format = string.format
 local DEFAULT_AVATARS = constants.DEFAULT_AVATARS
