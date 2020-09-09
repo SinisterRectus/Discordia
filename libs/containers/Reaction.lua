@@ -75,7 +75,7 @@ function get:emojiId()
 	return self._emoji_id
 end
 
-function get:emojiMame()
+function get:emojiName()
 	return self._emoji_name
 end
 
