@@ -6,13 +6,13 @@ local assertEqual = utils.assertEqual
 local assertTrue = utils.assertTrue
 local assertError = utils.assertError
 
-for n = 0, 32 do
+for n = 16, 32 do
 	n = 2 ^ n
 	assertEqual(Date.fromSeconds(n):toSeconds(), n)
 	assertEqual(Date.fromMilliseconds(n):toMilliseconds(), n)
 	assertEqual(Date.fromMicroseconds(n):toMicroseconds(), n)
-	assertTrue(tonumber(Date.fromSnowflake(n):toSnowflake()) <= n) -- WARNING: conversion not reversible
-	for m = 0, 32 do
+	assertTrue(tonumber(Date.fromSnowflake(tostring(n)):toSnowflake()) <= n) -- WARNING: conversion not reversible
+	for m = 16, 32 do
 		m = 2 ^ m
 		local d = Date(n, m)
 		assertEqual(Date.fromISO(d:toISO()), d)
@@ -110,12 +110,12 @@ assertError(function() return Date(1, -1) end, 'expected minimum 0, received -1'
 assertError(function() return Date():toISO('') end, 'invalid ISO 8601 separator')
 assertError(function() return Date():toISO('  ') end, 'invalid ISO 8601 separator')
 
-assertError(function() return Date.fromTable() end, 'invalid date table')
-assertError(function() return Date.fromTable(1) end, 'invalid date table')
-assertError(function() return Date.fromTableUTC() end, 'invalid date table')
-assertError(function() return Date.fromTableUTC(1) end, 'invalid date table')
+assertError(function() return Date.fromTable() end, 'expected table, received nil')
+assertError(function() return Date.fromTable(1) end, 'expected table, received number')
+assertError(function() return Date.fromTableUTC() end, 'expected table, received nil')
+assertError(function() return Date.fromTableUTC(1) end, 'expected table, received number')
 
-assertError(function() return Date.fromISO() end, 'invalid ISO 8601 string')
+assertError(function() return Date.fromISO() end, 'expected string, received nil')
 assertError(function() return Date.fromISO('202-03-13T20:54:47') end, 'invalid ISO 8601 string')
 assertError(function() return Date.fromISO('2020-3-13T20:54:47') end, 'invalid ISO 8601 string')
 assertError(function() return Date.fromISO('2020-03-3T20:54:47') end, 'invalid ISO 8601 string')
@@ -161,3 +161,6 @@ assertError(function() return Date(2^128):toISO() end, 'time could not be conver
 assertError(function() return Date(2^128):toString() end, 'time could not be converted to date')
 assertError(function() return Date(2^128):toTable() end, 'time could not be converted to date')
 assertError(function() return Date(2^128):toTableUTC() end, 'time could not be converted to date')
+
+assertError(function() return Date.fromISO('1969') end, 'date could not be converted to time')
+assertError(function() return Date.fromTableUTC {year = 1969} end, 'date could not be converted to time')

@@ -7,7 +7,8 @@ local Time = require('./Time')
 
 local gettimeofday = uv.gettimeofday
 local isInstance = class.isInstance
-local checkInteger = typing.checkInteger
+local checkInteger, checkType = typing.checkInteger, typing.checkType
+local checkSnowflake = typing.checkSnowflake
 local floor, fmod, modf = math.floor, math.fmod, math.modf
 local format = string.format
 local date, time, difftime = os.date, os.time, os.difftime
@@ -46,18 +47,21 @@ local properties = { -- name, pattern, default
 }
 
 local function toTime(tbl, utc)
-	if type(tbl) ~= 'table' then
-		return error('invalid date table', 2)
-	end
+	local new = {}
 	for _, v in ipairs(properties) do
-		tbl[v[1]] = floor(tbl[v[1]] or v[3])
+		new[v[1]] = floor(tbl[v[1]] or v[3])
 	end
 	if utc then
-		tbl.isdst = false
-		return normalize(time(tbl) + offset(), tbl.usec, US_PER_S)
-	else
-		return normalize(time(tbl), tbl.usec, US_PER_S)
+		new.isdst = false
 	end
+	local sec = time(new)
+	if not sec then
+		return error('date could not be converted to time', 2)
+	end
+	if utc then
+		sec = sec + offset()
+	end
+	return normalize(sec, new.usec, US_PER_S)
 end
 
 local function toDate(fmt, t)
@@ -142,7 +146,7 @@ function Date.__div()
 end
 
 function Date.fromISO(str)
-	str = tostring(str)
+	str = checkType('string', str)
 	local tbl = {isdst = false}
 	local valid = false
 	for _, v in ipairs(properties) do
@@ -159,15 +163,15 @@ function Date.fromISO(str)
 end
 
 function Date.fromSnowflake(id)
-	return Date.fromMilliseconds(floor(id / 2^22) + DISCORD_EPOCH)
+	return Date.fromMilliseconds(floor(checkSnowflake(id) / 2^22) + DISCORD_EPOCH)
 end
 
 function Date.fromTable(tbl)
-	return Date(toTime(tbl))
+	return Date(toTime(checkType('table', tbl)))
 end
 
 function Date.fromTableUTC(tbl)
-	return Date(toTime(tbl, true))
+	return Date(toTime(checkType('table', tbl), true))
 end
 
 function Date.fromSeconds(s)
