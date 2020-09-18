@@ -25,49 +25,22 @@ local GATEWAY_ENCODING = 'json'
 local Client, get = class('Client', Emitter)
 class.mixin(Client, ContainerClient.methods)
 
-local defaultOptions = { -- {type, value}
-	routeDelay = {'number', 250},
-	maxRetries = {'number', 5},
-	tokenPrefix = {'string', 'Bot '},
-	gatewayIntents = {'number', nil},
-	totalShardCount = {'number', nil},
-	payloadCompression = {'boolean', true},
-	logLevel = {'number', enums.logLevel.info},
-	dateFormat = {'string', '%F %T'},
-	logFile = {'string', 'discordia.log'},
-	logColors = {'boolean', true},
-	status = {'string', nil},
-	activity = {'table', nil},
-	defaultImageExtension = {'string', 'png'},
-	defaultImageSize = {'number', 1024},
-}
-
-local function checkOption(k, v, level)
-	if not defaultOptions[k] then
-		return error('invalid client option: ' .. k, level)
+local function checkOption(options, k, expected, default)
+	if options == nil then
+		return default
 	end
-	local expected = defaultOptions[k][1]
+	local v = options[k]
+	if v == nil then
+		return default
+	end
 	local received = type(v)
 	if expected ~= received then
-		return error(format('invalid client option %q (expected %s, received %s)', k, expected, received), level)
+		return error(format('invalid client option %q (expected %s, received %s)', k, expected, received), 3)
 	end
 	if received == 'number' and (v < 0 or v % 1 > 0) then
-		return error(format('invalid client option %q (number must be a positive integer)', k), level)
+		return error(format('invalid client option %q (number must be a positive integer)', k), 3)
 	end
 	return v
-end
-
-local function checkOptions(customOptions)
-	local options = {}
-	for k, v in pairs(defaultOptions) do
-		options[k] = v[2]
-	end
-	if type(customOptions) == 'table' then
-		for k, v in pairs(customOptions) do
-			options[k] = checkOption(k, v, 4)
-		end
-	end
-	return options
 end
 
 local function checkActivity(activity)
@@ -86,16 +59,27 @@ end
 
 function Client:__init(opt)
 	Emitter.__init(self)
-	opt = checkOptions(opt)
-	self._options = opt
-	self._logger = Logger(opt.logLevel, opt.dateFormat, opt.logFile, opt.logColors)
+	self._routeDelay = checkOption(opt, 'routeDelay', 'number', 250)
+	self._maxRetries = checkOption(opt, 'maxRetries', 'number', 5)
+	self._tokenPrefix = checkOption(opt, 'tokenPrefix', 'string', 'Bot ')
+	self._gatewayIntents = checkOption(opt, 'gatewayIntents', 'number', nil)
+	self._totalShardCount = checkOption(opt, 'totalShardCount', 'number', nil)
+	self._payloadCompression = checkOption(opt, 'payloadCompression', 'boolean', true)
+	self._defaultImageExtension = checkOption(opt, 'defaultImageExtension', 'string', 'png')
+	self._defaultImageSize = checkOption(opt, 'defaultImageSize', 'number', 1024)
+	self._logger = Logger(
+		checkOption(opt, 'logLevel', 'number', enums.logLevel.info),
+		checkOption(opt, 'dateFormat', 'string', '%F %T'),
+		checkOption(opt, 'logFile', 'string', 'discordia.log'),
+		checkOption(opt, 'logColors', 'boolean', true)
+	)
 	self._api = API(self)
 	self._cdn = CDN(self)
 	self._shards = {}
 	self._token = nil
 	self._userId = nil
-	opt.status = opt.status and checkEnum(enums.status, opt.status)
-	opt.activity = opt.activity and checkActivity(opt.activity)
+	self._status = opt.status and checkEnum(enums.status, opt.status)
+	self._activity = opt.activity and checkActivity(opt.activity)
 end
 
 function Client:_run(token)
@@ -119,8 +103,7 @@ function Client:_run(token)
 	self._userId = user.id
 	self:log('info', 'Authenticated as %s#%s', user.username, user.discriminator)
 
-	local options = self._options
-	local shards = options.totalShardCount
+	local shards = self._totalShardCount
 	if shards == 0 then
 		self:log('info', 'Readying client with no gateway connection(s)')
 		return self:emit('ready')
@@ -136,7 +119,7 @@ function Client:_run(token)
 	elseif shards ~= gateway.shards then
 		self:log('warning', 'Indicated shard count (%i) is different from recommended (%i)', shards, gateway.shards)
 	end
-	options.totalShardCount = shards
+	self._totalShardCount = shards
 
 	local l = gateway.session_start_limit
 	self:log('info', '%i of %i session starts consumed', l.total - l.remaining, l.total)
@@ -173,28 +156,22 @@ function Client:stop()
 	end
 end
 
-function Client:getOptions()
-	return readOnly(self._options)
-end
-
 function Client:setToken(token)
 	self._token = token
 	self.api:setToken(token)
 end
 
 function Client:setStatus(status)
-	local options = self._options
-	options.status = status and checkEnum(enums.status, status)
+	self._status = status and checkEnum(enums.status, status)
 	for _, shard in pairs(self._shards) do
-		shard:updatePresence(options.status, options.activity)
+		shard:updatePresence(self._status, self._activity)
 	end
 end
 
 function Client:setActivity(activity)
-	local options = self._options
-	options.activity = activity and checkActivity(activity)
+	self._activity = activity and checkActivity(activity)
 	for _, shard in pairs(self._shards) do
-		shard:updatePresence(options.status, options.activity)
+		shard:updatePresence(self._status, self._activity)
 	end
 end
 
@@ -207,6 +184,46 @@ function Client:setAvatar(avatar)
 end
 
 ----
+
+function get:routeDelay()
+	return self._routeDelay
+end
+
+function get:maxRetries()
+	return self._maxRetries
+end
+
+function get:tokenPrefix()
+	return self._tokenPrefix
+end
+
+function get:gatewayIntents()
+	return self._gatewayIntents
+end
+
+function get:totalShardCount()
+	return self._totalShardCount
+end
+
+function get:payloadCompression()
+	return self._payloadCompression
+end
+
+function get:defaultImageExtension()
+	return self._defaultImageExtension
+end
+
+function get:defaultImageSize()
+	return self._defaultImageSize
+end
+
+function get:status()
+	return self._status
+end
+
+function get:activity()
+	return readOnly(self._activity)
+end
 
 function get:logger()
 	return self._logger

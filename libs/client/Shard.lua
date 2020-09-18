@@ -309,7 +309,6 @@ function Shard:identify()
 	end)()
 
 	local client = self._client
-	local options = client:getOptions()
 
 	return self:send(IDENTIFY, {
 		token = client.token,
@@ -318,12 +317,12 @@ function Shard:identify()
 			['$browser'] = 'Discordia',
 			['$device'] = 'Discordia',
 		},
-		intents = options.gatewayIntents,
-		compress = options.payloadCompression,
-		shard = {self._id, options.totalShardCount},
+		intents = client.gatewayIntents,
+		compress = client.payloadCompression,
+		shard = {self._id, client.totalShardCount},
 		presence = {
-			status = options.status or null,
-			game = options.activity or null,
+			status = client.status or null,
+			game = client.activity or null,
 			since = null, afk = null,
 		},
 	})

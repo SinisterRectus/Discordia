@@ -24,11 +24,11 @@ end
 
 function CDN:buildURL(endpoint, params, ext, size)
 
-	local options = self._client:getOptions()
+	local client = self._client
 
 	endpoint = endpoint:format(unpack(params))
-	ext = ext or options.defaultImageExtension
-	size = size or options.defaultImageSize
+	ext = ext or client.defaultImageExtension
+	size = size or client.defaultImageSize
 
 	return BASE_URL .. endpoint .. '.' .. ext .. '?size=' .. size
 

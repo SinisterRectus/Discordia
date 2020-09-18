@@ -81,8 +81,7 @@ function API:__init(client)
 end
 
 function API:setToken(token)
-	local options = self._client:getOptions()
-	local prefix = options.tokenPrefix
+	local prefix = self._client.tokenPrefix
 	if token:sub(1, #prefix) == prefix then
 		self._token = token
 	else
@@ -178,8 +177,7 @@ end
 function API:commit(method, url, req, payload, route, retries)
 
 	local client = self._client
-	local options = client:getOptions()
-	local delay = options.routeDelay
+	local delay = client.routeDelay
 
 	local success, res, msg = pcall(request, method, url, req, payload)
 	if not success then
@@ -212,10 +210,10 @@ function API:commit(method, url, req, payload, route, retries)
 	local retry
 	if res.code == 429 and data.retry_after then -- TODO: global ratelimiting
 		delay = data.retry_after
-		retry = retries < options.maxRetries
+		retry = retries < client.maxRetries
 	elseif res.code == 502 then
 		delay = delay + random(1000, 4000)
-		retry = retries < options.maxRetries
+		retry = retries < client.maxRetries
 	end
 
 	if retry then
