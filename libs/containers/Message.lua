@@ -5,17 +5,18 @@ local json = require('json')
 local enums = require('../enums')
 local class = require('../class')
 local typing = require('../typing')
+local constants = require('../constants')
 
 local format = string.format
 local insert = table.insert
 local bor, band, bnot = bit.bor, bit.band, bit.bnot
 local checkEnum = typing.checkEnum
-local LINK_FMT = "https://discord.com/channels/%s/%s/%s"
 
-local USER_PATTERN = '<@!?(%d+)>'
-local ROLE_PATTERN = '<@&(%d+)>'
-local CHANNEL_PATTERN = '<#(%d+)>'
-local EMOJI_PATTERN = '<a?:[%w_]+:(%d+)>'
+local JUMP_LINK_FMT = constants.JUMP_LINK_FMT
+local USER_PATTERN = constants.USER_PATTERN
+local ROLE_PATTERN = constants.ROLE_PATTERN
+local CHANNEL_PATTERN = constants.CHANNEL_PATTERN
+local EMOJI_PATTERN = constants.EMOJI_PATTERN
 
 local Message, get = class('Message', Snowflake)
 
@@ -259,10 +260,10 @@ function get:guildId()
 	return self._guild_id
 end
 
-function get.link(self)
+function get:link()
 	local guildId = self.guildId
 	local channelId = self.channelId
-	return format(LINK_FMT, guildId or '@me', channelId, self.id)
+	return format(JUMP_LINK_FMT, guildId or '@me', channelId, self.id)
 end
 
 function get:webhookId()

@@ -1,6 +1,7 @@
 local class = require('../class')
+local constants = require('../constants')
 
-local BASE_URL = "https://cdn.discordapp.com"
+local CDN_BASE_URL = constants.CDN_BASE_URL
 
 local endpoints = {
 	CUSTOM_EMOJI           = "/emojis/%s",
@@ -30,7 +31,7 @@ function CDN:buildURL(endpoint, params, ext, size)
 	ext = ext or client.defaultImageExtension
 	size = size or client.defaultImageSize
 
-	return BASE_URL .. endpoint .. '.' .. ext .. '?size=' .. size
+	return CDN_BASE_URL .. endpoint .. '.' .. ext .. '?size=' .. size
 
 end
 

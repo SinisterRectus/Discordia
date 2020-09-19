@@ -4,6 +4,7 @@ local class = require('../class')
 local enums = require('../enums')
 local helpers = require('../helpers')
 local typing = require('../typing')
+local constants = require('../constants')
 local package = require('../../package')
 
 local Logger = require('../utils/Logger')
@@ -19,8 +20,8 @@ local format = string.format
 local attachQuery, readOnly = helpers.attachQuery, helpers.readOnly
 local checkEnum = typing.checkEnum
 
-local GATEWAY_VERSION = 6
-local GATEWAY_ENCODING = 'json'
+local GATEWAY_VERSION = constants.GATEWAY_VERSION
+local GATEWAY_ENCODING = constants.GATEWAY_ENCODING
 
 local Client, get = class('Client', Emitter)
 class.mixin(Client, ContainerClient.methods)

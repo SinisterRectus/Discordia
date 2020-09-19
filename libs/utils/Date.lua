@@ -16,7 +16,7 @@ local date, time, difftime = os.date, os.time, os.difftime
 local MS_PER_S = constants.MS_PER_S
 local US_PER_MS = constants.US_PER_MS
 local US_PER_S = US_PER_MS * MS_PER_S
-local DISCORD_EPOCH = 1420070400000
+local DISCORD_EPOCH = constants.DISCORD_EPOCH
 
 local function offset()
 	return difftime(time(), time(date('!*t')))

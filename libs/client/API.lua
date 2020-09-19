@@ -1,10 +1,10 @@
 local json = require('json')
 local timer = require('timer')
 local http = require('coro-http')
-local package = require('../../package.lua')
 local endpoints = require('../endpoints')
 local helpers = require('../helpers')
 local class = require('../class')
+local constants = require('../constants')
 local Mutex = require('../utils/Mutex')
 
 local request = http.request
@@ -15,10 +15,10 @@ local insert, concat = table.insert, table.concat
 local running = coroutine.running
 local urlEncode, attachQuery = helpers.urlEncode, helpers.attachQuery
 
-local BASE_URL = "https://discord.com/api/v7"
-local JSON = 'application/json'
-local PRECISION = 'millisecond'
-local USER_AGENT = format('DiscordBot (%s, %s)', package.homepage, package.version)
+local API_BASE_URL = constants.API_BASE_URL
+local JSON_CONTENT_TYPE = constants.JSON_CONTENT_TYPE
+local RATELIMIT_PRECISION = constants.RATELIMIT_PRECISION
+local USER_AGENT = constants.USER_AGENT
 
 local majorParams = {guilds = true, channels = true, webhooks = true}
 local payloadRequired = {PUT = true, PATCH = true, POST = true}
@@ -100,7 +100,7 @@ function API:request(method, endpoint, params, query, payload, files)
 		return error('Cannot make HTTP request outside of a coroutine')
 	end
 
-	local url = {BASE_URL}
+	local url = {API_BASE_URL}
 	local route = endpoint
 
 	if #params > 0 then
@@ -122,7 +122,7 @@ function API:request(method, endpoint, params, query, payload, files)
 
 	local req = {
 		{'User-Agent', USER_AGENT},
-		{'X-RateLimit-Precision', PRECISION},
+		{'X-RateLimit-Precision', RATELIMIT_PRECISION},
 	}
 
 	if self._token then
@@ -136,7 +136,7 @@ function API:request(method, endpoint, params, query, payload, files)
 			payload, boundary = attachFiles(payload, files)
 			insert(req, {'Content-Type', 'multipart/form-data;boundary=' .. boundary})
 		else
-			insert(req, {'Content-Type', JSON})
+			insert(req, {'Content-Type', JSON_CONTENT_TYPE})
 		end
 		insert(req, {'Content-Length', #payload})
 	end
@@ -200,7 +200,7 @@ function API:commit(method, url, req, payload, route, retries)
 		self._bucketMutexes[bucket] = self._bucketMutexes[bucket] or Mutex()
 	end
 
-	local data = res['content-type'] == JSON and decode(msg) or {}
+	local data = res['content-type'] == JSON_CONTENT_TYPE and decode(msg) or {}
 
 	if res.code < 300 then
 		self:log('debug', res, method, url)
