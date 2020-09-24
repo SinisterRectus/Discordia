@@ -215,7 +215,7 @@ function Permissions:intersection(other) -- in both
 end
 
 --[=[
-@m name
+@m difference
 @p other Permissions
 @r Permissions
 @d Returns a new Permissions object that contains the permissions that are not
