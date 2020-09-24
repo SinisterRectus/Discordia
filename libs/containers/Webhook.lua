@@ -19,7 +19,7 @@ function Webhook:_load(data)
 	self._type = data.type
 	self._name = data.name
 	self._avatar = data.avatar
-	self._user = data.user and User(data.user, self.client) or nil
+	self._user = data.user and self.client.state:newUser(data.user) or nil
 	-- TODO: data.source_channel and data.source_guild
 end
 

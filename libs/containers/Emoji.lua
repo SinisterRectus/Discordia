@@ -1,5 +1,4 @@
 local Snowflake = require('./Snowflake')
-local User = require('./User')
 
 local class = require('../class')
 local typing = require('../typing')
@@ -27,7 +26,7 @@ function Emoji:_load(data)
 	self._animated = data.animated
 	self._available = data.available
 	self._roles = data.roles
-	self._user = data.user and User(data.user, self.client) or nil -- only available via HTTP
+	self._user = data.user and self.client.state:newUser(data.user) or nil -- only available via HTTP
 end
 
 function Emoji:setName(name)

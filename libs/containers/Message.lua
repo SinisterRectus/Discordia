@@ -1,5 +1,4 @@
 local Snowflake = require('./Snowflake')
-local User = require('./User')
 
 local json = require('json')
 local enums = require('../enums')
@@ -56,7 +55,7 @@ end
 
 function Message:_load(data)
 	self._type = data.type
-	self._author = User(data.author, self.client)
+	self._author = self.client.state:newUser(data.author)
 	self._content = data.content
 	self._timestamp = data.timestamp
 	self._edited_timestamp = data.edited_timestamp
@@ -66,7 +65,7 @@ function Message:_load(data)
 	self._pinned = data.pinned
 	self._flags = data.flags
 	for i, v in ipairs(data.mentions) do
-		data.mentions[i] = User(v, self.client)
+		data.mentions[i] = self.client.state:newUser(v)
 	end
 	self._mentions = data.mentions
 	self._embeds = data.embeds

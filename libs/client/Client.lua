@@ -14,17 +14,11 @@ local Emitter = require('../utils/Emitter')
 local API = require('./API')
 local CDN = require('./CDN')
 local Shard = require('./Shard')
+local State = require('./State')
 
 local AuditLogEntry = require('../containers/AuditLogEntry')
 local Ban = require('../containers/Ban')
-local Channel = require('../containers/Channel')
-local Emoji = require('../containers/Emoji')
-local Guild = require('../containers/Guild')
 local Invite = require('../containers/Invite')
-local Member = require('../containers/Member')
-local Message = require('../containers/Message')
-local Role = require('../containers/Role')
-local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
 
 local Bitfield = require('../utils/Bitfield')
@@ -105,25 +99,6 @@ local function checkBitfield(obj)
 	return checkInteger(obj)
 end
 
-local channelMap = {}
-
-local function newMessage(channelId, data, client)
-	local guildId = channelMap[channelId]
-	if guildId == nil then
-		local channel, err = client:getChannel(channelId)
-		if channel then
-			guildId = channel.guildId or '@me'
-			channelMap[channelId] = guildId
-		else
-			return nil, err
-		end
-	end
-	if guildId ~= '@me' then
-		data.guild_id = guildId
-	end
-	return Message(data, client)
-end
-
 function Client:__init(options)
 	Emitter.__init(self)
 	self._routeDelay = checkOption(options, 'routeDelay', 'number', 250)
@@ -142,6 +117,7 @@ function Client:__init(options)
 	)
 	self._api = API(self)
 	self._cdn = CDN(self)
+	self._state = State(self)
 	self._shards = {}
 	self._token = nil
 	self._userId = nil
@@ -168,6 +144,7 @@ function Client:_run(token)
 		return self:log('critical', 'Could not get user information: %s', err1)
 	end
 	self._userId = user.id
+	self.state:newUser(user)
 	self:log('info', 'Authenticated as %s#%s', user.username, user.discriminator)
 
 	local shards = self._totalShardCount
@@ -268,7 +245,7 @@ function Client:modifyCurrentUser(payload)
 		username = opt(payload.username, checkType, 'string'),
 	}
 	if data then
-		return User(data, self)
+		return self.state:newUser(data)
 	else
 		return nil, err
 	end
@@ -278,8 +255,7 @@ function Client:getChannel(channelId)
 	channelId = checkSnowflake(channelId)
 	local data, err = self.api:getChannel(channelId)
 	if data then
-		channelMap[data.id] = data.guild_id or '@me'
-		return Channel(data, self)
+		return self.state:newChannel(data)
 	else
 		return nil, err
 	end
@@ -290,7 +266,7 @@ function Client:getGuild(guildId, counts)
 	local query = counts and {with_counts = true} or nil
 	local data, err = self.api:getGuild(guildId, query)
 	if data then
-		return Guild(data, self)
+		return self.state:newGuild(data)
 	else
 		return nil, err
 	end
@@ -321,7 +297,7 @@ function Client:getUser(userId)
 	userId = checkSnowflake(userId)
 	local data, err = self.api:getUser(userId)
 	if data then
-		return User(data, self)
+		return self.state:newUser(data)
 	else
 		return nil, err
 	end
@@ -352,7 +328,7 @@ function Client:modifyGuild(guildId, payload)
 		discovery_splash              = opt(payload.discoverySplash, checkImageData),
 	})
 	if data then
-		return Guild(data, self)
+		return self.state:newGuild(data)
 	else
 		return nil, err
 	end
@@ -363,8 +339,7 @@ function Client:getGuildMember(guildId, userId)
 	userId = checkSnowflake(userId)
 	local data, err = self.api:getGuildMember(guildId, userId)
 	if data then
-		data.guild_id = guildId
-		return Member(data, self)
+		return self.state:newMember(guildId, data)
 	else
 		return nil, err
 	end
@@ -375,8 +350,7 @@ function Client:getGuildEmoji(guildId, emojiId)
 	emojiId = checkSnowflake(emojiId)
 	local data, err = self.api:getGuildEmoji(guildId, emojiId)
 	if data then
-		data.guild_id = guildId
-		return Emoji(data, self)
+		return self.state:newEmoji(guildId, data)
 	else
 		return nil, err
 	end
@@ -390,8 +364,7 @@ function Client:getGuildMembers(guildId, limit, after)
 	})
 	if data then
 		for i, v in ipairs(data) do
-			v.guild_id = guildId
-			data[i] = Member(v, self)
+			data[i] = self.state:newMember(guildId, v)
 		end
 		return data
 	else
@@ -404,8 +377,7 @@ function Client:getGuildRoles(guildId)
 	local data, err = self.api:getGuildRoles(guildId)
 	if data then
 		for i, v in ipairs(data) do
-			v.guild_id = guildId
-			data[i] = Role(v, self)
+			data[i] = self.state:newRole(guildId, v)
 		end
 		return data
 	else
@@ -418,8 +390,7 @@ function Client:getGuildEmojis(guildId)
 	local data, err = self.api:getGuildEmojis(guildId)
 	if data then
 		for i, v in ipairs(data) do
-			v.guild_id = guildId
-			data[i] = Emoji(v, self)
+			data[i] = self.state:newEmoji(v)
 		end
 		return data
 	else
@@ -432,8 +403,7 @@ function Client:getGuildChannels(guildId)
 	local data, err = self.api:getGuildChannels(guildId)
 	if data then
 		for i, v in ipairs(data) do
-			v.guild_id = guildId
-			data[i] = Channel(v, self)
+			data[i] = self.state:newChannel(v)
 		end
 		return data
 	else
@@ -456,8 +426,7 @@ function Client:createGuildRole(guildId, payload)
 		data, err = self.api:createGuildRole(guildId, {name = checkType('string', payload)})
 	end
 	if data then
-		data.guild_id = guildId
-		return Role(data, self)
+		return self.state:newRole(guildId, data)
 	else
 		return nil, err
 	end
@@ -470,8 +439,7 @@ function Client:createGuildEmoji(guildId, name, image) -- NOTE: make payload?
 		image = checkImageData(image),
 	})
 	if data then
-		data.guild_id = guildId
-		return Emoji(data, self)
+		return self.state:newEmoji(guildId, data)
 	else
 		return nil, err
 	end
@@ -496,8 +464,7 @@ function Client:createGuildChannel(guildId, payload)
 		data, err = self.api:createGuildChannel(guildId, {name = checkType('string', payload)})
 	end
 	if data then
-		channelMap[data.id] = data.guild_id or '@me'
-		return Channel(data, self)
+		return self.state:newChannel(data)
 	else
 		return nil, err
 	end
@@ -599,7 +566,9 @@ function Client:getGuildAuditLogs(guildId, payload)
 			v.guild_id = guildId
 			data.audit_log_entries[i] = AuditLogEntry(v, self)
 		end
-		-- TODO: users and webhooks
+		for _, v in ipairs(data.users) do
+			self.state:newUser(v)
+		end
 		return data.audit_log_entries
 	else
 		return nil, err
@@ -675,8 +644,7 @@ function Client:modifyGuildEmoji(guildId, emojiId, payload)
 		roles = opt(payload.roleIds, checkSnowflakeArray),
 	})
 	if data then
-		data.guild_id = guildId
-		return Emoji(data, self)
+		return self.state:newEmoji(guildId, data)
 	else
 		return nil, err
 	end
@@ -707,8 +675,7 @@ function Client:modifyGuildRole(guildId, roleId, payload)
 		mentionable = opt(payload.mentionable, checkType, 'boolean'),
 	})
 	if data then
-		data.guild_id = guildId
-		return Role(data, self)
+		return self.state:newRole(guildId, data)
 	else
 		return nil, err
 	end
@@ -793,8 +760,7 @@ function Client:modifyChannel(channelId, payload)
 		-- TODO: permission_overwrites
 	})
 	if data then
-		channelMap[data.id] = data.guild_id or '@me'
-		return Channel(data, self)
+		return self.state:newChannel(data)
 	else
 		return nil, err
 	end
@@ -895,7 +861,7 @@ function Client:getChannelMessage(channelId, messageId)
 	messageId = checkSnowflake(messageId)
 	local data, err = self.api:getChannelMessage(channelId, messageId)
 	if data then
-		return newMessage(channelId, data, self)
+		return self.state:newMessage(channelId, data)
 	else
 		return nil, err
 	end
@@ -910,7 +876,7 @@ function Client:getChannelMessages(channelId, limit, whence, messageId)
 	local data, err = self.api:getChannelMessages(channelId, query)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = newMessage(channelId, v, self)
+			data[i] = self.state:newMessage(channelId, v)
 		end
 		return data
 	else
@@ -923,7 +889,7 @@ function Client:getPinnedMessages(channelId)
 	local data, err = self.api:getPinnedMessages(channelId)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = newMessage(channelId, v, self)
+			data[i] = self.state:newMessage(channelId, v)
 		end
 		return data
 	else
@@ -1038,7 +1004,7 @@ function Client:createMessage(channelId, payload)
 	end
 
 	if data then
-		return newMessage(channelId, data, self)
+		return self.state:newMessage(channelId, data)
 	else
 		return nil, err
 	end
@@ -1069,7 +1035,7 @@ function Client:editMessage(channelId, messageId, payload)
 		flags = opt(payload.flags, checkInteger),
 	})
 	if data then
-		return newMessage(channelId, data, self)
+		return self.state:newMessage(channelId, data)
 	else
 		return nil, err
 	end
@@ -1166,7 +1132,7 @@ function Client:getReactionUsers(channelId, messageId, emojiHash, limit, whence,
 	local data, err = self.api:getReactions(channelId, messageId, emojiHash, query)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = User(v, self)
+			data[i] = self.state:newUser(v)
 		end
 		return data
 	else
@@ -1179,7 +1145,7 @@ function Client:crosspostMessage(channelId, messageId)
 	messageId = checkSnowflake(messageId)
 	local data, err = self.api:crosspostMessage(channelId, messageId)
 	if data then
-		return newMessage(channelId, data, self)
+		return self.state:newMessage(channelId, data)
 	else
 		return nil, err
 	end
@@ -1203,8 +1169,7 @@ function Client:createDM(userId)
 	userId = checkSnowflake(userId)
 	local data, err = self.api:createDM {recipient_id = userId}
 	if data then
-		channelMap[data.id] = data.guild_id or '@me'
-		return Channel(data, self)
+		return self.state:newChannel(data)
 	else
 		return nil, err
 	end
@@ -1293,6 +1258,10 @@ end
 
 function get:cdn()
 	return self._cdn
+end
+
+function get:state()
+	return self._state
 end
 
 function get:userId()

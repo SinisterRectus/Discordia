@@ -54,7 +54,14 @@ function Guild:_load(data)
 	self._approximate_member_count = data.approximate_member_count -- http "with_counts" only
 	self._approximate_presence_count = data.approximate_presence_count -- http "with_counts" only
 
-	-- TODO: data.roles and data.emojis
+	for _, v in ipairs(data.roles) do
+		self.client.state:newRole(v)
+	end
+
+	for _, v in ipairs(data.emojis) do
+		self.client.state:newEmoji(v)
+	end
+
 	-- TODO: gateway properties: joined_at, large, lazy, member_count
 	-- TODO: gateway arrays: channels, members, presences, voice_states
 

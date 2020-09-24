@@ -1,5 +1,4 @@
 local Container = require('./Container')
-local User = require('./User')
 
 local class = require('../class')
 local typing = require('../typing')
@@ -15,7 +14,7 @@ local Member, get = class('Member', Container)
 function Member:__init(data, client)
 	Container.__init(self, client)
 	self._guild_id = assert(data.guild_id)
-	self._user = User(data.user, client)
+	self._user = client.state:newUser(data.user)
 	self._nick = data.nick
 	self._roles = data.roles
 	self._joined_at = data.joined_at

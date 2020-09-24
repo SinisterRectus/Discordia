@@ -1,5 +1,4 @@
 local Container = require('./Container')
-local User = require('./User')
 
 local class = require('../class')
 
@@ -8,7 +7,7 @@ local Invite, get = class('Invite', Container)
 function Invite:__init(data, client)
 	Container.__init(self, client)
 	self._code = data.code
-	self._inviter = data.inviter and User(data.inviter, client) or nil
+	self._inviter = data.inviter and client.state:newUser(data.inviter) or nil
 	self._approximate_presence_count = data.approximate_presence_count -- with_counts
 	self._approximate_member_count = data.approximate_member_count -- with_counts
 	self._uses = data.uses

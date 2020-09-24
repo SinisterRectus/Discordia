@@ -1,5 +1,4 @@
 local Container = require('./Container')
-local User = require('./User')
 
 local class = require('../class')
 
@@ -9,7 +8,7 @@ function Ban:__init(data, client)
 	Container.__init(self, client)
 	self._guild_id = assert(data.guild_id)
 	self._reason = data.reason
-	self._user = User(data.user, client)
+	self._user = client.state:newUser(data.user)
 end
 
 function Ban:__eq(other)
