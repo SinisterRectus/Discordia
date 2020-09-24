@@ -259,9 +259,6 @@ end
 function get:shardId() -- TODO
 end
 
-function get:large() -- TODO
-end
-
 function get:joinedAt() -- TODO
 end
 

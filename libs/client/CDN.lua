@@ -23,60 +23,55 @@ function CDN:__init(client)
 	self._client = assert(client)
 end
 
-function CDN:buildURL(endpoint, params, ext, size)
-
+function CDN:buildURL(endpoint, ext, size)
 	local client = self._client
-
-	endpoint = endpoint:format(unpack(params))
 	ext = ext or client.defaultImageExtension
 	size = size or client.defaultImageSize
-
 	return CDN_BASE_URL .. endpoint .. '.' .. ext .. '?size=' .. size
-
 end
 
 function CDN:getCustomEmojiURL(emoji_id, ext, size)
-	return self:buildURL(endpoints.CUSTOM_EMOJI, {emoji_id}, ext, size)
+	return self:buildURL(endpoints.CUSTOM_EMOJI:format(emoji_id), ext, size)
 end
 
 function CDN:getGuildIconURL(guild_id, icon, ext, size)
-	return self:buildURL(endpoints.GUILD_ICON, {guild_id, icon}, ext, size)
+	return self:buildURL(endpoints.GUILD_ICON:format(guild_id, icon), ext, size)
 end
 
 function CDN:getGuildSplashURL(guild_id, splash, ext, size)
-	return self:buildURL(endpoints.GUILD_SPLASH, {guild_id, splash}, ext, size)
+	return self:buildURL(endpoints.GUILD_SPLASH:format(guild_id, splash), ext, size)
 end
 
 function CDN:getGuildDiscoverySplashURL(guild_id, discovery_splash, ext, size)
-	return self:buildURL(endpoints.GUILD_DISCOVERY_SPLASH, {guild_id, discovery_splash}, ext, size)
+	return self:buildURL(endpoints.GUILD_DISCOVERY_SPLASH:format(guild_id, discovery_splash), ext, size)
 end
 
 function CDN:getGuildBannerURL(guild_id, banner, ext, size)
-	return self:buildURL(endpoints.GUILD_BANNER, {guild_id, banner}, ext, size)
+	return self:buildURL(endpoints.GUILD_BANNER:format(guild_id, banner), ext, size)
 end
 
 function CDN:getDefaultUserAvatarURL(default_avatar, ext, size)
-	return self:buildURL(endpoints.DEFAULT_USER_AVATAR, {default_avatar}, ext, size)
+	return self:buildURL(endpoints.DEFAULT_USER_AVATAR:format(default_avatar), ext, size)
 end
 
 function CDN:getUserAvatarURL(user_id, avatar, ext, size)
-	return self:buildURL(endpoints.USER_AVATAR, {user_id, avatar}, ext, size)
+	return self:buildURL(endpoints.USER_AVATAR:format(user_id, avatar), ext, size)
 end
 
 function CDN:getApplicationIconURL(application_id, icon, ext, size)
-	return self:buildURL(endpoints.APPLICATION_ICON, {application_id, icon}, ext, size)
+	return self:buildURL(endpoints.APPLICATION_ICON:format(application_id, icon), ext, size)
 end
 
 function CDN:getApplicationAssetURL(application_id, asset_id, ext, size)
-	return self:buildURL(endpoints.APPLICATION_ASSET, {application_id, asset_id}, ext, size)
+	return self:buildURL(endpoints.APPLICATION_ASSET:format(application_id, asset_id), ext, size)
 end
 
 function CDN:getAchievementIconURL(application_id, achievement_id, icon_hash, ext, size)
-	return self:buildURL(endpoints.ACHIEVEMENT_ICON, {application_id, achievement_id, icon_hash}, ext, size)
+	return self:buildURL(endpoints.ACHIEVEMENT_ICON:format(application_id, achievement_id, icon_hash), ext, size)
 end
 
 function CDN:getTeamIconURL(team_id, team_icon, ext, size)
-	return self:buildURL(endpoints.TEAM_ICON, {team_id, team_icon}, ext, size)
+	return self:buildURL(endpoints.TEAM_ICON:format(team_id, team_icon), ext, size)
 end
 
 return CDN

@@ -3,12 +3,12 @@ local User = require('./User')
 
 local class = require('../class')
 local typing = require('../typing')
+local helpers = require('../helpers')
 local json = require('json')
 
-local checkType = typing.checkType
 local checkSnowflake = typing.checkSnowflake
 local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
-local readOnly = typing.readOnly
+local readOnly = helpers.readOnly
 local format = string.format
 local insert = table.insert
 

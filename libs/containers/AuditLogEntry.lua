@@ -20,9 +20,6 @@ end
 function AuditLogEntry:getOptions() -- TODO
 end
 
-function AuditLogEntry:getTarget() -- TODO
-end
-
 function AuditLogEntry:getUser()
 	return self.client:getUser(self.userId)
 end

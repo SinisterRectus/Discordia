@@ -271,13 +271,10 @@ function Shard:send(op, d)
 	local success, err
 	if not self._write then
 		err = 'Not connected'
-	elseif not sessionless[op] then
-		if not self._sessionId then
-			err = 'Not authenticated'
-		end
-		if sessionId ~= self._sessionId then
-			err = 'Expired session'
-		end
+	elseif not sessionless[op] and not self._sessionId then
+		err = 'Not authenticated'
+	elseif not sessionless[op] and sessionId ~= self._sessionId then
+		err = 'Expired session'
 	else
 		success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
 	end
