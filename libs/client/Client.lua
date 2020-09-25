@@ -18,8 +18,6 @@ local State = require('./State')
 
 local AuditLogEntry = require('../containers/AuditLogEntry')
 local Ban = require('../containers/Ban')
-local Invite = require('../containers/Invite')
-local Webhook = require('../containers/Webhook')
 
 local Bitfield = require('../utils/Bitfield')
 local Color = require('../utils/Color')
@@ -276,7 +274,7 @@ function Client:getWebhook(webhookId)
 	webhookId = checkSnowflake(webhookId)
 	local data, err = self.api:getWebhook(webhookId)
 	if data then
-		return Webhook(data, self)
+		return self.state:newWebhook(data)
 	else
 		return nil, err
 	end
@@ -287,7 +285,7 @@ function Client:getInvite(code, counts)
 	local query = counts and {with_counts = true} or nil
 	local data, err = self.api:getInvite(code, query)
 	if data then
-		return Invite(data, self)
+		return self.state:newInvite(data)
 	else
 		return nil, err
 	end
@@ -531,7 +529,7 @@ function Client:getGuildInvites(guildId)
 	local data, err = self.api:getGuildInvites(guildId)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = Invite(v, self)
+			data[i] = self.state:newInvite(v)
 		end
 		return data
 	else
@@ -544,7 +542,7 @@ function Client:getGuildWebhooks(guildId)
 	local data, err = self.api:getGuildWebhooks(guildId)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = Webhook(v, self)
+			data[i] = self.state:newWebhook(v)
 		end
 		return data
 	else
@@ -790,7 +788,7 @@ function Client:createChannelInvite(channelId, payload)
 		data, err = self.api:createChannelInvite(channelId)
 	end
 	if data then
-		return Invite(data, self)
+		return self.state:newInvite(data)
 	else
 		return nil, err
 	end
@@ -801,7 +799,7 @@ function Client:getChannelInvites(channelId)
 	local data, err = self.api:getChannelInvites(channelId)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = Invite(v, self)
+			data[i] = self.state:newInvite(v)
 		end
 		return data
 	else
@@ -821,7 +819,7 @@ function Client:createWebhook(channelId, payload)
 		data, err = self.api:createWebhook(channelId, {name = checkType('string', payload)})
 	end
 	if data then
-		return Webhook(data, self)
+		return self.state:newWebhook(data)
 	else
 		return nil, err
 	end
@@ -832,7 +830,7 @@ function Client:getChannelWebhooks(channelId)
 	local data, err = self.api:getChannelWebhooks(channelId)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = Webhook(v, self)
+			data[i] = self.state:newWebhook(v)
 		end
 		return data
 	else
@@ -1186,7 +1184,7 @@ function Client:modifyWebhook(guildId, payload)
 		channel_id = opt(payload.channelId, checkSnowflake),
 	})
 	if data then
-		return Webhook(data, self)
+		return self.state:newWebhook(data)
 	else
 		return nil, err
 	end
@@ -1203,6 +1201,15 @@ function Client:deleteWebhook(webhookId)
 end
 
 ----
+
+function get:ready()
+	for _, shard in pairs(self._shards) do
+		if not shard.ready then
+			return false
+		end
+	end
+	return true
+end
 
 function get:routeDelay()
 	return self._routeDelay

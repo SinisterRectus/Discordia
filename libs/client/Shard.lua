@@ -76,6 +76,7 @@ function Shard:__init(id, client)
 	self._seq = nil
 	self._write = nil
 	self._ready = nil
+	self._loading = nil
 	self._sessionId = nil
 	self._heartbeat = nil
 	self._reconnect = nil
@@ -104,9 +105,33 @@ function Shard:resumeSession()
 	self._client:emit('sessionResumed', self._id)
 end
 
+function Shard:setLoading(guilds)
+	self._loading = {}
+	for _, guild in pairs(guilds) do
+		self._loading[guild.id] = true
+	end
+end
+
+function Shard:setGuildReady(guildId)
+	if self._loading then
+		self._loading[guildId] = nil
+	end
+end
+
+function Shard:checkReady()
+	if self._loading and not next(self._loading) then
+		self._loading = nil
+		self._ready = true
+		self._client:emit('shardReady', self._id)
+		if self._client.ready then
+			return self._client:emit('ready')
+		end
+	end
+end
+
 function Shard:identifyWait()
 	if self:waitFor('READY', IDENTIFY_DELAY) then
-		sleep(IDENTIFY_DELAY)
+		return sleep(IDENTIFY_DELAY)
 	end
 end
 
@@ -340,10 +365,6 @@ function Shard:updatePresence(status, activity)
 		game = activity or null,
 		since = null, afk = null,
 	})
-end
-
-function Shard:setReady(ready)
-	self._ready = ready
 end
 
 function get:id()

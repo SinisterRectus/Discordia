@@ -77,6 +77,16 @@ local function checkMember(class, level)
 	end
 end
 
+local function copy(obj)
+	assert(isObject(obj))
+	local new = {}
+	for k, v in next, obj do
+		new[k] = v
+	end
+	objects[new] = true
+	return setmetatable(new, getmetatable(obj))
+end
+
 return setmetatable({
 
 	isClass = isClass,
@@ -85,6 +95,7 @@ return setmetatable({
 	isInstance = isInstance,
 	profile = profile,
 	mixin = mixin,
+	copy = copy,
 
 }, {__call = function(_, name, base)
 

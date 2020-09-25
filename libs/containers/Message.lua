@@ -70,8 +70,37 @@ function Message:_load(data)
 	self._mentions = data.mentions
 	self._embeds = data.embeds
 	self._attachments = data.attachments
-	-- TODO: process members on MESSAGE_CREATE
+	if data.member then
+		data.member.user = data.author
+		self.client.state:newMember(data.guild_id, data.member)
+	end
 	-- TODO: reactions, activity, application, reference
+end
+
+local function elvis(a, b)
+	return a ~= nil and a or b
+end
+
+function Message:_update(data)
+	self._content = elvis(data.content, self._content)
+	self._edited_timestamp = elvis(data.edited_timestamp, self._edited_timestamp)
+	self._tts = elvis(data.tts, self._tts)
+	self._mention_everyone = elvis(data.mention_everyone, self._mention_everyone)
+	self._nonce = elvis(data.nonce, self._nonce)
+	self._pinned = elvis(data.pinned, self._pinned)
+	self._flags = elvis(data.flags, self._flags)
+	if data.mentions then
+		for i, v in ipairs(data.mentions) do
+			data.mentions[i] = self.client.state:newUser(v)
+		end
+		self._mentions = data.mentions
+	end
+	self._embeds = elvis(data.embeds, self._embeds)
+	self._attachments = elvis(data.attachments, self._attachments)
+	if data.member and data.author then
+		data.member.user = data.author
+		self.client.state:newMember(data.guild_id, data.member)
+	end
 end
 
 function Message:setContent(content)
@@ -205,6 +234,10 @@ end
 
 function get:type()
 	return self._type
+end
+
+function get:flags()
+	return self._flags or 0
 end
 
 function get:pinned()

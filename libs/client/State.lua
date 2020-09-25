@@ -3,12 +3,12 @@
 local Channel = require('../containers/Channel')
 local Emoji = require('../containers/Emoji')
 local Guild = require('../containers/Guild')
--- local Invite = require('../containers/Invite')
+local Invite = require('../containers/Invite')
 local Member = require('../containers/Member')
 local Message = require('../containers/Message')
 local Role = require('../containers/Role')
 local User = require('../containers/User')
--- local Webhook = require('../containers/Webhook')
+local Webhook = require('../containers/Webhook')
 
 local class = require('../class')
 
@@ -33,6 +33,8 @@ function State:__init(client)
 
 	self._users = {}
 	self._guilds = {}
+	self._invites = {}
+	self._webhooks = {}
 	self._roles = auto()
 	self._emojis = auto()
 	self._members = auto()
@@ -53,6 +55,18 @@ function State:newGuild(data)
 	return guild
 end
 
+function State:newInvite(data)
+	local invite = Invite(data, self._client)
+	self._invites[data.id] = invite
+	return invite
+end
+
+function State:newWebhook(data)
+	local webhook = Webhook(data, self._client)
+	self._webhooks[data.id] = webhook
+	return webhook
+end
+
 function State:newRole(guildId, data)
 	data.guild_id = guildId
 	roleMap[data.id] = guildId
@@ -71,7 +85,7 @@ end
 
 function State:newMember(guildId, data)
 	data.guild_id = guildId
-	memberMap[data.id] = guildId
+	memberMap[data.user.id] = guildId
 	local member = Member(data, self._client)
 	self._members[guildId][data.user.id] = member
 	return member
@@ -85,8 +99,8 @@ function State:newChannel(data)
 	return channel
 end
 
-function State:newMessage(channelId, data) --- TODO: add logic for gateway messages
-	local guildId = channelMap[channelId]
+function State:newMessage(channelId, data, gateway)
+	local guildId = gateway and (data.guild_id or '@me') or channelMap[channelId]
 	if guildId == nil then
 		local channel, err = self._client:getChannel(channelId)
 		if channel then
@@ -105,12 +119,29 @@ function State:newMessage(channelId, data) --- TODO: add logic for gateway messa
 	return message
 end
 
+function State:updateMessage(data)
+	local old = self:getMessage(data.id)
+	if old then
+		local new = class.copy(old)
+		new:_update(data)
+		self.messages[data.channel_id][data.id] = new
+	end
+end
+
 function State:getUser(userId)
 	return self._users[userId]
 end
 
 function State:getGuild(guildId)
 	return self._guilds[guildId]
+end
+
+function State:getInvite(code)
+	return self._invites[code]
+end
+
+function State:getWebhook(webhookId)
+	return self._webhooks[webhookId]
 end
 
 function State:getRole(roleId)
