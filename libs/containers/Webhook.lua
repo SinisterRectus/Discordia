@@ -12,10 +12,6 @@ function Webhook:__init(data, client)
 	self._guild_id = data.guild_id
 	self._application_id = data.application_id
 	self._token = data.token
-	return self:_load(data)
-end
-
-function Webhook:_load(data)
 	self._type = data.type
 	self._name = data.name
 	self._avatar = data.avatar

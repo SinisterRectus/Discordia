@@ -20,10 +20,6 @@ Guild Store    = 6
 function Channel:__init(data, client)
 	Snowflake.__init(self, data, client)
 	self._guild_id = data.guild_id -- text, voice, category, news, store (excludes private and group)
-	return self:_load(data)
-end
-
-function Channel:_load(data)
 	self._type = data.type -- all types
 	self._name = data.name -- text, voice, group, category, news, store (excludes private)
 	self._topic = data.topic -- text, news

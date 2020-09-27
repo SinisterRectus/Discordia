@@ -50,10 +50,6 @@ function Message:__init(data, client)
 	self._channel_id = data.channel_id
 	self._guild_id = data.guild_id
 	self._webhook_id = data.webhook_id
-	return self:_load(data)
-end
-
-function Message:_load(data)
 	self._type = data.type
 	self._author = self.client.state:newUser(data.author)
 	self._content = data.content

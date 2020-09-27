@@ -16,10 +16,6 @@ local Emoji, get = class('Emoji', Snowflake)
 function Emoji:__init(data, client)
 	Snowflake.__init(self, data, client)
 	self._guild_id = assert(data.guild_id)
-	return self:_load(data)
-end
-
-function Emoji:_load(data)
 	self._name = data.name
 	self._require_colons = data.require_colons
 	self._managed = data.managed

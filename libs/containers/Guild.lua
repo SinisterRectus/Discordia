@@ -11,11 +11,8 @@ local readOnly = helpers.readOnly
 local Guild, get = class('Guild', Snowflake)
 
 function Guild:__init(data, client)
-	Snowflake.__init(self, data, client)
-	return self:_load(data)
-end
 
-function Guild:_load(data)
+	Snowflake.__init(self, data, client)
 
 	self._name = data.name -- http and wss
 	self._icon = data.icon -- http and wss
@@ -64,7 +61,6 @@ function Guild:_load(data)
 
 	-- TODO: gateway properties: joined_at, large, lazy, member_count
 	-- TODO: gateway arrays: channels, members, presences, voice_states
-
 end
 
 -- TODO: requestMembers

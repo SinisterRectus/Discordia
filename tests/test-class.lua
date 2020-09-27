@@ -178,6 +178,10 @@ assertEqual(baz.testMixinGetter, 'mixin-property')
 
 assertError(function() class('Foo') end, 'class already defined: Foo')
 
+assertError(function() foo.undefined = 'test' end, 'cannot declare class property outside of __init')
+assertError(function() bar.undefined = 'test' end, 'cannot declare class property outside of __init')
+assertError(function() baz.undefined = 'test' end, 'cannot declare class property outside of __init')
+
 assertError(function() return foo.undefined end, 'undefined class member: undefined')
 assertError(function() return bar.undefined end, 'undefined class member: undefined')
 assertError(function() return baz.undefined end, 'undefined class member: undefined')
@@ -195,3 +199,10 @@ assertError(function() bar._bar = 'test' end, 'cannot access private class prope
 assertError(function() baz._foo = 'test' end, 'cannot access private class property')
 assertError(function() baz._bar = 'test' end, 'cannot access private class property')
 assertError(function() baz._baz = 'test' end, 'cannot access private class property')
+
+assertError(function() foo:testFoo() end, 'cannot declare class property outside of __init')
+assertError(function() bar:testFoo() end, 'cannot declare class property outside of __init')
+assertError(function() bar:testBar() end, 'cannot declare class property outside of __init')
+assertError(function() baz:testFoo() end, 'cannot declare class property outside of __init')
+assertError(function() baz:testBar() end, 'cannot declare class property outside of __init')
+assertError(function() baz:testBaz() end, 'cannot declare class property outside of __init')
