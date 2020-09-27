@@ -51,7 +51,7 @@ function get:temporary()
 end
 
 function get:createdAt()
-	return self._createdAt
+	return self._created_at
 end
 
 function get:approximatePresenceCount()

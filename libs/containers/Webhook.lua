@@ -23,8 +23,8 @@ function Webhook:getAvatarURL(size, ext)
 	return User.getAvatarURL(self, size, ext)
 end
 
-function Webhook:getDefaultAvatarURL(size)
-	return User.getDefaultAvatarURL(self, size)
+function Webhook:getDefaultAvatarURL(size, ext)
+	return User.getDefaultAvatarURL(self, size, ext)
 end
 
 function Webhook:setName(name)
