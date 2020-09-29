@@ -1,3 +1,5 @@
+local insert = table.insert
+
 local checkCalls = true
 
 local meta = {}
@@ -100,6 +102,30 @@ local function copy(obj)
 	return setmetatable(new, getmetatable(obj))
 end
 
+local function info(class)
+
+	if isObject(class) then
+		class = getmetatable(class)
+	elseif not isClass(class) then
+		return error('must be a class or object', 2)
+	end
+
+	local ret = {
+		name = names[class],
+		base = bases[class] and names[bases[class]],
+		class = {},
+		getters = {},
+		setters = {},
+	}
+
+	for k in pairs(class) do insert(ret.class, k) end
+	for k in pairs(getters[class]) do insert(ret.getters, k) end
+	for k in pairs(setters[class]) do insert(ret.setters, k) end
+
+	return ret
+
+end
+
 return setmetatable({
 
 	isClass = isClass,
@@ -109,6 +135,7 @@ return setmetatable({
 	profile = profile,
 	mixin = mixin,
 	copy = copy,
+	info = info,
 
 }, {__call = function(_, name, base)
 
