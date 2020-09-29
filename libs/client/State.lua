@@ -57,7 +57,7 @@ end
 
 function State:newInvite(data)
 	local invite = Invite(data, self._client)
-	self._invites[data.id] = invite
+	self._invites[data.code] = invite
 	return invite
 end
 

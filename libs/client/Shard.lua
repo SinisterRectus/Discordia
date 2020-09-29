@@ -92,8 +92,12 @@ function Shard:log(level, msg, ...)
 	return msg
 end
 
-function Shard:readySession(sessionId)
-	self._sessionId = sessionId
+function Shard:readySession(data)
+	self._sessionId = data.session_id
+	self._loading = {}
+	for _, guild in pairs(data.guilds) do
+		self._loading[guild.id] = true
+	end
 	self:emit('READY')
 	self:log('info', 'Session ready')
 	self._client:emit('sessionReady', self._id)
@@ -103,13 +107,6 @@ function Shard:resumeSession()
 	self:emit('RESUMED')
 	self:log('info', 'Session resumed')
 	self._client:emit('sessionResumed', self._id)
-end
-
-function Shard:setLoading(guilds)
-	self._loading = {}
-	for _, guild in pairs(guilds) do
-		self._loading[guild.id] = true
-	end
 end
 
 function Shard:setGuildReady(guildId)

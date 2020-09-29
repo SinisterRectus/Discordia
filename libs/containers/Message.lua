@@ -66,10 +66,6 @@ function Message:__init(data, client)
 	self._mentions = data.mentions
 	self._embeds = data.embeds
 	self._attachments = data.attachments
-	if data.member then
-		data.member.user = data.author
-		self.client.state:newMember(data.guild_id, data.member)
-	end
 	-- TODO: reactions, activity, application, reference
 end
 
@@ -93,10 +89,6 @@ function Message:_update(data)
 	end
 	self._embeds = elvis(data.embeds, self._embeds)
 	self._attachments = elvis(data.attachments, self._attachments)
-	if data.member and data.author then
-		data.member.user = data.author
-		self.client.state:newMember(data.guild_id, data.member)
-	end
 end
 
 function Message:setContent(content)

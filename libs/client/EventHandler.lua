@@ -7,8 +7,7 @@ end})
 
 function EventHandler.READY(d, client, shard)
 	client.state:newUser(d.user)
-	shard:setLoading(d.guilds)
-	shard:readySession(d.session_id)
+	shard:readySession(d)
 	return shard:checkReady()
 end
 
@@ -32,7 +31,11 @@ function EventHandler.CHANNEL_DELETE(d, client) -- GUILDS / DIRECT_MESSAGES
 end
 
 function EventHandler.CHANNEL_PINS_UPDATE(d, client) -- GUILDS / DIRECT_MESSAGES
-	return client:emit('pinsUpdate', d.channel_id, d.last_pin_timestamp)
+	return client:emit('pinsUpdate', {
+		guildId = d.guild_id,
+		channelId = d.channel_id,
+		timestamp = d.last_pin_timestamp,
+	})
 end
 
 function EventHandler.GUILD_CREATE(d, client, shard) -- GUILDS
@@ -109,21 +112,39 @@ function EventHandler.GUILD_ROLE_DELETE(d, client) -- GUILDS
 end
 
 function EventHandler.INVITE_CREATE(d, client) -- GUILD_INVITES
-	return client:emit('inviteCreate', d.channel_id, d.code)
+	return client:emit('inviteCreate', {
+		guildId = d.guild_id,
+		channelId = d.channel_id,
+		code = d.code,
+	})
 end
 
 function EventHandler.INVITE_DELETE(d, client) -- GUILD_INVITES
-	return client:emit('inviteDelete', d.channel_id, d.code)
+	return client:emit('inviteDelete', {
+		guildId = d.guild_id,
+		channelId = d.channel_id,
+		code = d.code,
+	})
 end
 
 function EventHandler.MESSAGE_CREATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES
 	local message = client.state:newMessage(d.channel_id, d, true)
-	return client:emit('messageCreate', message)
+	local member
+	if d.guild_id and d.member then
+		d.member.user = d.author
+		member = client.state:newMember(d.guild_id, d.member)
+	end
+	return client:emit('messageCreate', message, member) -- TODO
 end
 
 function EventHandler.MESSAGE_UPDATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES
 	client.state:updateMessage(d)
-	return client:emit('messageUpdate', d.channel_id, d.id)
+	local member
+	if d.guild_id and d.member then
+		d.member.user = d.author
+		member = client.state:newMember(d.guild_id, d.member)
+	end
+	return client:emit('messageUpdate', d.channel_id, d.id, member)
 end
 
 function EventHandler.MESSAGE_DELETE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES
@@ -135,22 +156,45 @@ function EventHandler.MESSAGE_DELETE_BULK(d, client) -- GUILD_MESSAGES
 end
 
 function EventHandler.MESSAGE_REACTION_ADD(d, client) -- GUILD_MESSAGE_REACTIONS / DIRECT_MESSAGE_REACTIONS
+	local member
 	if d.guild_id and d.member then
-		client.state:newMember(d.guild_id, d.member)
+		member = d.guild_id and d.member and client.state:newMember(d.guild_id, d.member)
 	end
-	return client:emit('reactionAdd', d.channel_id, d.message_id, d.user_id, d.emoji)
+	return client:emit('reactionAdd', {
+		emoji = d.emoji, -- id, name, animated (all can be nil)
+		userId = d.user_id,
+		guildId = d.guild_id,
+		channelId = d.channel_id,
+		messageId = d.message_id,
+		member = member,
+	})
 end
 
 function EventHandler.MESSAGE_REACTION_REMOVE(d, client) -- GUILD_MESSAGE_REACTIONS / DIRECT_MESSAGE_REACTIONS
-	return client:emit('reactionRemove', d.channel_id, d.message_id, d.user_id, d.emoji)
+	return client:emit('reactionRemove', {
+		emoji = d.emoji, -- id, name, animated (all can be nil)
+		userId = d.user_id,
+		guildId = d.guild_id, -- no member provided
+		channelId = d.channel_id,
+		messageId = d.message_id,
+	})
 end
 
 function EventHandler.MESSAGE_REACTION_REMOVE_ALL(d, client) -- GUILD_MESSAGE_REACTIONS / DIRECT_MESSAGE_REACTIONS
-	return client:emit('reactionRemoveAll', d.channel_id, d.message_id)
+	return client:emit('reactionRemoveAll', {
+		guildId = d.guild_id,
+		channelId = d.channel_id,
+		messageId = d.message_id,
+	})
 end
 
 function EventHandler.MESSAGE_REACTION_REMOVE_EMOJI(d, client) -- GUILD_MESSAGE_REACTIONS / DIRECT_MESSAGE_REACTIONS
-	return client:emit('reactionRemoveEmoji', d.channel_id, d.message_id, d.emoji)
+	return client:emit('reactionRemoveEmoji', {
+		emoji = d.emoji, -- id, name, animated (all can be nil)
+		guildId = d.guild_id,
+		channelId = d.channel_id,
+		messageId = d.message_id,
+	})
 end
 
 function EventHandler.PRESENCE_UPDATE() -- GUILD_PRESENCES
@@ -158,10 +202,18 @@ function EventHandler.PRESENCE_UPDATE() -- GUILD_PRESENCES
 end
 
 function EventHandler.TYPING_START(d, client) -- GUILD_MESSAGE_TYPING / DIRECT_MESSAGE_TYPING
+	local member
 	if d.guild_id and d.member then
-		client.state:newMember(d.guild_id, d.member)
+		member = d.guild_id and d.member and client.state:newMember(d.guild_id, d.member)
 	end
-	return client:emit('typingStart', d.channel_id, d.user_id, d.timestamp)
+	return client:emit('typingStart', {
+		timestamp = d.timestamp,
+		userId = d.user_id,
+		guildId = d.guild_id,
+		channelId = d.channel_id,
+		messageId = d.message_id,
+		member = member,
+	})
 end
 
 function EventHandler.USER_UPDATE(d, client) -- NOTE: no intent; always received
@@ -178,7 +230,10 @@ function EventHandler.VOICE_SERVER_UPDATE() -- NOTE: no intent; command response
 end
 
 function EventHandler.WEBHOOKS_UPDATE(d, client) -- GUILD_WEBHOOKS
-	return client:emit('webhookUpdate', d.guild_id, d.channel_id)
+	return client:emit('webhookUpdate', {
+		guildId = d.guild_id,
+		channelId = d.channel_id,
+	})
 end
 
 return EventHandler
