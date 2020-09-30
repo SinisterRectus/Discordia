@@ -40,9 +40,13 @@ end
 
 function EventHandler.GUILD_CREATE(d, client, shard) -- GUILDS
 	local guild = client.state:newGuild(d)
-	client:emit('guildCreate', guild)
-	shard:setGuildReady(d.id)
-	return shard:checkReady()
+	if shard:guildIsLoading(d.id) then
+		shard:setGuildReady(d.id)
+		client:emit('guildAvailable', guild)
+		return shard:checkReady()
+	else
+		return client:emit('guildCreate', guild)
+	end
 end
 
 function EventHandler.GUILD_UPDATE(d, client) -- GUILDS
@@ -51,7 +55,11 @@ function EventHandler.GUILD_UPDATE(d, client) -- GUILDS
 end
 
 function EventHandler.GUILD_DELETE(d, client) -- GUILDS
-	return client:emit('guildDelete', d.id)
+	if d.unavailable then
+		return client:emit('guildUnavailable', d.id)
+	else
+		return client:emit('guildDelete', d.id)
+	end
 end
 
 function EventHandler.GUILD_BAN_ADD(d, client) -- GUILD_BANS

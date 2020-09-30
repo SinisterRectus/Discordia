@@ -109,6 +109,10 @@ function Shard:resumeSession()
 	self._client:emit('sessionResumed', self._id)
 end
 
+function Shard:guildIsLoading(guildId)
+	return self._loading and self._loading[guildId]
+end
+
 function Shard:setGuildReady(guildId)
 	if self._loading then
 		self._loading[guildId] = nil
