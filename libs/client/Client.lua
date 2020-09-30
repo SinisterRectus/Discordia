@@ -25,6 +25,7 @@ local Color = require('../utils/Color')
 local wrap = coroutine.wrap
 local concat, insert, remove = table.concat, table.insert, table.remove
 local format = string.format
+local floor = math.floor
 local attachQuery, readOnly = helpers.attachQuery, helpers.readOnly
 local checkEnum = typing.checkEnum
 local checkSnowflake = typing.checkSnowflake
@@ -223,6 +224,10 @@ end
 
 function Client:setAvatar(avatar)
 	return self:modifyCurrentUser({avatar = avatar or json.null})
+end
+
+function Client:getGuildShardId(guildId)
+	return floor(checkSnowflake(guildId) / 2^22) % self.totalShardCount
 end
 
 ---- base ----

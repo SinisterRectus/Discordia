@@ -51,16 +51,42 @@ function Guild:__init(data, client)
 	self._approximate_member_count = data.approximate_member_count -- http "with_counts" only
 	self._approximate_presence_count = data.approximate_presence_count -- http "with_counts" only
 
+	local id = data.id
+	local state = client.state
+
 	for _, v in ipairs(data.roles) do
-		self.client.state:newRole(data.id, v)
+		state:newRole(id, v)
 	end
 
 	for _, v in ipairs(data.emojis) do
-		self.client.state:newEmoji(data.id, v)
+		state:newEmoji(id, v)
+	end
+
+	if data.channels then -- wss only
+		for _, v in ipairs(data.channels) do
+			v.guild_id = id -- thanks discord
+			state:newChannel(v)
+		end
+	end
+
+	if data.members then -- wss only
+		for _, v in ipairs(data.members) do
+			state:newMember(id, v)
+		end
+	end
+
+	if data.presences then -- wss only
+		for _, v in ipairs(data.presences) do
+			state:newPresence(id, v)
+		end
+	end
+
+	if data.voice_states then
+		-- TODO
 	end
 
 	-- TODO: gateway properties: joined_at, large, lazy, member_count
-	-- TODO: gateway arrays: channels, members, presences, voice_states
+
 end
 
 -- TODO: requestMembers
@@ -259,7 +285,8 @@ end
 
 ----
 
-function get:shardId() -- TODO
+function get:shardId()
+	return self.client:getGuildShardId(self.id)
 end
 
 function get:joinedAt() -- TODO

@@ -6,6 +6,7 @@ local Guild = require('../containers/Guild')
 local Invite = require('../containers/Invite')
 local Member = require('../containers/Member')
 local Message = require('../containers/Message')
+local Presence = require('../containers/Presence')
 local Role = require('../containers/Role')
 local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
@@ -36,6 +37,7 @@ function State:__init(client)
 	self._members = auto()
 	self._channels = auto()
 	self._messages = auto()
+	self._presences = auto()
 
 end
 
@@ -82,6 +84,13 @@ function State:newMember(guildId, data)
 	local member = Member(data, self._client)
 	self._members[guildId][data.user.id] = member
 	return member
+end
+
+function State:newPresence(guildId, data)
+	data.guild_id = guildId
+	local presence = Presence(data, self._client)
+	self._presences[guildId][data.user.id] = presence
+	return presence
 end
 
 function State:newChannel(data)
@@ -146,6 +155,10 @@ end
 
 function State:getMember(guildId, userId)
 	return self._members[guildId][userId]
+end
+
+function State:getPresence(guildId, userId)
+	return self._presences[guildId][userId]
 end
 
 function State:getChannel(channelId)

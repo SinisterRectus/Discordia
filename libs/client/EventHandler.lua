@@ -102,6 +102,11 @@ function EventHandler.GUILD_MEMBERS_CHUNK(d, client) -- no intent; command respo
 	for _, v in ipairs(d.members) do
 		client.state:newMember(d.guild_id, v)
 	end
+	if d.presences then
+		for _, v in ipairs(d.presences) do
+			client.state:newPresence(d.guild_id, v)
+		end
+	end
 	return client:emit('membersChunk', d.guild_id)
 end
 
@@ -201,8 +206,10 @@ function EventHandler.MESSAGE_REACTION_REMOVE_EMOJI(d, client) -- GUILD_MESSAGE_
 	})
 end
 
-function EventHandler.PRESENCE_UPDATE() -- GUILD_PRESENCES
-	-- TODO
+function EventHandler.PRESENCE_UPDATE(d, client) -- GUILD_PRESENCES
+	if not d.guild_id then return end
+	client.state:newPresence(d.guild_id, d) -- TODO: update user somehow
+	return client:emit('presenceUpdate', d.guild_id, d.user.id)
 end
 
 function EventHandler.TYPING_START(d, client) -- GUILD_MESSAGE_TYPING / DIRECT_MESSAGE_TYPING
