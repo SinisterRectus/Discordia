@@ -14,11 +14,7 @@ local class = require('../class')
 
 local State = class('State')
 
-local roleMap = {} -- roleId -> guildId
-local emojiMap = {} -- roleId -> guildId
-local memberMap = {} -- memberId -> guildId
 local channelMap = {} -- channelId -> guildId
-local messageMap = {} -- messageId -> channelId
 
 local function auto()
 	return setmetatable({}, {__index = function(self, k)
@@ -69,7 +65,6 @@ end
 
 function State:newRole(guildId, data)
 	data.guild_id = guildId
-	roleMap[data.id] = guildId
 	local role = Role(data, self._client)
 	self._roles[guildId][data.id] = role
 	return role
@@ -77,7 +72,6 @@ end
 
 function State:newEmoji(guildId, data)
 	data.guild_id = guildId
-	emojiMap[data.id] = guildId
 	local emoji = Emoji(data, self._client)
 	self._emojis[guildId][data.id] = emoji
 	return emoji
@@ -85,7 +79,6 @@ end
 
 function State:newMember(guildId, data)
 	data.guild_id = guildId
-	memberMap[data.user.id] = guildId
 	local member = Member(data, self._client)
 	self._members[guildId][data.user.id] = member
 	return member
@@ -113,18 +106,17 @@ function State:newMessage(channelId, data, gateway)
 	if guildId ~= '@me' then
 		data.guild_id = guildId
 	end
-	messageMap[data.id] = channelId
 	local message = Message(data, self._client)
 	self._messages[channelId][data.id] = message
 	return message
 end
 
 function State:updateMessage(data)
-	local old = self:getMessage(data.id)
+	local old = self._messages[data.channel_id][data.id]
 	if old then
 		local new = class.copy(old)
 		new:_update(data)
-		self.messages[data.channel_id][data.id] = new
+		self._messages[data.channel_id][data.id] = new
 	end
 end
 
@@ -144,19 +136,16 @@ function State:getWebhook(webhookId)
 	return self._webhooks[webhookId]
 end
 
-function State:getRole(roleId)
-	local guildId = roleMap[roleId]
-	return guildId and self._roles[guildId][roleId]
+function State:getRole(guildId, roleId)
+	return self._roles[guildId][roleId]
 end
 
-function State:getEmoji(emojiId)
-	local guildId = emojiMap[emojiId]
-	return guildId and self._emojis[guildId][emojiId]
+function State:getEmoji(guildId, emojiId)
+	return self._emojis[guildId][emojiId]
 end
 
-function State:getMember(memberId)
-	local guildId = memberMap[memberId]
-	return guildId and self._members[guildId][memberId]
+function State:getMember(guildId, userId)
+	return self._members[guildId][userId]
 end
 
 function State:getChannel(channelId)
@@ -164,9 +153,8 @@ function State:getChannel(channelId)
 	return guildId and self._channels[guildId][channelId]
 end
 
-function State:getMessage(messageId)
-	local channelId = messageMap[messageId]
-	return channelId and self._messages[channelId][messageId]
+function State:getMessage(channelId, messageId)
+	return self._messages[channelId][messageId]
 end
 
 return State

@@ -388,7 +388,7 @@ function Client:getGuildEmojis(guildId)
 	local data, err = self.api:getGuildEmojis(guildId)
 	if data then
 		for i, v in ipairs(data) do
-			data[i] = self.state:newEmoji(v)
+			data[i] = self.state:newEmoji(guildId, v)
 		end
 		return data
 	else

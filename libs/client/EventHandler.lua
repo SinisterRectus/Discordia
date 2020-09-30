@@ -90,7 +90,7 @@ function EventHandler.GUILD_MEMBER_REMOVE(d, client) -- GUILD_MEMBERS
 	return client:emit('memberRemove', d.guild_id, user)
 end
 
-function EventHandler.GUILD_MEMBERS_CHUNK(d, client) -- NOTE: no intent; command response
+function EventHandler.GUILD_MEMBERS_CHUNK(d, client) -- no intent; command response
 	for _, v in ipairs(d.members) do
 		client.state:newMember(d.guild_id, v)
 	end
@@ -134,7 +134,7 @@ function EventHandler.MESSAGE_CREATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSA
 		d.member.user = d.author
 		member = client.state:newMember(d.guild_id, d.member)
 	end
-	return client:emit('messageCreate', message, member) -- TODO
+	return client:emit('messageCreate', message, member)
 end
 
 function EventHandler.MESSAGE_UPDATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES
@@ -156,18 +156,14 @@ function EventHandler.MESSAGE_DELETE_BULK(d, client) -- GUILD_MESSAGES
 end
 
 function EventHandler.MESSAGE_REACTION_ADD(d, client) -- GUILD_MESSAGE_REACTIONS / DIRECT_MESSAGE_REACTIONS
-	local member
-	if d.guild_id and d.member then
-		member = d.guild_id and d.member and client.state:newMember(d.guild_id, d.member)
-	end
+	local member = d.guild_id and d.member and client.state:newMember(d.guild_id, d.member)
 	return client:emit('reactionAdd', {
 		emoji = d.emoji, -- id, name, animated (all can be nil)
 		userId = d.user_id,
 		guildId = d.guild_id,
 		channelId = d.channel_id,
 		messageId = d.message_id,
-		member = member,
-	})
+	}, member)
 end
 
 function EventHandler.MESSAGE_REACTION_REMOVE(d, client) -- GUILD_MESSAGE_REACTIONS / DIRECT_MESSAGE_REACTIONS
@@ -202,21 +198,17 @@ function EventHandler.PRESENCE_UPDATE() -- GUILD_PRESENCES
 end
 
 function EventHandler.TYPING_START(d, client) -- GUILD_MESSAGE_TYPING / DIRECT_MESSAGE_TYPING
-	local member
-	if d.guild_id and d.member then
-		member = d.guild_id and d.member and client.state:newMember(d.guild_id, d.member)
-	end
+	local member = d.guild_id and d.member and client.state:newMember(d.guild_id, d.member)
 	return client:emit('typingStart', {
 		timestamp = d.timestamp,
 		userId = d.user_id,
 		guildId = d.guild_id,
 		channelId = d.channel_id,
 		messageId = d.message_id,
-		member = member,
-	})
+	}, member)
 end
 
-function EventHandler.USER_UPDATE(d, client) -- NOTE: no intent; always received
+function EventHandler.USER_UPDATE(d, client) -- no intent; always received
 	local user = client.state:newUser(d)
 	return client:emit('userUpdate', user)
 end
@@ -225,7 +217,7 @@ function EventHandler.VOICE_STATE_UPDATE() -- GUILD_VOICE_STATES
 	-- TODO
 end
 
-function EventHandler.VOICE_SERVER_UPDATE() -- NOTE: no intent; command response
+function EventHandler.VOICE_SERVER_UPDATE() -- no intent; command response
 	-- TODO
 end
 

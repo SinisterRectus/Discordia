@@ -1,4 +1,4 @@
-local insert = table.insert
+local insert, sort = table.insert, table.sort
 
 local checkCalls = true
 
@@ -107,7 +107,7 @@ local function info(class)
 	if isObject(class) then
 		class = getmetatable(class)
 	elseif not isClass(class) then
-		return error('must be a class or object', 2)
+		return error('must be a class or object')
 	end
 
 	local ret = {
@@ -118,9 +118,9 @@ local function info(class)
 		setters = {},
 	}
 
-	for k in pairs(class) do insert(ret.class, k) end
-	for k in pairs(getters[class]) do insert(ret.getters, k) end
-	for k in pairs(setters[class]) do insert(ret.setters, k) end
+	for k in pairs(class) do insert(ret.class, k); sort(ret.class) end
+	for k in pairs(getters[class]) do insert(ret.getters, k); sort(ret.getters) end
+	for k in pairs(setters[class]) do insert(ret.setters, k); sort(ret.setters) end
 
 	return ret
 
