@@ -57,29 +57,11 @@ function Channel:getMessage(id)
 end
 
 function Channel:getFirstMessage()
-	local messages, err = self.client:getChannelMessages(self.id, 1, 'after', self.id)
-	if messages then
-		if messages[1] then -- NOTE: this might not always be an array
-			return messages[1]
-		else
-			return nil, 'Channel has no messages'
-		end
-	else
-		return nil, err
-	end
+	return self.client:getChannelFirstMessage(self.id)
 end
 
 function Channel:getLastMessage()
-	local messages, err = self.client:getChannelMessages(self.id, 1)
-	if messages then
-		if messages[1] then -- NOTE: this might not always be an array
-			return messages[1]
-		else
-			return nil, 'Channel has no messages'
-		end
-	else
-		return nil, err
-	end
+	return self.client:getChannelLastMessage(self.id)
 end
 
 function Channel:getMessages(limit, whence, messageId)

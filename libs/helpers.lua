@@ -3,6 +3,7 @@ local uv = require('uv')
 local hrtime = uv.hrtime
 local insert = table.insert
 local format, byte, gsub = string.format, string.byte, string.gsub
+local resume = coroutine.resume
 
 local function toPercent(char)
 	return format('%%%02X', byte(char))
@@ -78,15 +79,33 @@ end
 local function readOnly(tbl)
 	tbl = tbl or {}
 	return setmetatable({}, {
-		__index = tbl,
+		__index = function(_, k)
+			local v = rawget(tbl, k)
+			if type(v) == 'table' then
+				return readOnly(v)
+			else
+				return v
+			end
+		end,
 		__pairs = function()
 			local k, v
 			return function()
 				k, v = next(tbl, k)
-				return k, v
+				if type(v) == 'table' then
+					return k, readOnly(v)
+				else
+					return k, v
+				end
 			end
 		end,
 	})
+end
+
+local function assertResume(thread, ...)
+	local success, err = resume(thread, ...)
+	if not success then
+		error(debug.traceback(thread, err), 0)
+	end
 end
 
 return {
@@ -95,4 +114,5 @@ return {
 	benchmark = benchmark,
 	str2int = str2int,
 	readOnly = readOnly,
+	assertResume = assertResume,
 }

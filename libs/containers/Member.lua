@@ -85,15 +85,6 @@ end
 
 -- TODO: permissions
 
-local function has(arr, value)
-	for _, v in ipairs(arr) do
-		if v == value then
-			return true
-		end
-	end
-	return false
-end
-
 function Member:addRole(roleId)
 	return self.client:addGuildMemberRole(self.guildId, self.user.id, roleId)
 end
@@ -107,7 +98,12 @@ function Member:hasRole(roleId)
 	if roleId == self.guildId then
 		return true
 	end
-	return has(self._roles, roleId)
+	for _, v in ipairs(self.roleIds) do
+		if v == roleId then
+			return true
+		end
+	end
+	return false
 end
 
 function Member:setRoles(roleIds)

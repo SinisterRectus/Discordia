@@ -887,6 +887,34 @@ function Client:getChannelMessages(channelId, limit, whence, messageId)
 	end
 end
 
+function Client:getChannelFirstMessage(channelId)
+	channelId = checkSnowflake(channelId)
+	local data, err = self.api:getChannelMessages(channelId, {after = channelId, limit = 1})
+	if data then
+		if data[1] then
+			return self.state:newMessage(channelId, data[1])
+		else
+			return nil, 'Channel has no messages'
+		end
+	else
+		return nil, err
+	end
+end
+
+function Client:getChannelLastMessage(channelId)
+	channelId = checkSnowflake(channelId)
+	local data, err = self.api:getChannelMessages(channelId, {limit = 1})
+	if data then
+		if data[1] then
+			return self.state:newMessage(channelId, data[1])
+		else
+			return nil, 'Channel has no messages'
+		end
+	else
+		return nil, err
+	end
+end
+
 function Client:getPinnedMessages(channelId)
 	channelId = checkSnowflake(channelId)
 	local data, err = self.api:getPinnedMessages(channelId)

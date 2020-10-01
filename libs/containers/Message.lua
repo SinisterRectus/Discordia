@@ -4,12 +4,14 @@ local json = require('json')
 local enums = require('../enums')
 local class = require('../class')
 local typing = require('../typing')
+local helpers = require('../helpers')
 local constants = require('../constants')
 
 local format = string.format
 local insert = table.insert
 local bor, band, bnot = bit.bor, bit.band, bit.bnot
 local checkEnum = typing.checkEnum
+local readOnly = helpers.readOnly
 
 local JUMP_LINK_FMT = constants.JUMP_LINK_FMT
 local USER_PATTERN = constants.USER_PATTERN
@@ -253,19 +255,19 @@ function get:mentionsEveryone()
 end
 
 function get:embed()
-	return self._embeds[1] -- raw table
+	return self.embeds[1]
 end
 
 function get:attachment()
-	return self._attachments[1] -- raw table
+	return self.attachments[1]
 end
 
 function get:embeds()
-	return self._embeds -- raw table
+	return readOnly(self._embeds)
 end
 
 function get:attachments()
-	return self._attachments -- raw table
+	return readOnly(self._attachments)
 end
 
 function get:content()

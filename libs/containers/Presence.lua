@@ -1,6 +1,9 @@
 local Container = require('./Container')
 
 local class = require('../class')
+local helpers = require('../helpers')
+
+local readOnly = helpers.readOnly
 
 local Presence, get = class('PResence', Container)
 
@@ -30,11 +33,11 @@ function get:userId()
 end
 
 function get:activity()
-	return self._activities and self._activities[1] -- raw table
+	return self.activities[1]
 end
 
 function get:activites()
-	return self._activities -- raw table
+	return readOnly(self._activities)
 end
 
 function get:status()

@@ -1,13 +1,13 @@
 local timer = require('timer')
 local class = require('../class')
 local typing = require('../typing')
+local helpers = require('../helpers')
 
-local yield = coroutine.yield
-local resume = coroutine.resume
-local running = coroutine.running
+local yield, running = coroutine.yield, coroutine.running
 local setTimeout = timer.setTimeout
 local insert, remove = table.insert, table.remove
 local checkNumber = typing.checkNumber
+local assertResume = helpers.assertResume
 
 local Mutex = class('Mutex')
 
@@ -33,7 +33,7 @@ end
 function Mutex:unlock()
 	local thread = remove(self._queue, 1)
 	if thread then
-		return assert(resume(thread))
+		return assertResume(thread)
 	else
 		self._active = false
 	end

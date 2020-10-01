@@ -1,13 +1,14 @@
 local timer = require('timer')
 local class = require('../class')
 local typing = require('../typing')
+local helpers = require('../helpers')
 
-local wrap, yield = coroutine.wrap, coroutine.yield
-local resume, running = coroutine.resume, coroutine.running
+local wrap, yield, running = coroutine.wrap, coroutine.yield, coroutine.running
 local insert, remove = table.insert, table.remove
 local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
 local checkType = typing.checkType
 local checkNumber = typing.checkNumber
+local assertResume = helpers.assertResume
 
 local Emitter = class('Emitter')
 
@@ -136,7 +137,7 @@ function Emitter:waitFor(name, timeout, predicate)
 		if fn then
 			self:removeListener(name, fn)
 			fn = nil
-			return assert(resume(thread, success, ...))
+			return assertResume(thread, success, ...)
 		end
 	end
 

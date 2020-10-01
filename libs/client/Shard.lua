@@ -96,7 +96,7 @@ function Shard:readySession(data)
 	self._sessionId = data.session_id
 	self._loading = {}
 	for _, guild in pairs(data.guilds) do
-		self._loading[guild.id] = true
+		self._loading[guild.id] = guild.unavailable
 	end
 	self:emit('READY')
 	self:log('info', 'Session ready')
