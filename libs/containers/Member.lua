@@ -357,13 +357,13 @@ handling, the member's `voiceChannel` property will update asynchronously via
 WebSocket; not as a result of the HTTP request.
 ]=]
 function Member:setVoiceChannel(id)
-    id = id and Resolver.channelId(id)
-    local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id or json.null})
-    if data then
-        return true
-    else
-        return false, err
-    end
+	id = id and Resolver.channelId(id)
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id or json.null})
+	if data then
+		return true
+	else
+		return false, err
+	end
 end
 
 --[=[
