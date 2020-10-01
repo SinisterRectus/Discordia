@@ -6,6 +6,7 @@ with that guild. Note that any method or property that exists for the User class
 also available in the Member class.
 ]=]
 
+local json = require('json')
 local enums = require('enums')
 local class = require('class')
 local UserPresence = require('containers/abstract/UserPresence')
@@ -356,13 +357,13 @@ handling, the member's `voiceChannel` property will update asynchronously via
 WebSocket; not as a result of the HTTP request.
 ]=]
 function Member:setVoiceChannel(id)
-	id = Resolver.channelId(id)
-	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id})
-	if data then
-		return true
-	else
-		return false, err
-	end
+    id = id and Resolver.channelId(id)
+    local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id or json.null})
+    if data then
+        return true
+    else
+        return false, err
+    end
 end
 
 --[=[
