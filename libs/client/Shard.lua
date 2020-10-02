@@ -73,6 +73,10 @@ function Shard:__init(id, client)
 	self._client = client
 	self._sendMutex = Mutex()
 	self._reconnectDelay = MIN_RECONNECT_DELAY
+	self._events = 0
+	self._commands = 0
+	self._rx = 0
+	self._tx = 0
 	self._seq = nil
 	self._write = nil
 	self._ready = nil
@@ -191,13 +195,11 @@ function Shard:parseMessage(message)
 
 	if opcode == TEXT then
 
-		payload = decode(payload)
 		return self:handlePayload(payload)
 
 	elseif opcode == BINARY then
 
 		payload = inflate(payload, 1)
-		payload = decode(payload)
 		return self:handlePayload(payload)
 
 	elseif opcode == CLOSE then
@@ -217,6 +219,12 @@ function Shard:parseMessage(message)
 end
 
 function Shard:handlePayload(payload)
+
+	self._rx = self._rx + #payload
+	self._events = self._events + 1
+	self._client:emit('gatewayEvent', self._id, payload)
+
+	payload = decode(payload)
 
 	local op = payload.op
 
@@ -294,7 +302,7 @@ function Shard:send(op, d)
 	local sessionId = self._sessionId
 	self._sendMutex:lock(priority[op])
 
-	local success, err
+	local payload, success, err
 	if not self._write then
 		err = 'Not connected'
 	elseif not sessionless[op] and not self._sessionId then
@@ -302,12 +310,16 @@ function Shard:send(op, d)
 	elseif not sessionless[op] and sessionId ~= self._sessionId then
 		err = 'Expired session'
 	else
-		success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
+		payload = encode {op = op, d = d}
+		success, err = self._write {opcode = TEXT, payload = payload}
 	end
 
 	self._sendMutex:unlockAfter(SEND_DELAY)
 
 	if success then
+		self._tx = self._tx + #payload
+		self._commands = self._commands + 1
+		self._client:emit('gatewayCommand', self._id, payload)
 		return success, self:log('debug', 'Sent OP %s', op)
 	else
 		return success, self:log('error', 'Could not send OP %s : %s', op, err)
@@ -374,6 +386,22 @@ end
 
 function get:ready()
 	return self._ready
+end
+
+function get:eventsReceived()
+	return self._events
+end
+
+function get:commandsTransmitted()
+	return self._commands
+end
+
+function get:bytesReceived()
+	return self._rx
+end
+
+function get:bytesTransmitted()
+	return self._tx
 end
 
 return Shard

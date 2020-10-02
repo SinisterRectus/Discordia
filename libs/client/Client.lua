@@ -11,6 +11,7 @@ local pathjoin = require('pathjoin')
 
 local Logger = require('../utils/Logger')
 local Emitter = require('../utils/Emitter')
+local Stopwatch = require('../utils/Stopwatch')
 local API = require('./API')
 local CDN = require('./CDN')
 local Shard = require('./Shard')
@@ -117,6 +118,7 @@ function Client:__init(options)
 	self._api = API(self)
 	self._cdn = CDN(self)
 	self._state = State(self)
+	self._sw = Stopwatch()
 	self._shards = {}
 	self._token = nil
 	self._userId = nil
@@ -1234,6 +1236,38 @@ function Client:deleteWebhook(webhookId)
 end
 
 ----
+
+function Client:getGatewayStatistics()
+	local stats = {
+		eventsReceived = 0,
+		commandsTransmitted = 0,
+		bytesReceived = 0,
+		bytesTransmitted = 0,
+	}
+	for _, shard in pairs(self._shards) do
+		stats.eventsReceived = stats.eventsReceived + shard.eventsReceived
+		stats.commandsTransmitted = stats.commandsTransmitted + shard.commandsTransmitted
+		stats.bytesReceived = stats.bytesReceived + shard.bytesReceived
+		stats.bytesTransmitted = stats.bytesTransmitted + shard.bytesTransmitted
+	end
+	return stats
+end
+
+function get:uptime()
+	return self._sw:getTime()
+end
+
+function get:apiRequests()
+	return self._api.requests
+end
+
+function get:apiBytesReceived()
+	return self._api.bytesReceived
+end
+
+function get:apiBytesTransmitted()
+	return self._api.bytesTransmitted
+end
 
 function get:ready()
 	for _, shard in pairs(self._shards) do
