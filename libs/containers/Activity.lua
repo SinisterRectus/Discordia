@@ -39,6 +39,11 @@ function Activity:_loadMore(data)
 	self._emoji_animated = emoji and emoji.animated
 end
 
+--[=[
+@m __hash
+@r string
+@d Returns `Activity.type .. Activity.parent:__hash()`
+]=]
 function Activity:__hash()
 	return format("%i%s", self._type, self._parent:__hash())
 end
