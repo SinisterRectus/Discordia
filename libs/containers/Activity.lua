@@ -39,6 +39,10 @@ function Activity:_loadMore(data)
 	self._emoji_animated = emoji and emoji.animated
 end
 
+function Activity:__hash()
+	return format("%i%s", self._type, self._parent:__hash())
+end
+
 --[=[@p start number/nil The Unix timestamp for when this Rich Presence activity was started.]=]
 function get.start(self)
 	return self._start
