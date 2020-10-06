@@ -42,10 +42,10 @@ end
 --[=[
 @m __hash
 @r string
-@d Returns `Activity.type .. Activity.parent:__hash()`
+@d Returns `Activity.parent:__hash()`
 ]=]
 function Activity:__hash()
-	return format("%i%s", self._type, self._parent:__hash())
+	return self._parent:__hash()
 end
 
 --[=[@p start number/nil The Unix timestamp for when this Rich Presence activity was started.]=]
