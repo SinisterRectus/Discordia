@@ -18,7 +18,6 @@ local Shard = require('./Shard')
 local State = require('./State')
 
 local AuditLogEntry = require('../containers/AuditLogEntry')
-local Ban = require('../containers/Ban')
 
 local Bitfield = require('../utils/Bitfield')
 local Color = require('../utils/Color')
@@ -376,10 +375,7 @@ function Client:getGuildMembers(guildId, limit, after)
 		after = after and checkSnowflake(after) or nil,
 	})
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newMember(guildId, v)
-		end
-		return data
+		return self.state:newMembers(guildId, data)
 	else
 		return nil, err
 	end
@@ -389,10 +385,7 @@ function Client:getGuildRoles(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildRoles(guildId)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newRole(guildId, v)
-		end
-		return data
+		return self.state:newRoles(guildId, data)
 	else
 		return nil, err
 	end
@@ -402,10 +395,7 @@ function Client:getGuildEmojis(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildEmojis(guildId)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newEmoji(guildId, v)
-		end
-		return data
+		return self.state:newEmojis(guildId, data)
 	else
 		return nil, err
 	end
@@ -415,10 +405,7 @@ function Client:getGuildChannels(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildChannels(guildId)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newChannel(v)
-		end
-		return data
+		return self.state:newChannels(data)
 	else
 		return nil, err
 	end
@@ -518,8 +505,7 @@ function Client:getGuildBan(guildId, userId)
 	userId = checkSnowflake(userId)
 	local data, err = self.api:getGuildBan(guildId, userId)
 	if data then
-		data.guild_id = guildId
-		return Ban(data, self)
+		return self.state:newBan(guildId, data)
 	else
 		return nil, err
 	end
@@ -529,11 +515,7 @@ function Client:getGuildBans(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildBans(guildId)
 	if data then
-		for i, v in ipairs(data) do
-			v.guild_id = guildId
-			data[i] = Ban(v, self)
-		end
-		return data
+		return self.state:newBans(guildId, data)
 	else
 		return nil, err
 	end
@@ -543,10 +525,7 @@ function Client:getGuildInvites(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildInvites(guildId)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newInvite(v)
-		end
-		return data
+		return self.state:newInvites(data)
 	else
 		return nil, err
 	end
@@ -556,10 +535,7 @@ function Client:getGuildWebhooks(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildWebhooks(guildId)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newWebhook(v)
-		end
-		return data
+		return self.state:newWebooks(data)
 	else
 		return nil, err
 	end
@@ -699,10 +675,7 @@ function Client:modifyGuildRolePositions(guildId, positions)
 	positions = checkPositions(positions)
 	local data, err = self.api:modifyGuildRolePositions(guildId, positions)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newRole(guildId, v)
-		end
-		return data
+		return self.state:newRoles(guildId, data)
 	else
 		return nil, err
 	end
@@ -713,10 +686,7 @@ function Client:modifyGuildChannelPositions(guildId, positions)
 	positions = checkPositions(positions)
 	local data, err = self.api:modifyGuildChannelPositions(guildId, positions)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newChannel(guildId, v)
-		end
-		return data
+		return self.state:newChannels(data)
 	else
 		return nil, err
 	end
@@ -841,10 +811,7 @@ function Client:getChannelInvites(channelId)
 	channelId = checkSnowflake(channelId)
 	local data, err = self.api:getChannelInvites(channelId)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newInvite(v)
-		end
-		return data
+		return self.state:newInvites(data)
 	else
 		return nil, err
 	end
@@ -872,10 +839,7 @@ function Client:getChannelWebhooks(channelId)
 	channelId = checkSnowflake(channelId)
 	local data, err = self.api:getChannelWebhooks(channelId)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newWebhook(v)
-		end
-		return data
+		return self.state:newWebooks(data)
 	else
 		return nil, err
 	end
@@ -916,10 +880,7 @@ function Client:getChannelMessages(channelId, limit, whence, messageId)
 	end
 	local data, err = self.api:getChannelMessages(channelId, query)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newMessage(channelId, v)
-		end
-		return data
+		return self.state:newMessages(channelId, data)
 	else
 		return nil, err
 	end
@@ -957,10 +918,7 @@ function Client:getPinnedMessages(channelId)
 	channelId = checkSnowflake(channelId)
 	local data, err = self.api:getPinnedMessages(channelId)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newMessage(channelId, v)
-		end
-		return data
+		return self.state:newMessages(channelId, data)
 	else
 		return nil, err
 	end
@@ -1200,10 +1158,7 @@ function Client:getReactionUsers(channelId, messageId, emojiHash, limit, whence,
 	end
 	local data, err = self.api:getReactions(channelId, messageId, emojiHash, query)
 	if data then
-		for i, v in ipairs(data) do
-			data[i] = self.state:newUser(v)
-		end
-		return data
+		return self.state:newUsers(data)
 	else
 		return nil, err
 	end

@@ -73,9 +73,7 @@ function EventHandler.GUILD_BAN_REMOVE(d, client) -- GUILD_BANS
 end
 
 function EventHandler.GUILD_EMOJIS_UPDATE(d, client) -- GUILD_EMOJIS
-	for _, v in ipairs(d.emojis) do
-		client.state:newEmoji(d.guild_id, v)
-	end
+	client.state:newEmojis(d.guild_id, d.emojis)
 	return client:emit('emojisUpdate', d.guild_id)
 end
 
@@ -99,13 +97,9 @@ function EventHandler.GUILD_MEMBER_REMOVE(d, client) -- GUILD_MEMBERS
 end
 
 function EventHandler.GUILD_MEMBERS_CHUNK(d, client) -- no intent; command response
-	for _, v in ipairs(d.members) do
-		client.state:newMember(d.guild_id, v)
-	end
+	client.state:newMembers(d.guild_id, d.members)
 	if d.presences then
-		for _, v in ipairs(d.presences) do
-			client.state:newPresence(d.guild_id, v)
-		end
+		client.state:newPresences(d.guild_id, d.presences)
 	end
 	return client:emit('membersChunk', d.guild_id)
 end
