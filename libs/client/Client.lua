@@ -1210,10 +1210,10 @@ end
 
 ---- Webhook ----
 
-function Client:modifyWebhook(guildId, payload)
-	guildId = checkSnowflake(guildId)
+function Client:modifyWebhook(webhookId, payload)
+	webhookId = checkSnowflake(webhookId)
 	payload = checkType('table', payload)
-	local data, err = self.api:modifyWebhook(guildId, {
+	local data, err = self.api:modifyWebhook(webhookId, {
 		name = opt(payload.name, checkType, 'string'),
 		avatar = opt(payload.avatar, checkImageData),
 		channel_id = opt(payload.channelId, checkSnowflake),
