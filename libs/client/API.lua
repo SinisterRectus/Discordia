@@ -17,24 +17,23 @@ local urlEncode, attachQuery = helpers.urlEncode, helpers.attachQuery
 
 local API_BASE_URL = constants.API_BASE_URL
 local JSON_CONTENT_TYPE = constants.JSON_CONTENT_TYPE
-local RATELIMIT_PRECISION = constants.RATELIMIT_PRECISION
 local USER_AGENT = constants.USER_AGENT
 
 local majorParams = {guilds = true, channels = true, webhooks = true}
 local payloadRequired = {PUT = true, PATCH = true, POST = true}
 
-local function parseErrors(ret, errors, key) -- TODO: optimize if possible
+local function formatKey(key, k)
+	return format(k:find("^[%a_][%a%d_]*$") and '%s.%s' or tonumber(k) and '%s[%s]' or '%s[%q]', key, k)
+end
+
+local function parseErrors(ret, errors, key)
 	for k, v in pairs(errors) do
 		if k == '_errors' then
 			for _, err in ipairs(v) do
-				insert(ret, format('%s in %s : %s', err.code, key or 'payload', err.message))
+				insert(ret, format('%s in %s : %s', err.code, key, err.message))
 			end
 		else
-			if key then
-				parseErrors(ret, v, format(k:find("^[%a_][%a%d_]*$") and '%s.%s' or tonumber(k) and '%s[%s]' or '%s[%q]', key, k))
-			else
-				parseErrors(ret, v, k)
-			end
+			parseErrors(ret, v, formatKey(key, k))
 		end
 	end
 	return concat(ret, '\n\t')
@@ -125,7 +124,6 @@ function API:request(method, endpoint, params, query, payload, files)
 
 	local req = {
 		{'User-Agent', USER_AGENT},
-		{'X-RateLimit-Precision', RATELIMIT_PRECISION},
 	}
 
 	if self._token then
@@ -217,7 +215,7 @@ function API:commit(method, url, req, payload, route, retries)
 
 	local retry
 	if res.code == 429 and data.retry_after then -- TODO: global ratelimiting
-		delay = data.retry_after
+		delay = 1000 * data.retry_after
 		retry = retries < client.maxRetries
 	elseif res.code == 502 then
 		delay = delay + random(1000, 4000)
@@ -227,12 +225,12 @@ function API:commit(method, url, req, payload, route, retries)
 	if retry then
 		self:log('warning', res, method, url)
 		timer.sleep(delay)
-		return self:commit(method, url, req, payload, retries + 1)
+		return self:commit(method, url, req, payload, route, retries + 1)
 	end
 
 	msg = format('HTTP Error %i : %s', data.code or 0, data.message or msg)
 	if data.errors then
-		msg = parseErrors({msg}, data.errors)
+		msg = parseErrors({msg}, data.errors, 'payload')
 	end
 
 	self:log('error', res, method, url)
@@ -686,14 +684,8 @@ function API:syncGuildIntegration(guild_id, integration_id, payload, query)
 	return self:request("POST", endpoint, params, query, payload)
 end
 
-function API:getGuildWidget(guild_id, query)
+function API:getGuildWidgetSettings(guild_id, query)
 	local endpoint = endpoints.GUILD_WIDGET
-	local params = {guild_id}
-	return self:request("GET", endpoint, params, query)
-end
-
-function API:getGuildEmbed(guild_id, query)
-	local endpoint = endpoints.GUILD_EMBED
 	local params = {guild_id}
 	return self:request("GET", endpoint, params, query)
 end
@@ -704,10 +696,10 @@ function API:modifyGuildWidget(guild_id, payload, query)
 	return self:request("PATCH", endpoint, params, query, payload)
 end
 
-function API:modifyGuildEmbed(guild_id, payload, query)
-	local endpoint = endpoints.GUILD_EMBED
+function API:getGuildWidget(guild_id, query)
+	local endpoint = endpoints.GUILD_WIDGET_JSON
 	local params = {guild_id}
-	return self:request("PATCH", endpoint, params, query, payload)
+	return self:request("GET", endpoint, params, query)
 end
 
 function API:getGuildVanityURL(guild_id, query)

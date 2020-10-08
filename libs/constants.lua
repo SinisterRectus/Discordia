@@ -10,10 +10,9 @@ return {
 	DAY_PER_WEEK = 7,
 	DEFAULT_AVATARS = 5,
 	DISCORD_EPOCH = 1420070400000,
-	GATEWAY_VERSION = 6,
+	GATEWAY_VERSION = 8,
 	GATEWAY_ENCODING = 'json',
 	JSON_CONTENT_TYPE = 'application/json',
-	RATELIMIT_PRECISION = 'millisecond',
 	USER_AGENT = ('DiscordBot (%s, %s)'):format(package.homepage, package.version),
 	USER_PATTERN = '<@!?(%d+)>',
 	ROLE_PATTERN = '<@&(%d+)>',
@@ -21,5 +20,5 @@ return {
 	EMOJI_PATTERN = '<a?:[%w_]+:(%d+)>',
 	JUMP_LINK_FMT = "https://discord.com/channels/%s/%s/%s",
 	CDN_BASE_URL = "https://cdn.discordapp.com",
-	API_BASE_URL = "https://discord.com/api/v7",
+	API_BASE_URL = "https://discord.com/api/v8",
 }

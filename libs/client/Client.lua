@@ -111,7 +111,7 @@ function Client:__init(options)
 	self._routeDelay = checkOption(options, 'routeDelay', 'number', 250)
 	self._maxRetries = checkOption(options, 'maxRetries', 'number', 5)
 	self._tokenPrefix = checkOption(options, 'tokenPrefix', 'string', 'Bot ')
-	self._gatewayIntents = checkOption(options, 'gatewayIntents', 'number', nil)
+	self._gatewayIntents = checkOption(options, 'gatewayIntents', 'number', 0)
 	self._totalShardCount = checkOption(options, 'totalShardCount', 'number', nil)
 	self._payloadCompression = checkOption(options, 'payloadCompression', 'boolean', true)
 	self._defaultImageExtension = checkOption(options, 'defaultImageExtension', 'string', 'png')
@@ -206,6 +206,26 @@ function Client:stop()
 	for _, shard in pairs(self._shards) do
 		shard:disconnect(false)
 	end
+end
+
+function Client:setGatewayIntents(intents)
+	self._gatewayIntents = tonumber(checkBitfield(intents))
+end
+
+function Client:enableGatewayIntents(...)
+	local intents = Bitfield(self.gatewayIntents)
+	for i = 1, select('#', ...) do
+		intents:enableValue(checkEnum(enums.gatewayIntent, select(i, ...)))
+	end
+	return self:setGatewayIntents(intents)
+end
+
+function Client:disableGatewayIntents(...)
+	local intents = Bitfield(self.gatewayIntents)
+	for i = 1, select('#', ...) do
+		intents:disableValue(checkEnum(enums.gatewayIntent, select(i, ...)))
+	end
+	return self:setGatewayIntents(intents)
 end
 
 function Client:setToken(token)
@@ -681,17 +701,6 @@ function Client:modifyGuildRolePositions(guildId, positions)
 	end
 end
 
-function Client:modifyGuildChannelPositions(guildId, positions)
-	guildId = checkSnowflake(guildId)
-	positions = checkPositions(positions)
-	local data, err = self.api:modifyGuildChannelPositions(guildId, positions)
-	if data then
-		return self.state:newChannels(data)
-	else
-		return nil, err
-	end
-end
-
 function Client:deleteGuildRole(guildId, roleId)
 	guildId = checkSnowflake(guildId)
 	roleId = checkSnowflake(roleId)
@@ -772,6 +781,17 @@ function Client:modifyChannel(channelId, payload)
 	})
 	if data then
 		return self.state:newChannel(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:modifyGuildChannelPositions(guildId, positions)
+	guildId = checkSnowflake(guildId)
+	positions = checkPositions(positions)
+	local data, err = self.api:modifyGuildChannelPositions(guildId, positions)
+	if data then
+		return self.state:newChannels(data)
 	else
 		return nil, err
 	end
