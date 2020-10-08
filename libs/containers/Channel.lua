@@ -37,7 +37,6 @@ function Channel:__init(data, client)
 	-- TODO: recipients -- private, group
 end
 
--- TODO: sorting
 -- TODO: join/leave voice channel
 
 function Channel:delete()
@@ -126,6 +125,10 @@ end
 
 function Channel:setUserLimit(userLimit)
 	return self.client:modifyChannel(self.id, {userLimit = userLimit or json.null})
+end
+
+function Channel:setPosition(position)
+	return self.client:modifyChannel(self.id, {position = position or json.null})
 end
 
 ----

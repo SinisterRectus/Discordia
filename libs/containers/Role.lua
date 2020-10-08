@@ -27,8 +27,6 @@ function Role:delete()
 	return self.client:deleteGuildRole(self.guildId, self.id)
 end
 
--- TODO: sorting
-
 function Role:getGuild()
 	return self.client:getGuild(self.guildId)
 end

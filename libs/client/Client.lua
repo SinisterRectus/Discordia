@@ -99,6 +99,14 @@ local function checkBitfield(obj)
 	return checkInteger(obj)
 end
 
+local function checkPositions(positions)
+	local ret = {}
+	for k, v in pairs(checkType('table', positions)) do
+		insert(ret, {id = checkSnowflake(k), position = checkInteger(v)})
+	end
+	return ret
+end
+
 function Client:__init(options)
 	Emitter.__init(self)
 	self._routeDelay = checkOption(options, 'routeDelay', 'number', 250)
@@ -681,6 +689,34 @@ function Client:modifyGuildRole(guildId, roleId, payload)
 	})
 	if data then
 		return self.state:newRole(guildId, data)
+	else
+		return nil, err
+	end
+end
+
+function Client:modifyGuildRolePositions(guildId, positions)
+	guildId = checkSnowflake(guildId)
+	positions = checkPositions(positions)
+	local data, err = self.api:modifyGuildRolePositions(guildId, positions)
+	if data then
+		for i, v in ipairs(data) do
+			data[i] = self.state:newRole(guildId, v)
+		end
+		return data
+	else
+		return nil, err
+	end
+end
+
+function Client:modifyGuildChannelPositions(guildId, positions)
+	guildId = checkSnowflake(guildId)
+	positions = checkPositions(positions)
+	local data, err = self.api:modifyGuildChannelPositions(guildId, positions)
+	if data then
+		for i, v in ipairs(data) do
+			data[i] = self.state:newChannel(guildId, v)
+		end
+		return data
 	else
 		return nil, err
 	end
