@@ -117,6 +117,12 @@ for i = 1, 64 do
 	assertFalse(b3:hasBit(i))
 end
 
+local b4 = Bitfield {1, 2, 4}
+assertTrue(b4:hasValue(1))
+assertTrue(b4:hasValue(2))
+assertTrue(b4:hasValue(4))
+assertEqual(b4:toBin(), '111')
+
 assertTrue(Bitfield(1) == Bitfield(1))
 assertTrue(Bitfield(1) ~= Bitfield(2))
 assertTrue(Bitfield(1) < Bitfield(2))
@@ -145,7 +151,6 @@ for _, v in ipairs {
 	{1.1, 10, 'expected integer, received 1.1'},
 	{-1.1, 10, 'expected integer, received -1.1'},
 	{2^65, 10, 'expected maximum 1.844674407371e+19, received 3.6893488147419e+19'},
-	{{}, 10, 'expected integer, received table'},
 	{'a', 10, 'expected integer, received string'},
 	{'b', 10, 'expected integer, received string'},
 } do

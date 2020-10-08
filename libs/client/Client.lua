@@ -88,14 +88,14 @@ local function checkColor(obj)
 	if class.isInstance(obj, Color) then
 		return obj:toDec()
 	end
-	return checkInteger(obj)
+	return Color(obj):toDec()
 end
 
 local function checkBitfield(obj)
 	if class.isInstance(obj, Bitfield) then
 		return obj:toDec()
 	end
-	return checkInteger(obj)
+	return Bitfield(obj):toDec()
 end
 
 local function checkPositions(positions)

@@ -20,10 +20,17 @@ local MIN_BASE, MAX_BASE = 2, 36
 local MIN_VALUE, MAX_VALUE = 0, 2^MAX_BIT - 1
 
 local function checkValue(value, base)
+	local t = type(value)
+	if t == 'table' then
+		local n = 0ULL
+		for _, v in pairs(value) do
+			n = bor(n, checkValue(v, base))
+		end
+		return n
+	end
 	if base then
 		base = checkInteger(base, 10, MIN_BASE, MAX_BASE)
 		checkInteger(value, base, MIN_VALUE, MAX_VALUE)
-		local t = type(value)
 		if t == 'number' then
 			return tonumber(value, base) + 0ULL
 		elseif t == 'string' then
@@ -33,7 +40,6 @@ local function checkValue(value, base)
 		end
 	else
 		checkInteger(value, base, MIN_VALUE, MAX_VALUE)
-		local t = type(value)
 		if t == 'number' then
 			return value + 0ULL
 		elseif t == 'string' then
