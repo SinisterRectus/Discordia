@@ -42,6 +42,18 @@ function State:__init(client)
 
 end
 
+function State:getGuildId(channelId)
+	if channelMap[channelId] == nil then
+		local channel, err = self._client.api:getChannel(channelId)
+		if channel then
+			channelMap[channelId] = channel.guild_id or '@me'
+		else
+			return nil, err
+		end
+	end
+	return channelMap[channelId]
+end
+
 function State:newUser(data)
 	local user = User(data, self._client)
 	self._users[data.id] = user
@@ -179,28 +191,24 @@ function State:newChannels(data)
 	return data
 end
 
-function State:newMessage(channelId, data, gateway)
-	local guildId = gateway and (data.guild_id or '@me') or channelMap[channelId]
-	if guildId == nil then
-		local channel, err = self._client:getChannel(channelId)
-		if channel then
-			guildId = channel.guildId or '@me'
-			channelMap[channelId] = guildId
-		else
-			return nil, err
+function State:newMessage(data, gateway)
+	local channelId = data.channel_id
+	if gateway then
+		channelMap[channelId] = channelMap[channelId] or data.guild_id or '@me'
+	else
+		local guildId = self:getGuildId(channelId)
+		if guildId ~= '@me' then
+			data.guild_id = guildId
 		end
-	end
-	if guildId ~= '@me' then
-		data.guild_id = guildId
 	end
 	local message = Message(data, self._client)
 	self._messages[channelId][data.id] = message
 	return message
 end
 
-function State:newMessages(channelId, data, gateway)
+function State:newMessages(data, gateway)
 	for i, v in ipairs(data) do
-		data[i] = self:newMessage(channelId, v, gateway)
+		data[i] = self:newMessage(v, gateway)
 	end
 	return data
 end

@@ -20,6 +20,14 @@ function Presence:__init(data, client)
 	end
 end
 
+function Presence:getUser()
+	return self.client:getUser(self.userId)
+end
+
+function Presence:getGuild()
+	return self.client:getGuild(self.guildId)
+end
+
 function Presence:getMember()
 	return self.client:getGuildMember(self.guildId, self.userId)
 end

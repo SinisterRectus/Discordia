@@ -886,7 +886,7 @@ function Client:getChannelMessage(channelId, messageId)
 	messageId = checkSnowflake(messageId)
 	local data, err = self.api:getChannelMessage(channelId, messageId)
 	if data then
-		return self.state:newMessage(channelId, data)
+		return self.state:newMessage(data)
 	else
 		return nil, err
 	end
@@ -900,7 +900,7 @@ function Client:getChannelMessages(channelId, limit, whence, messageId)
 	end
 	local data, err = self.api:getChannelMessages(channelId, query)
 	if data then
-		return self.state:newMessages(channelId, data)
+		return self.state:newMessages(data)
 	else
 		return nil, err
 	end
@@ -911,7 +911,7 @@ function Client:getChannelFirstMessage(channelId)
 	local data, err = self.api:getChannelMessages(channelId, {after = channelId, limit = 1})
 	if data then
 		if data[1] then
-			return self.state:newMessage(channelId, data[1])
+			return self.state:newMessage(data[1])
 		else
 			return nil, 'Channel has no messages'
 		end
@@ -925,7 +925,7 @@ function Client:getChannelLastMessage(channelId)
 	local data, err = self.api:getChannelMessages(channelId, {limit = 1})
 	if data then
 		if data[1] then
-			return self.state:newMessage(channelId, data[1])
+			return self.state:newMessage(data[1])
 		else
 			return nil, 'Channel has no messages'
 		end
@@ -938,7 +938,7 @@ function Client:getPinnedMessages(channelId)
 	channelId = checkSnowflake(channelId)
 	local data, err = self.api:getPinnedMessages(channelId)
 	if data then
-		return self.state:newMessages(channelId, data)
+		return self.state:newMessages(data)
 	else
 		return nil, err
 	end
@@ -1051,7 +1051,7 @@ function Client:createMessage(channelId, payload)
 	end
 
 	if data then
-		return self.state:newMessage(channelId, data)
+		return self.state:newMessage(data)
 	else
 		return nil, err
 	end
@@ -1082,7 +1082,7 @@ function Client:editMessage(channelId, messageId, payload)
 		flags = opt(payload.flags, checkInteger),
 	})
 	if data then
-		return self.state:newMessage(channelId, data)
+		return self.state:newMessage(data)
 	else
 		return nil, err
 	end
@@ -1127,7 +1127,7 @@ function Client:addReaction(channelId, messageId, emojiHash)
 	emojiHash = checkType('string', emojiHash)
 	local data, err = self.api:createReaction(channelId, messageId, emojiHash)
 	if data then
-		return true
+		return true -- 204
 	else
 		return false, err
 	end
@@ -1145,7 +1145,7 @@ function Client:removeReaction(channelId, messageId, emojiHash, userId)
 		data, err = self.api:deleteOwnReaction(channelId, messageId, emojiHash)
 	end
 	if data then
-		return true
+		return true -- 204
 	else
 		return false, err
 	end
@@ -1162,7 +1162,7 @@ function Client:clearAllReactions(channelId, messageId, emojiHash)
 		data, err = self.api:deleteAllReactions(channelId, messageId)
 	end
 	if data then
-		return true
+		return true -- 204
 	else
 		return false, err
 	end
@@ -1189,7 +1189,7 @@ function Client:crosspostMessage(channelId, messageId)
 	messageId = checkSnowflake(messageId)
 	local data, err = self.api:crosspostMessage(channelId, messageId)
 	if data then
-		return self.state:newMessage(channelId, data)
+		return self.state:newMessage(data)
 	else
 		return nil, err
 	end

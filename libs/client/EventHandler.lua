@@ -135,7 +135,7 @@ function EventHandler.INVITE_DELETE(d, client) -- GUILD_INVITES
 end
 
 function EventHandler.MESSAGE_CREATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES
-	local message = client.state:newMessage(d.channel_id, d, true)
+	local message = client.state:newMessage(d, true)
 	local member
 	if d.guild_id and d.member then
 		d.member.user = d.author
@@ -202,8 +202,8 @@ end
 
 function EventHandler.PRESENCE_UPDATE(d, client) -- GUILD_PRESENCES
 	if not d.guild_id then return end
-	client.state:newPresence(d.guild_id, d) -- TODO: update user somehow
-	return client:emit('presenceUpdate', d.guild_id, d.user.id)
+	local presence = client.state:newPresence(d.guild_id, d) -- TODO: update user somehow
+	return client:emit('presenceUpdate', presence)
 end
 
 function EventHandler.TYPING_START(d, client) -- GUILD_MESSAGE_TYPING / DIRECT_MESSAGE_TYPING
