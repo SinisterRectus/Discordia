@@ -40,6 +40,11 @@ local ignore = {
 	['USER_SETTINGS_UPDATE'] = true,
 	['USER_GUILD_SETTINGS_UPDATE'] = true,
 	['SESSIONS_REPLACE'] = true,
+	['INVITE_CREATE'] = true,
+	['INVITE_DELETE'] = true,
+	['INTEGRATION_CREATE'] = true,
+	['INTEGRATION_UPDATE'] = true,
+	['INTEGRATION_DELETE'] = true,
 }
 
 local Shard = require('class')('Shard', WebSocket)
@@ -116,7 +121,7 @@ function Shard:handlePayload(payload)
 
 	elseif op == RECONNECT then
 
-		self:warning('Discord has requested a reconnection')
+		self:info('Discord has requested a reconnection')
 		self:disconnect(true)
 
 	elseif op == INVALID_SESSION then
