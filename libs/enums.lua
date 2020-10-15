@@ -100,6 +100,11 @@ proxy.messageType = {
 	guildDiscoveryRequalified     = 15,
 }
 
+proxy.permissionOverwriteType = {
+	role   = 0,
+	member = 1,
+}
+
 proxy.status = {
 	online       = 'online',
 	idle         = 'idle',

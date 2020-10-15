@@ -797,6 +797,34 @@ function Client:modifyGuildChannelPositions(guildId, positions)
 	end
 end
 
+function Client:editChannelPermissions(channelId, overwriteId, payload)
+	channelId = checkSnowflake(channelId)
+	overwriteId = checkSnowflake(overwriteId)
+	local overwrite = { -- create a new object because 204 result
+		type = checkEnum(enums.permissionOverwriteType, payload.type), -- must be included
+		allow = checkBitfield(payload.allowedPermissions), -- must include original value if not changing
+		deny = checkBitfield(payload.deniedPermissions), -- must include original value if not changing
+	}
+	local data, err = self.api:editChannelPermissions(channelId, overwriteId, overwrite)
+	if data then -- 204
+		overwrite.id = overwriteId -- inject the id
+		return self.state:newOverwite(channelId, overwrite)
+	else
+		return false, err
+	end
+end
+
+function Client:deleteChannelPermission(channelId, overwriteId)
+	channelId = checkSnowflake(channelId)
+	overwriteId = checkSnowflake(overwriteId)
+	local data, err = self.api:deleteChannelPermission(channelId, overwriteId)
+	if data then
+		return true -- 204
+	else
+		return false, err
+	end
+end
+
 function Client:deleteChannel(channelId)
 	channelId = checkSnowflake(channelId)
 	local data, err = self.api:deleteChannel(channelId)

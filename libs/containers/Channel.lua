@@ -18,6 +18,7 @@ Guild Store    = 6
 ]]
 
 function Channel:__init(data, client)
+
 	Snowflake.__init(self, data, client)
 	self._guild_id = data.guild_id -- text, voice, category, news, store (excludes private and group)
 	self._type = data.type -- all types
@@ -33,8 +34,15 @@ function Channel:__init(data, client)
 	self._bitrate = data.bitrate -- voice
 	self._user_limit = data.user_limit -- voice
 	self._rate_limit_per_user = data.rate_limit_per_user -- text
-	-- TODO: permission overwrites -- text, voice, category, news, store (excludes private and group)
-	-- TODO: recipients -- private, group
+
+	if data.permission_overwrites then -- text, voice, category, news, store (excludes private and group)
+		self._overwrites = client.state:newOverwrites(data.id, data.permission_overwrites)
+	end
+
+	if data.recipients then -- private, group
+		-- TODO
+	end
+
 end
 
 -- TODO: join/leave voice channel
@@ -73,6 +81,10 @@ end
 
 function Channel:bulkDelete(messageIds)
 	return self.client:bulkDeleteMessages(self.id, messageIds)
+end
+
+function Channel:getPermissionOverwriteFor(obj)
+	-- TODO
 end
 
 function Channel:triggerTyping()
