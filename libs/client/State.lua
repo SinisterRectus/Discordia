@@ -57,7 +57,12 @@ function State:getGuildId(channelId)
 end
 
 function State:newUser(data)
-	local user = User(data, self._client)
+	local user = self._users[data.id]
+	if user then
+		user:__init(data, self._client)
+	else
+		user = User(data, self._client)
+	end
 	self._users[data.id] = user
 	return user
 end
@@ -70,7 +75,12 @@ function State:newUsers(data)
 end
 
 function State:newGuild(data)
-	local guild = Guild(data, self._client)
+	local guild = self._guilds[data.id]
+	if guild then
+		guild:__init(data, self._client)
+	else
+		guild = Guild(data, self._client)
+	end
 	self._guilds[data.id] = guild
 	return guild
 end
@@ -83,7 +93,12 @@ function State:newGuilds(data)
 end
 
 function State:newInvite(data)
-	local invite = Invite(data, self._client)
+	local invite = self._invites[data.code]
+	if invite then
+		invite:__init(data, self._client)
+	else
+		invite = Invite(data, self._client)
+	end
 	self._invites[data.code] = invite
 	return invite
 end
@@ -96,7 +111,12 @@ function State:newInvites(data)
 end
 
 function State:newWebhook(data)
-	local webhook = Webhook(data, self._client)
+	local webhook = self._webhooks[data.id]
+	if webhook then
+		webhook:__init(data, self._client)
+	else
+		webhook = Webhook(data, self._client)
+	end
 	self._webhooks[data.id] = webhook
 	return webhook
 end
@@ -110,8 +130,13 @@ end
 
 function State:newRole(guildId, data)
 	data.guild_id = guildId
-	local role = Role(data, self._client)
-	self._roles[guildId][data.id] = role
+	local role = self._roles[guildId][data.id]
+	if role then
+		role:__init(data, self._client)
+	else
+		role = Role(data, self._client)
+		self._roles[guildId][data.id] = role
+	end
 	return role
 end
 
@@ -124,8 +149,13 @@ end
 
 function State:newEmoji(guildId, data)
 	data.guild_id = guildId
-	local emoji = Emoji(data, self._client)
-	self._emojis[guildId][data.id] = emoji
+	local emoji = self._emojis[guildId][data.id]
+	if emoji then
+		emoji:__init(data, self._client)
+	else
+		emoji = Emoji(data, self._client)
+		self._emojis[guildId][data.id] = emoji
+	end
 	return emoji
 end
 
@@ -138,8 +168,13 @@ end
 
 function State:newMember(guildId, data)
 	data.guild_id = guildId
-	local member = Member(data, self._client)
-	self._members[guildId][data.user.id] = member
+	local member = self._members[guildId][data.user.id]
+	if member then
+		member:__init(data, self._client)
+	else
+		member = Member(data, self._client)
+		self._members[guildId][data.user.id] = member
+	end
 	return member
 end
 
@@ -152,8 +187,13 @@ end
 
 function State:newBan(guildId, data)
 	data.guild_id = guildId
-	local ban = Ban(data, self._client)
-	self._bans[guildId][data.user.id] = ban
+	local ban = self._bans[guildId][data.user.id]
+	if ban then
+		ban:__init(data, self._client)
+	else
+		ban = Ban(data, self._client)
+		self._bans[guildId][data.user.id] = ban
+	end
 	return ban
 end
 
@@ -166,8 +206,13 @@ end
 
 function State:newPresence(guildId, data)
 	data.guild_id = guildId
-	local presence = Presence(data, self._client)
-	self._presences[guildId][data.user.id] = presence
+	local presence = self._presences[guildId][data.user.id]
+	if presence then
+		presence:__init(data, self._client)
+	else
+		presence = Presence(data, self._client)
+		self._presences[guildId][data.user.id] = presence
+	end
 	return presence
 end
 
@@ -180,8 +225,13 @@ end
 
 function State:newChannel(data)
 	local guildId = data.guild_id or '@me'
-	channelMap[data.id] = guildId
-	local channel = Channel(data, self._client)
+	local channel = self._channels[guildId][data.id]
+	if channel then
+		channel:__init(data, self._client)
+	else
+		channelMap[data.id] = guildId
+		channel = Channel(data, self._client)
+	end
 	self._channels[guildId][data.id] = channel
 	return channel
 end
@@ -203,8 +253,13 @@ function State:newMessage(data, gateway)
 			data.guild_id = guildId
 		end
 	end
-	local message = Message(data, self._client)
-	self._messages[channelId][data.id] = message
+	local message = self._messages[channelId][data.id]
+	if message then
+		message:__init(data, self._client)
+	else
+		message = Message(data, self._client)
+		self._messages[channelId][data.id] = message
+	end
 	return message
 end
 
@@ -217,8 +272,13 @@ end
 
 function State:newOverwrite(channelId, data)
 	data.channel_id = channelId
-	local overwrite = PermissionOverwrite(data, self._client)
-	self._overwrites[channelId][data.id] = overwrite
+	local overwrite = self._overwrites[channelId][data.id]
+	if overwrite then
+		overwrite:__init(data, self._client)
+	else
+		overwrite = PermissionOverwrite(data, self._client)
+		self._overwrites[channelId][data.id] = overwrite
+	end
 	return overwrite
 end
 
