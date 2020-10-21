@@ -32,6 +32,8 @@ local checkSnowflake = typing.checkSnowflake
 local checkInteger = typing.checkInteger
 local checkType = typing.checkType
 local checkImageData = typing.checkImageData
+local checkImageSize = typing.checkImageSize
+local checkImageExtension = typing.checkImageExtension
 local checkSnowflakeArray = typing.checkSnowflakeArray
 local readFileSync = fs.readFileSync
 local splitPath = pathjoin.splitPaths
@@ -40,24 +42,6 @@ local GATEWAY_VERSION = constants.GATEWAY_VERSION
 local GATEWAY_ENCODING = constants.GATEWAY_ENCODING
 
 local Client, get = class('Client', Emitter)
-
-local function checkOption(options, k, expected, default)
-	if options == nil then
-		return default
-	end
-	local v = options[k]
-	if v == nil then
-		return default
-	end
-	local received = type(v)
-	if expected ~= received then
-		return error(format('invalid client option %q (expected %s, received %s)', k, expected, received), 3)
-	end
-	if received == 'number' and (v < 0 or v % 1 > 0) then
-		return error(format('invalid client option %q (number must be a positive integer)', k), 3)
-	end
-	return v
-end
 
 local function checkActivity(activity)
 	local t = type(activity)
@@ -71,6 +55,44 @@ local function checkActivity(activity)
 		}
 	end
 	return error('invalid activity', 2)
+end
+
+local defaultOptions = {
+	routeDelay = {250, function(o) return checkInteger(o, 10, 0) end},
+	maxRetries = {5, function(o) return checkInteger(o, 10, 0) end},
+	tokenPrefix = {'Bot ', function(o) return checkType('string', o) end},
+	gatewayIntents = {32509, function(o) return checkInteger(o, 10, 0) end},
+	totalShardCount = {nil, function(o) return checkInteger(o, 10, 0) end},
+	payloadCompression = {true, function(o) return checkType('boolean', o) end},
+	defaultImageExtension = {'png', checkImageExtension},
+	defaultImageSize = {1024, checkImageSize},
+	logLevel = {enums.logLevel.info, function(o) return checkEnum(enums.logLevel, o) end},
+	dateFormat = {'%F %T', function(o) return checkType('string', o) end},
+	logFile = {'discordia.log', function(o) return checkType('string', o) end},
+	logColors = {true, function(o) return checkType('boolean', o) end},
+	status = {nil, function(o) return checkEnum(enums.status, o) end},
+	activity = {nil, checkActivity},
+}
+
+local function checkOptions(customOptions)
+	local options = {}
+	for k, v in pairs(defaultOptions) do
+		options[k] = v[1]
+	end
+	if type(customOptions) == 'table' then
+		for k, v in pairs(customOptions) do
+			local default = defaultOptions[k]
+			if not default then
+				return error(format('invalid client option %q', k), 3)
+			end
+			local success, res = pcall(default[2], v)
+			if not success then
+				return error(format('invalid client option %q: %s', k, res), 3)
+			end
+			options[k] = res
+		end
+	end
+	return options
 end
 
 local function opt(obj, fn, extra)
@@ -108,20 +130,16 @@ end
 
 function Client:__init(options)
 	Emitter.__init(self)
-	self._routeDelay = checkOption(options, 'routeDelay', 'number', 250)
-	self._maxRetries = checkOption(options, 'maxRetries', 'number', 5)
-	self._tokenPrefix = checkOption(options, 'tokenPrefix', 'string', 'Bot ')
-	self._gatewayIntents = checkOption(options, 'gatewayIntents', 'number', 0)
-	self._totalShardCount = checkOption(options, 'totalShardCount', 'number', nil)
-	self._payloadCompression = checkOption(options, 'payloadCompression', 'boolean', true)
-	self._defaultImageExtension = checkOption(options, 'defaultImageExtension', 'string', 'png')
-	self._defaultImageSize = checkOption(options, 'defaultImageSize', 'number', 1024)
-	self._logger = Logger(
-		checkOption(options, 'logLevel', 'number', enums.logLevel.info),
-		checkOption(options, 'dateFormat', 'string', '%F %T'),
-		checkOption(options, 'logFile', 'string', 'discordia.log'),
-		checkOption(options, 'logColors', 'boolean', true)
-	)
+	options = checkOptions(options)
+	self._routeDelay = options.routeDelay
+	self._maxRetries = options.maxRetries
+	self._tokenPrefix = options.tokenPrefix
+	self._gatewayIntents = options.gatewayIntents
+	self._totalShardCount = options.totalShardCount
+	self._payloadCompression = options.payloadCompression
+	self._defaultImageExtension = options.defaultImageExtension
+	self._defaultImageSize = options.defaultImageSize
+	self._logger = Logger(options.logLevel, options.dateFormat, options.logFile, options.logColors)
 	self._api = API(self)
 	self._cdn = CDN(self)
 	self._state = State(self)
@@ -129,8 +147,8 @@ function Client:__init(options)
 	self._shards = {}
 	self._token = nil
 	self._userId = nil
-	self._status = options.status and checkEnum(enums.status, options.status)
-	self._activity = options.activity and checkActivity(options.activity)
+	self._status = options.status
+	self._activity = options.activity
 end
 
 function Client:_run(token)
