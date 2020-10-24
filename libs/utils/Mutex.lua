@@ -1,10 +1,9 @@
-local timer = require('timer')
 local class = require('../class')
 local typing = require('../typing')
 local helpers = require('../helpers')
 
 local yield, running = coroutine.yield, coroutine.running
-local setTimeout = timer.setTimeout
+local setTimeout = helpers.setTimeout
 local insert, remove = table.insert, table.remove
 local checkNumber = typing.checkNumber
 local assertResume = helpers.assertResume

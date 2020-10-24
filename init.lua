@@ -1,4 +1,10 @@
+local helpers = require('./libs/helpers')
+
 return {
+	sleep = helpers.sleep,
+	setInterval = helpers.setInterval,
+	setTimeout = helpers.setTimeout,
+	clearTimer = helpers.clearTimer,
 	package = require('./package'),
 	class = require('./libs/class'),
 	enums = require('./libs/enums'),

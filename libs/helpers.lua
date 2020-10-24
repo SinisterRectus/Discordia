@@ -3,7 +3,7 @@ local uv = require('uv')
 local hrtime = uv.hrtime
 local insert = table.insert
 local format, byte, gsub = string.format, string.byte, string.gsub
-local resume = coroutine.resume
+local resume, yield, running = coroutine.resume, coroutine.yield, coroutine.running
 
 local function toPercent(char)
 	return format('%%%02X', byte(char))
@@ -108,6 +108,40 @@ local function assertResume(thread, ...)
 	end
 end
 
+local function sleep(ms)
+	local thread = running()
+	local timer = uv.new_timer()
+	timer:start(ms, 0, function()
+		timer:close()
+		return assertResume(thread)
+	end)
+	return yield()
+end
+
+local function setTimeout(ms, callback, ...)
+	local timer = uv.new_timer()
+	local args = {...}
+	timer:start(ms, 0, function()
+		timer:close()
+		return callback(unpack(args))
+	end)
+	return timer
+end
+
+local function setInterval(ms, callback, ...)
+	local timer = uv.new_timer()
+	local args = {...}
+	timer:start(ms, ms, function()
+		return callback(unpack(args))
+	end)
+	return timer
+end
+
+local function clearTimer(timer)
+	timer:stop()
+	timer:close()
+end
+
 return {
 	urlEncode = urlEncode,
 	attachQuery = attachQuery,
@@ -115,4 +149,8 @@ return {
 	str2int = str2int,
 	readOnly = readOnly,
 	assertResume = assertResume,
+	sleep = sleep,
+	setTimeout = setTimeout,
+	setInterval = setInterval,
+	clearTimer = clearTimer,
 }

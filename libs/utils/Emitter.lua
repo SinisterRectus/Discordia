@@ -1,11 +1,10 @@
-local timer = require('timer')
 local class = require('../class')
 local typing = require('../typing')
 local helpers = require('../helpers')
 
 local wrap, yield, running = coroutine.wrap, coroutine.yield, coroutine.running
 local insert, remove = table.insert, table.remove
-local setTimeout, clearTimeout = timer.setTimeout, timer.clearTimeout
+local setTimeout, clearTimer = helpers.setTimeout, helpers.clearTimer
 local checkType = typing.checkType
 local checkNumber = typing.checkNumber
 local assertResume = helpers.assertResume
@@ -131,7 +130,7 @@ function Emitter:waitFor(name, timeout, predicate)
 
 	local function complete(success, ...)
 		if t then
-			clearTimeout(t)
+			clearTimer(t)
 			t = nil
 		end
 		if fn then

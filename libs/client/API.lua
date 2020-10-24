@@ -1,5 +1,4 @@
 local json = require('json')
-local timer = require('timer')
 local http = require('coro-http')
 local endpoints = require('../endpoints')
 local helpers = require('../helpers')
@@ -14,6 +13,7 @@ local encode, decode = json.encode, json.decode
 local insert, concat = table.insert, table.concat
 local running = coroutine.running
 local urlEncode, attachQuery = helpers.urlEncode, helpers.attachQuery
+local sleep = helpers.sleep
 
 local API_BASE_URL = constants.API_BASE_URL
 local JSON_CONTENT_TYPE = constants.JSON_CONTENT_TYPE
@@ -224,7 +224,7 @@ function API:commit(method, url, req, payload, route, retries)
 
 	if retry then
 		self:log('warning', res, method, url)
-		timer.sleep(delay)
+		sleep(delay)
 		return self:commit(method, url, req, payload, route, retries + 1)
 	end
 

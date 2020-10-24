@@ -1,9 +1,9 @@
 local json = require('json')
 local miniz = require('miniz')
-local timer = require('timer')
 local ws = require('coro-websocket')
 
 local class = require('../class')
+local helpers = require('../helpers')
 local Mutex = require('../utils/Mutex')
 local Emitter = require('../utils/Emitter')
 local EventHandler = require('./EventHandler')
@@ -14,7 +14,7 @@ local format = string.format
 local inflate = miniz.inflate
 local min, max = math.min, math.max
 local encode, decode, null = json.encode, json.decode, json.null
-local sleep, setInterval, clearInterval = timer.sleep, timer.setInterval, timer.clearInterval
+local sleep, setInterval, clearTimer = helpers.sleep, helpers.setInterval, helpers.clearTimer
 
 local SEND_DELAY = 500
 local IDENTIFY_DELAY = 5000
@@ -70,7 +70,7 @@ local Shard, get = class('Shard', Emitter)
 function Shard:__init(id, client)
 	Emitter.__init(self)
 	self._id = id
-	self._client = client
+	self._client = assert(client)
 	self._sendMutex = Mutex()
 	self._reconnectDelay = MIN_RECONNECT_DELAY
 	self._events = 0
@@ -156,7 +156,7 @@ function Shard:connect(url, path)
 		self:log('info', 'Disconnected')
 	else
 		self:log('error', 'Could not connect to %s (%s)', url, res)
-		url = self.client:getGatewayURL() or url
+		url = self._client:getGatewayURL() or url
 	end
 
 	if self._reconnect ~= false then
@@ -282,7 +282,7 @@ end
 
 function Shard:startHeartbeat(interval)
 	if self._heartbeat then
-		clearInterval(self._heartbeat)
+		clearTimer(self._heartbeat)
 	end
 	self._heartbeat = setInterval(interval, function()
 		self:decrementReconnectDelay()

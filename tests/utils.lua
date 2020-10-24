@@ -1,4 +1,4 @@
-local timer = require('timer')
+local helpers = require('../libs/helpers')
 
 local f = string.format
 
@@ -32,7 +32,7 @@ local function assertError(fn, expected)
 end
 
 return {
-	sleep = timer.sleep,
+	sleep = helpers.sleep,
 	assertEqual = assertEqual,
 	assertTrue = assertTrue,
 	assertFalse = assertFalse,

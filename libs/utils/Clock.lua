@@ -1,9 +1,9 @@
-local timer = require('timer')
 local class = require('../class')
+local helpers = require('../helpers')
 local Emitter = require('./Emitter')
 
 local date = os.date
-local setInterval, clearInterval = timer.setInterval, timer.clearInterval
+local setInterval, clearTimer = helpers.setInterval, helpers.clearTimer
 
 local Clock = class('Clock', Emitter)
 
@@ -29,7 +29,7 @@ end
 
 function Clock:stop()
 	if not self._interval then return end
-	clearInterval(self._interval)
+	clearTimer(self._interval)
 	self._interval = nil
 end
 
