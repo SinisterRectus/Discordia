@@ -7,7 +7,6 @@ local helpers = require('../helpers')
 local Mutex = require('../utils/Mutex')
 local Emitter = require('../utils/Emitter')
 local EventHandler = require('./EventHandler')
-local Stopwatch = require('../utils/Stopwatch')
 
 local wrap = coroutine.wrap
 local format = string.format
@@ -292,7 +291,7 @@ end
 
 function Shard:stopHeartbeat()
 	if self._heartbeat then
-		clearInterval(self._heartbeat)
+		clearTimer(self._heartbeat)
 	end
 	self._heartbeat = nil
 end

@@ -37,6 +37,7 @@ local checkImageExtension = typing.checkImageExtension
 local checkSnowflakeArray = typing.checkSnowflakeArray
 local readFileSync = fs.readFileSync
 local splitPath = pathjoin.splitPaths
+local isInstance = class.isInstance
 
 local GATEWAY_VERSION = constants.GATEWAY_VERSION
 local GATEWAY_ENCODING = constants.GATEWAY_ENCODING
@@ -57,11 +58,33 @@ local function checkActivity(activity)
 	return error('invalid activity', 2)
 end
 
+local function checkColor(obj)
+	if isInstance(obj, Color) then
+		return obj:toDec()
+	end
+	return Color(obj):toDec()
+end
+
+local function checkBitfield(obj)
+	if isInstance(obj, Bitfield) then
+		return obj:toDec()
+	end
+	return Bitfield(obj):toDec()
+end
+
+local function checkPositions(positions)
+	local ret = {}
+	for k, v in pairs(checkType('table', positions)) do
+		insert(ret, {id = checkSnowflake(k), position = checkInteger(v)})
+	end
+	return ret
+end
+
 local defaultOptions = {
 	routeDelay = {250, function(o) return checkInteger(o, 10, 0) end},
 	maxRetries = {5, function(o) return checkInteger(o, 10, 0) end},
 	tokenPrefix = {'Bot ', function(o) return checkType('string', o) end},
-	gatewayIntents = {32509, function(o) return checkInteger(o, 10, 0) end},
+	gatewayIntents = {32509, checkBitfield},
 	totalShardCount = {nil, function(o) return checkInteger(o, 10, 0) end},
 	payloadCompression = {true, function(o) return checkType('boolean', o) end},
 	defaultImageExtension = {'png', checkImageExtension},
@@ -106,28 +129,6 @@ local function opt(obj, fn, extra)
 	end
 end
 
-local function checkColor(obj)
-	if class.isInstance(obj, Color) then
-		return obj:toDec()
-	end
-	return Color(obj):toDec()
-end
-
-local function checkBitfield(obj)
-	if class.isInstance(obj, Bitfield) then
-		return obj:toDec()
-	end
-	return Bitfield(obj):toDec()
-end
-
-local function checkPositions(positions)
-	local ret = {}
-	for k, v in pairs(checkType('table', positions)) do
-		insert(ret, {id = checkSnowflake(k), position = checkInteger(v)})
-	end
-	return ret
-end
-
 function Client:__init(options)
 	Emitter.__init(self)
 	options = checkOptions(options)
@@ -153,6 +154,8 @@ end
 
 function Client:_run(token)
 
+	token = checkType('string', token)
+
 	self:log('info', 'Discordia %s', package.version)
 	self:log('info', 'Connecting to Discord...')
 
@@ -163,7 +166,8 @@ function Client:_run(token)
 		return wrap(self.stop)(self)
 	end)
 
-	self:setToken(token)
+	self._token = token
+	self.api:setToken(token)
 
 	local user, err1 = self.api:getCurrentUser()
 	if not user then
@@ -224,31 +228,6 @@ function Client:stop()
 	for _, shard in pairs(self._shards) do
 		shard:disconnect(false)
 	end
-end
-
-function Client:setGatewayIntents(intents)
-	self._gatewayIntents = tonumber(checkBitfield(intents))
-end
-
-function Client:enableGatewayIntents(...)
-	local intents = Bitfield(self.gatewayIntents)
-	for i = 1, select('#', ...) do
-		intents:enableValue(checkEnum(enums.gatewayIntent, select(i, ...)))
-	end
-	return self:setGatewayIntents(intents)
-end
-
-function Client:disableGatewayIntents(...)
-	local intents = Bitfield(self.gatewayIntents)
-	for i = 1, select('#', ...) do
-		intents:disableValue(checkEnum(enums.gatewayIntent, select(i, ...)))
-	end
-	return self:setGatewayIntents(intents)
-end
-
-function Client:setToken(token)
-	self._token = token
-	self.api:setToken(token)
 end
 
 function Client:setStatus(status)

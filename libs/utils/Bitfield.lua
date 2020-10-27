@@ -21,31 +21,40 @@ local MIN_VALUE, MAX_VALUE = 0, 2^MAX_BIT - 1
 
 local function checkValue(value, base)
 	local t = type(value)
-	if t == 'table' then
-		local n = 0ULL
-		for _, v in pairs(value) do
-			n = bor(n, checkValue(v, base))
-		end
-		return n
-	end
 	if base then
 		base = checkInteger(base, 10, MIN_BASE, MAX_BASE)
-		checkInteger(value, base, MIN_VALUE, MAX_VALUE)
 		if t == 'number' then
+			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
 			return tonumber(value, base) + 0ULL
 		elseif t == 'string' then
+			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
 			return str2int(value, base)
 		elseif t == 'cdata' then
+			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
 			return str2int(tostring(value:match('%d*'), base))
+		elseif t == 'table' then
+			local n = 0ULL
+			for _, v in pairs(value) do
+				n = bor(n, checkValue(v, base))
+			end
+			return n
 		end
 	else
-		checkInteger(value, base, MIN_VALUE, MAX_VALUE)
 		if t == 'number' then
+			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
 			return value + 0ULL
 		elseif t == 'string' then
+			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
 			return str2int(value)
 		elseif t == 'cdata' then
+			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
 			return value
+		elseif t == 'table' then
+			local n = 0ULL
+			for _, v in pairs(value) do
+				n = bor(n, checkValue(v))
+			end
+			return n
 		end
 	end
 end
