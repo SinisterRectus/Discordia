@@ -84,8 +84,8 @@ local defaultOptions = {
 	routeDelay = {250, function(o) return checkInteger(o, 10, 0) end},
 	maxRetries = {5, function(o) return checkInteger(o, 10, 0) end},
 	tokenPrefix = {'Bot ', function(o) return checkType('string', o) end},
-	gatewayIntents = {32509, checkBitfield},
-	totalShardCount = {nil, function(o) return checkInteger(o, 10, 0) end},
+	gatewayIntents = {32509, function(o) return checkInteger(o, 10, 1) end},
+	totalShardCount = {nil, function(o) return checkInteger(o, 10, 1) end},
 	payloadCompression = {true, function(o) return checkType('boolean', o) end},
 	defaultImageExtension = {'png', checkImageExtension},
 	defaultImageSize = {1024, checkImageSize},
@@ -177,17 +177,12 @@ function Client:_run(token)
 	self.state:newUser(user)
 	self:log('info', 'Authenticated as %s#%s', user.username, user.discriminator)
 
-	local shards = self._totalShardCount
-	if shards == 0 then
-		self:log('info', 'Readying client with no gateway connection(s)')
-		return self:emit('ready')
-	end
-
 	local gateway, err2 = self.api:getGatewayBot()
 	if not gateway then
 		return self:log('critical', 'Could not get gateway information: %s', err2)
 	end
 
+	local shards = self._totalShardCount
 	if shards == nil then
 		shards = gateway.shards
 	elseif shards ~= gateway.shards then
