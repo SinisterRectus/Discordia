@@ -140,7 +140,7 @@ function Message:delete()
 	return self.client:deleteMessage(self.channelId, self.id)
 end
 
-function Message:send(payload)
+function Message:reply(payload)
 	return self.client:createMessage(self.channelId, payload)
 end
 
