@@ -138,6 +138,7 @@ local function setInterval(ms, callback, ...)
 end
 
 local function clearTimer(timer)
+	if timer:is_closing() then return end
 	timer:stop()
 	timer:close()
 end
