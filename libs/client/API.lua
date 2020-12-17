@@ -282,6 +282,90 @@ function API:deletePurchaseDiscount(sku_id, user_id, query)
 	return self:request("DELETE", endpoint, params, query)
 end
 
+function API:getGlobalApplicationCommands(application_id, query)
+	local endpoint = endpoints.APPLICATION_COMMANDS
+	local params = {application_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:createGlobalApplicationCommand(application_id, payload, query)
+	local endpoint = endpoints.APPLICATION_COMMANDS
+	local params = {application_id}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:editGlobalApplicationCommand(application_id, command_id, payload, query)
+	local endpoint = endpoints.APPLICATION_COMMAND
+	local params = {application_id, command_id}
+	return self:request("PATCH", endpoint, params, query, payload)
+end
+
+function API:deleteGlobalApplicationCommand(application_id, command_id, query)
+	local endpoint = endpoints.APPLICATION_COMMAND
+	local params = {application_id, command_id}
+	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:getGuildApplicationCommands(application_id, guild_id, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMANDS
+	local params = {application_id, guild_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:createGuildApplicationCommand(application_id, guild_id, payload, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMANDS
+	local params = {application_id, guild_id}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:editGuildApplicationCommand(application_id, guild_id, command_id, payload, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMAND
+	local params = {application_id, guild_id, command_id}
+	return self:request("PATCH", endpoint, params, query, payload)
+end
+
+function API:deleteGuildApplicationCommand(application_id, guild_id, command_id, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMAND
+	local params = {application_id, guild_id, command_id}
+	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:createInteractionResponse(interaction_id, interaction_token, payload, query)
+	local endpoint = endpoints.INTERACTION_TOKEN_CALLBACK
+	local params = {interaction_id, interaction_token}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:editOriginalInteractionResponse(application_id, interaction_token, payload, query)
+	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGES_ORIGINAL
+	local params = {application_id, interaction_token}
+	return self:request("PATCH", endpoint, params, query, payload)
+end
+
+function API:deleteOriginalInteractionResponse(application_id, interaction_token, query)
+	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGES_ORIGINAL
+	local params = {application_id, interaction_token}
+	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:createFollowupMessage(application_id, interaction_token, payload, query)
+	local endpoint = endpoints.WEBHOOK_TOKEN
+	local params = {application_id, interaction_token}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:editFollowupMessage(application_id, interaction_token, message_id, payload, query)
+	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGE
+	local params = {application_id, interaction_token, message_id}
+	return self:request("PATCH", endpoint, params, query, payload)
+end
+
+function API:deleteFollowupMessage(application_id, interaction_token, message_id, query)
+	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGE
+	local params = {application_id, interaction_token, message_id}
+	return self:request("DELETE", endpoint, params, query)
+end
+
 function API:getGuildAuditLog(guild_id, query)
 	local endpoint = endpoints.GUILD_AUDIT_LOGS
 	local params = {guild_id}
@@ -726,6 +810,48 @@ function API:deleteInvite(invite_code, query)
 	return self:request("DELETE", endpoint, params, query)
 end
 
+function API:getTemplate(template_code, query)
+	local endpoint = endpoints.GUILDS_TEMPLATE
+	local params = {template_code}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:createGuildFromTemplate(template_code, payload, query)
+	local endpoint = endpoints.GUILDS_TEMPLATE
+	local params = {template_code}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:getGuildTemplates(guild_id, query)
+	local endpoint = endpoints.GUILD_TEMPLATES
+	local params = {guild_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:createGuildTemplate(guild_id, payload, query)
+	local endpoint = endpoints.GUILD_TEMPLATES
+	local params = {guild_id}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:syncGuildTemplate(guild_id, template_code, payload, query)
+	local endpoint = endpoints.GUILD_TEMPLATE
+	local params = {guild_id, template_code}
+	return self:request("PUT", endpoint, params, query, payload)
+end
+
+function API:modifyGuildTemplate(guild_id, template_code, payload, query)
+	local endpoint = endpoints.GUILD_TEMPLATE
+	local params = {guild_id, template_code}
+	return self:request("PATCH", endpoint, params, query, payload)
+end
+
+function API:deleteGuildTemplate(guild_id, template_code, query)
+	local endpoint = endpoints.GUILD_TEMPLATE
+	local params = {guild_id, template_code}
+	return self:request("DELETE", endpoint, params, query)
+end
+
 function API:getCurrentUser(query)
 	local endpoint = endpoints.USERS_ME
 	local params = {}
@@ -856,6 +982,12 @@ function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload, 
 	local endpoint = endpoints.WEBHOOK_TOKEN_GITHUB
 	local params = {webhook_id, webhook_token}
 	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:editWebhookMessage(webhook_id, webhook_token, message_id, payload, query)
+	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGE
+	local params = {webhook_id, webhook_token, message_id}
+	return self:request("PATCH", endpoint, params, query, payload)
 end
 
 function API:getGateway(query)
