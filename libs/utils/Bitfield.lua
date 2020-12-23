@@ -127,7 +127,7 @@ function Bitfield:toArray(filter, sort)
 			insert(arr, k)
 		end
 	end
-	if sort and typing.checkType('table', sort) then
+	if sort and typing.checkType('function', sort) then
 		table.sort(arr, sort)
 	end
 	return arr
