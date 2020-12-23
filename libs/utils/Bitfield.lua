@@ -120,12 +120,15 @@ function Bitfield:__div(other)
 	end
 end
 
-function Bitfield:toArray(filter)
+function Bitfield:toArray(filter, sort)
 	local arr = {}
 	for k, v in pairs(checkType('table', filter)) do
 		if self:hasValue(v) then
 			insert(arr, k)
 		end
+	end
+	if sort and typing.checkType('table', sort) then
+		table.sort(arr, sort)
 	end
 	return arr
 end
