@@ -44,6 +44,7 @@ local properties = { -- name, pattern, default
 	{'min', '%d%d%d%d%-%d%d%-%d%d.%d%d:(%d%d)', 0},
 	{'sec', '%d%d%d%d%-%d%d%-%d%d.%d%d:%d%d:(%d%d)', 0},
 	{'usec', '%d%d%d%d%-%d%d%-%d%d.%d%d:%d%d:%d%d.(%d%d%d%d%d%d)', 0},
+	{'zone', '%d%d%d%d%-%d%d%-%d%d.%d%d:%d%d:%d%d.%d%d%d%d%d%d([+-]%d%d):%d%d', 0}
 }
 
 local function toTime(tbl, utc)

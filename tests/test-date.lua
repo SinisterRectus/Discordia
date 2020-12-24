@@ -83,6 +83,10 @@ assertEqual(Date.fromISO('2020-03-13T20:54:47.234567'), Date.fromTableUTC {
 	year = 2020, month = 3, day = 13,
 	hour = 20, min = 54, sec = 47, usec = 234567,
 })
+assertEqual(Date.fromISO('2020-03-13T20:54:47.234567+03:00'), Date.fromTableUTC {
+	year = 2020, month = 3, day = 13,
+	hour = 20, min = 54, sec = 47, usec = 234567, zone = "+03:00"
+})
 
 assertTrue(Date(1) == Date(1))
 assertTrue(Date(1) ~= Date(2))
