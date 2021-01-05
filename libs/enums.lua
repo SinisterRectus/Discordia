@@ -9,12 +9,18 @@ local function enum(tbl)
 		call[v] = k
 	end
 	return setmetatable({}, {
-		__index = tbl,
+		__index = function(_, k)
+			return tbl[k]
+		end,
 		__newindex = function()
 			return error('cannot overwrite enumeration')
 		end,
 		__pairs = function()
-			return next, tbl
+			local k, v
+			return function()
+				k, v = next(tbl, k)
+				return k, v
+			end
 		end,
 		__call = function(_, k)
 			return call[k]
@@ -27,7 +33,9 @@ end
 
 local enums = {}
 local proxy = setmetatable({}, {
-	__index = enums,
+	__index = function(_, k)
+		return enums[k]
+	end,
 	__newindex = function(_, k, v)
 		if enums[k] then
 			return error('cannot overwrite enumeration')
@@ -37,7 +45,11 @@ local proxy = setmetatable({}, {
 		enums[k] = v
 	end,
 	__pairs = function()
-		return next, enums
+		local k, v
+		return function()
+			k, v = next(enums, k)
+			return k, v
+		end
 	end,
 })
 
