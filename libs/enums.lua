@@ -10,6 +10,9 @@ local function enum(tbl)
 	end
 	return setmetatable({}, {
 		__index = function(_, k)
+			if not tbl[k] then
+				return error('invalid enumeration name: ' .. tostring(k))
+			end
 			return tbl[k]
 		end,
 		__newindex = function()
@@ -23,6 +26,9 @@ local function enum(tbl)
 			end
 		end,
 		__call = function(_, k)
+			if not call[k] then
+				return error('invalid enumeration value: ' .. tostring(k))
+			end
 			return call[k]
 		end,
 		__tostring = function(self)

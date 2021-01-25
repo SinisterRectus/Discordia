@@ -63,11 +63,11 @@ function typing.checkCallable(obj)
 end
 
 function typing.checkEnum(enum, obj)
-	local n = enum[obj] or enum(obj) and obj
-	if not n then
-		return typeError(tostring(enum), type(obj))
+	if type(obj) == 'string' then
+		return enum[obj]
+	elseif enum(obj) then
+		return obj
 	end
-	return n
 end
 
 function typing.checkSnowflake(obj)
