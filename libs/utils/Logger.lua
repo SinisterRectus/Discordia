@@ -11,14 +11,14 @@ local openSync, writeSync, closeSync = fs.openSync, fs.writeSync, fs.closeSync
 local checkEnum, checkType = typing.checkEnum, typing.checkType
 
 local colors = {
-	black   = 30,
-	red     = 31,
-	green   = 32,
-	yellow  = 33,
-	blue    = 34,
-	magenta = 35,
-	cyan    = 36,
-	white   = 37,
+	black   = 90,
+	red     = 91,
+	green   = 92,
+	yellow  = 93,
+	blue    = 94,
+	magenta = 95,
+	cyan    = 96,
+	white   = 97,
 }
 
 local labels = {
@@ -30,7 +30,7 @@ local labels = {
 }
 
 for _, v in ipairs(labels) do
-	v[2] = format('\27[%i;%im%s\27[0m', 1, v[2], v[1])
+	v[2] = format('\27[%i;%im%s\27[0m', 0, v[2], v[1])
 end
 
 local Logger = class('Logger')
