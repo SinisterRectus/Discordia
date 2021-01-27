@@ -37,18 +37,25 @@ local function normalize(x, y, z)
 end
 
 local properties = { -- name, pattern, default
-	{'year', '(%d%d%d%d)', 1970},
-	{'month', '%d%d%d%d%-(%d%d)', 1},
-	{'day', '%d%d%d%d%-%d%d%-(%d%d)', 1},
-	{'hour', '%d%d%d%d%-%d%d%-%d%d.(%d%d)', 0},
-	{'min', '%d%d%d%d%-%d%d%-%d%d.%d%d:(%d%d)', 0},
-	{'sec', '%d%d%d%d%-%d%d%-%d%d.%d%d:%d%d:(%d%d)', 0},
-	{'usec', '%d%d%d%d%-%d%d%-%d%d.%d%d:%d%d:%d%d.(%d%d%d%d%d%d)', 0},
+	date = {
+		{'year', '(%d%d%d%d)', 1970},
+		{'month', '%d%d%d%d%-(%d%d)', 1},
+		{'day', '%d%d%d%d%-%d%d%-(%d%d)', 1},
+	},
+	time = {
+		{'hour', '(%d%d)', 0},
+		{'min', '%d%d:(%d%d)', 0},
+		{'sec', '%d%d:%d%d:(%d%d)', 0},
+		{'usec', '%d%d:%d%d:%d%d.(%d%d%d%d%d%d)', 0},
+	},
 }
 
 local function toTime(tbl, utc)
 	local new = {}
-	for _, v in ipairs(properties) do
+	for _, v in ipairs(properties.date) do
+		new[v[1]] = floor(tbl[v[1]] or v[3])
+	end
+	for _, v in ipairs(properties.time) do
 		new[v[1]] = floor(tbl[v[1]] or v[3])
 	end
 	if utc then
@@ -79,14 +86,6 @@ local function checkDate(obj)
 		return obj:toMicroseconds()
 	end
 	return error('cannot perform operation', 2)
-end
-
-local function checkSeparator(sep)
-	sep = tostring(sep)
-	if not sep or #sep ~= 1 then
-		return error('invalid ISO 8601 separator', 2)
-	end
-	return sep
 end
 
 function Date:__init(s, us)
@@ -145,11 +144,9 @@ function Date.__div()
 	return error('cannot perform operation')
 end
 
-function Date.fromISO(str)
-	str = checkType('string', str)
-	local tbl = {isdst = false}
+local function parseString(patterns, tbl, str)
 	local valid = false
-	for _, v in ipairs(properties) do
+	for _, v in ipairs(patterns) do
 		local i, j, n = str:find(v[2])
 		if not valid and i == 1 and j == #str then
 			valid = true
@@ -159,7 +156,41 @@ function Date.fromISO(str)
 	if not valid then
 		return error('invalid ISO 8601 string')
 	end
+	return tbl
+end
+
+function Date.fromISO(str)
+
+	str = checkType('string', str)
+	local tbl = {isdst = false}
+
+	local d, t = str:match('(.*)T(.*)')
+
+	d = d or str
+	parseString(properties.date, tbl, d or str)
+
+	if t then
+		local s, z, o = t:match('(.*)([Z%+%-])(.*)')
+		if s and z and o then
+			parseString(properties.time, tbl, s)
+			if z ~= 'Z' and o ~= '00:00' then
+				if z == '+' then
+					for k, v in pairs(parseString(properties.time, {}, o)) do
+						tbl[k] = tbl[k] + v
+					end
+				elseif z == '-' then
+					for k, v in pairs(parseString(properties.time, {}, o)) do
+						tbl[k] = tbl[k] - v
+					end
+				end
+			end
+		else
+			parseString(properties.time, tbl, t)
+		end
+	end
+
 	return Date.fromTableUTC(tbl)
+
 end
 
 function Date.fromSnowflake(id)
@@ -186,15 +217,12 @@ function Date.fromMicroseconds(us)
 	return Date(0, checkPosInt(us))
 end
 
-function Date:toISO(sep)
-	sep = sep and checkSeparator(sep) or 'T'
+function Date:toISO()
 	local s, us = self:toParts()
 	if us > 0 then
-		local str = toDate('!%F%%s%T%%s', s)
-		return format(str, sep, format('.%06i', us))
+		return toDate('!%FT%T', s) .. format('.%06i', us)
 	else
-		local str = toDate('!%F%%s%T', s)
-		return format(str, sep)
+		return toDate('!%FT%T', s)
 	end
 end
 
