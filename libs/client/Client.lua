@@ -428,6 +428,16 @@ function Client:getGuildChannels(guildId)
 	end
 end
 
+function Client:getGuildVoiceRegions(guildId)
+	guildId = checkSnowflake(guildId)
+	local data, err = self.api:getGuildVoiceRegions(guildId)
+	if data then
+		-- TODO
+	else
+		return nil, err
+	end
+end
+
 function Client:createGuildRole(guildId, payload)
 	guildId = checkSnowflake(guildId)
 	local data, err
@@ -723,7 +733,7 @@ function Client:modifyGuildMember(guildId, userId, payload)
 		channel_id = opt(payload.channelId, checkSnowflake),
 	})
 	if data then
-		return true -- 204
+		return self.state:newMember(guildId, data)
 	else
 		return false, err
 	end

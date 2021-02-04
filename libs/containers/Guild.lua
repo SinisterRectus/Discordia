@@ -40,9 +40,6 @@ function Guild:__init(data, client)
 	self._public_updates_channel_id = data.public_updates_channel_id -- http and wss
 	self._max_video_channel_users = data.max_video_channel_users -- http and wss
 
-	self._owner = data.owner -- oauth only?
-	self._permissions = data.permissions -- http only?
-
 	self._max_members = data.max_members -- http and GUILD_UPDATE only
 	self._max_presences = data.max_presences -- http and GUILD_UPDATE only
 	self._widget_enabled = data.widget_enabled -- http and GUILD_UPDATE only
@@ -50,6 +47,11 @@ function Guild:__init(data, client)
 
 	self._approximate_member_count = data.approximate_member_count -- http "with_counts" only
 	self._approximate_presence_count = data.approximate_presence_count -- http "with_counts" only
+
+	self._joined_at = data.joined_at -- GUILD_CREATE only
+	self._member_count = data.member_count -- GUILD_CREATE only
+
+	-- ignore: owner, permissions, lazy, large, unavailable
 
 	local id = data.id
 	local state = client.state
@@ -84,8 +86,6 @@ function Guild:__init(data, client)
 	if data.voice_states then
 		-- TODO
 	end
-
-	-- TODO: gateway properties: joined_at, large, lazy, member_count
 
 end
 
@@ -268,7 +268,7 @@ function Guild:getAuditLogs(payload)
 end
 
 function Guild:getVoiceRegions()
-	-- TODO
+	return self.client:getGuildVoiceRegions(self.id)
 end
 
 function Guild:leave()
@@ -297,10 +297,12 @@ function get:shardId()
 	return self.client:getGuildShardId(self.id)
 end
 
-function get:joinedAt() -- TODO
+function get:joinedAt()
+	return self._joined_at
 end
 
-function get:unavailable() -- TODO
+function get:memberCount()
+	return self._member_count
 end
 
 function get:name()

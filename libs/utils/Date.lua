@@ -165,8 +165,6 @@ function Date.fromISO(str)
 	local tbl = {isdst = false}
 
 	local d, t = str:match('(.*)T(.*)')
-
-	d = d or str
 	parseString(properties.date, tbl, d or str)
 
 	if t then

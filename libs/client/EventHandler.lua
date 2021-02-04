@@ -15,17 +15,17 @@ function EventHandler.RESUMED(_, _, shard)
 	return shard:resumeSession()
 end
 
-function EventHandler.CHANNEL_CREATE(d, client) -- GUILDS / DIRECT_MESSAGES
+function EventHandler.CHANNEL_CREATE(d, client) -- GUILDS
 	local channel = client.state:newChannel(d)
 	return client:emit('channelCreate', channel)
 end
 
-function EventHandler.CHANNEL_UPDATE(d, client) -- GUILDS / DIRECT_MESSAGES
+function EventHandler.CHANNEL_UPDATE(d, client) -- GUILDS
 	local channel = client.state:newChannel(d)
 	return client:emit('channelUpdate', channel)
 end
 
-function EventHandler.CHANNEL_DELETE(d, client) -- GUILDS / DIRECT_MESSAGES
+function EventHandler.CHANNEL_DELETE(d, client) -- GUILDS
 	local channel = client.state:newChannel(d)
 	return client:emit('channelDelete', channel)
 end
