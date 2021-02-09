@@ -72,6 +72,19 @@ local function checkBitfield(obj)
 	return Bitfield(obj):toDec()
 end
 
+local function checkPermissionOverwrites(overwrites)
+	local ret = {}
+	for _, obj in pairs(checkType('table', overwrites)) do
+		insert(ret, {
+			id = checkSnowflake(obj.id),
+			type = checkEnum(enums.permissionOverwriteType, obj.type),
+			allow = checkBitfield(obj.allowedPermissions),
+			deny = checkBitfield(obj.deniedPermissions),
+		})
+	end
+	return ret
+end
+
 local function checkPositions(positions)
 	local ret = {}
 	for k, v in pairs(checkType('table', positions)) do
@@ -290,9 +303,9 @@ function Client:getChannel(channelId)
 	end
 end
 
-function Client:getGuild(guildId, counts)
+function Client:getGuild(guildId, withCounts)
 	guildId = checkSnowflake(guildId)
-	local query = counts and {with_counts = true} or nil
+	local query = withCounts and {with_counts = true} or nil
 	local data, err = self.api:getGuild(guildId, query)
 	if data then
 		return self.state:newGuild(data)
@@ -311,9 +324,9 @@ function Client:getWebhook(webhookId)
 	end
 end
 
-function Client:getInvite(code, counts)
+function Client:getInvite(code, withCounts)
 	code = checkType('string', code)
-	local query = counts and {with_counts = true} or nil
+	local query = withCounts and {with_counts = true} or nil
 	local data, err = self.api:getInvite(code, query)
 	if data then
 		return self.state:newInvite(data)
@@ -432,7 +445,7 @@ function Client:getGuildVoiceRegions(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildVoiceRegions(guildId)
 	if data then
-		-- TODO
+		return data -- raw table
 	else
 		return nil, err
 	end
@@ -485,7 +498,7 @@ function Client:createGuildChannel(guildId, payload)
 			position = opt(payload.position, checkInteger),
 			parent_id = opt(payload.parentId, checkInteger),
 			nsfw = opt(payload.nsfw, checkType, 'boolean'),
-			-- TODO: permission_overwrites
+			permission_overwrites = opt(payload.permissionOverwrites, checkPermissionOverwrites),
 		})
 	else
 		data, err = self.api:createGuildChannel(guildId, {name = checkType('string', payload)})
@@ -784,7 +797,7 @@ function Client:modifyChannel(channelId, payload)
 		position = opt(payload.position, checkInteger),
 		parent_id = opt(payload.parentId, checkInteger),
 		nsfw = opt(payload.nsfw, checkType, 'boolean'),
-		-- TODO: permission_overwrites
+		permission_overwrites = opt(payload.permissionOverwrites, checkPermissionOverwrites),
 	})
 	if data then
 		return self.state:newChannel(data)
