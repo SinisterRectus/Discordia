@@ -1,4 +1,5 @@
 local Snowflake = require('./Snowflake')
+local Bitfield = require('../utils/Bitfield')
 
 local json = require('json')
 local enums = require('../enums')
@@ -9,7 +10,6 @@ local constants = require('../constants')
 
 local format = string.format
 local insert = table.insert
-local bor, band, bnot = bit.bor, bit.band, bit.bnot
 local checkEnum = typing.checkEnum
 local readOnly = helpers.readOnly
 
@@ -102,18 +102,19 @@ function Message:setEmbed(embed)
 end
 
 function Message:hideEmbeds()
-	local flags = bor(self.flags, enums.messageFlag.suppressEmbeds)
-	return self.client:editMessage({flags = flags})
+	local flags = Bitfield(self.flags)
+	flags:disableValue(enums.messageFlag.suppressEmbeds)
+	return self.client:editMessage({flags = flags:toDec()})
 end
 
 function Message:showEmbeds()
-	local flags = band(self.flags, bnot(enums.messageFlag.suppressEmbeds))
-	return self.client:editMessage({flags = flags})
+	local flags = Bitfield(self.flags)
+	flags:enableValue(enums.messageFlag.suppressEmbeds)
+	return self.client:editMessage({flags = flags:toDec()})
 end
 
 function Message:hasFlag(flag)
-	flag = checkEnum(enums.messageFlag, flag)
-	return band(self.flags, flag) == flag
+	return Bitfield(self.flags):hasValue(checkEnum(enums.messageFlag, flag))
 end
 
 function Message:pin()

@@ -1,4 +1,5 @@
 local Snowflake = require('./Snowflake')
+local Bitfield = require('../utils/Bitfield')
 
 local typing = require('../typing')
 local class = require('../class')
@@ -8,7 +9,6 @@ local constants = require('../constants')
 local checkEnum = typing.checkEnum
 local checkImageSize = typing.checkImageSize
 local checkImageExtension = typing.checkImageExtension
-local band = bit.band
 local format = string.format
 local DEFAULT_AVATARS = constants.DEFAULT_AVATARS
 
@@ -25,8 +25,7 @@ function User:__init(data, client)
 end
 
 function User:hasFlag(flag)
-	flag = checkEnum(enums.userFlag, flag)
-	return band(self.flags, flag) == flag
+	return Bitfield(self.flags):hasValue(checkEnum(enums.userFlag, flag))
 end
 
 function User:getAvatarURL(ext, size)

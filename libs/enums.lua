@@ -25,11 +25,16 @@ local function enum(tbl)
 				return k, v
 			end
 		end,
-		__call = function(_, k)
-			if not call[k] then
-				return error('invalid enumeration value: ' .. tostring(k))
+		__call = function(_, v)
+			local k = call[v]
+			if not k then
+				v = tostring(v)
+				k = call[v]
 			end
-			return call[k]
+			if not k then
+				return error('invalid enumeration value: ' .. tostring(v))
+			end
+			return k, v
 		end,
 		__tostring = function(self)
 			return 'enumeration: ' .. names[self]
@@ -207,37 +212,42 @@ proxy.actionType = {
 	integrationDelete      = 82,
 }
 
+local function flag(n)
+	return tostring(bit.lshift(1ULL, n)):match('%d*')
+end
+
 proxy.permission = {
-	createInstantInvite = 0x00000001,
-	kickMembers         = 0x00000002,
-	banMembers          = 0x00000004,
-	administrator       = 0x00000008,
-	manageChannels      = 0x00000010,
-	manageGuild         = 0x00000020,
-	addReactions        = 0x00000040,
-	viewAuditLog        = 0x00000080,
-	prioritySpeaker     = 0x00000100,
-	stream              = 0x00000200,
-	viewChannel         = 0x00000400,
-	sendMessages        = 0x00000800,
-	sendTextToSpeech    = 0x00001000,
-	manageMessages      = 0x00002000,
-	embedLinks          = 0x00004000,
-	attachFiles         = 0x00008000,
-	readMessageHistory  = 0x00010000,
-	mentionEveryone     = 0x00020000,
-	useExternalEmojis   = 0x00040000,
-	connect             = 0x00100000,
-	speak               = 0x00200000,
-	muteMembers         = 0x00400000,
-	deafenMembers       = 0x00800000,
-	moveMembers         = 0x01000000,
-	useVoiceActivity    = 0x02000000,
-	changeNickname      = 0x04000000,
-	manageNicknames     = 0x08000000,
-	manageRoles         = 0x10000000,
-	manageWebhooks      = 0x20000000,
-	manageEmojis        = 0x40000000,
+	createInstantInvite = flag(0),
+	kickMembers         = flag(1),
+	banMembers          = flag(2),
+	administrator       = flag(3),
+	manageChannels      = flag(4),
+	manageGuild         = flag(5),
+	addReactions        = flag(6),
+	viewAuditLog        = flag(7),
+	prioritySpeaker     = flag(8),
+	stream              = flag(9),
+	viewChannel         = flag(10),
+	sendMessages        = flag(11),
+	sendTextToSpeech    = flag(12),
+	manageMessages      = flag(13),
+	embedLinks          = flag(14),
+	attachFiles         = flag(15),
+	readMessageHistory  = flag(16),
+	mentionEveryone     = flag(17),
+	useExternalEmojis   = flag(18),
+	viewGuildInsights   = flag(19),
+	connect             = flag(20),
+	speak               = flag(21),
+	muteMembers         = flag(22),
+	deafenMembers       = flag(23),
+	moveMembers         = flag(24),
+	useVoiceActivity    = flag(25),
+	changeNickname      = flag(26),
+	manageNicknames     = flag(27),
+	manageRoles         = flag(28),
+	manageWebhooks      = flag(29),
+	manageEmojis        = flag(30),
 }
 
 proxy.messageFlag = {

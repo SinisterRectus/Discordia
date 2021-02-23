@@ -63,10 +63,11 @@ function typing.checkCallable(obj)
 end
 
 function typing.checkEnum(enum, obj)
-	if type(obj) == 'string' then
-		return enum[obj]
-	elseif enum(obj) then
-		return obj
+	if type(obj) == 'string' and not tonumber(obj) then
+		return enum[obj] -- try the name
+	else
+		local _, v = enum(obj) -- resolve the value
+		return v
 	end
 end
 

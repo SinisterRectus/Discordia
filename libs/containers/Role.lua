@@ -18,7 +18,7 @@ function Role:__init(data, client)
 	self._color = data.color
 	self._hoist = data.hoist
 	self._position = data.position
-	self._permissions = data.permissions_new
+	self._permissions = data.permissions
 	self._managed = data.managed
 	self._mentionable = data.mentionable
 end
