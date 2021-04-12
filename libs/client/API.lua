@@ -118,7 +118,7 @@ function API:__init(client)
 end
 
 function API:authenticate(token)
-	self._token = token
+	self._token = "Bot " .. token
 	return self:getCurrentUser()
 end
 
