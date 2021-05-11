@@ -122,10 +122,11 @@ end
 function Message:_removeReaction(d)
 
 	local reactions = self._reactions
-
+	if not reactions then return nil end
+	
 	local emoji = d.emoji
 	local k = emoji.id ~= null and emoji.id or emoji.name
-	local reaction = reactions and reactions:get(k) or nil
+	local reaction = reactions:get(k) or nil
 	
 	if not reaction then return nil end -- uncached reaction?
 
