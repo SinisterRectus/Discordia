@@ -179,7 +179,7 @@ end
 --[=[
 @m toArray
 @r table
-@d Returns an array of the names of the permissions that this objects represents.
+@d Returns an array of the names of the permissions that this object represents.
 ]=]
 function Permissions:toArray()
 	local ret = {}

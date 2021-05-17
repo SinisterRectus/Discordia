@@ -131,7 +131,7 @@ end
 @op fn function
 @r number
 @d If a predicate is provided, this returns the number of objects in the iterable
-that satistfy the predicate; otherwise, the total number of objects.
+that satisfy the predicate; otherwise, the total number of objects.
 ]=]
 function Iterable:count(fn)
 	if not fn then
