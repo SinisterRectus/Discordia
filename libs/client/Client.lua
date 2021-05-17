@@ -323,7 +323,7 @@ end
 --[=[
 @m setAvatar
 @t http
-@p avatar Base64-Resolveable
+@p avatar Base64-Resolvable
 @r boolean
 @d Sets the client's avatar. To remove the avatar, pass an empty string or nil.
 This does not change the application image.
