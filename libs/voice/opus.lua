@@ -162,7 +162,7 @@ Encoder.__index = Encoder
 
 function Encoder:__new(sample_rate, channels, app) -- luacheck: ignore self
 
-	app = app or opus.APPLICATION_AUDIO -- TODO: test different appplications
+	app = app or opus.APPLICATION_AUDIO -- TODO: test different applications
 
 	local err = int_ptr_t()
 	local state = lib.opus_encoder_create(sample_rate, channels, app, err)

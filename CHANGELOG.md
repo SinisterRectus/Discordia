@@ -22,7 +22,7 @@
 	- Added `Activity.emojiId` property
 	- Added `Activity.emojiName` property
 	- Added `Activity.emojiHash` property
-	- Added `Activity` as a valid emoji and emojiId resolveable
+	- Added `Activity` as a valid emoji and emojiId resolvable
 	- Added `activityType.custom` enumeration
 - Added support for message flags and embed suppression
 	- Added `Message:hasFlag` method

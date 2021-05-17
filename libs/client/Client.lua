@@ -288,7 +288,7 @@ end
 @m stop
 @t ws
 @r nil
-@d Disconnects all shards and effectively stop their loops. This does not
+@d Disconnects all shards and effectively stops their loops. This does not
 empty any data that the client may have cached.
 ]=]
 function Client:stop()
@@ -323,7 +323,7 @@ end
 --[=[
 @m setAvatar
 @t http
-@p avatar Base64-Resolveable
+@p avatar Base64-Resolvable
 @r boolean
 @d Sets the client's avatar. To remove the avatar, pass an empty string or nil.
 This does not change the application image.
@@ -541,7 +541,7 @@ end
 @t ws
 @p status string
 @r nil
-@d Sets the current users's status on all shards that are managed by this client.
+@d Sets the current user's status on all shards that are managed by this client.
 See the `status` enumeration for acceptable status values.
 ]=]
 function Client:setStatus(status)
@@ -564,7 +564,7 @@ end
 @t ws
 @p game string/table
 @r nil
-@d Sets the current users's game on all shards that are managed by this client.
+@d Sets the current user's game on all shards that are managed by this client.
 If a string is passed, it is treated as the game name. If a table is passed, it
 must have a `name` field and may optionally have a `url` or `type` field. Pass `nil` to
 remove the game status.
