@@ -357,10 +357,10 @@ end
 @t http
 @p content string/table
 @r Message
-@d Equivalent to `Message.channel:send(content)`.
+@d Equivalent to `Message.channel:send(content, Message._id)`.
 ]=]
 function Message:reply(content)
-	return self._parent:send(content)
+	return self._parent:send(content, self._id)
 end
 
 --[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]

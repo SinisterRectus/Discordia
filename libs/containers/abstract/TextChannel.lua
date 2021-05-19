@@ -220,14 +220,18 @@ end
 @m send
 @t http
 @p content string/table
+@p replyId string
 @r Message
 @d Sends a message to the channel. If `content` is a string, then this is simply
 sent as the message content. If it is a table, more advanced formatting is
 allowed. See [[managing messages]] for more information.
 ]=]
-function TextChannel:send(content)
+function TextChannel:send(content, replyId)
 
 	local data, err
+	
+	local reply
+	if replyId then reply = {message_id = replyId} end
 
 	if type(content) == 'table' then
 
@@ -282,11 +286,12 @@ function TextChannel:send(content)
 			tts = tbl.tts,
 			nonce = tbl.nonce,
 			embed = tbl.embed,
+			message_reference = reply
 		}, files)
 
 	else
-
-		data, err = self.client._api:createMessage(self._id, {content = content})
+		
+		data, err = self.client._api:createMessage(self._id, {content = content, message_reference = reply})
 
 	end
 
