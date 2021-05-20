@@ -145,13 +145,12 @@ function EventHandler.MESSAGE_CREATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSA
 end
 
 function EventHandler.MESSAGE_UPDATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES
-	client.state:updateMessage(d)
 	local member
 	if d.guild_id and d.member then
 		d.member.user = d.author
 		member = client.state:newMember(d.guild_id, d.member)
 	end
-	return client:emit('messageUpdate', d.channel_id, d.id, member)
+	return client:emit('messageUpdate', d.channel_id, d.id, member) -- TODO: provide update data
 end
 
 function EventHandler.MESSAGE_DELETE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES

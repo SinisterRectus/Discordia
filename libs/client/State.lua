@@ -1,4 +1,4 @@
--- local AuditLogEntry = require('../containers/AuditLogEntry')
+local AuditLogEntry = require('../containers/AuditLogEntry')
 local Ban = require('../containers/Ban')
 local Channel = require('../containers/Channel')
 local Emoji = require('../containers/Emoji')
@@ -8,39 +8,45 @@ local Member = require('../containers/Member')
 local Message = require('../containers/Message')
 local PermissionOverwrite = require('../containers/PermissionOverwrite')
 local Presence = require('../containers/Presence')
+local Reaction = require('../containers/Reaction')
 local Role = require('../containers/Role')
 local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
 
+local Cache = require('./Cache')
+local CompoundCache = require('./CompoundCache')
+local Bitfield = require('../utils/Bitfield')
+
 local class = require('../class')
+local enums = require('../enums')
 
 local State = class('State')
 
 local channelMap = {} -- channelId -> guildId
 
-local function auto()
-	return setmetatable({}, {__index = function(self, k)
-		self[k] = {}
-		return self[k]
-	end})
-end
-
 function State:__init(client)
 
 	self._client = assert(client)
 
-	self._users = {}
-	self._guilds = {}
-	self._invites = {}
-	self._webhooks = {}
-	self._bans = auto()
-	self._roles = auto()
-	self._emojis = auto()
-	self._members = auto()
-	self._channels = auto()
-	self._messages = auto()
-	self._presences = auto()
-	self._overwrites = auto()
+	-- TODO: caching rules
+	-- TODO: reactions
+
+	self._users = Cache(User, client)
+	self._guilds = Cache(Guild, client)
+	self._invites = Cache(Invite, client)
+	self._webhooks = Cache(Webhook, client)
+	self._privates = Cache(Channel, client)
+
+	self._roles = CompoundCache(Role, client)
+	self._emojis = CompoundCache(Emoji, client)
+	self._members = CompoundCache(Member, client)
+	self._bans = CompoundCache(Ban, client)
+	self._entries = CompoundCache(AuditLogEntry, client)
+	self._presences = CompoundCache(Presence, client)
+	self._channels = CompoundCache(Channel, client)
+	self._messages = CompoundCache(Message, client)
+	self._overwrites = CompoundCache(PermissionOverwrite, client)
+	self._reactions = CompoundCache(Reaction, client)
 
 end
 
@@ -57,14 +63,11 @@ function State:getGuildId(channelId)
 end
 
 function State:newUser(data)
-	local user = self._users[data.id]
-	if user then
-		user:__init(data, self._client)
+	if self._users then
+		return self._users:update(data.id, data)
 	else
-		user = User(data, self._client)
+		return User(data, self._client)
 	end
-	self._users[data.id] = user
-	return user
 end
 
 function State:newUsers(data)
@@ -75,14 +78,11 @@ function State:newUsers(data)
 end
 
 function State:newGuild(data)
-	local guild = self._guilds[data.id]
-	if guild then
-		guild:__init(data, self._client)
+	if self._guilds then
+		return self._guilds:update(data.id, data)
 	else
-		guild = Guild(data, self._client)
+		return Guild(data, self._client)
 	end
-	self._guilds[data.id] = guild
-	return guild
 end
 
 function State:newGuilds(data)
@@ -93,14 +93,11 @@ function State:newGuilds(data)
 end
 
 function State:newInvite(data)
-	local invite = self._invites[data.code]
-	if invite then
-		invite:__init(data, self._client)
+	if self._invites then
+		return self._invites:update(data.code, data)
 	else
-		invite = Invite(data, self._client)
+		return Invite(data, self._client)
 	end
-	self._invites[data.code] = invite
-	return invite
 end
 
 function State:newInvites(data)
@@ -111,14 +108,11 @@ function State:newInvites(data)
 end
 
 function State:newWebhook(data)
-	local webhook = self._webhooks[data.id]
-	if webhook then
-		webhook:__init(data, self._client)
+	if self._webhooks then
+		return self._webhooks:update(data.id, data)
 	else
-		webhook = Webhook(data, self._client)
+		return Webhook(data, self._client)
 	end
-	self._webhooks[data.id] = webhook
-	return webhook
 end
 
 function State:newWebhooks(data)
@@ -130,14 +124,11 @@ end
 
 function State:newRole(guildId, data)
 	data.guild_id = guildId
-	local role = self._roles[guildId][data.id]
-	if role then
-		role:__init(data, self._client)
+	if self._roles then
+		return self._roles:update(guildId, data.id, data)
 	else
-		role = Role(data, self._client)
-		self._roles[guildId][data.id] = role
+		return Role(data, self._client)
 	end
-	return role
 end
 
 function State:newRoles(guildId, data)
@@ -149,14 +140,11 @@ end
 
 function State:newEmoji(guildId, data)
 	data.guild_id = guildId
-	local emoji = self._emojis[guildId][data.id]
-	if emoji then
-		emoji:__init(data, self._client)
+	if self._emojis then
+		return self._emojis:update(guildId, data.id, data)
 	else
-		emoji = Emoji(data, self._client)
-		self._emojis[guildId][data.id] = emoji
+		return Emoji(data, self._client)
 	end
-	return emoji
 end
 
 function State:newEmojis(guildId, data)
@@ -168,14 +156,11 @@ end
 
 function State:newMember(guildId, data)
 	data.guild_id = guildId
-	local member = self._members[guildId][data.user.id]
-	if member then
-		member:__init(data, self._client)
+	if self._members then
+		return self._members:update(guildId, data.user.id, data)
 	else
-		member = Member(data, self._client)
-		self._members[guildId][data.user.id] = member
+		return Member(data, self._client)
 	end
-	return member
 end
 
 function State:newMembers(guildId, data)
@@ -187,14 +172,11 @@ end
 
 function State:newBan(guildId, data)
 	data.guild_id = guildId
-	local ban = self._bans[guildId][data.user.id]
-	if ban then
-		ban:__init(data, self._client)
+	if self._bans then
+		return self._bans:update(guildId, data.user.id, data)
 	else
-		ban = Ban(data, self._client)
-		self._bans[guildId][data.user.id] = ban
+		return Ban(data, self._client)
 	end
-	return ban
 end
 
 function State:newBans(guildId, data)
@@ -204,16 +186,29 @@ function State:newBans(guildId, data)
 	return data
 end
 
+function State:newAuditLogEntry(guildId, data)
+	data.guild_id = guildId
+	if self._entries then
+		return self._entries:update(guildId, data.id, data)
+	else
+		return AuditLogEntry(data, self._client)
+	end
+end
+
+function State:newAuditLogEntries(guildId, data)
+	for i, v in ipairs(data) do
+		data[i] = self:newAuditLogEntry(guildId, v)
+	end
+	return data
+end
+
 function State:newPresence(guildId, data)
 	data.guild_id = guildId
-	local presence = self._presences[guildId][data.user.id]
-	if presence then
-		presence:__init(data, self._client)
+	if self._presences then
+		return self._presences:update(guildId, data.user.id, data)
 	else
-		presence = Presence(data, self._client)
-		self._presences[guildId][data.user.id] = presence
+		return Presence(data, self._client)
 	end
-	return presence
 end
 
 function State:newPresences(guildId, data)
@@ -224,16 +219,20 @@ function State:newPresences(guildId, data)
 end
 
 function State:newChannel(data)
-	local guildId = data.guild_id or '@me'
-	local channel = self._channels[guildId][data.id]
-	if channel then
-		channel:__init(data, self._client)
+	if data.guild_id then
+		channelMap[data.id] = data.guild_id
+		if self._privates then
+			return self._privates:update(data.id, data)
+		else
+			return Channel(data, self._client)
+		end
 	else
-		channelMap[data.id] = guildId
-		channel = Channel(data, self._client)
+		if self._channels then
+			return self._channels:update(data.guild_id, data.id, data)
+		else
+			return Channel(data, self._client)
+		end
 	end
-	self._channels[guildId][data.id] = channel
-	return channel
 end
 
 function State:newChannels(data)
@@ -253,14 +252,11 @@ function State:newMessage(data, gateway)
 			data.guild_id = guildId
 		end
 	end
-	local message = self._messages[channelId][data.id]
-	if message then
-		message:__init(data, self._client)
+	if self._messages then
+		return self._messages:update(channelId, data.id, data)
 	else
-		message = Message(data, self._client)
-		self._messages[channelId][data.id] = message
+		return Message(data, self._client)
 	end
-	return message
 end
 
 function State:newMessages(data, gateway)
@@ -272,14 +268,11 @@ end
 
 function State:newOverwrite(channelId, data)
 	data.channel_id = channelId
-	local overwrite = self._overwrites[channelId][data.id]
-	if overwrite then
-		overwrite:__init(data, self._client)
+	if self._overwrites then
+		self._overwrites:update(channelId, data.id, data)
 	else
-		overwrite = PermissionOverwrite(data, self._client)
-		self._overwrites[channelId][data.id] = overwrite
+		return PermissionOverwrite(data, self._client)
 	end
-	return overwrite
 end
 
 function State:newOverwrites(channelId, data)
@@ -289,58 +282,90 @@ function State:newOverwrites(channelId, data)
 	return data
 end
 
-function State:updateMessage(data)
-	local old = self._messages[data.channel_id][data.id]
-	if old then
-		local new = class.copy(old)
-		new:_update(data)
-		self._messages[data.channel_id][data.id] = new
-	end
-end
-
-function State:getUser(userId)
-	return self._users[userId]
-end
+----
 
 function State:getGuild(guildId)
-	return self._guilds[guildId]
+	return self._guilds and self._guilds:get(guildId)
 end
 
 function State:getInvite(code)
-	return self._invites[code]
+	return self._invites and self._invites:get(code)
 end
 
 function State:getWebhook(webhookId)
-	return self._webhooks[webhookId]
+	return self._webhooks and self._webhooks:get(webhookId)
 end
 
 function State:getRole(guildId, roleId)
-	return self._roles[guildId][roleId]
+	return self._roles and self._roles:get(guildId, roleId)
 end
 
 function State:getEmoji(guildId, emojiId)
-	return self._emojis[guildId][emojiId]
+	return self._emojis and self._emojis:get(guildId, emojiId)
 end
 
 function State:getMember(guildId, userId)
-	return self._members[guildId][userId]
+	return self._members and self._members:get(guildId, userId)
 end
 
 function State:getBan(guildId, userId)
-	return self._bans[guildId][userId]
+	return self._bans and self._bans:get(guildId, userId)
 end
 
 function State:getPresence(guildId, userId)
-	return self._presences[guildId][userId]
+	return self._presences and self._presences:get(guildId, userId)
 end
 
 function State:getChannel(channelId)
 	local guildId = channelMap[channelId]
-	return guildId and self._channels[guildId][channelId]
+	return guildId and self._channels and self._channels:get(guildId, channelId)
 end
 
 function State:getMessage(channelId, messageId)
-	return self._messages[channelId][messageId]
+	return self._messages and self._messages:get(channelId, messageId)
+end
+
+----
+
+function State:deleteGuild(guildId)
+	return self._guilds and self._guilds:delete(guildId)
+end
+
+function State:deleteInvite(code)
+	return self._invites and self._invites:delete(code)
+end
+
+function State:deleteWebhook(webhookId)
+	return self._webhooks and self._webhooks:delete(webhookId)
+end
+
+function State:deleteRole(guildId, roleId)
+	return self._roles and self._roles:delete(guildId, roleId)
+end
+
+function State:deleteEmoji(guildId, emojiId)
+	return self._emojis and self._emojis:delete(guildId, emojiId)
+end
+
+function State:deleteMember(guildId, userId)
+	return self._members and self._members:delete(guildId, userId)
+end
+
+function State:deleteBan(guildId, userId)
+	return self._bans and self._bans:delete(guildId, userId)
+end
+
+function State:deletePresence(guildId, userId)
+	return self._presences and self._presences:delete(guildId, userId)
+end
+
+function State:deleteChannel(channelId)
+	local guildId = channelMap[channelId]
+	return guildId and self._channels and self._channels:delete(guildId, channelId)
+end
+
+function State:deleteMessage(channelId, messageId)
+	return self._messages and self._messages:delete(channelId, messageId)
 end
 
 return State

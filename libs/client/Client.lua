@@ -17,8 +17,6 @@ local CDN = require('./CDN')
 local Shard = require('./Shard')
 local State = require('./State')
 
-local AuditLogEntry = require('../containers/AuditLogEntry')
-
 local Bitfield = require('../utils/Bitfield')
 local Color = require('../utils/Color')
 
@@ -36,7 +34,7 @@ local checkImageSize = typing.checkImageSize
 local checkImageExtension = typing.checkImageExtension
 local checkSnowflakeArray = typing.checkSnowflakeArray
 local readFileSync = fs.readFileSync
-local splitPath = pathjoin.splitPaths
+local splitPath = pathjoin.splitPath
 local isInstance = class.isInstance
 
 local GATEWAY_VERSION = constants.GATEWAY_VERSION
@@ -593,14 +591,8 @@ function Client:getGuildAuditLogs(guildId, payload)
 		limit = opt(payload.limit, checkInteger),
 	})
 	if data then
-		for i, v in ipairs(data.audit_log_entries) do
-			v.guild_id = guildId
-			data.audit_log_entries[i] = AuditLogEntry(v, self)
-		end
-		for _, v in ipairs(data.users) do
-			self.state:newUser(v)
-		end
-		return data.audit_log_entries
+		self.state:newUsers(data.users)
+		return self.state:newAuditLogEntries(guildId, data.audit_log_entries)
 	else
 		return nil, err
 	end
@@ -1391,11 +1383,11 @@ function get:token()
 	return self._token
 end
 
-function get:api()
+function get:api() -- TODO: remove
 	return self._api
 end
 
-function get:cdn()
+function get:cdn() -- TODO: remove
 	return self._cdn
 end
 

@@ -71,28 +71,6 @@ function Message:__init(data, client)
 	-- TODO: reactions, activity, application, reference
 end
 
-local function elvis(a, b)
-	return a ~= nil and a or b
-end
-
-function Message:_update(data)
-	self._content = elvis(data.content, self._content)
-	self._edited_timestamp = elvis(data.edited_timestamp, self._edited_timestamp)
-	self._tts = elvis(data.tts, self._tts)
-	self._mention_everyone = elvis(data.mention_everyone, self._mention_everyone)
-	self._nonce = elvis(data.nonce, self._nonce)
-	self._pinned = elvis(data.pinned, self._pinned)
-	self._flags = elvis(data.flags, self._flags)
-	if data.mentions then
-		for i, v in ipairs(data.mentions) do
-			data.mentions[i] = self.client.state:newUser(v)
-		end
-		self._mentions = data.mentions
-	end
-	self._embeds = elvis(data.embeds, self._embeds)
-	self._attachments = elvis(data.attachments, self._attachments)
-end
-
 function Message:setContent(content)
 	return self.client:editMessage(self.channelId, self.id, {content = content or json.null})
 end
