@@ -4,7 +4,7 @@ local typing = require('../typing')
 local isInstance = class.isInstance
 local checkNumber = typing.checkNumber
 local min, max, abs, floor = math.min, math.max, math.abs, math.floor
-local lshift, rshift, band = bit.lshift, bit.rshift, bit.band
+local lshift, rshift, band, bor = bit.lshift, bit.rshift, bit.band, bit.bor
 local format = string.format
 
 local function clamp(n, mn, mx)
@@ -15,8 +15,12 @@ local function lerp(a, b, t)
 	return a + t * (b - a)
 end
 
-local function checkByte(n)
-	return clamp(floor(checkNumber(n)), 0, 0xFF)
+local function checkByte(n, m)
+	return lshift(clamp(floor(checkNumber(n)), 0, 0xFF), m)
+end
+
+local function getByte(n, m)
+	return band(rshift(n, m), 0xFF)
 end
 
 local function checkValue(n, base)
@@ -78,23 +82,20 @@ local function checkColor(obj)
 	return error('cannot perform operation', 2)
 end
 
-function Color:__init(n)
-	self._n = n and checkValue(n) or 0
+function Color:__init(n, base)
+	self._n = n and checkValue(n, base) or 0
 end
 
 function Color.fromDec(dec)
-	return Color(checkValue(dec))
+	return Color(dec, 10)
 end
 
 function Color.fromHex(hex)
-	return Color(checkValue(hex, 16))
+	return Color(hex, 16)
 end
 
 function Color.fromRGB(r, g, b)
-	r = lshift(checkByte(r), 16)
-	g = lshift(checkByte(g), 8)
-	b = lshift(checkByte(b), 0)
-	return Color(r + g + b)
+	return Color(bor(checkByte(r, 16), checkByte(g, 8), checkByte(b, 0)))
 end
 
 function Color.fromHSV(h, s, v)
@@ -211,15 +212,15 @@ function Color:toHSL()
 end
 
 function get:r()
-	return band(rshift(self._n, 16), 0xFF)
+	return getByte(self._n, 16)
 end
 
 function get:g()
-	return band(rshift(self._n, 8), 0xFF)
+	return getByte(self._n, 8)
 end
 
 function get:b()
-	return band(rshift(self._n, 0), 0xFF)
+	return getByte(self._n, 0)
 end
 
 return Color

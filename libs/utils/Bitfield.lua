@@ -11,48 +11,49 @@ local checkInteger, checkType = typing.checkInteger, typing.checkType
 local str2int = helpers.str2int
 
 local codec = {}
-for n, char in ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'):gmatch('()(.)') do
+local ALPHANUM = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+for n, char in ALPHANUM:gmatch('()(.)') do
 	codec[n - 1] = char
 end
 
-local MIN_BIT, MAX_BIT = 1, 64
-local MIN_BASE, MAX_BASE = 2, 36
-local MIN_VALUE, MAX_VALUE = 0, 2^MAX_BIT - 1
+local MIN_VALUE, MAX_VALUE = 0, tonumber(bnot(0ULL))
+local MIN_BASE, MAX_BASE = 2, #ALPHANUM
+local MIN_BIT, MAX_BIT = 1, math.floor(math.log(MAX_VALUE, 2))
+
+local function checkBase(base)
+	return checkInteger(base, 10, MIN_BASE, MAX_BASE)
+end
+
+local function checkValueRaw(value, base)
+	return checkInteger(value, base, MIN_VALUE, MAX_VALUE)
+end
+
+local Bitfield, get = class('Bitfield')
 
 local function checkValue(value, base)
-	local t = type(value)
 	if base then
-		base = checkInteger(base, 10, MIN_BASE, MAX_BASE)
-		if t == 'number' then
-			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
-			return tonumber(value, base) + 0ULL
-		elseif t == 'string' then
-			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
-			return str2int(value, base)
-		elseif t == 'cdata' then
-			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
+		checkBase(base)
+	end
+	local t = type(value)
+	if t == 'number' then
+		return checkValueRaw(value, base) + 0ULL
+	elseif t == 'string' then
+		checkValueRaw(value, base)
+		return str2int(value, base)
+	elseif t == 'cdata' then
+		checkValueRaw(value, base)
+		if base == nil or base == 10 then
+			return value
+		else
 			return str2int(tostring(value:match('%d*'), base))
-		elseif t == 'table' then
+		end
+	elseif t == 'table' then
+		if isInstance(value, Bitfield) then
+			return value.value
+		else
 			local n = 0ULL
 			for _, v in pairs(value) do
 				n = bor(n, checkValue(v, base))
-			end
-			return n
-		end
-	else
-		if t == 'number' then
-			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
-			return value + 0ULL
-		elseif t == 'string' then
-			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
-			return str2int(value)
-		elseif t == 'cdata' then
-			checkInteger(value, base, MIN_VALUE, MAX_VALUE)
-			return value
-		elseif t == 'table' then
-			local n = 0ULL
-			for _, v in pairs(value) do
-				n = bor(n, checkValue(v))
 			end
 			return n
 		end
@@ -62,8 +63,6 @@ end
 local function checkBit(bit)
 	return checkInteger(bit, 10, MIN_BIT, MAX_BIT)
 end
-
-local Bitfield, get = class('Bitfield')
 
 local function checkBitfield(obj)
 	if isInstance(obj, Bitfield) then
@@ -141,7 +140,7 @@ end
 function Bitfield:toString(base, len)
 	local n = self._value
 	local ret = {}
-	base = base and checkInteger(base, 10, MIN_BASE, MAX_BASE) or 2
+	base = base and checkBase(base) or 2
 	len = len and checkInteger(len, 10, 1) or 1
 	while n > 0 do
 		local r = n % base
