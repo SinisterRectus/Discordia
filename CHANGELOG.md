@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.9.0
+- Added basic support for message replies
+	- Added `content.reference` field for `TextChannel:send(content)`
+	- Added `Message.referencedMessage` property
+- Added `Activity:__hash` method
+- Added `INVITE` and `INTEGRATION` events to the internal ignore list
+- Added ability to set member voice channel to `nil` (voice-kick)
+- Changed reconnection request from `warning` to `info` in logging
+- Fixed rare crash on receiving invalid message reaction data
+
 ## 2.8.4
 - Updated the `discordapp` domain name to `discord` where necessary (CDN links remain the same)
 
