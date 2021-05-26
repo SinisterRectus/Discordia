@@ -277,11 +277,19 @@ function TextChannel:send(content)
 			end
 		end
 
+		local refMessage, refMention
+		if tbl.reference then
+			refMessage = {message_id = Resolver.messageId(tbl.reference.message)}
+			refMention = {replied_user = not not tbl.reference.mention}
+		end
+
 		data, err = self.client._api:createMessage(self._id, {
 			content = content,
 			tts = tbl.tts,
 			nonce = tbl.nonce,
 			embed = tbl.embed,
+			message_reference = refMessage,
+			allowed_mentions = refMention,
 		}, files)
 
 	else

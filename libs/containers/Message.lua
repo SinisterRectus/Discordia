@@ -90,6 +90,10 @@ function Message:_loadMore(data)
 		self._attachments = #data.attachments > 0 and data.attachments or nil
 	end
 
+	if data.referenced_message and data.referenced_message ~= null then
+		self._referencedMessage = self._parent._messages:_insert(data.referenced_message)
+	end
+
 end
 
 function Message:_addReaction(d)
@@ -123,11 +127,11 @@ function Message:_removeReaction(d)
 
 	local reactions = self._reactions
 	if not reactions then return nil end
-	
+
 	local emoji = d.emoji
 	local k = emoji.id ~= null and emoji.id or emoji.name
 	local reaction = reactions:get(k) or nil
-	
+
 	if not reaction then return nil end -- uncached reaction?
 
 	reaction._count = reaction._count - 1
@@ -564,6 +568,12 @@ Equivalent to `Message.guild.members:get(Message.author.id)`.]=]
 function get.member(self)
 	local guild = self.guild
 	return guild and guild._members:get(self._author._id)
+end
+
+--[=[@p referencedMessage Message/nil If available, the previous message that
+this current message references as seen in replies.]=]
+function get.referencedMessage(self)
+	return self._referencedMessage
 end
 
 --[=[@p link string URL that can be used to jump-to the message in the Discord client.]=]
