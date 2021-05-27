@@ -54,8 +54,10 @@ end
 
 function Message:_loadMore(data)
 
+	local mentions = {}
 	if data.mentions then
 		for _, user in ipairs(data.mentions) do
+			mentions[user.id] = true
 			if user.member then
 				user.member.user = user
 				self._parent._parent._members:_insert(user.member)
@@ -65,10 +67,20 @@ function Message:_loadMore(data)
 		end
 	end
 
+	if data.referenced_message and data.referenced_message ~= null then
+		if mentions[data.referenced_message.author.id] then
+			self._reply_target = data.referenced_message.author.id
+		end
+		self._referencedMessage = self._parent._messages:_insert(data.referenced_message)
+	end
+
 	local content = data.content
 	if content then
 		if self._mentioned_users then
 			self._mentioned_users._array = parseMentions(content, '<@!?(%d+)>')
+			if self._reply_target then
+				insert(self._mentioned_users._array, 1, self._reply_target)
+			end
 		end
 		if self._mentioned_roles then
 			self._mentioned_roles._array = parseMentions(content, '<@&(%d+)>')
@@ -88,10 +100,6 @@ function Message:_loadMore(data)
 
 	if data.attachments then
 		self._attachments = #data.attachments > 0 and data.attachments or nil
-	end
-
-	if data.referenced_message and data.referenced_message ~= null then
-		self._referencedMessage = self._parent._messages:_insert(data.referenced_message)
 	end
 
 end
@@ -380,6 +388,9 @@ function get.mentionedUsers(self)
 	if not self._mentioned_users then
 		local users = self.client._users
 		local mentions = parseMentions(self._content, '<@!?(%d+)>')
+		if self._reply_target then
+			insert(mentions, 1, self._reply_target)
+		end
 		self._mentioned_users = ArrayIterable(mentions, function(id)
 			return users:get(id)
 		end)
