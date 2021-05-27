@@ -280,7 +280,10 @@ function TextChannel:send(content)
 		local refMessage, refMention
 		if tbl.reference then
 			refMessage = {message_id = Resolver.messageId(tbl.reference.message)}
-			refMention = {replied_user = not not tbl.reference.mention}
+			refMention = {
+				parse = {'users', 'roles', 'everyone'},
+				replied_user = not not tbl.reference.mention,
+			}
 		end
 
 		data, err = self.client._api:createMessage(self._id, {
