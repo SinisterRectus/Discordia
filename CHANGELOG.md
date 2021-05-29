@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.1
+- The mentioned author of a referenced message is now in `Message.mentionedUsers`
+- Fixed a bug where mentions were ignored in replies
+
 ## 2.9.0
 - Added basic support for message replies
 	- Added `content.reference` field for `TextChannel:send(content)`
