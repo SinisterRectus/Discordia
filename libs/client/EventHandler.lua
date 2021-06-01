@@ -543,11 +543,11 @@ function EventHandler.INTERACTION_CREATE(d, client)
 	local payload = "{\"type\": 6}"
 	local http = require("coro-http")
 	http.request("POST", url, headers, payload)
-    local guild = client._guilds:get(d.guild_id)
+    	local guild = client._guilds:get(d.guild_id)
 	local channel = getChannel(client, d.channel_id)
-    local member = d.member and guild._members:_insert(d.member) or guild._members:get(d.user_id)
+    	local member = d.member and guild._members:_insert(d.member) or guild._members:get(d.user_id)
 	local message = channel._messages:_insert(d.message)
-    client:emit('buttonPressed', member, message)
+    	return client:emit('buttonPressed', member, message)
 end
 
 return EventHandler
