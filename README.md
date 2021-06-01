@@ -36,7 +36,7 @@ See [Discord's documentation](https://discord.com/developers/docs/interactions/m
 
 You can use buttons by listening for the `buttonPressed` event.
 
-The event passes two arguments:
+The event passes three arguments:
 - `buttonid` - the custom id of the button that was pressed
 - `member` - the member who pressed the button
 - `message` - the message the button belongs to
