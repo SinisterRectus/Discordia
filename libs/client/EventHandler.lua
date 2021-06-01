@@ -537,4 +537,17 @@ function EventHandler.WEBHOOKS_UPDATE(d, client) -- webhook object is not provid
 	return client:emit('webhooksUpdate', channel)
 end
 
+function EventHandler.INTERACTION_CREATE(d, client)
+	local url = "https://discord.com/api/v8/interactions/"..d.id.."/"..d.token.."/callback"
+	local headers = {{"Content-Type", "application/json"}}
+	local payload = "{\"type\": 6}"
+	local http = require("coro-http")
+	http.request("POST", url, headers, payload)
+    local guild = client._guilds:get(d.guild_id)
+	local channel = getChannel(client, d.channel_id)
+    local member = d.member and guild._members:_insert(d.member) or guild._members:get(d.user_id)
+	local message = channel._messages:_insert(d.message)
+    client:emit('buttonPressed', member, message)
+end
+
 return EventHandler
