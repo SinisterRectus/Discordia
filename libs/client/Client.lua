@@ -91,12 +91,25 @@ local function checkPositions(positions)
 	return ret
 end
 
+local function checkIntents(intents)
+	if not isInstance(intents, Bitfield) then
+		intents = Bitfield(intents)
+	end
+	if not intents:hasValue(enums.gatewayIntent.guilds) then
+		return error('"guilds" intent must be included')
+	end
+	return intents:toDec()
+end
+
+local defaultIntents = Bitfield(enums.gatewayIntent)
+defaultIntents:disableValue(enums.gatewayIntent.guildMembers)
+defaultIntents:disableValue(enums.gatewayIntent.guildPresences)
+
 local defaultOptions = {
 	routeDelay = {250, function(o) return checkInteger(o, 10, 0) end},
 	maxRetries = {5, function(o) return checkInteger(o, 10, 0) end},
 	tokenPrefix = {'Bot ', function(o) return checkType('string', o) end},
-	gatewayEnabled = {true, function(o) return checkType('boolean', o) end},
-	gatewayIntents = {32509, checkBitfield},
+	gatewayIntents = {defaultIntents:toDec(), checkIntents},
 	totalShardCount = {nil, function(o) return checkInteger(o, 10, 1) end},
 	payloadCompression = {true, function(o) return checkType('boolean', o) end},
 	defaultImageExtension = {'png', checkImageExtension},
@@ -189,11 +202,6 @@ function Client:_run(token)
 	self._userId = user.id
 	self.state:newUser(user)
 	self:log('info', 'Authenticated as %s#%s', user.username, user.discriminator)
-
-	if not self._gatewayEnabled then
-		self:log('info', 'Readying client with no gateway connection(s)')
-		return self:emit('ready')
-	end
 
 	local gateway, err2 = self.api:getGatewayBot()
 	if not gateway then
