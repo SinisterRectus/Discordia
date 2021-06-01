@@ -290,6 +290,7 @@ function TextChannel:send(content)
 			content = content,
 			tts = tbl.tts,
 			nonce = tbl.nonce,
+			components = tbl.components,
 			embed = tbl.embed,
 			message_reference = refMessage,
 			allowed_mentions = refMention,
