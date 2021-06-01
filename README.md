@@ -30,6 +30,8 @@ message.channel:send {
 }
 ```
 
+See [Discord's documentation](https://discord.com/developers/docs/interactions/message-components) for more details.
+
 ## Using Buttons
 
 You can use buttons by listening for the `buttonPressed` event.
