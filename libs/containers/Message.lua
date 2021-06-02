@@ -571,12 +571,16 @@ function get.attachments(self)
 	return self._attachments
 end
 
-function get.component(self)
-    return self._components and self._components[1]
-end
-
 function get.components(self)
     return self._components
+end
+
+function get.buttons(self)
+    return self._components and self._components[1]["components"]
+end
+
+function get.button(self)
+    return self._components and self._components[1]["components"][1]
 end
 
 --[=[@p guild Guild/nil The guild in which this message was sent. This will not exist if the message
