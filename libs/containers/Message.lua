@@ -571,7 +571,11 @@ function get.attachments(self)
 	return self._attachments
 end
 
-function get._components(self)
+function get.component(self)
+    return self._components and self._components[1]
+end
+
+function get.components(self)
     return self._components
 end
 
