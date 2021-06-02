@@ -1,5 +1,5 @@
-# Discordia With Buttons
 
+# Discordia With Buttons
 A slightly modified version of [SinisterRectus's Discordia](https://www.github.com/SinisterRectus/Discordia) to add support for buttons.
 
 Thanks to:
@@ -8,7 +8,6 @@ Thanks to:
 - All contributors of the original Discordia repository
 
 ## Adding Buttons
-
 You can add a button to a message like so:
 ```lua
 message.channel:send {
@@ -33,7 +32,6 @@ message.channel:send {
 See [Discord's documentation](https://discord.com/developers/docs/interactions/message-components) for more details.
 
 ## Using Buttons
-
 You can use buttons by listening for the `buttonPressed` event.
 
 The event passes three arguments:
@@ -48,5 +46,42 @@ client:on("buttonPressed", function(buttonid, member, message)
 end)
 ```
 
+## The Message Object
+This fork also adds a few properties to the message object.
+- `components` - the raw components table
+- `buttons` - a table of button objects
+- `button` - the first button object
+
+### Example Components Property:
+```lua
+{ 
+	{
+		type = 1, 
+		components = {
+			{type = 2, custom_id = 'test_button_1', style = 1, label = 'Testing 1'}, 
+			{type = 2, custom_id = 'test_button_2', style = 2, label = 'Testing 2'} 
+		} 
+	} 
+}
+```
+
+### Example Buttons Property:
+```lua
+{
+	{type = 2, custom_id = 'test_button_1', style = 1, label = 'Testing 1'}, 
+	{type = 2, custom_id = 'test_button_2', style = 2, label = 'Testing 2'}
+}
+```
+
+### Example Button Property:
+```lua
+{
+	type = 2,
+	custom_id = 'test_button_1',
+	style = 1,
+	label = 'Testing 1'
+} 
+```
+
 ## Warning
-This fork is a quick and dirty implementation of buttons. Because slash-commands use the same event, `INTERACTION_CREATE`, using them along with buttons may break your buttons, slash-commands, or both. Use with caution.
+This fork is a quick and dirty implementation of buttons. Because slash-commands use the same event, `INTERACTION_CREATE`, using them along with buttons may break your buttons, slash-commands, or both. **Use with caution.**
