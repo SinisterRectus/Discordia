@@ -1,4 +1,3 @@
-
 # Discordia With Buttons
 A slightly modified version of [SinisterRectus's Discordia](https://www.github.com/SinisterRectus/Discordia) to add support for buttons.
 
@@ -49,10 +48,10 @@ end)
 ## The Message Object
 This fork also adds a few properties to the message object.
 - `components` - the raw components table
-- `buttons` - a table of button objects
-- `button` - the first button object
+- `buttons` - a table of buttons
+- `button` - the first button
 
-### Example Components Property:
+### Example Components Table:
 ```lua
 { 
 	{
@@ -65,23 +64,23 @@ This fork also adds a few properties to the message object.
 }
 ```
 
-### Example Buttons Property:
+### Example Buttons Table
 ```lua
 {
 	{type = 2, custom_id = 'test_button_1', style = 1, label = 'Testing 1'}, 
-	{type = 2, custom_id = 'test_button_2', style = 2, label = 'Testing 2'}
-}
+	{type = 2, custom_id = 'test_button_2', style = 2, label = 'Testing 2'} 
+} 
 ```
 
-### Example Button Property:
+### Example Button Table
 ```lua
 {
 	type = 2,
-	custom_id = 'test_button_1',
-	style = 1,
-	label = 'Testing 1'
+	custom_id = 'test_button_2',
+	style = 2,
+	label = 'Testing 2'
 } 
 ```
 
 ## Warning
-This fork is a quick and dirty implementation of buttons. Because slash-commands use the same event, `INTERACTION_CREATE`, using them along with buttons may break your buttons, slash-commands, or both. **Use with caution.**
+This fork is a quick and dirty implementation of buttons. Because slash-commands use the same event, `INTERACTION_CREATE`, using them along with buttons may break your buttons, slash-commands, or both. Use with caution.
