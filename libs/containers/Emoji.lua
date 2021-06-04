@@ -9,7 +9,6 @@ local checkSnowflake = typing.checkSnowflake
 local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
 local readOnly = helpers.readOnly
 local format = string.format
-local insert = table.insert
 
 local Emoji, get = class('Emoji', Snowflake)
 
@@ -49,7 +48,7 @@ end
 
 function Emoji:hasRole(roleId)
 	roleId = checkSnowflake(roleId)
-	for _, v in ipairs(self.roleIds) do
+	for _, v in pairs(self.roleIds) do
 		if v == roleId then
 			return true
 		end
@@ -58,22 +57,13 @@ function Emoji:hasRole(roleId)
 end
 
 function Emoji:getRoles()
-	local filtered = {}
-	if #self.roleIds == 0 then
-		return filtered
-	end
 	local filter = {}
-	for _, id in ipairs(self.roleIds) do
+	for _, id in pairs(self.roleIds) do
 		filter[id] = true
 	end
 	local roles, err = self.client:getGuildRoles(self.guildId)
 	if roles then
-		for _, role in pairs(roles) do
-			if filter[role.id] then
-				insert(filtered, role)
-			end
-		end
-		return filtered
+		return roles:filter(function(r) return filter[r.id] end)
 	else
 		return nil, err
 	end

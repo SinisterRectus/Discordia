@@ -6,7 +6,6 @@ local helpers = require('../helpers')
 local json = require('json')
 
 local checkSnowflake = typing.checkSnowflake
-local insert, sort = table.insert, table.sort
 local readOnly = helpers.readOnly
 
 local Member, get = class('Member', Container)
@@ -28,22 +27,13 @@ function Member:__eq(other)
 end
 
 function Member:getRoles()
-	local filtered = {}
-	if #self.roleIds == 0 then
-		return filtered
-	end
 	local filter = {}
-	for _, id in ipairs(self.roleIds) do
+	for _, id in pairs(self.roleIds) do
 		filter[id] = true
 	end
 	local roles, err = self.client:getGuildRoles(self.guildId)
 	if roles then
-		for _, role in pairs(roles) do
-			if filter[role.id] then
-				insert(filtered, role)
-			end
-		end
-		return filtered
+		return roles:filter(function(r) return filter[r.id] end)
 	else
 		return nil, err
 	end
@@ -61,26 +51,30 @@ local function sorter(a, b)
 	end
 end
 
+local function filter(r)
+	return r.color > 0
+end
+
 function Member:getHighestRole()
-	local roles = self:getRoles()
-	local sorted = {}
-	for _, role in pairs(roles) do
-		insert(sorted, role)
+	local roles, err = self:getRoles()
+	if roles then
+		roles:sort(sorter)
+		return roles:get(1)
+	else
+		return nil, err
 	end
-	sort(sorted, sorter)
-	return sorted[1]
 end
 
 function Member:getColor()
-	local roles = self:getRoles()
-	local sorted = {}
-	for _, role in pairs(roles) do
-		if role.color > 0 then
-			insert(sorted, role)
-		end
+	local roles, err = self:getRoles()
+	if roles then
+		roles = roles:filter(filter)
+		roles:sort(sorter)
+		local role = roles:get(1)
+		return role and role.color or 0
+	else
+		return nil, err
 	end
-	sort(sorted, sorter)
-	return sorted[1] and sorted[1].color or 0
 end
 
 -- TODO: permissions
@@ -98,7 +92,7 @@ function Member:hasRole(roleId)
 	if roleId == self.guildId then
 		return true
 	end
-	for _, v in ipairs(self.roleIds) do
+	for _, v in pairs(self.roleIds) do
 		if v == roleId then
 			return true
 		end
@@ -132,6 +126,14 @@ end
 
 function Member:undeafen()
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {deafened = false})
+end
+
+function get:id() -- user shortcut
+	return self.user.id
+end
+
+function get:user()
+	return self._user
 end
 
 function get:name()

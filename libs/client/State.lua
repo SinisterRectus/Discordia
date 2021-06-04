@@ -15,6 +15,7 @@ local Webhook = require('../containers/Webhook')
 
 local Cache = require('./Cache')
 local CompoundCache = require('./CompoundCache')
+local Iterable = require('./Iterable')
 local Bitfield = require('../utils/Bitfield')
 
 local class = require('../class')
@@ -28,7 +29,7 @@ function State:__init(client)
 
 	self._client = assert(client)
 
-	-- TODO: caching rules
+	-- TODO: caching and uncaching rules
 	-- TODO: reactions
 
 	self._users = Cache(User, client)
@@ -74,7 +75,7 @@ function State:newUsers(data)
 	for i, v in ipairs(data) do
 		data[i] = self:newUser(v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newGuild(data)
@@ -89,7 +90,7 @@ function State:newGuilds(data)
 	for i, v in ipairs(data) do
 		data[i] = self:newGuild(v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newInvite(data)
@@ -104,7 +105,7 @@ function State:newInvites(data)
 	for i, v in ipairs(data) do
 		data[i] = self:newInvite(v)
 	end
-	return data
+	return Iterable(data, 'code')
 end
 
 function State:newWebhook(data)
@@ -119,7 +120,7 @@ function State:newWebhooks(data)
 	for i, v in ipairs(data) do
 		data[i] = self:newWebhook(v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newRole(guildId, data)
@@ -135,7 +136,7 @@ function State:newRoles(guildId, data)
 	for i, v in ipairs(data) do
 		data[i] = self:newRole(guildId, v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newEmoji(guildId, data)
@@ -151,7 +152,7 @@ function State:newEmojis(guildId, data)
 	for i, v in ipairs(data) do
 		data[i] = self:newEmoji(guildId, v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newMember(guildId, data)
@@ -167,7 +168,7 @@ function State:newMembers(guildId, data)
 	for i, v in ipairs(data) do
 		data[i] = self:newMember(guildId, v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newBan(guildId, data)
@@ -183,7 +184,7 @@ function State:newBans(guildId, data)
 	for i, v in ipairs(data) do
 		data[i] = self:newBan(guildId, v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newAuditLogEntry(guildId, data)
@@ -199,7 +200,7 @@ function State:newAuditLogEntries(guildId, data)
 	for i, v in ipairs(data) do
 		data[i] = self:newAuditLogEntry(guildId, v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newPresence(guildId, data)
@@ -215,7 +216,7 @@ function State:newPresences(guildId, data)
 	for i, v in ipairs(data) do
 		data[i] = self:newPresence(guildId, v)
 	end
-	return data
+	return Iterable(data, 'userId')
 end
 
 function State:newChannel(data)
@@ -239,7 +240,7 @@ function State:newChannels(data)
 	for i, v in ipairs(data) do
 		data[i] = self:newChannel(v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newMessage(data, gateway)
@@ -263,13 +264,13 @@ function State:newMessages(data, gateway)
 	for i, v in ipairs(data) do
 		data[i] = self:newMessage(v, gateway)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 function State:newOverwrite(channelId, data)
 	data.channel_id = channelId
 	if self._overwrites then
-		self._overwrites:update(channelId, data.id, data)
+		return self._overwrites:update(channelId, data.id, data)
 	else
 		return PermissionOverwrite(data, self._client)
 	end
@@ -279,7 +280,7 @@ function State:newOverwrites(channelId, data)
 	for i, v in ipairs(data) do
 		data[i] = self:newOverwrite(channelId, v)
 	end
-	return data
+	return Iterable(data, 'id')
 end
 
 ----

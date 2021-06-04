@@ -40,12 +40,24 @@ function Channel:__init(data, client)
 	end
 
 	if data.recipients then -- private, group
-		-- TODO
+		self._recipients = client.state:newUsers(data.recipients)
 	end
 
 end
 
 -- TODO: join/leave voice channel
+
+function Channel:getRecipients()
+	return self._recipients:copy()
+end
+
+function Channel:getGuild()
+	if not self.guildId then
+		return nil, 'Not a guild channel'
+	else
+		return self.client:getGuild(self.guildId)
+	end
+end
 
 function Channel:delete()
 	return self.client:deleteChannel(self.id)
@@ -84,7 +96,7 @@ function Channel:bulkDelete(messageIds)
 end
 
 function Channel:getPermissionOverwriteFor(obj)
-	-- TODO
+	return self._overwrites:get(obj.id)
 end
 
 function Channel:triggerTyping()
@@ -144,6 +156,10 @@ function Channel:setPosition(position)
 end
 
 ----
+
+function get:recipient()
+	return self._recipients:get(1)
+end
 
 function get:type()
 	return self._type

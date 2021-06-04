@@ -33,18 +33,11 @@ local function parseMentionIds(content, pattern)
 end
 
 local function parseMentions(content, pattern, objects)
-	local hashed = {} -- NOTE: avoid re-hashing in the future
-	for _, v in pairs(objects) do
-		hashed[v.id] = v
-	end
 	local mentions = {}
 	for id in content:gmatch(pattern) do
-		if hashed[id] then
-			insert(mentions, hashed[id])
-			hashed[id] = nil
-		end
+		mentions[id] = true
 	end
-	return mentions
+	return objects:filter(function(o) return mentions[o.id] end)
 end
 
 function Message:__init(data, client)
@@ -62,10 +55,7 @@ function Message:__init(data, client)
 	self._nonce = data.nonce
 	self._pinned = data.pinned
 	self._flags = data.flags
-	for i, v in ipairs(data.mentions) do
-		data.mentions[i] = client.state:newUser(v)
-	end
-	self._mentions = data.mentions
+	self._mentions = client.state:newUsers(data.mentions)
 	self._embeds = data.embeds
 	self._attachments = data.attachments
 	-- TODO: reactions, activity, application, reference

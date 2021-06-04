@@ -23,6 +23,10 @@ function Ban:getGuild()
 	return self.client:getGuild(self.guildId)
 end
 
+function get:id() -- user shortcut
+	return self.user.id
+end
+
 function get:reason()
 	return self._reason
 end
