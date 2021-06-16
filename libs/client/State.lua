@@ -8,7 +8,6 @@ local Member = require('../containers/Member')
 local Message = require('../containers/Message')
 local PermissionOverwrite = require('../containers/PermissionOverwrite')
 local Presence = require('../containers/Presence')
-local Reaction = require('../containers/Reaction')
 local Role = require('../containers/Role')
 local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
@@ -16,10 +15,8 @@ local Webhook = require('../containers/Webhook')
 local Cache = require('./Cache')
 local CompoundCache = require('./CompoundCache')
 local Iterable = require('./Iterable')
-local Bitfield = require('../utils/Bitfield')
 
 local class = require('../class')
-local enums = require('../enums')
 
 local State = class('State')
 
@@ -30,7 +27,6 @@ function State:__init(client)
 	self._client = assert(client)
 
 	-- TODO: caching and uncaching rules
-	-- TODO: reactions
 
 	self._users = Cache(User, client)
 	self._guilds = Cache(Guild, client)
@@ -47,7 +43,6 @@ function State:__init(client)
 	self._channels = CompoundCache(Channel, client)
 	self._messages = CompoundCache(Message, client)
 	self._overwrites = CompoundCache(PermissionOverwrite, client)
-	self._reactions = CompoundCache(Reaction, client)
 
 end
 

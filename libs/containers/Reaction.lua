@@ -9,7 +9,6 @@ local Reaction, get = class('Reaction', Container)
 
 function Reaction:__init(data, client)
 	Container.__init(self, client)
-	self._guild_id = assert(data.guild_id)
 	self._channel_id = assert(data.channel_id)
 	self._message_id = assert(data.message_id)
 	self._count = data.count
@@ -19,11 +18,7 @@ function Reaction:__init(data, client)
 end
 
 function Reaction:__eq(other)
-	return self.messageId == other.messageId and self.emojiHash == other.emojiHash
-end
-
-function Reaction:getGuild()
-	return self.client:getGuild(self.guildId)
+	return self.messageId == other.messageId and self.hash == other.hash
 end
 
 function Reaction:getChannel()
@@ -59,10 +54,6 @@ function get:count()
 	return self._count
 end
 
-function get:guildId()
-	return self._guild_id
-end
-
 function get:channelId()
 	return self._channel_id
 end
@@ -85,6 +76,10 @@ function get:emojiHash()
 	else
 		return self.emojiName
 	end
+end
+
+function get:hash()
+	return self.emojiId or self.emojiName
 end
 
 return Reaction

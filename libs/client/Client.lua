@@ -20,6 +20,9 @@ local State = require('./State')
 local Bitfield = require('../utils/Bitfield')
 local Color = require('../utils/Color')
 
+local Emoji = require('../containers/Emoji')
+local Reaction = require('../containers/Reaction')
+
 local wrap = coroutine.wrap
 local concat, insert, remove = table.concat, table.insert, table.remove
 local format = string.format
@@ -68,6 +71,18 @@ local function checkBitfield(obj)
 		return obj:toDec()
 	end
 	return Bitfield(obj):toDec()
+end
+
+local function checkEmoji(obj)
+	if type(obj) == 'string' then
+		return obj
+	elseif isInstance(obj, Emoji) then
+		return obj.hash
+	elseif isInstance(obj, Reaction) then
+		return obj.emojiHash
+	else
+		return error('invalid emoji', 2)
+	end
 end
 
 local function checkPermissionOverwrites(overwrites)
@@ -1171,11 +1186,11 @@ function Client:unpinMessage(channelId, messageId)
 	end
 end
 
-function Client:addReaction(channelId, messageId, emojiHash)
+function Client:addReaction(channelId, messageId, emoji)
 	channelId = checkSnowflake(channelId)
 	messageId = checkSnowflake(messageId)
-	emojiHash = checkType('string', emojiHash)
-	local data, err = self.api:createReaction(channelId, messageId, emojiHash)
+	emoji = checkEmoji(emoji)
+	local data, err = self.api:createReaction(channelId, messageId, emoji)
 	if data then
 		return true -- 204
 	else
@@ -1183,16 +1198,16 @@ function Client:addReaction(channelId, messageId, emojiHash)
 	end
 end
 
-function Client:removeReaction(channelId, messageId, emojiHash, userId)
+function Client:removeReaction(channelId, messageId, emoji, userId)
 	channelId = checkSnowflake(channelId)
 	messageId = checkSnowflake(messageId)
-	emojiHash = checkType('string', emojiHash)
+	emoji = checkEmoji(emoji)
 	local data, err
 	if userId then
 		userId = checkSnowflake(userId)
-		data, err = self.api:deleteUserReaction(channelId, messageId, emojiHash, userId)
+		data, err = self.api:deleteUserReaction(channelId, messageId, emoji, userId)
 	else
-		data, err = self.api:deleteOwnReaction(channelId, messageId, emojiHash)
+		data, err = self.api:deleteOwnReaction(channelId, messageId, emoji)
 	end
 	if data then
 		return true -- 204
@@ -1201,13 +1216,13 @@ function Client:removeReaction(channelId, messageId, emojiHash, userId)
 	end
 end
 
-function Client:clearAllReactions(channelId, messageId, emojiHash)
+function Client:clearAllReactions(channelId, messageId, emoji)
 	channelId = checkSnowflake(channelId)
 	messageId = checkSnowflake(messageId)
-	emojiHash = checkType('string', emojiHash)
+	emoji = checkEmoji(emoji)
 	local data, err
-	if emojiHash then
-		data, err = self.api:deleteAllReactionsForEmoji(channelId, messageId, emojiHash)
+	if emoji then
+		data, err = self.api:deleteAllReactionsForEmoji(channelId, messageId, emoji)
 	else
 		data, err = self.api:deleteAllReactions(channelId, messageId)
 	end
@@ -1218,15 +1233,15 @@ function Client:clearAllReactions(channelId, messageId, emojiHash)
 	end
 end
 
-function Client:getReactionUsers(channelId, messageId, emojiHash, limit, whence, userId)
+function Client:getReactionUsers(channelId, messageId, emoji, limit, whence, userId)
 	channelId = checkSnowflake(channelId)
 	messageId = checkSnowflake(messageId)
-	emojiHash = checkType('string', emojiHash)
+	emoji = checkEmoji(emoji)
 	local query = {limit = limit and checkInteger(limit)}
 	if whence then
 		query[checkEnum(enums.whence, whence)] = checkSnowflake(userId)
 	end
-	local data, err = self.api:getReactions(channelId, messageId, emojiHash, query)
+	local data, err = self.api:getReactions(channelId, messageId, emoji, query)
 	if data then
 		return self.state:newUsers(data)
 	else

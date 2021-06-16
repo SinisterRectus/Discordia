@@ -1,5 +1,7 @@
 local Snowflake = require('./Snowflake')
+local Reaction = require('./Reaction')
 local Bitfield = require('../utils/Bitfield')
+local Iterable = require('../client/Iterable')
 
 local json = require('json')
 local enums = require('../enums')
@@ -41,7 +43,9 @@ local function parseMentions(content, pattern, objects)
 end
 
 function Message:__init(data, client)
+
 	Snowflake.__init(self, data, client)
+
 	self._channel_id = data.channel_id
 	self._guild_id = data.guild_id
 	self._webhook_id = data.webhook_id
@@ -58,7 +62,18 @@ function Message:__init(data, client)
 	self._mentions = client.state:newUsers(data.mentions)
 	self._embeds = data.embeds
 	self._attachments = data.attachments
-	-- TODO: reactions, activity, application, reference
+
+	if data.reactions and data.reactions[1] then
+		for i, v in ipairs(data.reactions) do
+			v.message_id = data.id
+			v.channel_id = data.channel_id
+			data.reactions[i] = Reaction(v, client)
+		end
+		self._reactions = Iterable(data.reactions, 'hash')
+	end
+
+	-- TODO: activity, application, reference
+
 end
 
 function Message:setContent(content)
@@ -93,16 +108,16 @@ function Message:unpin()
 	return self.client:unpinMessage(self.channelId, self.id)
 end
 
-function Message:addReaction(emojiHash)
-	return self.client:addReaction(self.channelId, self.id, emojiHash)
+function Message:addReaction(emoji)
+	return self.client:addReaction(self.channelId, self.id, emoji)
 end
 
-function Message:removeReaction(emojiHash, userId)
-	return self.client:removeReaction(self.channelId, self.id, emojiHash, userId)
+function Message:removeReaction(emoji, userId)
+	return self.client:removeReaction(self.channelId, self.id, emoji, userId)
 end
 
-function Message:clearAllReactions(emojiHash)
-	return self.client:clearAllReactions(self.channel, self.id, emojiHash)
+function Message:clearAllReactions(emoji)
+	return self.client:clearAllReactions(self.channel, self.id, emoji)
 end
 
 function Message:delete()
@@ -189,6 +204,10 @@ function Message:getGuild()
 		return nil, 'Not a guild message'
 	end
 	return self.client:getGuild(self.guildId)
+end
+
+function Message:getReaction(hash)
+	return self._reactions:get(hash)
 end
 
 function get:type()
