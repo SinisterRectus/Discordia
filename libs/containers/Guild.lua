@@ -53,40 +53,6 @@ function Guild:__init(data, client)
 
 	-- ignore: owner, permissions, lazy, large, unavailable
 
-	local id = data.id
-	local state = client.state
-
-	for _, v in ipairs(data.roles) do
-		state:newRole(id, v)
-	end
-
-	for _, v in ipairs(data.emojis) do
-		state:newEmoji(id, v)
-	end
-
-	if data.channels then -- wss only
-		for _, v in ipairs(data.channels) do
-			v.guild_id = id -- thanks discord
-			state:newChannel(v)
-		end
-	end
-
-	if data.members then -- wss only
-		for _, v in ipairs(data.members) do
-			state:newMember(id, v)
-		end
-	end
-
-	if data.presences then -- wss only
-		for _, v in ipairs(data.presences) do
-			state:newPresence(id, v)
-		end
-	end
-
-	if data.voice_states then
-		-- TODO
-	end
-
 end
 
 -- TODO: requestMembers

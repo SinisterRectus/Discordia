@@ -201,7 +201,7 @@ end
 
 function EventHandler.PRESENCE_UPDATE(d, client) -- GUILD_PRESENCES
 	if not d.guild_id then return end
-	local presence = client.state:newPresence(d.guild_id, d) -- TODO: update user somehow
+	local presence = client.state:newPresence(d.guild_id, d)
 	return client:emit('presenceUpdate', presence)
 end
 
