@@ -6,7 +6,6 @@ local Guild = require('../containers/Guild')
 local Invite = require('../containers/Invite')
 local Member = require('../containers/Member')
 local Message = require('../containers/Message')
-local PermissionOverwrite = require('../containers/PermissionOverwrite')
 local Presence = require('../containers/Presence')
 local Role = require('../containers/Role')
 local User = require('../containers/User')
@@ -42,7 +41,6 @@ function State:__init(client)
 	self._presences = CompoundCache(Presence, client)
 	self._channels = CompoundCache(Channel, client)
 	self._messages = CompoundCache(Message, client)
-	self._overwrites = CompoundCache(PermissionOverwrite, client)
 
 end
 
@@ -258,22 +256,6 @@ end
 function State:newMessages(data, gateway)
 	for i, v in ipairs(data) do
 		data[i] = self:newMessage(v, gateway)
-	end
-	return Iterable(data, 'id')
-end
-
-function State:newOverwrite(channelId, data)
-	data.channel_id = channelId
-	if self._overwrites then
-		return self._overwrites:update(channelId, data.id, data)
-	else
-		return PermissionOverwrite(data, self._client)
-	end
-end
-
-function State:newOverwrites(channelId, data)
-	for i, v in ipairs(data) do
-		data[i] = self:newOverwrite(channelId, v)
 	end
 	return Iterable(data, 'id')
 end

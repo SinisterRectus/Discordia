@@ -222,11 +222,11 @@ function EventHandler.USER_UPDATE(d, client) -- no intent; always received
 end
 
 function EventHandler.VOICE_STATE_UPDATE() -- GUILD_VOICE_STATES
-	-- TODO
+	-- TODO: voice
 end
 
 function EventHandler.VOICE_SERVER_UPDATE() -- no intent; command response
-	-- TODO
+	-- TODO: voice
 end
 
 function EventHandler.WEBHOOKS_UPDATE(d, client) -- GUILD_WEBHOOKS

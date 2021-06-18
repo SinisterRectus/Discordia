@@ -5,7 +5,7 @@ local helpers = require('../helpers')
 
 local readOnly = helpers.readOnly
 
-local Presence, get = class('PResence', Container)
+local Presence, get = class('Presence', Container)
 
 function Presence:__init(data, client)
 	Container.__init(self, client)
