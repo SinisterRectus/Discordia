@@ -48,7 +48,13 @@ function User:getPrivateChannel()
 	return self.client:createDM(self.id)
 end
 
--- TODO: send shortcut
+function User:send(...)
+	local channelId, err = self.client.state:getDMChannelId(self.id)
+	if not channelId then
+		return nil, err
+	end
+	return self.client:createMessage(channelId, ...)
+end
 
 function get:bot()
 	return self._bot or false

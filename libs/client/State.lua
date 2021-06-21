@@ -18,6 +18,7 @@ local class = require('../class')
 local State = class('State')
 
 local channelMap = {} -- channelId -> guildId
+local privateMap = {} -- userId -> channelId
 
 function State:__init(client)
 	self._client = assert(client)
@@ -33,6 +34,18 @@ function State:getGuildId(channelId)
 		end
 	end
 	return channelMap[channelId]
+end
+
+function State:getDMChannelId(userId)
+	if privateMap[userId] == nil then
+		local channel, err = self._client.api:createDM {recipient_id = userId}
+		if channel then
+			privateMap[userId] = channel.id
+		else
+			return nil, err
+		end
+	end
+	return privateMap[userId]
 end
 
 function State:newUser(data)
