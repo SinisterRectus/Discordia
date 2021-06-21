@@ -72,6 +72,7 @@ function Shard:__init(id, client)
 	self._client = assert(client)
 	self._sendMutex = Mutex()
 	self._reconnectDelay = MIN_RECONNECT_DELAY
+	self._memberRequests = {}
 	self._events = 0
 	self._commands = 0
 	self._rx = 0
@@ -377,6 +378,24 @@ function Shard:updatePresence(status, activity)
 		game = activity or null,
 		since = null, afk = null,
 	})
+end
+
+function Shard:requestGuildMembers(payload, callback)
+	local success, err = self:send(REQUEST_GUILD_MEMBERS, payload)
+	if success then
+		self._memberRequests[payload.nonce] = {0, callback}
+	end
+	return success, err
+end
+
+function Shard:membersChunk(data)
+	local req = self._memberRequests[data.nonce]
+	req[1] = req[1] + 1
+	wrap(req[2])(data)
+	if req[1] == data.chunkCount then
+		self._memberRequests[data.nonce] = nil
+	end
+	return self._client:emit('membersChunk', data)
 end
 
 function get:id()

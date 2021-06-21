@@ -96,12 +96,18 @@ function EventHandler.GUILD_MEMBER_REMOVE(d, client) -- GUILD_MEMBERS
 	return client:emit('memberRemove', d.guild_id, user)
 end
 
-function EventHandler.GUILD_MEMBERS_CHUNK(d, client) -- no intent; command response
-	client.state:newMembers(d.guild_id, d.members)
-	if d.presences then
-		client.state:newPresences(d.guild_id, d.presences)
-	end
-	return client:emit('membersChunk', d.guild_id)
+function EventHandler.GUILD_MEMBERS_CHUNK(d, client, shard) -- no intent; command response
+	local members = client.state:newMembers(d.guild_id, d.members)
+	local presences = d.presences and client.state:newPresences(d.guild_id, d.presences)
+	return shard:membersChunk({
+		members = members,
+		presences = presences,
+		guildId = d.guild_id,
+		chunkIndex = d.chunk_index,
+		chunkCount = d.chunk_count,
+		notFound = d.not_found,
+		nonce = d.nonce,
+	})
 end
 
 function EventHandler.GUILD_ROLE_CREATE(d, client) -- GUILDS

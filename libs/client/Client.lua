@@ -28,6 +28,7 @@ local concat, insert, remove = table.concat, table.insert, table.remove
 local format = string.format
 local floor = math.floor
 local attachQuery, readOnly = helpers.attachQuery, helpers.readOnly
+local nonce, getShardId = helpers.nonce, helpers.getShardId
 local checkEnum = typing.checkEnum
 local checkSnowflake = typing.checkSnowflake
 local checkInteger = typing.checkInteger
@@ -278,6 +279,36 @@ function Client:setActivity(activity)
 	for _, shard in pairs(self._shards) do
 		shard:updatePresence(self._status, self._activity)
 	end
+end
+
+function Client:requestGuildMembers(guildId, payload, callback)
+
+	local shardId = getShardId(checkSnowflake(guildId), self.totalShardCount)
+	local shard = self._shards[shardId]
+	if not shard then
+		return nil, 'shard does not exist'
+	end
+
+	if payload.query and payload.users then
+		return error('query and users field are mutually exclusive', 2)
+	end
+
+	local query, users
+	if payload.users then
+		users = opt(payload.users, checkSnowflakeArray)
+	else
+		query = opt(payload.query, checkType, 'string') or ''
+	end
+
+	return shard:requestGuildMembers({
+		guild_id = guildId,
+		query = query,
+		limit = opt(payload.limit, checkType, 'number') or 0,
+		presences = opt(payload.presences, checkType, 'boolean'),
+		user_ids = users,
+		nonce = nonce(32),
+	}, callback)
+
 end
 
 function Client:setUsername(username)

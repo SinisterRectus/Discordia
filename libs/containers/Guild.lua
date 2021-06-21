@@ -55,7 +55,9 @@ function Guild:__init(data, client)
 
 end
 
--- TODO: requestMembers
+function Guild:requestMembers(payload, callback)
+	return self.client:requestGuildMembers(self.id, payload, callback)
+end
 
 function Guild:getIconURL(ext, size)
 	if not self.icon then

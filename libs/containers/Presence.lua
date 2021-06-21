@@ -41,10 +41,11 @@ function get:userId()
 end
 
 function get:activity()
-	return self.activities[1]
+	local activities = self.activities
+	return activities and activities[1]
 end
 
-function get:activites()
+function get:activities()
 	return readOnly(self._activities)
 end
 

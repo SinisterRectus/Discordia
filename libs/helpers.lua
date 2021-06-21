@@ -1,9 +1,22 @@
 local uv = require('uv')
 
 local hrtime = uv.hrtime
-local insert = table.insert
+local insert, concat = table.insert, table.concat
+local random, floor = math.random, math.floor
 local format, byte, gsub = string.format, string.byte, string.gsub
 local resume, yield, running = coroutine.resume, coroutine.yield, coroutine.running
+
+local function nonce(size)
+	local buf = {}
+	for i = 1, size do
+		buf[i] = random(0, 9)
+	end
+	return concat(buf)
+end
+
+local function getShardId(guildId, shardCount)
+	return floor(guildId / 2^22) % shardCount
+end
 
 local function toPercent(char)
 	return format('%%%02X', byte(char))
@@ -144,6 +157,8 @@ local function clearTimer(timer)
 end
 
 return {
+	nonce = nonce,
+	getShardId = getShardId,
 	urlEncode = urlEncode,
 	attachQuery = attachQuery,
 	benchmark = benchmark,
