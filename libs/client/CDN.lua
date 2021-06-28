@@ -12,6 +12,7 @@ local endpoints = {
 	DEFAULT_USER_AVATAR    = "/embed/avatars/%s",
 	USER_AVATAR            = "/avatars/%s/%s",
 	APPLICATION_ICON       = "/app-icons/%s/%s",
+	APPLICATION_COVER      = "/app-icons/%s/%s",
 	APPLICATION_ASSET      = "/app-assets/%s/%s",
 	ACHIEVEMENT_ICON       = "/app-assets/%s/achievements/%s/icons/%s",
 	TEAM_ICON              = "/team-icons/%s/%s",
@@ -60,6 +61,10 @@ end
 
 function CDN:getApplicationIconURL(application_id, icon, ext, size)
 	return self:buildURL(endpoints.APPLICATION_ICON:format(application_id, icon), ext, size)
+end
+
+function CDN:getApplicationCoverURL(application_id, cover_image, ext, size)
+	return self:buildURL(endpoints.APPLICATION_COVER:format(application_id, cover_image), ext, size)
 end
 
 function CDN:getApplicationAssetURL(application_id, asset_id, ext, size)
