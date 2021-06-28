@@ -1370,6 +1370,7 @@ end
 
 function Client:getGatewayStatistics()
 	local stats = {
+		namedEvents = {},
 		eventsReceived = 0,
 		commandsTransmitted = 0,
 		bytesReceived = 0,
@@ -1380,6 +1381,9 @@ function Client:getGatewayStatistics()
 		stats.commandsTransmitted = stats.commandsTransmitted + shard.commandsTransmitted
 		stats.bytesReceived = stats.bytesReceived + shard.bytesReceived
 		stats.bytesTransmitted = stats.bytesTransmitted + shard.bytesTransmitted
+		for k, v in pairs(shard.namedEvents) do
+			stats.namedEvents[k] = (stats.namedEvents[k] or 0) + v
+		end
 	end
 	return stats
 end

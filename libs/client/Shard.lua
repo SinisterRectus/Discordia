@@ -63,6 +63,7 @@ local function connect(url, path)
 end
 
 local globalMutex = Mutex()
+local zero = {__index = function() return 0 end}
 
 local Shard, get = class('Shard', Emitter)
 
@@ -73,6 +74,7 @@ function Shard:__init(id, client)
 	self._sendMutex = Mutex()
 	self._reconnectDelay = MIN_RECONNECT_DELAY
 	self._memberRequests = {}
+	self._namedEvents = setmetatable({}, zero)
 	self._events = 0
 	self._commands = 0
 	self._rx = 0
@@ -232,6 +234,7 @@ function Shard:handlePayload(payload)
 		local s = payload.s
 		local t = payload.t
 		self._seq = s
+		self._namedEvents[t] = self._namedEvents[t] + 1
 		self:log('debug', 'Received OP %s : %s : %s', op, t, s)
 		return EventHandler[t](payload.d, self._client, self)
 	end
@@ -420,6 +423,10 @@ end
 
 function get:bytesTransmitted()
 	return self._tx
+end
+
+function get:namedEvents()
+	return self._namedEvents
 end
 
 return Shard
