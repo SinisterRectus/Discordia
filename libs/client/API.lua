@@ -5,12 +5,13 @@ local helpers = require('../helpers')
 local class = require('../class')
 local constants = require('../constants')
 local Mutex = require('../utils/Mutex')
+local Stopwatch = require('../utils/Stopwatch')
 
 local request = http.request
 local format, lower = string.format, string.lower
 local max, random = math.max, math.random
 local encode, decode = json.encode, json.decode
-local insert, concat = table.insert, table.concat
+local insert, remove, concat = table.insert, table.remove, table.concat
 local running = coroutine.running
 local urlEncode, attachQuery = helpers.urlEncode, helpers.attachQuery
 local sleep = helpers.sleep
@@ -80,6 +81,8 @@ function API:__init(client)
 	self._tx = 0
 	self._requests = 0
 	self._token = nil
+	self._latency = {}
+	self._stopwatch = Stopwatch()
 end
 
 function API:setToken(token)
@@ -180,7 +183,15 @@ function API:commit(method, url, req, payload, route, retries)
 	local client = self._client
 	local delay = client.routeDelay
 
+	self._stopwatch:reset()
 	local success, res, msg = pcall(request, method, url, req, payload)
+	local latency = self._stopwatch:getTime():toMilliseconds()
+
+	insert(self._latency, latency)
+	if #self._latency > client.latencyLimit then
+		remove(self._latency, 1)
+	end
+
 	if not success then
 		client:log('error', 'HTTP client error: %s', res)
 		return nil, res, delay
@@ -194,7 +205,16 @@ function API:commit(method, url, req, payload, route, retries)
 	self._rx = self._rx + #msg
 	self._tx = self._tx + (payload and #payload or 0)
 	self._requests = self._requests + 1
-	client:emit('httpRequest', method, url, req, payload, res, msg)
+
+	client:emit('httpRequest', {
+		method = method,
+		url = url,
+		requestHeaders = req,
+		requestPayload = payload,
+		responseHeaders = res,
+		responsePayload = msg,
+		latency = latency,
+	})
 
 	if head['x-ratelimit-remaining'] == '0' then
 		delay = max(1000 * head['x-ratelimit-reset-after'], delay)
@@ -1020,6 +1040,10 @@ end
 
 function get:bytesTransmitted()
 	return self._tx
+end
+
+function get:latency()
+	return self._latency
 end
 
 return API

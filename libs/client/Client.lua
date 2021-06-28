@@ -125,6 +125,7 @@ defaultIntents:disableValue(enums.gatewayIntent.guildPresences)
 local defaultOptions = {
 	routeDelay = {250, function(o) return checkInteger(o, 10, 0) end},
 	maxRetries = {5, function(o) return checkInteger(o, 10, 0) end},
+	latencyLimit = {15, function(o) return checkInteger(o, 10, 1) end},
 	tokenPrefix = {'Bot ', function(o) return checkType('string', o) end},
 	gatewayIntents = {defaultIntents:toDec(), checkIntents},
 	totalShardCount = {nil, function(o) return checkInteger(o, 10, 1) end},
@@ -176,6 +177,7 @@ function Client:__init(options)
 	options = checkOptions(options)
 	self._routeDelay = options.routeDelay
 	self._maxRetries = options.maxRetries
+	self._latencyLimit = options.latencyLimit
 	self._tokenPrefix = options.tokenPrefix
 	self._gatewayEnabled = options.gatewayEnabled
 	self._gatewayIntents = options.gatewayIntents
@@ -547,11 +549,12 @@ function Client:createGuildRole(guildId, payload)
 	end
 end
 
-function Client:createGuildEmoji(guildId, name, image) -- NOTE: make payload?
+function Client:createGuildEmoji(guildId, payload)
 	guildId = checkSnowflake(guildId)
+	payload = checkType('table', payload)
 	local data, err = self.api:createGuildEmoji(guildId, {
-		name = checkType('string', name),
-		image = checkImageData(image),
+		name = opt(payload.name, checkType, 'string'),
+		image = checkImageData(payload.image),
 	})
 	if data then
 		return self.state:newEmoji(guildId, data)
@@ -1397,6 +1400,10 @@ function get:apiBytesTransmitted()
 	return self._api.bytesTransmitted
 end
 
+function get:apiLatency()
+	return readOnly(self._api.latency)
+end
+
 function get:ready()
 	for _, shard in pairs(self._shards) do
 		if not shard.ready then
@@ -1412,6 +1419,10 @@ end
 
 function get:maxRetries()
 	return self._maxRetries
+end
+
+function get:latencyLimit()
+	return self._latencyLimit
 end
 
 function get:tokenPrefix()
