@@ -28,11 +28,12 @@ local concat, insert, remove = table.concat, table.insert, table.remove
 local format = string.format
 local floor = math.floor
 local attachQuery, readOnly = helpers.attachQuery, helpers.readOnly
-local nonce, getShardId = helpers.nonce, helpers.getShardId
+local nonce = helpers.nonce
 local checkEnum = typing.checkEnum
 local checkSnowflake = typing.checkSnowflake
 local checkInteger = typing.checkInteger
 local checkType = typing.checkType
+local checkCallable = typing.checkCallable
 local checkImageData = typing.checkImageData
 local checkImageSize = typing.checkImageSize
 local checkImageExtension = typing.checkImageExtension
@@ -283,31 +284,51 @@ end
 
 function Client:requestGuildMembers(guildId, payload, callback)
 
-	local shardId = getShardId(checkSnowflake(guildId), self.totalShardCount)
+	guildId = checkSnowflake(guildId)
+	local shardId = self:getGuildShardId(guildId)
 	local shard = self._shards[shardId]
 	if not shard then
 		return nil, 'shard does not exist'
 	end
 
-	if payload.query and payload.users then
-		return error('query and users field are mutually exclusive', 2)
-	end
+	if payload and callback then
 
-	local query, users
-	if payload.users then
-		users = opt(payload.users, checkSnowflakeArray)
+		payload = checkType('table', payload)
+		callback = checkCallable(callback)
+
+		if payload.query and payload.users then
+			return error('query and users field are mutually exclusive', 2)
+		end
+
+		local query, users
+		if payload.users then
+			users = opt(payload.users, checkSnowflakeArray)
+		else
+			query = opt(payload.query, checkType, 'string') or ''
+		end
+
+		payload = {
+			guild_id = guildId,
+			query = query,
+			limit = opt(payload.limit, checkType, 'number') or 0,
+			presences = opt(payload.presences, checkType, 'boolean'),
+			user_ids = users,
+			nonce = nonce(32),
+		}
+
 	else
-		query = opt(payload.query, checkType, 'string') or ''
+
+		callback = checkCallable(payload)
+		payload = {
+			guild_id = guildId,
+			query = '',
+			limit = 0,
+			nonce = nonce(32),
+		}
+
 	end
 
-	return shard:requestGuildMembers({
-		guild_id = guildId,
-		query = query,
-		limit = opt(payload.limit, checkType, 'number') or 0,
-		presences = opt(payload.presences, checkType, 'boolean'),
-		user_ids = users,
-		nonce = nonce(32),
-	}, callback)
+	return shard:requestGuildMembers(payload, callback)
 
 end
 
@@ -1437,11 +1458,11 @@ function get:token()
 	return self._token
 end
 
-function get:api() -- TODO: remove
+function get:api()
 	return self._api
 end
 
-function get:cdn() -- TODO: remove
+function get:cdn()
 	return self._cdn
 end
 
