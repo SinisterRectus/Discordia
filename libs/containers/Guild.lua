@@ -53,6 +53,9 @@ function Guild:__init(data, client)
 
 	-- ignore: owner, permissions, lazy, large, unavailable
 
+	self._roles = client.state:newRoles(data.id, data.roles)
+	self._emojis = client.state:newEmojis(data.id, data.emojis)
+
 end
 
 function Guild:requestMembers(payload, callback)
@@ -260,6 +263,14 @@ function Guild:removeBan(userId, reason)
 end
 
 ----
+
+function get:roles()
+	return self._roles
+end
+
+function get:emojis()
+	return self._emojis
+end
 
 function get:shardId()
 	return self.client:getGuildShardId(self.id)

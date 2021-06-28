@@ -56,14 +56,20 @@ function Emoji:hasRole(roleId)
 	return false
 end
 
-function Emoji:getRoles()
+local function makeRoleFilter(ids)
 	local filter = {}
-	for _, id in pairs(self.roleIds) do
+	for _, id in pairs(ids) do
 		filter[id] = true
 	end
+	return function(role)
+		return filter[role.id]
+	end
+end
+
+function Emoji:getRoles()
 	local roles, err = self.client:getGuildRoles(self.guildId)
 	if roles then
-		return roles:filter(function(r) return filter[r.id] end)
+		return roles:filter(makeRoleFilter(self.roleIds))
 	else
 		return nil, err
 	end

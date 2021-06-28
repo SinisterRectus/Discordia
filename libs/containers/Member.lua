@@ -1,11 +1,14 @@
 local Container = require('./Container')
+local Bitfield = require('../utils/Bitfield')
 
 local class = require('../class')
+local enums = require('../enums')
 local typing = require('../typing')
 local helpers = require('../helpers')
 local json = require('json')
 
 local checkSnowflake = typing.checkSnowflake
+local checkEnum = typing.checkEnum
 local readOnly = helpers.readOnly
 
 local Member, get = class('Member', Container)
@@ -26,14 +29,20 @@ function Member:__eq(other)
 	return self.guildId == other.guildId and self.user.id == other.user.id
 end
 
-function Member:getRoles()
+local function makeRoleFilter(ids)
 	local filter = {}
-	for _, id in pairs(self.roleIds) do
+	for _, id in pairs(ids) do
 		filter[id] = true
 	end
+	return function(role)
+		return filter[role.id]
+	end
+end
+
+function Member:getRoles()
 	local roles, err = self.client:getGuildRoles(self.guildId)
 	if roles then
-		return roles:filter(function(r) return filter[r.id] end)
+		return roles:filter(makeRoleFilter(self.roleIds))
 	else
 		return nil, err
 	end
@@ -43,7 +52,7 @@ function Member:getGuild()
 	return self.client:getGuild(self.guildId)
 end
 
-local function sorter(a, b)
+local function positionSorter(a, b)
 	if a.position == b.position then
 		return tonumber(a.id) < tonumber(b.id) -- equal position; lesser id = greater role
 	else
@@ -51,14 +60,14 @@ local function sorter(a, b)
 	end
 end
 
-local function filter(r)
+local function colorFilter(r)
 	return r.color > 0
 end
 
 function Member:getHighestRole()
 	local roles, err = self:getRoles()
 	if roles then
-		roles:sort(sorter)
+		roles:sort(positionSorter)
 		return roles:get(1)
 	else
 		return nil, err
@@ -68,8 +77,8 @@ end
 function Member:getColor()
 	local roles, err = self:getRoles()
 	if roles then
-		roles = roles:filter(filter)
-		roles:sort(sorter)
+		roles = roles:filter(colorFilter)
+		roles:sort(positionSorter)
 		local role = roles:get(1)
 		return role and role.color or 0
 	else
@@ -77,7 +86,75 @@ function Member:getColor()
 	end
 end
 
--- TODO: permissions
+function Member:getPermissions(channelId)
+
+	local guild, err = self:getGuild()
+	if not guild then
+		return nil, err
+	end
+
+	local channel
+	if channelId then
+		channel, err = self.client:getChannel(checkSnowflake(channelId))
+		if not channel then
+			return nil, err
+		end
+		if self.guildId ~= channel.guildId then
+			return error('member/channel mismatch: both must have the same guild', 2)
+		end
+	end
+
+	if self.id == guild.ownerId then
+		return Bitfield(enums.permission)
+	end
+
+	local roles = guild.roles
+	local everyone = roles:get(guild.id)
+	local permissions = Bitfield(everyone.permissions)
+	roles = roles:filter(makeRoleFilter(self.roleIds))
+
+	for role in roles:iter() do
+		permissions:enableValue(role.permissions)
+	end
+
+	if permissions:hasValue(enums.permission.administrator) then
+		return Bitfield(enums.permission)
+	end
+
+	if channel then
+
+		local overwrites = channel.permissionOverwrites
+
+		local everyoneOverwrite = overwrites:get(guild.id)
+		if everyoneOverwrite then
+			permissions:disableValue(everyoneOverwrite.deniedPermissions)
+			permissions:enableValue(everyoneOverwrite.allowedPermissions)
+		end
+
+		do
+			local allowed, denied = Bitfield(), Bitfield()
+			for role in roles:iter() do
+				local roleOverwrite = overwrites:get(role.id)
+				if roleOverwrite then
+					allowed:enableValue(roleOverwrite.allowedPermissions)
+					denied:enableValue(roleOverwrite.deniedPermissions)
+				end
+			end
+			permissions:disableValue(denied)
+			permissions:enableValue(allowed)
+		end
+
+		local memberOverwrite = overwrites:get(self.id)
+		if memberOverwrite then
+			permissions:disableValue(memberOverwrite.deniedPermissions)
+			permissions:enableValue(memberOverwrite.allowedPermissions)
+		end
+
+	end
+
+	return permissions
+
+end
 
 function Member:addRole(roleId)
 	return self.client:addGuildMemberRole(self.guildId, self.user.id, roleId)

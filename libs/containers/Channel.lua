@@ -101,8 +101,8 @@ function Channel:bulkDelete(messageIds)
 	return self.client:bulkDeleteMessages(self.id, messageIds)
 end
 
-function Channel:getPermissionOverwriteFor(obj)
-	return self._overwrites:get(obj.id)
+function Channel:editPermissions(overwriteId, payload)
+	return self.client:editChannelPermissions(self.id, overwriteId, payload)
 end
 
 function Channel:triggerTyping()
@@ -162,6 +162,10 @@ function Channel:setPosition(position)
 end
 
 ----
+
+function get:permissionOverwrites()
+	return self._permission_overwrites
+end
 
 function get:recipient()
 	return self._recipients:get(1)

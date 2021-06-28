@@ -206,10 +206,6 @@ function Message:getGuild()
 	return self.client:getGuild(self.guildId)
 end
 
-function Message:getReaction(hash)
-	return self._reactions:get(hash)
-end
-
 function get:type()
 	return self._type
 end
@@ -256,6 +252,10 @@ end
 
 function get:attachments()
 	return readOnly(self._attachments)
+end
+
+function get:reactions()
+	return self._reactions
 end
 
 function get:content()
