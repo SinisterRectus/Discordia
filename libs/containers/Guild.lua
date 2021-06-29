@@ -117,8 +117,16 @@ function Guild:getMember(userId)
 	return self.client:getGuildMember(self.id, userId)
 end
 
+function Guild:getRole(roleId)
+	return self.client:getGuildRole(self.id, roleId)
+end
+
 function Guild:getEmoji(emojiId)
 	return self.client:getGuildEmoji(self.id, emojiId)
+end
+
+function Guild:getChannel(channelId)
+	return self.client:getGuildChannel(self.id, channelId)
 end
 
 function Guild:getMembers(limit, after)
@@ -141,8 +149,8 @@ function Guild:createRole(payload)
 	return self.client:createGuildRole(self.id, payload)
 end
 
-function Guild:createEmoji(name, image)
-	return self.client:createGuildEmoji(self.id, name, image)
+function Guild:createEmoji(payload)
+	return self.client:createGuildEmoji(self.id, payload)
 end
 
 function Guild:createChannel(payload)
@@ -331,7 +339,7 @@ function get:notificationSetting()
 	return self._default_message_notifications
 end
 
-function get:explicitContentSetting()
+function get:explicitContentLevel()
 	return self._explicit_content_filter
 end
 

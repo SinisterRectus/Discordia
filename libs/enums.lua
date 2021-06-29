@@ -109,6 +109,13 @@ proxy.messageType = {
 	-- unused (guildStream)       = 13,
 	guildDiscoveryDisqualified    = 14,
 	guildDiscoveryRequalified     = 15,
+	guildDiscoveryInitialWarning  = 16,
+	guildDiscoveryFinalWarning    = 17,
+	threadCreated                 = 18,
+	reply                         = 19,
+	applicationCommand            = 20,
+	threadStarterMessage          = 21,
+	guildInviteReminder           = 22,
 }
 
 proxy.permissionOverwriteType = {
@@ -210,6 +217,9 @@ proxy.actionType = {
 	integrationCreate      = 80,
 	integrationUpdate      = 81,
 	integrationDelete      = 82,
+	stageInstanceCreate    = 83,
+	stageInstanceUpdate    = 84,
+	stageInstanceDelete    = 85,
 }
 
 local function flag(n)

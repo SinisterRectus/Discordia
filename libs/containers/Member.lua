@@ -204,6 +204,18 @@ function Member:undeafen()
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {deafened = false})
 end
 
+function Member:kick(reason)
+	return self.client:removeGuildMember(self.guildId, self.user.id, reason)
+end
+
+function Member:ban(reason, days)
+	return self.client:createGuildBan(self.guildId, self.user.id, reason, days)
+end
+
+function Member:unban(reason)
+	return self.client:removeGuildBan(self.guildId, self.user.id, reason)
+end
+
 function get:id() -- user shortcut
 	return self.user.id
 end

@@ -1277,7 +1277,7 @@ function Client:removeReaction(channelId, messageId, emoji, userId)
 	end
 end
 
-function Client:clearAllReactions(channelId, messageId, emoji)
+function Client:clearReactions(channelId, messageId, emoji)
 	channelId = checkSnowflake(channelId)
 	messageId = checkSnowflake(messageId)
 	emoji = checkEmoji(emoji)

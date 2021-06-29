@@ -109,8 +109,8 @@ function Message:removeReaction(emoji, userId)
 	return self.client:removeReaction(self.channelId, self.id, emoji, userId)
 end
 
-function Message:clearAllReactions(emoji)
-	return self.client:clearAllReactions(self.channel, self.id, emoji)
+function Message:clearReactions(emoji)
+	return self.client:clearReactions(self.channel, self.id, emoji)
 end
 
 function Message:delete()

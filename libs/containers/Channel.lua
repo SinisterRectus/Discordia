@@ -55,6 +55,14 @@ function Channel:getGuild()
 	end
 end
 
+function Channel:getParent()
+	if not self.parentId then
+		return nil, 'Not a child channel'
+	else
+		return self.client:getGuildChannel(self.parentId)
+	end
+end
+
 function Channel:delete()
 	return self.client:deleteChannel(self.id)
 end
