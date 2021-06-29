@@ -6,7 +6,9 @@ local Guild = require('../containers/Guild')
 local Invite = require('../containers/Invite')
 local Member = require('../containers/Member')
 local Message = require('../containers/Message')
+local PermissionOverwrite = require('../containers/PermissionOverwrite')
 local Presence = require('../containers/Presence')
+local Reaction = require('../containers/Reaction')
 local Role = require('../containers/Role')
 local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
@@ -27,10 +29,14 @@ function State:__init(client)
 
 	self._privateMap = {} -- userId -> channelId
 
+	self._users = Cache(User, client, true)
 	self._guilds = Cache(Guild, client)
 	self._roles = CompoundCache(Role, client)
 	self._emojis = CompoundCache(Emoji, client)
 	self._channels = CompoundCache(Channel, client)
+
+	self._reactions = CompoundCache(Reaction, client, true)
+	self._overwrites = CompoundCache(PermissionOverwrite, client, true)
 
 end
 
@@ -47,7 +53,7 @@ function State:getDMChannelId(userId)
 end
 
 function State:newUser(data)
-	return User(data, self._client)
+	return self._users:update(data.id, data)
 end
 
 function State:newUsers(data)
@@ -195,6 +201,34 @@ end
 function State:newMessages(data, gateway)
 	for i, v in ipairs(data) do
 		data[i] = self:newMessage(v, gateway)
+	end
+	return Iterable(data, 'id')
+end
+
+----
+
+function State:newReaction(channelId, messageId, data)
+	data.channel_id = channelId
+	data.message_id = messageId
+	local emoji = data.emoji
+	return self._reactions:update(messageId, emoji.id or emoji.name, data)
+end
+
+function State:newReactions(channelId, messageId, data)
+	for i, v in ipairs(data) do
+		data[i] = self:newReaction(channelId, messageId, v)
+	end
+	return Iterable(data, 'hash')
+end
+
+function State:newPermissionOverwrite(channelId, data)
+	data.channel_id = channelId
+	return self._overwrites:update(channelId, data.id, data)
+end
+
+function State:newPermissionOverwrites(channelId, data)
+	for i, v in ipairs(data) do
+		data[i] = self:newPermissionOverwrite(channelId, v)
 	end
 	return Iterable(data, 'id')
 end

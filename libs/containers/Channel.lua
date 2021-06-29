@@ -1,6 +1,4 @@
 local Snowflake = require('./Snowflake')
-local PermissionOverwrite = require('./PermissionOverwrite')
-local Iterable = require('../client/Iterable')
 
 local json = require('json')
 local class = require('../class')
@@ -38,11 +36,7 @@ function Channel:__init(data, client)
 	self._rate_limit_per_user = data.rate_limit_per_user -- text
 
 	if data.permission_overwrites then -- text, voice, category, news, store (excludes private and group)
-		for i, v in ipairs(data.permission_overwrites) do
-			v.channel_id = data.id
-			data.permission_overwrites[i] = PermissionOverwrite(v, client)
-		end
-		self._permission_overwrites = Iterable(data.permission_overwrites, 'id')
+		self._permission_overwrites = client.state:newPermissionOverwrites(data.id, data.permission_overwrites)
 	end
 
 	if data.recipients then -- private, group
@@ -52,10 +46,6 @@ function Channel:__init(data, client)
 end
 
 -- TODO: join/leave voice channel
-
-function Channel:getRecipients()
-	return self._recipients:copy()
-end
 
 function Channel:getGuild()
 	if not self.guildId then
@@ -169,6 +159,10 @@ end
 
 function get:recipient()
 	return self._recipients:get(1)
+end
+
+function get:recipients()
+	return self._recipients
 end
 
 function get:type()

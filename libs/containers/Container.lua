@@ -1,11 +1,9 @@
 local class = require('../class')
 
-local clients = {}
-
 local Container, get = class('Container')
 
 function Container:__init(client)
-	clients[self] = assert(client)
+	self._client = assert(client)
 end
 
 -- TODO: toString methods
@@ -15,7 +13,7 @@ function Container.__eq()
 end
 
 function get:client()
-	return clients[self]
+	return self._client
 end
 
 return Container

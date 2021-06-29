@@ -2,12 +2,15 @@ local class = require('class')
 
 local insert = table.insert
 
+local meta = {__mode = 'v'}
+
 local CompoundCache = class('CompoundCache')
 
-function CompoundCache:__init(constructor, client)
+function CompoundCache:__init(constructor, client, weak)
 	self._constructor = assert(constructor)
 	self._client = assert(client)
 	self._objects = {}
+	self._weak = weak
 end
 
 function CompoundCache:get(k1, k2)
@@ -15,7 +18,7 @@ function CompoundCache:get(k1, k2)
 end
 
 function CompoundCache:set(k1, k2, obj)
-	self._objects[k1] = self._objects[k1] or {}
+	self._objects[k1] = self._objects[k1] or (self._weak and setmetatable({}, meta) or {})
 	self._objects[k1][k2] = assert(obj)
 end
 

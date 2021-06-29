@@ -2,12 +2,14 @@ local class = require('class')
 
 local insert = table.insert
 
+local meta = {__mode = 'v'}
+
 local Cache = class('Cache')
 
-function Cache:__init(constructor, client)
+function Cache:__init(constructor, client, weak)
 	self._constructor = assert(constructor)
 	self._client = assert(client)
-	self._objects = {}
+	self._objects = weak and setmetatable({}, meta) or {}
 end
 
 function Cache:get(k)

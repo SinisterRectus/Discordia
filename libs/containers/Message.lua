@@ -1,7 +1,5 @@
 local Snowflake = require('./Snowflake')
-local Reaction = require('./Reaction')
 local Bitfield = require('../utils/Bitfield')
-local Iterable = require('../client/Iterable')
 
 local json = require('json')
 local enums = require('../enums')
@@ -63,13 +61,8 @@ function Message:__init(data, client)
 	self._embeds = data.embeds
 	self._attachments = data.attachments
 
-	if data.reactions and data.reactions[1] then
-		for i, v in ipairs(data.reactions) do
-			v.message_id = data.id
-			v.channel_id = data.channel_id
-			data.reactions[i] = Reaction(v, client)
-		end
-		self._reactions = Iterable(data.reactions, 'hash')
+	if data.reactions then
+		self._reactions = client.state:newReactions(data.channel_id, data.id, data.reactions)
 	end
 
 	-- TODO: activity, application, reference
