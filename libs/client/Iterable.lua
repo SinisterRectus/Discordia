@@ -135,4 +135,17 @@ function Iterable:copy()
 	return Iterable(new, self._key, self._sorter)
 end
 
+function Iterable:select(...)
+	local rows = {}
+	local keys = {n = select('#', ...), ...}
+	for _, v in ipairs(self._arr) do
+		local row = {}
+		for i = 1, keys.n do
+			row[i] = v[keys[i]]
+		end
+		insert(rows, row)
+	end
+	return rows
+end
+
 return Iterable

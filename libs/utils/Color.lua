@@ -211,6 +211,10 @@ function Color:toHSL()
 	return h, s, l
 end
 
+function Color:copy()
+	return Color(self._n)
+end
+
 function get:r()
 	return getByte(self._n, 16)
 end

@@ -8,17 +8,21 @@
 
 ### Public API Changes
 
-#### General
+#### Class Changes
 
-- Merged `GuildChannel`, `TextChannel`, `GuildCategoryChannel`, `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateChannel` into one `Channel`
+- Added `Bitfield` utility class
+- Merged `GuildChannel`, `TextChannel`, `GuildCategoryChannel`, `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateChannel` into one `Channel` class
+- Merged `ArrayIterable`, `TableIterable`, and `FilteredIterable` into one `Iterable` class
+- Removed `Cache`, `SecondaryCache`, and `WeakCache` (some form of these still used internally)
 - Removed `GroupChannel` class (concept was not merged into `Channel`)
+- Removed `Permissions` class (replaced by more general `Bitfield` class)
 - Removed `UserPresence` abstract class (functionality moved into `Presence` class)
+- Removed `Deque` class (just use a `table`)
 - Removed `Relationship` class (not used by bots)
 
 #### Enumerations
 
 - Changed internal code to prevent invalid public access
-
 - Added `permissionOverwriteType` enumerations
 - Added `whence` enumerations
 - Added `premiumType` enumerations
@@ -56,9 +60,148 @@
 
 - TODO
 
-#### Client
+#### Client Options
 
-- TODO
+- Added `latencyLimit`
+- Added `tokenPrefix`
+- Added `gatewayIntents`
+- Added `defaultImageExtension`
+- Added `defaultImageSize`
+- Added `logColors`
+- Added `status`
+- Added `activity`
+- Renamed `shardCount` to `totalShardCount`
+- Renamed `compress` to `payloadCompression`
+- Renamed `dateTime` to `dateFormat`
+- Removed `firstShard`
+- Removed `lastShard`
+- Removed `largeThreshold`
+- Removed `cacheAllMembers`
+- Removed `autoReconnect`
+- Removed `syncGuilds`
+- Removed `gatewayFile`
+- Removed `bitrate`
+
+#### Client Methods
+
+- Added `requestGuildMembers` method
+- Added `getGuildShardId` method
+- Added `getGatewayURL` method
+- Added `modifyCurrentUser` method
+- Added `getGuildCounts` method
+- Added `modifyGuild` method
+- Added `getGuildMember` method
+- Added `getGuildChannel` method
+- Added `getGuildRole` method
+- Added `getGuildEmoji` method
+- Added `getGuildMembers` method
+- Added `getGuildRoles` method
+- Added `getGuildEmojis` method
+- Added `getGuildChannels` method
+- Added `getGuildVoiceRegions` method
+- Added `createGuildRole` method
+- Added `createGuildEmoji` method
+- Added `createGuildChannel` method
+- Added `getGuildPruneCount` method
+- Added `pruneGuildMembers` method
+- Added `getGuildBan` method
+- Added `getGuildBans` method
+- Added `getGuildInvites` method
+- Added `getGuildWebhooks` method
+- Added `getGuildAuditLogs` method
+- Added `leaveGuild` method
+- Added `deleteGuild` method
+- Added `removeGuildMember` method
+- Added `createGuildBan` method
+- Added `removeGuildBan` method
+- Added `modifyGuildEmoji` method
+- Added `deleteGuildEmoji` method
+- Added `modifyGuildRole` method
+- Added `modifyGuildRolePositions` method
+- Added `deleteGuildRole` method
+- Added `modifyGuildMember` method
+- Added `addGuildMemberRole` method
+- Added `removeGuildMemberRole` method
+- Added `modifyChannel` method
+- Added `modifyGuildChannelPositions` method
+- Added `editChannelPermissions` method
+- Added `deleteChannelPermission` method
+- Added `deleteChannel` method
+- Added `createChannelInvite` method
+- Added `getChannelInvites` method
+- Added `createWebhook` method
+- Added `getChannelWebhooks` method
+- Added `bulkDeleteMessages` method
+- Added `getChannelMessage` method
+- Added `getChannelMessages` method
+- Added `getChannelFirstMessage` method
+- Added `getChannelLastMessage` method
+- Added `getPinnedMessages` method
+- Added `triggerTypingIndicator` method
+- Added `createMessage` method
+- Added `deleteInvite` method
+- Added `editMessage` method
+- Added `deleteMessage` method
+- Added `pinMessage` method
+- Added `unpinMessage` method
+- Added `addReaction` method
+- Added `removeReaction` method
+- Added `clearReactions` method
+- Added `getReactionUsers` method
+- Added `crosspostMessage` method
+- Added `followNewsChannel` method
+- Added `createDM` method
+- Added `modifyWebhook` method
+- Added `deleteWebhook` method
+- Added `getGatewayStatistics` method
+- Removed auto-generated logging methods (use `log` method)
+- Removed `createGuild` method
+- Removed `createGroupChannel` method
+- Removed `getRole` method (use `getGuildRole` method)
+- Removed `getEmoji` method (use `getGuildEmoji` method)
+- Removed `listVoiceRegions` method
+- Removed `getConnections` method
+- Removed `getApplicationInformation` method
+- Removed `setGame` method (use `setActivity` method)
+- Removed `setAFK` method
+
+#### Client Properties
+
+- Added `uptime` property
+- Added `apiRequests` property
+- Added `apiBytesReceived` property
+- Added `apiBytesTransmitted` property
+- Added `apiLatency` property
+- Added `ready` property
+- Added `log` method
+- Added `userId` property
+- Added `token` property
+- Added `logger` property
+- Added `routeDelay` property
+- Added `maxRetries` property
+- Added `latencyLimit` property
+- Added `tokenPrefix` property
+- Added `gatewayIntents` property
+- Added `totalShardCount` property
+- Added `payloadCompression` property
+- Added `defaultImageExtension` property
+- Added `defaultImageSize` property
+- Added `status` property
+- Added `activity` property
+- Added `api` propert (advanced users only)
+- Added `cdn` propert (advanced users only)
+- Added `state` property (advanced users only)
+- Removed `shardCount` property
+- Removed `user` property (use `userId` property or `getUser` method)
+- Removed `owner` property
+- Removed `verified` property
+- Removed `mfaEnabled` property
+- Removed `email` property
+- Removed `guilds` property (use `getGuilds` method)
+- Removed `users` property (use `getUser` method)
+- Removed `privateChannels` property
+- Removed `groupChannels` property
+- Removed `relationships` property
 
 #### Container
 
@@ -196,14 +339,13 @@ Note: All previously existing individual channel sub-classes are considered here
 
 #### Member
 
-Note: class now inherits directly from `Container` instead of from `UserPresence`
-
 - Added `getRoles` method
 - Added `getGuild` method
 - Added `getHighestRole` method
 - Added `guildId` property
 - Added `roleIds` property
 - Added `id` property as a shortcut for `user.id`
+- Changed superclass from `UserPresence` to `Container`
 - Removed `hasPermission` method (use `getPermissions()`)
 - Removed `roles` property (use `roleIds` property or `getRoles` method)
 - Removed `guild` property (use `guildId` property or `getGuild` method)
@@ -311,6 +453,104 @@ Note: Technically a new class that implements the former `UserPresence` features
 - Added `applicationId` property
 - Removed `avatarURL` property (use `getAvatarURL` method)
 - Removed `defaultAvatarURL` property (use `getDefaultAvatarURL` method)
+
+#### Iterable
+
+Note: This is effectively a new class compared to the old one. It provides a similar API, but its behavior in the library is quite different. See documentation for details. The major difference for the context here is that objects are stored in an sequential table instead of a associated table.
+
+- Added `__ipairs` metamethod (`__pairs` remains and is a copy of `__ipairs`)
+- Added optional support for numerical indexing to `get` method
+- Added `sort` method
+- Added `filter` method
+- Added `toTable` method
+- Added `copy` method
+- Removed `findAll` method (use `filter` method)
+- Removed `sortBy` and `fn` parameters from `toArray` method
+- Removed `pick` method (nil values are problematic)
+- Removed forced sorting in `select` method
+
+#### Bitfield
+
+- New class! See documentation.
+
+#### Clock
+
+- No public changes
+
+#### Color
+
+- Added `__lt` metamethod
+- Added `__le` metamethod
+- Added `lerp` method
+- Added `toString` method (used by default `__tostring` metamethod)
+- Added optional `base` parameter to initializer (default = `10`)
+- Added `toDec` method
+- Added `fromDec` static method
+- Changed `fromRGB` static method to clamp input to [0, 255] range
+- Removed `#` prefix support `toHex` method
+- Removed `#` prefix support from `fromHex` static method
+- Removed explicit `__tostring` metamethod (uses default)
+- Removed `setRed` method (make a new object)
+- Removed `setGreen` method (make a new object)
+- Removed `setBlue` method (make a new object)
+
+#### Date
+
+- Added microsecond precision to empty/current objects
+- Added `__lt` metamethod
+- Added `__le` metamethod
+- Added support for more strings in `fromISO` static method
+- Added support for `usec` in `fromTable` and `fromTableUTC` static methods
+- Added support for `usec` in `toTable` and `toTableUTC` methods
+- Changed `toParts` method to return normalized seconds and microseconds
+- Removed `sep` and `tz` parameters from `toISO` method
+- Removed explicit `__tostring` metamethod (uses default)
+- Removed explicit default format from `toString` method (uses `os.date` default)
+- Removed `parseISO` method (use `fromISO` method)
+- Removed `parseHeader` method (no replacement)
+- Removed `parseSnowflake` method (use `fromSnowflake` method)
+- Removed `parseTable` method (use `fromTable` method)
+- Removed `parseTableUTC` method (use `fromTableUTC` method)
+- Removed `toHeader` method (use `toString`)
+
+#### Emitter
+
+- Added optional error handler `err` parameter to `on` method
+- Added optional error handler `err` parameter to `once` method
+- Changed `emit` method to always coroutine-wrap callbacks
+- Changed `emit` method to `pcall` callbacks if an error handler is available
+- Changed `removeListener` to stop after the first positive result
+- Removed `onSync` method (use `on` method)
+- Removed `onceSync` method (use `once` method)
+
+#### Logger
+
+- Changed label colors from bold standard to non-bold bright
+- Added "critical" log-level with highest priority
+- Added `filePath` and `useColors` parameters to initializer
+- Added `setLevel` method
+- Added `setDateTime` method
+- Added `setFile` method
+- Added `enableColors` method
+- Added `disableColors` method
+
+#### Mutex
+
+- Removed `Deque` superclass (a regular table is used internally)
+
+#### Stopwatch
+
+- Added `toString` method (equivalent to `getTime():toString()`)
+- Removed explicit `__tostring` metamethod (uses default)
+- Removed `milliseconds` property (use `getTime()`)
+
+#### Time
+
+- Added `__mod` metamethod
+- Added `fromMicroseconds` static method
+- Added `value` property (internal microseconds value)
+- Changed milliseconds to microsecond precision (1000x)
+- Removed explicit `__tostring` metamethod (uses default)
 
 ## 2.9.1
 - The mentioned author of a referenced message is now in `Message.mentionedUsers`
