@@ -40,21 +40,36 @@ function Guild:__init(data, client)
 	self._public_updates_channel_id = data.public_updates_channel_id -- http and wss
 	self._max_video_channel_users = data.max_video_channel_users -- http and wss
 
-	self._max_members = data.max_members -- http and GUILD_UPDATE only
-	self._max_presences = data.max_presences -- http and GUILD_UPDATE only
-	self._widget_enabled = data.widget_enabled -- http and GUILD_UPDATE only
-	self._widget_channel_id = data.widget_channel_id -- http and GUILD_UPDATE only
-
-	self._approximate_member_count = data.approximate_member_count -- http "with_counts" only
-	self._approximate_presence_count = data.approximate_presence_count -- http "with_counts" only
+	-- self._max_members = data.max_members -- http and GUILD_UPDATE only
+	-- self._max_presences = data.max_presences -- http and GUILD_UPDATE only
+	-- self._widget_enabled = data.widget_enabled -- http and GUILD_UPDATE only
+	-- self._widget_channel_id = data.widget_channel_id -- http and GUILD_UPDATE only
+	--
+	-- self._approximate_member_count = data.approximate_member_count -- http "with_counts" only
+	-- self._approximate_presence_count = data.approximate_presence_count -- http "with_counts" only
 
 	self._joined_at = data.joined_at -- GUILD_CREATE only
 	self._member_count = data.member_count -- GUILD_CREATE only
 
 	-- ignore: owner, permissions, lazy, large, unavailable
 
-	self._roles = client.state:newRoles(data.id, data.roles)
-	self._emojis = client.state:newEmojis(data.id, data.emojis)
+	local id = data.id
+	local state = client.state
+
+	for _, v in ipairs(data.roles) do
+		state:newRole(id, v)
+	end
+
+	for _, v in ipairs(data.emojis) do
+		state:newEmoji(id, v)
+	end
+
+	if data.channels then -- wss only
+		for _, v in ipairs(data.channels) do
+			v.guild_id = id
+			state:newChannel(v)
+		end
+	end
 
 end
 
@@ -264,14 +279,6 @@ end
 
 ----
 
-function get:roles()
-	return self._roles
-end
-
-function get:emojis()
-	return self._emojis
-end
-
 function get:shardId()
 	return self.client:getGuildShardId(self.id)
 end
@@ -340,13 +347,13 @@ function get:applicationId()
 	return self._application_id
 end
 
-function get:widgetEnabled()
-	return self._widget_enabled
-end
-
-function get:widgetChannelId()
-	return self._widget_channel_id
-end
+-- function get:widgetEnabled()
+-- 	return self._widget_enabled
+-- end
+--
+-- function get:widgetChannelId()
+-- 	return self._widget_channel_id
+-- end
 
 function get:systemChannelId()
 	return self._system_channel_id
@@ -360,13 +367,13 @@ function get:rulesChannelId()
 	return self._rules_channel_id
 end
 
-function get:maxPresences()
-	return self._max_presences
-end
-
-function get:maxMembers()
-	return self._max_members
-end
+-- function get:maxPresences()
+-- 	return self._max_presences
+-- end
+--
+-- function get:maxMembers()
+-- 	return self._max_members
+-- end
 
 function get:vanityCode()
 	return self._vanity_url_code
@@ -400,12 +407,12 @@ function get:maxVideoChannelUsers()
 	return self._max_video_channel_users
 end
 
-function get:approximateMemberCount()
-	return self._approximate_member_count
-end
-
-function get:approximatePresenceCount()
-	return self._approximate_presence_count
-end
+-- function get:approximateMemberCount()
+-- 	return self._approximate_member_count
+-- end
+--
+-- function get:approximatePresenceCount()
+-- 	return self._approximate_presence_count
+-- end
 
 return Guild

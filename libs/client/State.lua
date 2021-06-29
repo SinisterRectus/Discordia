@@ -12,40 +12,38 @@ local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
 
 local Iterable = require('./Iterable')
+local Cache = require('./Cache')
+local CompoundCache = require('./CompoundCache')
 
 local class = require('../class')
 
 local State = class('State')
 
 local channelMap = {} -- channelId -> guildId
-local privateMap = {} -- userId -> channelId
 
 function State:__init(client)
-	self._client = assert(client)
-end
 
-function State:getGuildId(channelId)
-	if channelMap[channelId] == nil then
-		local channel, err = self._client.api:getChannel(channelId)
-		if channel then
-			channelMap[channelId] = channel.guild_id or '@me'
-		else
-			return nil, err
-		end
-	end
-	return channelMap[channelId]
+	self._client = assert(client)
+
+	self._privateMap = {} -- userId -> channelId
+
+	self._guilds = Cache(Guild, client)
+	self._roles = CompoundCache(Role, client)
+	self._emojis = CompoundCache(Emoji, client)
+	self._channels = CompoundCache(Channel, client)
+
 end
 
 function State:getDMChannelId(userId)
-	if privateMap[userId] == nil then
+	if self._privateMap[userId] == nil then
 		local channel, err = self._client.api:createDM {recipient_id = userId}
 		if channel then
-			privateMap[userId] = channel.id
+			self._privateMap[userId] = channel.id
 		else
 			return nil, err
 		end
 	end
-	return privateMap[userId]
+	return self._privateMap[userId]
 end
 
 function State:newUser(data)
@@ -60,7 +58,7 @@ function State:newUsers(data)
 end
 
 function State:newGuild(data)
-	return Guild(data, self._client)
+	return self._guilds:update(data.id, data)
 end
 
 function State:newGuilds(data)
@@ -94,7 +92,7 @@ end
 
 function State:newRole(guildId, data)
 	data.guild_id = guildId
-	return Role(data, self._client)
+	return self._roles:update(guildId, data.id, data)
 end
 
 function State:newRoles(guildId, data)
@@ -106,7 +104,7 @@ end
 
 function State:newEmoji(guildId, data)
 	data.guild_id = guildId
-	return Emoji(data, self._client)
+	return self._emojis:update(guildId, data.id, data)
 end
 
 function State:newEmojis(guildId, data)
@@ -165,8 +163,13 @@ function State:newPresences(guildId, data)
 end
 
 function State:newChannel(data)
-	channelMap[data.id] = data.guild_id or '@me'
-	return Channel(data, self._client)
+	if data.guild_id then
+		channelMap[data.id] = data.guild_id
+		return self._channels:update(data.guild_id, data.id, data)
+	else
+		channelMap[data.id] = '@me'
+		return Channel(data, self._client)
+	end
 end
 
 function State:newChannels(data)
@@ -181,7 +184,7 @@ function State:newMessage(data, gateway)
 	if gateway then
 		channelMap[channelId] = channelMap[channelId] or data.guild_id or '@me'
 	else
-		local guildId = self:getGuildId(channelId)
+		local guildId = channelMap[channelId]
 		if guildId ~= '@me' then
 			data.guild_id = guildId
 		end
@@ -194,6 +197,85 @@ function State:newMessages(data, gateway)
 		data[i] = self:newMessage(v, gateway)
 	end
 	return Iterable(data, 'id')
+end
+
+----
+
+function State:getGuild(guildId)
+	return self._guilds:get(guildId)
+end
+
+function State:getChannel(channelId)
+	local guildId = channelMap[channelId]
+	return self._channels:get(guildId, channelId)
+end
+
+function State:getGuildChannel(guildId, channelId)
+	return self._channels:get(guildId, channelId)
+end
+
+function State:getGuildRole(guildId, roleId)
+	return self._roles:get(guildId, roleId)
+end
+
+function State:getGuildEmoji(guildId, emojiId)
+	return self._emojis:get(guildId, emojiId)
+end
+
+function State:getGuilds()
+	return Iterable(self._guilds:toArray(), 'id')
+end
+
+function State:getGuildChannels(guildId)
+	return Iterable(self._channels:toArray(guildId), 'id')
+end
+
+function State:getGuildRoles(guildId)
+	return Iterable(self._roles:toArray(guildId), 'id')
+end
+
+function State:getGuildEmojis(guildId)
+	return Iterable(self._emojis:toArray(guildId), 'id')
+end
+
+----
+
+function State:deleteGuild(guildId)
+	self._channels:delete(guildId)
+	self._roles:delete(guildId)
+	self._emojis:delete(guildId)
+	return self._guilds:delete(guildId)
+end
+
+function State:deleteChannel(channelId)
+	local guildId = channelMap[channelId]
+	return self._channels:delete(guildId, channelId)
+end
+
+function State:deleteGuildChannel(guildId, channelId)
+	return self._channels:delete(guildId, channelId)
+end
+
+function State:deleteGuildRole(guildId, roleId)
+	return self._roles:delete(guildId, roleId)
+end
+
+function State:deleteGuildEmoji(guildId, emojiId)
+	return self._emojis:delete(guildId, emojiId)
+end
+
+----
+
+function State:deleteGuildChannels(guildId)
+	return self._channels:delete(guildId)
+end
+
+function State:deleteGuildRoles(guildId)
+	return self._roles:delete(guildId)
+end
+
+function State:deleteGuildEmojis(guildId)
+	return self._emojis:delete(guildId)
 end
 
 return State

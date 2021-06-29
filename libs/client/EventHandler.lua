@@ -27,6 +27,7 @@ end
 
 function EventHandler.CHANNEL_DELETE(d, client) -- GUILDS
 	local channel = client.state:newChannel(d)
+	client.state:deleteChannel(d.id)
 	return client:emit('channelDelete', channel)
 end
 
@@ -58,6 +59,7 @@ function EventHandler.GUILD_DELETE(d, client) -- GUILDS
 	if d.unavailable then
 		return client:emit('guildUnavailable', d.id)
 	else
+		client.state:deleteGuild(d.id)
 		return client:emit('guildDelete', d.id)
 	end
 end
@@ -73,8 +75,9 @@ function EventHandler.GUILD_BAN_REMOVE(d, client) -- GUILD_BANS
 end
 
 function EventHandler.GUILD_EMOJIS_UPDATE(d, client) -- GUILD_EMOJIS
-	client.state:newEmojis(d.guild_id, d.emojis)
-	return client:emit('emojisUpdate', d.guild_id)
+	client.state:deleteGuildEmojis(d.guild_id)
+	local emojis = client.state:newEmojis(d.guild_id, d.emojis)
+	return client:emit('emojisUpdate', d.guild_id, emojis)
 end
 
 function EventHandler.GUILD_INTEGRATIONS_UPDATE(d, client) -- GUILD_INTEGRATIONS
@@ -121,6 +124,7 @@ function EventHandler.GUILD_ROLE_UPDATE(d, client) -- GUILDS
 end
 
 function EventHandler.GUILD_ROLE_DELETE(d, client) -- GUILDS
+	client.state:deleteRole(d.guild_id)
 	return client:emit('roleDelete', d.guild_id, d.role_id)
 end
 

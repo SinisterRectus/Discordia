@@ -8,7 +8,6 @@ local helpers = require('../helpers')
 local json = require('json')
 
 local checkSnowflake = typing.checkSnowflake
-local checkEnum = typing.checkEnum
 local readOnly = helpers.readOnly
 
 local Member, get = class('Member', Container)
@@ -108,7 +107,7 @@ function Member:getPermissions(channelId)
 		return Bitfield(enums.permission)
 	end
 
-	local roles = guild.roles
+	local roles = guild:getRoles()
 	local everyone = roles:get(guild.id)
 	local permissions = Bitfield(everyone.permissions)
 	roles = roles:filter(makeRoleFilter(self.roleIds))

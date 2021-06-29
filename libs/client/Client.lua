@@ -372,6 +372,10 @@ end
 
 function Client:getChannel(channelId)
 	channelId = checkSnowflake(channelId)
+	local channel = self.state:getChannel(channelId)
+	if channel then
+		return channel
+	end
 	local data, err = self.api:getChannel(channelId)
 	if data then
 		return self.state:newChannel(data)
@@ -380,12 +384,21 @@ function Client:getChannel(channelId)
 	end
 end
 
-function Client:getGuild(guildId, withCounts)
+function Client:getGuild(guildId)
 	guildId = checkSnowflake(guildId)
-	local query = withCounts and {with_counts = true} or nil
-	local data, err = self.api:getGuild(guildId, query)
+	return self.state:getGuild(guildId)
+end
+
+function Client:getGuildCounts(guildId)
+	guildId = checkSnowflake(guildId)
+	local data, err = self.api:getGuild(guildId, {with_counts = true})
 	if data then
-		return self.state:newGuild(data)
+		return {
+			maxMembers = data.max_members,
+			maxPresences = data.max_presences,
+			approximateMemberCount = data.approximate_member_count,
+			approximatePresenceCount = data.approximate_presence_count,
+		}
 	else
 		return nil, err
 	end
@@ -464,15 +477,22 @@ function Client:getGuildMember(guildId, userId)
 	end
 end
 
+function Client:getGuildChannel(guildId, channelId)
+	guildId = checkSnowflake(guildId)
+	channelId = checkSnowflake(channelId)
+	return self.state:getGuildChannel(guildId, channelId)
+end
+
+function Client:getGuildRole(guildId, roleId)
+	guildId = checkSnowflake(guildId)
+	roleId = checkSnowflake(roleId)
+	return self.state:getGuildRole(guildId, roleId)
+end
+
 function Client:getGuildEmoji(guildId, emojiId)
 	guildId = checkSnowflake(guildId)
 	emojiId = checkSnowflake(emojiId)
-	local data, err = self.api:getGuildEmoji(guildId, emojiId)
-	if data then
-		return self.state:newEmoji(guildId, data)
-	else
-		return nil, err
-	end
+	return self.state:getGuildEmoji(guildId, emojiId)
 end
 
 function Client:getGuildMembers(guildId, limit, after)
@@ -490,32 +510,17 @@ end
 
 function Client:getGuildRoles(guildId)
 	guildId = checkSnowflake(guildId)
-	local data, err = self.api:getGuildRoles(guildId)
-	if data then
-		return self.state:newRoles(guildId, data)
-	else
-		return nil, err
-	end
+	return self.state:getGuildRoles(guildId)
 end
 
 function Client:getGuildEmojis(guildId)
 	guildId = checkSnowflake(guildId)
-	local data, err = self.api:getGuildEmojis(guildId)
-	if data then
-		return self.state:newEmojis(guildId, data)
-	else
-		return nil, err
-	end
+	return self.state:getGuildEmojis(guildId)
 end
 
 function Client:getGuildChannels(guildId)
 	guildId = checkSnowflake(guildId)
-	local data, err = self.api:getGuildChannels(guildId)
-	if data then
-		return self.state:newChannels(data)
-	else
-		return nil, err
-	end
+	return self.state:getGuildChannels(guildId)
 end
 
 function Client:getGuildVoiceRegions(guildId)
@@ -919,7 +924,7 @@ end
 
 function Client:deleteChannel(channelId)
 	channelId = checkSnowflake(channelId)
-	local data, err = self.api:deleteChannel(channelId)
+	local data, err = self.api:deleteCloseChannel(channelId)
 	if data then
 		return true -- 200
 	else
@@ -1127,7 +1132,8 @@ function Client:createMessage(channelId, payload)
 		end
 
 		if type(payload.mentions) == 'table' then
-			for _, mention in ipairs(payload.mentions) do
+			for _, mention in pairs(payload.mentions) do
+				print(_, mention)
 				mentions, err = parseMention(mention, mentions)
 				if err then
 					return nil, err
@@ -1149,7 +1155,7 @@ function Client:createMessage(channelId, payload)
 		end
 
 		if type(payload.files) == 'table' then
-			for _, file in ipairs(payload.files) do
+			for _, file in pairs(payload.files) do
 				files, err = parseFile(file, files)
 				if err then
 					return nil, err

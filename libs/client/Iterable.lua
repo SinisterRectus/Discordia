@@ -26,7 +26,10 @@ function Iterable:__ipairs()
 	local arr = self._arr
 	return function()
 		i = i + 1
-		return i, arr[i]
+		local v = arr[i]
+		if v then
+			return i, v
+		end
 	end
 end
 
@@ -99,6 +102,14 @@ function Iterable:forEach(fn)
 	end
 end
 
+function Iterable:toArray()
+	local ret = {}
+	for _, v in ipairs(self._arr) do
+		insert(ret, v)
+	end
+	return ret
+end
+
 function Iterable:toTable(k)
 	if k then
 		checkType('string', k)
@@ -107,7 +118,7 @@ function Iterable:toTable(k)
 	end
 	local ret = {}
 	for _, v in ipairs(self._arr) do
-		ret[k] = v
+		ret[v[k]] = v
 	end
 	return ret
 end
