@@ -4,10 +4,9 @@ local class = require('../class')
 local enums = require('../enums')
 local helpers = require('../helpers')
 local typing = require('../typing')
+local messaging = require('../messaging')
 local constants = require('../constants')
 local package = require('../../package')
-local fs = require('fs')
-local pathjoin = require('pathjoin')
 
 local Logger = require('../utils/Logger')
 local Emitter = require('../utils/Emitter')
@@ -24,7 +23,7 @@ local Emoji = require('../containers/Emoji')
 local Reaction = require('../containers/Reaction')
 
 local wrap = coroutine.wrap
-local concat, insert, remove = table.concat, table.insert, table.remove
+local concat, insert = table.concat, table.insert
 local format = string.format
 local floor = math.floor
 local attachQuery, readOnly = helpers.attachQuery, helpers.readOnly
@@ -38,8 +37,11 @@ local checkImageData = typing.checkImageData
 local checkImageSize = typing.checkImageSize
 local checkImageExtension = typing.checkImageExtension
 local checkSnowflakeArray = typing.checkSnowflakeArray
-local readFileSync = fs.readFileSync
-local splitPath = pathjoin.splitPath
+local parseContent = messaging.parseContent
+local parseEmbeds = messaging.parseEmbeds
+local parseFiles = messaging.parseFiles
+local parseMessageReference = messaging.parseMessageReference
+local parseAllowedMentions = messaging.parseAllowedMentions
 local isInstance = class.isInstance
 
 local GATEWAY_VERSION = constants.GATEWAY_VERSION
@@ -122,6 +124,10 @@ local defaultIntents = Bitfield(enums.gatewayIntent)
 defaultIntents:disableValue(enums.gatewayIntent.guildMembers)
 defaultIntents:disableValue(enums.gatewayIntent.guildPresences)
 
+local defaultAllowedMentions = {
+	users = false, roles = false, everyone = false, repliedUser = false,
+}
+
 local defaultOptions = {
 	routeDelay = {250, function(o) return checkInteger(o, 10, 0) end},
 	maxRetries = {5, function(o) return checkInteger(o, 10, 0) end},
@@ -132,6 +138,7 @@ local defaultOptions = {
 	payloadCompression = {true, function(o) return checkType('boolean', o) end},
 	defaultImageExtension = {'png', checkImageExtension},
 	defaultImageSize = {1024, checkImageSize},
+	defaultAllowedMentions = {defaultAllowedMentions, function(o) return checkType('table', o) end},
 	logLevel = {enums.logLevel.info, function(o) return checkEnum(enums.logLevel, o) end},
 	dateFormat = {'%F %T', function(o) return checkType('string', o) end},
 	logFile = {'discordia.log', function(o) return checkType('string', o) end},
@@ -185,6 +192,7 @@ function Client:__init(options)
 	self._payloadCompression = options.payloadCompression
 	self._defaultImageExtension = options.defaultImageExtension
 	self._defaultImageSize = options.defaultImageSize
+	self._defaultAllowedMentions = options.defaultAllowedMentions
 	self._logger = Logger(options.logLevel, options.dateFormat, options.logFile, options.logColors)
 	self._api = API(self)
 	self._cdn = CDN(self)
@@ -1079,99 +1087,25 @@ function Client:triggerTypingIndicator(channelId)
 	end
 end
 
-local function parseMention(obj, mentions)
-	if type(obj) == 'table' and type(obj.toMention) == 'function' then
-		insert(mentions, obj:toMention())
-		return mentions
-	end
-	return error('invalid mention: ' .. tostring(obj), 2)
-end
-
-local function parseEmbed(obj, embeds)
-	if type(obj) == 'table' then
-		insert(embeds, obj)
-		return embeds
-	elseif type(obj) == 'string' then
-		insert(embeds, {description = obj})
-		return embeds
-	end
-	return error('invalid embed: ' .. tostring(obj), 2)
-end
-
-local function parseFile(obj, files)
-	if type(obj) == 'string' then
-		local data = readFileSync(obj)
-		if data then
-			insert(files, {remove(splitPath(obj)), data})
-		end
-		return files
-	elseif type(obj) == 'table' and type(obj[1]) == 'string' and type(obj[2]) == 'string' then
-		insert(files, obj)
-		return files
-	end
-	return error('invalid file: ' .. tostring(obj), 2)
-end
-
 function Client:createMessage(channelId, payload)
-
 	channelId = checkSnowflake(channelId)
-
 	local data, err
-
 	if type(payload) == 'table' then
-
-		local content = payload.content
-
-		if type(payload.code) == 'string' then
-			content = format('```%s\n%s\n```', payload.code, content or '\n')
-		elseif payload.code == true then
-			content = format('```\n%s```', content or '\n')
-		end
-
-		local mentions = payload.mention and parseMention(payload.mention, {})
-		if type(payload.mentions) == 'table' then
-			for _, mention in pairs(payload.mentions) do
-				mentions = parseMention(mention, mentions or {})
-			end
-		end
-
-		local files = payload.file and parseFile(payload.file, {})
-		if type(payload.files) == 'table' then
-			for _, file in pairs(payload.files) do
-				files = parseFile(file, files or {})
-			end
-		end
-
-		local embeds = payload.embed and parseEmbed(payload.embed, {})
-		if type(payload.embeds) == 'table' then
-			for _, embed in pairs(payload.embeds) do
-				embeds = parseEmbed(embed, embeds or {})
-			end
-		end
-
-		if mentions then
-			insert(mentions, content)
-			content = concat(mentions, ' ')
-		end
-
 		data, err = self.api:createMessage(channelId, {
-			content = content,
+			content = parseContent(payload),
 			tts = opt(payload.tts, checkType, 'boolean'),
-			embeds = embeds,
-		}, nil, files)
-
+			embeds = parseEmbeds(payload),
+			message_reference = parseMessageReference(payload),
+			allowed_mentions = parseAllowedMentions(payload, self.defaultAllowedMentions),
+		}, nil, parseFiles(payload))
 	else
-
 		data, err = self.api:createMessage(channelId, {content = payload})
-
 	end
-
 	if data then
 		return self.state:newMessage(data)
 	else
 		return nil, err
 	end
-
 end
 
 ---- Invite ----
@@ -1193,10 +1127,11 @@ function Client:editMessage(channelId, messageId, payload)
 	messageId = checkSnowflake(messageId)
 	payload = checkType('table', payload)
 	local data, err = self.api:editMessage(channelId, messageId, {
-		content = opt(payload.content, checkType, 'string'),
-		embed = opt(payload.embed, checkType, 'table'),
+		content = parseContent(payload),
+		embeds = parseEmbeds(payload),
 		flags = opt(payload.flags, checkInteger),
-	})
+		allowed_mentions = parseAllowedMentions(payload, self.defaultAllowedMentions),
+	}, nil, parseFiles(payload))
 	if data then
 		return self.state:newMessage(data)
 	else
@@ -1447,6 +1382,10 @@ end
 
 function get:defaultImageSize()
 	return self._defaultImageSize
+end
+
+function get:defaultAllowedMentions()
+	return readOnly(self._defaultAllowedMentions)
 end
 
 function get:status()

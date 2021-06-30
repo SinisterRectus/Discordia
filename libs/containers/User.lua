@@ -56,6 +56,10 @@ function User:send(...)
 	return self.client:createMessage(channelId, ...)
 end
 
+function User:toMention()
+	return format('<@%s>', self.id)
+end
+
 function get:bot()
 	return self._bot or false
 end
@@ -82,10 +86,6 @@ end
 
 function get:defaultAvatar()
 	return self.discriminator % DEFAULT_AVATARS
-end
-
-function get:mentionString()
-	return format('<@%s>', self.id)
 end
 
 function get:flags()

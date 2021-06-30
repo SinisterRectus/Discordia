@@ -470,10 +470,10 @@ function API:deleteAllReactionsForEmoji(channel_id, message_id, emoji, query)
 	return self:request("DELETE", endpoint, params, query)
 end
 
-function API:editMessage(channel_id, message_id, payload, query)
+function API:editMessage(channel_id, message_id, payload, query, files)
 	local endpoint = endpoints.CHANNEL_MESSAGE
 	local params = {channel_id, message_id}
-	return self:request("PATCH", endpoint, params, query, payload)
+	return self:request("PATCH", endpoint, params, query, payload, files)
 end
 
 function API:deleteMessage(channel_id, message_id, query)
