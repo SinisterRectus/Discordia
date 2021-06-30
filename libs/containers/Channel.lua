@@ -123,6 +123,10 @@ function Channel:follow(targetId)
 	return self.client:followNewsChannel(self.id, targetId)
 end
 
+function Channel:modify(payload)
+	return self.client:modifyChannel(self.id, payload)
+end
+
 function Channel:setName(name)
 	return self.client:modifyChannel(self.id, {name = name or json.null})
 end

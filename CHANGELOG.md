@@ -231,6 +231,7 @@
 Note: All previously existing individual channel sub-classes are considered here.
 
 - Added `whence` and `messageId` parameters to `getMessages` method
+- Added `modify` method
 - Renamed `broadcastTyping` method to `triggerTyping`
 - Removed `getMessagesAfter` method (use `getMessages` method)
 - Removed `getMessagesBefore` method (use `getMessages` method)
@@ -273,6 +274,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `getRoles` method
 - Added `roleIds` property
 - Added `available` property
+- Added `modify` method
 - Removed `url` property (use `getURL` method)
 - Removed `guild` property (use `guildId` property or `getGuild` method)
 - Removed `roles` property (use `roleIds` property or `getRoles` method)
@@ -304,6 +306,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `preferredLocale` property
 - Added `publicUpdatesChannelId` property
 - Added `maxVideoChannelUsers` property
+- Added `modify` method
 - Changed `createRole` method to accept a `name` string or `payload` table
 - Changed `createEmoji` method to accept a `payload` table
 - Changed `pruneMembers` method to accept a `payload` table
@@ -347,6 +350,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `getGuild` method
 - Added `getHighestRole` method
 - Added `toMention` method
+- Added `modify` method
 - Added `guildId` property
 - Added `roleIds` property
 - Added `id` property as a shortcut for `user.id`
@@ -426,6 +430,7 @@ Note: Technically a new class that implements the former `UserPresence` features
 - Added `getGuild` method
 - Added `toMention` method
 - Added `guildId` property
+- Added `modify` method
 - Removed `guild` property (use `guildId` property or `getGuild` method)
 - Removed `moveUp` method (use `Guild:sortRoles` method)
 - Removed `moveDown` method (use `Guild:sortRoles` method)
@@ -452,6 +457,7 @@ Note: Technically a new class that implements the former `UserPresence` features
 
 - Added `setChannel` method
 - Added `applicationId` property
+- Added `modify` method
 - Removed `avatarURL` property (use `getAvatarURL` method)
 - Removed `defaultAvatarURL` property (use `getDefaultAvatarURL` method)
 

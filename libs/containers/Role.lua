@@ -31,6 +31,10 @@ function Role:getGuild()
 	return self.client:getGuild(self.guildId)
 end
 
+function Role:modify(payload)
+	return self.client:modifyGuildRole(self.guildId, self.id, payload)
+end
+
 function Role:setName(name)
 	return self.client:modifyGuildRole(self.guildId, self.id, {name = name or json.null})
 end

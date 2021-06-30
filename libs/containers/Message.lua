@@ -52,6 +52,10 @@ function Message:__init(data, client)
 
 end
 
+function Message:modify(payload)
+	return self.client:editMessage(self.channelId, self.id, payload)
+end
+
 function Message:setContent(content)
 	return self.client:editMessage(self.channelId, self.id, {content = content or json.null})
 end

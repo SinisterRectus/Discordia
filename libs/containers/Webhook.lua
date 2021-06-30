@@ -27,6 +27,10 @@ function Webhook:getDefaultAvatarURL(size, ext)
 	return User.getDefaultAvatarURL(self, size, ext)
 end
 
+function Webhook:modify(payload)
+	return self.client:modifyWebhook(self.id, payload)
+end
+
 function Webhook:setName(name)
 	return self.client:modifyWebhook(self.id, {name = name or json.null})
 end

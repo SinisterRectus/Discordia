@@ -24,6 +24,10 @@ function Emoji:__init(data, client)
 	self._user = data.user and self.client.state:newUser(data.user) or nil -- only available via HTTP
 end
 
+function Emoji:modify(payload)
+	return self.client:modifyGuildEmoji(self.guildId, self.id, payload)
+end
+
 function Emoji:setName(name)
 	return self.client:modifyGuildEmoji(self.guildId, self.id, {name = name or json.null})
 end

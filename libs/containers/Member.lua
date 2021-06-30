@@ -177,6 +177,10 @@ function Member:hasRole(roleId)
 	return false
 end
 
+function Member:modify(payload)
+	return self.client:modifyGuildMember(self.guildId, self.user.id, payload)
+end
+
 function Member:setRoles(roleIds)
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {roleIds = roleIds or json.null})
 end

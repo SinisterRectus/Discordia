@@ -165,6 +165,10 @@ function Guild:sortChannels(positions)
 	return self.client:modifyGuildChannelPositions(self.id, positions)
 end
 
+function Guild:modify(payload)
+	return self.client:modifyGuild(self.id, payload)
+end
+
 function Guild:setName(name)
 	return self.client:modifyGuild(self.id, {name = name or json.null})
 end
