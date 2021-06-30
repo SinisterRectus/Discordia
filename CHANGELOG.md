@@ -240,6 +240,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `getParent` method
 - Added `editPermissions` method
 - Added `getGuild` method
+- Added `toMention` method
 - Added `guildId` property
 - Added `setPosition` method
 - Removed `moveUp` method (use `setPosition` or `Guild:sortChannels` method)
@@ -253,6 +254,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Removed `textChannels` property (use `Guild:getChannels` method)
 - Removed `voiceChannels` property (use `Guild:getChannels` method)
 - Removed `isNews` property (use `type` property)
+- Removed `mentionString` property (use `toMention` method)
 
 #### Ban
 
@@ -266,6 +268,7 @@ Note: All previously existing individual channel sub-classes are considered here
 
 - Added `getURL` method
 - Added `getGuild` method
+- Added `toMention` method
 - Added `guildId` property
 - Added `getRoles` method
 - Added `roleIds` property
@@ -273,6 +276,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Removed `url` property (use `getURL` method)
 - Removed `guild` property (use `guildId` property or `getGuild` method)
 - Removed `roles` property (use `roleIds` property or `getRoles` method)
+- Removed `mentionString` property (use `toMention` method)
 
 #### Guild
 
@@ -342,6 +346,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `getRoles` method
 - Added `getGuild` method
 - Added `getHighestRole` method
+- Added `toMention` method
 - Added `guildId` property
 - Added `roleIds` property
 - Added `id` property as a shortcut for `user.id`
@@ -354,14 +359,7 @@ Note: All previously existing individual channel sub-classes are considered here
 
 #### Message
 
-- Added `getMentionedUsers` method
-- Added `getMentionedUserIds` method
-- Added `getMentionedRoles` method
-- Added `getMentionedRoleIds` method
-- Added `getMentionedChannels` method
-- Added `getMentionedChannelIds` method
-- Added `getMentionedEmojis` method
-- Added `getMentionedEmojiIds` method
+- Added `getRawMentions` method
 - Added `getMember` method
 - Added `getGuild` method
 - Added `getChannel` method
@@ -369,10 +367,9 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `channelId` property
 - Removed `cleanContent` property
 - Removed `oldContent` property
-- Removed `mentionedUsers` property (use `getMentionedUsers` or `getMentionedUsersIds` method)
-- Removed `mentionedRoles` property (use `getMentionedRoles` or `getMentionedRolesIds` method)
-- Removed `mentionedChannels` property (use `getMentionedChannels` or `getMentionedChannelsIds` method)
-- Removed `mentionedEmojis` property (use `getMentionedEmojis` or `getMentionedEmojisIds` method)
+- Removed `mentionedRoles` property (use `getRawMentions` metod)
+- Removed `mentionedChannels` property (use `getRawMentions` metethod)
+- Removed `mentionedEmojis` property (use `getRawMentions` method)
 - Removed `member` property (use `user` property or `getMember` method)
 - Removed `guild` property (use `guildId` property or `getGuild` method)
 - Removed `channel` property (use `channelId` property or `getChannel` method)
@@ -427,6 +424,7 @@ Note: Technically a new class that implements the former `UserPresence` features
 #### Role
 
 - Added `getGuild` method
+- Added `toMention` method
 - Added `guildId` property
 - Removed `guild` property (use `guildId` property or `getGuild` method)
 - Removed `moveUp` method (use `Guild:sortRoles` method)
@@ -437,15 +435,18 @@ Note: Technically a new class that implements the former `UserPresence` features
 - Removed `getPermissions` method (use `permissions` property and `Bitfield` class)
 - Removed `members` property
 - Removed `emojis` property
+- Removed `mentionString` property (use `toMention` method)
 
 #### User
 
 - Added `hasFlag` method
+- Added `toMention` method
 - Removed `sendf` method (use `send` method with `string.format`)
 - Removed deprecated `fullname` property (use `tag` property)
 - Removed `avatarURL` property (use `getAvatarURL` method)
 - Removed `defaultAvatarURL` property (use `getDefaultAvatarURL` method)
 - Removed `mutualGuilds` property
+- Removed `mentionString` property (use `toMention` method)
 
 #### Webhook
 
@@ -502,6 +503,7 @@ Note: This is effectively a new class compared to the old one. It provides a sim
 - Added support for more strings in `fromISO` static method
 - Added support for `usec` in `fromTable` and `fromTableUTC` static methods
 - Added support for `usec` in `toTable` and `toTableUTC` methods
+- Added `toMention` method
 - Changed `toParts` method to return normalized seconds and microseconds
 - Removed `sep` and `tz` parameters from `toISO` method
 - Removed explicit `__tostring` metamethod (uses default)

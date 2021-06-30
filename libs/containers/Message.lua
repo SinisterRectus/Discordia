@@ -18,27 +18,10 @@ local USER_PATTERN = constants.USER_PATTERN
 local ROLE_PATTERN = constants.ROLE_PATTERN
 local CHANNEL_PATTERN = constants.CHANNEL_PATTERN
 local EMOJI_PATTERN = constants.EMOJI_PATTERN
+local TIMESTAMP_PATTERN = constants.TIMESTAMP_PATTERN
+local STYLED_TIMESTAMP_PATTERN = constants.STYLED_TIMESTAMP_PATTERN
 
 local Message, get = class('Message', Snowflake)
-
-local function parseMentionIds(content, pattern)
-	local ids, seen = {}, {}
-	for id in content:gmatch(pattern) do
-		if not seen[id] then
-			insert(ids, id)
-			seen[id] = true
-		end
-	end
-	return ids
-end
-
-local function parseMentions(content, pattern, objects)
-	local mentions = {}
-	for id in content:gmatch(pattern) do
-		mentions[id] = true
-	end
-	return objects:filter(function(o) return mentions[o.id] end)
-end
 
 function Message:__init(data, client)
 
@@ -125,60 +108,38 @@ function Message:getChannel()
 	return self.client:getChannel(self.channelId)
 end
 
-function Message:getMentionedUserIds()
-	return parseMentionIds(self.content, USER_PATTERN)
-end
+function Message:getRawMentions(type)
 
-function Message:getMentionedRoleIds()
-	return parseMentionIds(self.content, ROLE_PATTERN)
-end
+	type = checkEnum(enums.mentionType, type)
+	local mentions = {}
 
-function Message:getMentionedChannelIds()
-	return parseMentionIds(self.content, CHANNEL_PATTERN)
-end
-
-function Message:getMentionedEmojiIds()
-	return parseMentionIds(self.content, EMOJI_PATTERN)
-end
-
-function Message:getMentionedUsers()
-	return parseMentions(self.content, USER_PATTERN, self._mentions)
-end
-
-function Message:getMentionedRoles()
-	if not self.guildId then
-		return nil, 'Not a guild message'
+	if type == enums.mentionType.user then
+		for id in self.content:gmatch(USER_PATTERN) do
+			insert(mentions, {id = id})
+		end
+	elseif type == enums.mentionType.role then
+		for id in self.content:gmatch(ROLE_PATTERN) do
+			insert(mentions, {id = id})
+		end
+	elseif type == enums.mentionType.channel then
+		for id in self.content:gmatch(CHANNEL_PATTERN) do
+			insert(mentions, {id = id})
+		end
+	elseif type == enums.mentionType.emoji then
+		for a, name, id in self.content:gmatch(EMOJI_PATTERN) do
+			insert(mentions, {animated = a == 'a', name = name, id = id})
+		end
+	elseif type == enums.mentionType.timestamp then
+		for timestamp in self.content:gmatch(TIMESTAMP_PATTERN) do
+			insert(mentions, {timestamp = timestamp})
+		end
+		for timestamp, style in self.content:gmatch(STYLED_TIMESTAMP_PATTERN) do
+			insert(mentions, {timestamp = timestamp, style = style})
+		end
 	end
-	local roles, err = self.client:getGuildRoles(self.guildId)
-	if roles then
-		return parseMentions(self.content, ROLE_PATTERN, roles)
-	else
-		return nil, err
-	end
-end
 
-function Message:getMentionedChannels()
-	if not self.guildId then
-		return nil, 'Not a guild message'
-	end
-	local channels, err = self.client:getGuildChannels(self.guildId)
-	if channels then
-		return parseMentions(self.content, CHANNEL_PATTERN, channels)
-	else
-		return nil, err
-	end
-end
+	return mentions
 
-function Message:getMentionedEmojis()
-	if not self.guildId then
-		return nil, 'Not a guild message'
-	end
-	local emojis, err = self.client:getGuildEmojis(self.guildId)
-	if emojis then
-		return parseMentions(self.content, EMOJI_PATTERN, emojis)
-	else
-		return nil, err
-	end
 end
 
 function Message:crosspost()
@@ -229,6 +190,10 @@ end
 
 function get:mentionsEveryone()
 	return self._mention_everyone
+end
+
+function get:mentionedUsers()
+	return self._mentions
 end
 
 function get:embed()

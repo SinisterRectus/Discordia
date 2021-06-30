@@ -75,17 +75,17 @@ function Emoji:getRoles()
 	end
 end
 
+function Emoji:toMention()
+	local fmt = self.animated and '<a:%s:%s>' or '<:%s:%s>'
+	return format(fmt, self.name, self.id)
+end
+
 function get:name()
 	return self._name
 end
 
 function get:guildId()
 	return self._guild_id
-end
-
-function get:mentionString()
-	local fmt = self.animated and '<a:%s:%s>' or '<:%s:%s>'
-	return format(fmt, self.name, self.id)
 end
 
 function get:managed()

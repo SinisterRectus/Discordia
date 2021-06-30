@@ -159,6 +159,10 @@ function Channel:setPosition(position)
 	return self.client:modifyChannel(self.id, {position = position or json.null})
 end
 
+function Channel:toMention()
+	return format('<#%s>', self.id)
+end
+
 ----
 
 function get:permissionOverwrites()
@@ -175,10 +179,6 @@ end
 
 function get:type()
 	return self._type
-end
-
-function get:mentionString()
-	return format('<#%s>', self.id)
 end
 
 function get:name()

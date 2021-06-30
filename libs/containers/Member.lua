@@ -9,6 +9,7 @@ local json = require('json')
 
 local checkSnowflake = typing.checkSnowflake
 local readOnly = helpers.readOnly
+local format = string.format
 
 local Member, get = class('Member', Container)
 
@@ -214,6 +215,10 @@ end
 
 function Member:unban(reason)
 	return self.client:removeGuildBan(self.guildId, self.user.id, reason)
+end
+
+function Member:toMention()
+	return format('<@%s>', self.user.id)
 end
 
 function get:id() -- user shortcut

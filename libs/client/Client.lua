@@ -1080,31 +1080,36 @@ function Client:triggerTypingIndicator(channelId)
 end
 
 local function parseMention(obj, mentions)
-	if not pcall(function()
-		mentions = mentions or {}
-		insert(mentions, checkType('string', obj.mentionString))
-	end) then
-		return nil, 'Unmentionable object: ' .. tostring(obj)
+	if type(obj) == 'table' and type(obj.toMention) == 'function' then
+		insert(mentions, obj:toMention())
+		return mentions
 	end
-	return mentions
+	return error('invalid mention: ' .. tostring(obj), 2)
+end
+
+local function parseEmbed(obj, embeds)
+	if type(obj) == 'table' then
+		insert(embeds, obj)
+		return embeds
+	elseif type(obj) == 'string' then
+		insert(embeds, {description = obj})
+		return embeds
+	end
+	return error('invalid embed: ' .. tostring(obj), 2)
 end
 
 local function parseFile(obj, files)
 	if type(obj) == 'string' then
-		local data, err = readFileSync(obj)
-		if not data then
-			return nil, err
+		local data = readFileSync(obj)
+		if data then
+			insert(files, {remove(splitPath(obj)), data})
 		end
-		files = files or {}
-		insert(files, {remove(splitPath(obj)), data})
 		return files
 	elseif type(obj) == 'table' and type(obj[1]) == 'string' and type(obj[2]) == 'string' then
-		files = files or {}
 		insert(files, obj)
 		return files
-	else
-		return nil, 'Invalid file object: ' .. tostring(obj)
 	end
+	return error('invalid file: ' .. tostring(obj), 2)
 end
 
 function Client:createMessage(channelId, payload)
@@ -1118,26 +1123,29 @@ function Client:createMessage(channelId, payload)
 		local content = payload.content
 
 		if type(payload.code) == 'string' then
-			content = format('```%s\n%s\n```', payload.code, content)
+			content = format('```%s\n%s\n```', payload.code, content or '\n')
 		elseif payload.code == true then
-			content = format('```\n%s```', content)
+			content = format('```\n%s```', content or '\n')
 		end
 
-		local mentions
-		if payload.mention then
-			mentions, err = parseMention(payload.mention)
-			if err then
-				return nil, err
+		local mentions = payload.mention and parseMention(payload.mention, {})
+		if type(payload.mentions) == 'table' then
+			for _, mention in pairs(payload.mentions) do
+				mentions = parseMention(mention, mentions or {})
 			end
 		end
 
-		if type(payload.mentions) == 'table' then
-			for _, mention in pairs(payload.mentions) do
-				print(_, mention)
-				mentions, err = parseMention(mention, mentions)
-				if err then
-					return nil, err
-				end
+		local files = payload.file and parseFile(payload.file, {})
+		if type(payload.files) == 'table' then
+			for _, file in pairs(payload.files) do
+				files = parseFile(file, files or {})
+			end
+		end
+
+		local embeds = payload.embed and parseEmbed(payload.embed, {})
+		if type(payload.embeds) == 'table' then
+			for _, embed in pairs(payload.embeds) do
+				embeds = parseEmbed(embed, embeds or {})
 			end
 		end
 
@@ -1146,28 +1154,10 @@ function Client:createMessage(channelId, payload)
 			content = concat(mentions, ' ')
 		end
 
-		local files
-		if payload.file then
-			files, err = parseFile(payload.file)
-			if err then
-				return nil, err
-			end
-		end
-
-		if type(payload.files) == 'table' then
-			for _, file in pairs(payload.files) do
-				files, err = parseFile(file, files)
-				if err then
-					return nil, err
-				end
-			end
-		end
-
 		data, err = self.api:createMessage(channelId, {
 			content = content,
 			tts = opt(payload.tts, checkType, 'boolean'),
-			nonce = opt(payload.nonce, checkSnowflake),
-			embed = opt(payload.embed, checkType, 'table'),
+			embeds = embeds,
 		}, nil, files)
 
 	else
@@ -1437,10 +1427,6 @@ end
 
 function get:tokenPrefix()
 	return self._tokenPrefix
-end
-
-function get:gatewayEnabled()
-	return self._gatewayEnabled
 end
 
 function get:gatewayIntents()

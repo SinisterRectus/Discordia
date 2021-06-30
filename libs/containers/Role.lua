@@ -75,6 +75,10 @@ function Role:disableMentioning()
 	return self.client:modifyGuildRole(self.guildId, self.id, {mentionable = false})
 end
 
+function Role:toMention()
+	return format('<@&%s>', self.id)
+end
+
 function get:hoisted()
 	return self._hoist
 end
@@ -101,10 +105,6 @@ end
 
 function get:permissions()
 	return self._permissions
-end
-
-function get:mentionString()
-	return format('<@&%s>', self.id)
 end
 
 function get:guildId()

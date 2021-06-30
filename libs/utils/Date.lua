@@ -1,5 +1,6 @@
 local uv = require('uv')
 local class = require('../class')
+local enums = require('../enums')
 local typing = require('../typing')
 local constants = require('../constants')
 
@@ -8,6 +9,7 @@ local Time = require('./Time')
 local gettimeofday = uv.gettimeofday
 local isInstance = class.isInstance
 local checkInteger, checkType = typing.checkInteger, typing.checkType
+local checkEnum = typing.checkEnum
 local checkSnowflake = typing.checkSnowflake
 local floor, fmod, modf = math.floor, math.fmod, math.modf
 local format = string.format
@@ -260,6 +262,15 @@ end
 
 function Date:toParts()
 	return normalize(self._s, self._us, US_PER_S)
+end
+
+function Date:toMention(style)
+	local t = floor(self:toSeconds())
+	if style then
+		return format('<t:%s:%s>', t, checkEnum(enums.dateTimeStyle, style))
+	else
+		return format('<t:%s>', t)
+	end
 end
 
 return Date

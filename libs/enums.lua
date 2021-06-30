@@ -26,15 +26,18 @@ local function enum(tbl)
 			end
 		end,
 		__call = function(_, v)
-			local k = call[v]
-			if not k then
-				v = tostring(v)
-				k = call[v]
+			if tbl[v] then
+				return v, tbl[v]
 			end
-			if not k then
-				return error('invalid enumeration value: ' .. tostring(v))
+			local n = tonumber(v)
+			if call[n] then
+				return call[n], n
 			end
-			return k, v
+			local s = tostring(v)
+			if call[s] then
+				return call[s], s
+			end
+			return error('invalid enumeration: ' .. tostring(v))
 		end,
 		__tostring = function(self)
 			return 'enumeration: ' .. names[self]
@@ -135,6 +138,24 @@ proxy.whence = {
 	around = 'around',
 	before = 'before',
 	after  = 'after',
+}
+
+proxy.timestampStyle = {
+	shortTime     = 't',
+	longTime      = 'T',
+	shortDate     = 'd',
+	longDate      = 'D',
+	shortDateTime = 'f',
+	longDateTime  = 'F',
+	relativeTime  = 'R',
+}
+
+proxy.mentionType = {
+	user      = 'user',
+	role      = 'role',
+	channel   = 'channel',
+	emoji     = 'emoji',
+	timestamp = 'timestamp',
 }
 
 proxy.activityType = {
