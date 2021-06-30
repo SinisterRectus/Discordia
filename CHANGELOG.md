@@ -359,7 +359,7 @@ Note: All previously existing individual channel sub-classes are considered here
 
 #### Message
 
-- Added `getRawMentions` method
+- Added `getMentions` method
 - Added `getMember` method
 - Added `getGuild` method
 - Added `getChannel` method

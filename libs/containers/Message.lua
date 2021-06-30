@@ -63,13 +63,13 @@ end
 function Message:hideEmbeds()
 	local flags = Bitfield(self.flags)
 	flags:disableValue(enums.messageFlag.suppressEmbeds)
-	return self.client:editMessage({flags = flags:toDec()})
+	return self.client:editMessage(self.channelId, self.id, {flags = flags:toDec()})
 end
 
 function Message:showEmbeds()
 	local flags = Bitfield(self.flags)
 	flags:enableValue(enums.messageFlag.suppressEmbeds)
-	return self.client:editMessage({flags = flags:toDec()})
+	return self.client:editMessage(self.channelId, self.id, {flags = flags:toDec()})
 end
 
 function Message:hasFlag(flag)
@@ -108,34 +108,82 @@ function Message:getChannel()
 	return self.client:getChannel(self.channelId)
 end
 
-function Message:getRawMentions(type)
+function Message:getMentions()
 
-	type = checkEnum(enums.mentionType, type)
 	local mentions = {}
 
-	if type == enums.mentionType.user then
-		for id in self.content:gmatch(USER_PATTERN) do
-			insert(mentions, {id = id})
+	for str in self.content:gmatch('%b<>') do
+
+		do local id = str:match(USER_PATTERN)
+			if id then
+				insert(mentions, {
+					id = id,
+					type = enums.mentionType.user,
+					raw = str,
+				})
+				goto continue
+			end
 		end
-	elseif type == enums.mentionType.role then
-		for id in self.content:gmatch(ROLE_PATTERN) do
-			insert(mentions, {id = id})
+
+		do local id = str:match(ROLE_PATTERN)
+			if id then
+				insert(mentions, {
+					id = id,
+					type = enums.mentionType.role,
+					raw = str,
+				})
+				goto continue
+			end
 		end
-	elseif type == enums.mentionType.channel then
-		for id in self.content:gmatch(CHANNEL_PATTERN) do
-			insert(mentions, {id = id})
+
+		do local id = str:match(CHANNEL_PATTERN)
+			if id then
+				insert(mentions, {
+					id = id,
+					type = enums.mentionType.channel,
+					raw = str,
+				})
+				goto continue
+			end
 		end
-	elseif type == enums.mentionType.emoji then
-		for a, name, id in self.content:gmatch(EMOJI_PATTERN) do
-			insert(mentions, {animated = a == 'a', name = name, id = id})
+
+		do local a, name, id = str:match(EMOJI_PATTERN)
+			if id then
+				insert(mentions, {
+					animated = a == 'a',
+					name = name,
+					id = id,
+					type = enums.mentionType.emoji,
+					raw = str,
+				})
+				goto continue
+			end
 		end
-	elseif type == enums.mentionType.timestamp then
-		for timestamp in self.content:gmatch(TIMESTAMP_PATTERN) do
-			insert(mentions, {timestamp = timestamp})
+
+		do local timestamp = str:match(TIMESTAMP_PATTERN)
+			if timestamp then
+				insert(mentions, {
+					timestamp = timestamp,
+					type = enums.mentionType.timestamp,
+				})
+				goto continue
+			end
 		end
-		for timestamp, style in self.content:gmatch(STYLED_TIMESTAMP_PATTERN) do
-			insert(mentions, {timestamp = timestamp, style = style})
+
+		do local timestamp, style = str:match(STYLED_TIMESTAMP_PATTERN)
+			if timestamp then
+				insert(mentions, {
+					timestamp = timestamp,
+					style = style,
+					type = enums.mentionType.timestamp,
+					raw = str,
+				})
+				goto continue
+			end
 		end
+
+		::continue::
+
 	end
 
 	return mentions
