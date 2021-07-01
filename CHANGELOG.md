@@ -217,12 +217,36 @@
 
 #### Activity
 
-- TODO
+Note: Changed to a struct. See documentation.
+
+- Added `createdAt` property
+- Added `timestamps` property
+- Added `emoji` property
+- Added `party` property
+- Added `assets` property
+- Added `secrets` property
+- Added `instance` property
+- Added `flags` property
+- Added `buttons` property
+- Removed `start` property (use `timestamps.start` property)
+- Removed `stop` property (use `timestamps.stop` property)
+- Removed `textSmall` property (use `assets.smallText` property)
+- Removed `textLarge` property (use `assets.largeText` property)
+- Removed `imageSmall` property (use `assets.smallImage` property)
+- Removed `imageLarge` property (use `assets.largeImage` property)
+- Removed `partySize` property (use `party.currentSize` property)
+- Removed `partyMax` property (use `party.maxSize` property)
+- Removed `emojiId` property (use `emoji.id` property)
+- Removed `emojiName` property (use `emoji.name` property)
+- Removed `emojiHash` property (use `emoji.hash` property)
+- Removed `emojiURL` property
 
 #### AuditLogEntry
 
 - Added `getGuild` method
 - Added `guildId` property
+- Changed `changes` property from a raw table to an `Iterable` of `AuditLogChange` objects
+- Changed `options` property from a raw table to an `AuditLogOptions` object
 - Removed `getBeforeAfter` method
 - Removed `guild` property (use `guildId` property or `getGuild` method)
 - Removed `getTarget` method (use `targetId` property)
@@ -245,6 +269,8 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `toMention` method
 - Added `guildId` property
 - Added `setPosition` method
+- Changed `permissionOverwrites` property from a `Cache` to `Iterable`
+- Changed `recipients` property from a `SecondaryCache` to `Iterable`
 - Removed `moveUp` method (use `setPosition` or `Guild:sortChannels` method)
 - Removed `moveDown` method (use `setPosition` or `Guild:sortChannels` method)
 - Removed `getPermissionOverwriteFor` method (use `permissionOverwrites` property or `editPermissions` method)
@@ -343,7 +369,21 @@ Note: All previously existing individual channel sub-classes are considered here
 
 #### Invite
 
-- TODO: partial channel and guild
+- Added `channel` property
+- Added `guild` property
+- Removed `guildId` property (use `guild.id` property)
+- Removed `guildName` property (use `guild.name` property)
+- Removed `guildIcon` property (use `guild.icon` property)
+- Removed `guildBanner` property (use `guild.banner` property)
+- Removed `guildSplash` property (use `guild.splash` property)
+- Removed `guildIconURL`
+- Removed `guildBannerURL`
+- Removed `guildSplashURL`
+- Removed `guildDescription` property (use `guild.description` property)
+- Removed `guildVerificationLevel` property (use `guild.verificationLevel` property)
+- Removed `channelId` property (use `channel.id` property)
+- Removed `channelName` property (use `channel.name` property)
+- Removed `channelType` property (use `channel.type` property)
 
 #### Member
 
@@ -370,6 +410,12 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `getChannel` method
 - Added `guildId` property
 - Added `channelId` property
+- Added `activity` property
+- Changed `reactions` property from a `Cache` to an `Iterable`
+- Changed `embed` property from a raw table to an `Embed` object
+- Changed `attachment` property from a raw table to an `Attachment` object
+- Changed `embeds` property from a raw table to an `Iterable` of `Embed` objects
+- Changed `attachments` property from a raw table to an `Iterable` of `Attachment` objects
 - Removed `cleanContent` property
 - Removed `oldContent` property
 - Removed `mentionedRoles` property (use `getRawMentions` metod)
@@ -405,6 +451,7 @@ Note: Technically a new class that implements the former `UserPresence` features
 - Added `userId` property
 - Added `guildId` property
 - Added `activities` property
+- Changed `activity` property from a raw table to an `Activity` object
 - Removed `user` property (use `userId` property or `getUser` method)
 - Removed deprecated `gameName` property (use `activity.name` property)
 - Removed deprecated `gameType` property (use `activity.type` property)
@@ -458,6 +505,8 @@ Note: Technically a new class that implements the former `UserPresence` features
 
 - Added `setChannel` method
 - Added `applicationId` property
+- Added `sourceChannel` property
+- Added `sourceGuild` property
 - Added `modify` method
 - Removed `avatarURL` property (use `getAvatarURL` method)
 - Removed `defaultAvatarURL` property (use `getDefaultAvatarURL` method)

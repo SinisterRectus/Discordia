@@ -37,10 +37,14 @@ function Channel:__init(data, client)
 
 	if data.permission_overwrites then -- text, voice, category, news, store (excludes private and group)
 		self._permission_overwrites = client.state:newPermissionOverwrites(data.id, data.permission_overwrites)
+	else
+		self._permission_overwrites = nil
 	end
 
 	if data.recipients then -- private, group
 		self._recipients = client.state:newUsers(data.recipients)
+	else
+		self._recipients = nil
 	end
 
 end
@@ -174,7 +178,7 @@ function get:permissionOverwrites()
 end
 
 function get:recipient()
-	return self._recipients:get(1)
+	return self._recipients and self._recipients:get(1)
 end
 
 function get:recipients()

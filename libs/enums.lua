@@ -121,6 +121,23 @@ proxy.messageType = {
 	guildInviteReminder           = 22,
 }
 
+proxy.messageActivityType = {
+	join        = 1,
+	spectate    = 2,
+	listen      = 3,
+	-- unused   = 4,
+	joinRequest = 5
+}
+
+proxy.embedType = {
+	rich    = 'rich',
+	image   = 'image',
+	video   = 'video',
+	gifv    = 'gifv',
+	article = 'article',
+	link    = 'link',
+}
+
 proxy.permissionOverwriteType = {
 	role   = 0,
 	member = 1,
@@ -164,6 +181,7 @@ proxy.activityType = {
 	listening = 2,
 	watching  = 3,
 	custom    = 4,
+	competing = 5,
 }
 
 proxy.verificationLevel = {
@@ -333,6 +351,15 @@ proxy.userFlag = {
 	verifiedBot          = flag(16),
 	verifiedBotDeveloper = flag(17),
 	certifiedModerator   = flag(18),
+}
+
+proxy.activityFlag = {
+	instance    = flag(0),
+	join        = flag(1),
+	spectate    = flag(2),
+	joinRequest = flag(3),
+	sync        = flag(4),
+	play        = flag(5),
 }
 
 return proxy

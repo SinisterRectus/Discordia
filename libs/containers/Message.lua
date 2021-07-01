@@ -1,5 +1,9 @@
 local Snowflake = require('./Snowflake')
 local Bitfield = require('../utils/Bitfield')
+local Embed = require('../structs/Embed')
+local Attachment = require('../structs/Attachment')
+local Mention = require('../structs/Mention')
+local MessageActivity = require('../structs/MessageActivity')
 
 local json = require('json')
 local enums = require('../enums')
@@ -11,7 +15,6 @@ local constants = require('../constants')
 local format = string.format
 local insert = table.insert
 local checkEnum = typing.checkEnum
-local readOnly = helpers.readOnly
 
 local JUMP_LINK_FMT = constants.JUMP_LINK_FMT
 local USER_PATTERN = constants.USER_PATTERN
@@ -40,15 +43,17 @@ function Message:__init(data, client)
 	self._nonce = data.nonce
 	self._pinned = data.pinned
 	self._flags = data.flags
-	self._mentions = client.state:newUsers(data.mentions)
-	self._embeds = data.embeds
-	self._attachments = data.attachments
 
-	if data.reactions then
-		self._reactions = client.state:newReactions(data.channel_id, data.id, data.reactions)
-	end
+	self._embeds = helpers.structs(Embed, data.embeds)
+	self._attachments = helpers.structs(Attachment, data.attachments)
 
-	-- TODO: activity, application, reference
+	self._mentions = data.mentions and client.state:newUsers(data.mentions)
+	self._reactions = data.reactions and client.state:newReactions(data.channel_id, data.id, data.reactions)
+	self._referenced_message = data.referenced_message and client.state:newMessage(data.referenced_message)
+
+	self._activity = data.activity and MessageActivity(data.activity)
+
+	-- TODO: application
 
 end
 
@@ -190,7 +195,7 @@ function Message:getMentions()
 
 	end
 
-	return mentions
+	return helpers.structs(Mention, mentions)
 
 end
 
@@ -249,23 +254,31 @@ function get:mentionedUsers()
 end
 
 function get:embed()
-	return self.embeds[1]
+	return self._embeds and self._embeds:get(1)
 end
 
 function get:attachment()
-	return self.attachments[1]
+	return self._attachments and self._attachments:get(1)
 end
 
 function get:embeds()
-	return readOnly(self._embeds)
+	return self._embeds
 end
 
 function get:attachments()
-	return readOnly(self._attachments)
+	return self._attachments
 end
 
 function get:reactions()
 	return self._reactions
+end
+
+function get:referencedMessage()
+	return self._referenced_message
+end
+
+function get:activity()
+	return self._activity
 end
 
 function get:content()

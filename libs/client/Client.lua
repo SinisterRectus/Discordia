@@ -8,9 +8,6 @@ local messaging = require('../messaging')
 local constants = require('../constants')
 local package = require('../../package')
 
-local Logger = require('../utils/Logger')
-local Emitter = require('../utils/Emitter')
-local Stopwatch = require('../utils/Stopwatch')
 local API = require('./API')
 local CDN = require('./CDN')
 local Shard = require('./Shard')
@@ -18,9 +15,15 @@ local State = require('./State')
 
 local Bitfield = require('../utils/Bitfield')
 local Color = require('../utils/Color')
+local Iterable = require('../utils/Iterable')
+local Logger = require('../utils/Logger')
+local Emitter = require('../utils/Emitter')
+local Stopwatch = require('../utils/Stopwatch')
 
 local Emoji = require('../containers/Emoji')
 local Reaction = require('../containers/Reaction')
+
+local VoiceRegion = require('../structs/VoiceRegion')
 
 local wrap = coroutine.wrap
 local concat, insert = table.concat, table.insert
@@ -535,7 +538,7 @@ function Client:getGuildVoiceRegions(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildVoiceRegions(guildId)
 	if data then
-		return data -- raw table
+		return helpers.structs(VoiceRegion, data)
 	else
 		return nil, err
 	end

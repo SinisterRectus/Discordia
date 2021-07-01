@@ -1,4 +1,6 @@
 local Container = require('./Container')
+local InviteChannel = require('../structs/InviteChannel')
+local InviteGuild = require('../structs/InviteGuild')
 
 local class = require('../class')
 
@@ -15,7 +17,8 @@ function Invite:__init(data, client)
 	self._max_age = data.max_age
 	self._temporary = data.temporary
 	self._created_at = data.created_at
-	-- TODO: data.channel and data.guild
+	self._channel = data.channel and InviteChannel(data.channel)
+	self._guild = data.guild and InviteGuild(data.guild)
 end
 
 function Invite:__eq(other)
@@ -60,6 +63,14 @@ end
 
 function get:approximateMemberCount()
 	return self._approximate_member_count
+end
+
+function get:channel()
+	return self._channel
+end
+
+function get:guild()
+	return self._guild
 end
 
 return Invite

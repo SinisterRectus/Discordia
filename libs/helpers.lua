@@ -1,4 +1,5 @@
 local uv = require('uv')
+local Iterable = require('./utils/Iterable')
 
 local hrtime = uv.hrtime
 local insert, concat = table.insert, table.concat
@@ -89,25 +90,25 @@ local function readOnly(tbl)
 	tbl = tbl or {}
 	return setmetatable({}, {
 		__index = function(_, k)
-			local v = rawget(tbl, k)
-			if type(v) == 'table' then
-				return readOnly(v)
-			else
-				return v
-			end
+			return tbl[k]
 		end,
 		__pairs = function()
 			local k, v
 			return function()
 				k, v = next(tbl, k)
-				if type(v) == 'table' then
-					return k, readOnly(v)
-				else
-					return k, v
-				end
+				return k, v
 			end
 		end,
 	})
+end
+
+local function structs(constructor, data)
+	if data and data[1] then
+		for i, v in ipairs(data) do
+			data[i] = constructor(v)
+		end
+		return Iterable(data)
+	end
 end
 
 local function assertResume(thread, ...)
@@ -159,6 +160,7 @@ return {
 	benchmark = benchmark,
 	str2int = str2int,
 	readOnly = readOnly,
+	structs = structs,
 	assertResume = assertResume,
 	sleep = sleep,
 	setTimeout = setTimeout,

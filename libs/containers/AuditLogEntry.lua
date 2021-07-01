@@ -1,9 +1,9 @@
 local Snowflake = require('./Snowflake')
+local AuditLogChange = require('../structs/AuditLogChange')
+local AuditLogOptions = require('../structs/AuditLogOptions')
 
 local class = require('../class')
 local helpers = require('../helpers')
-
-local readOnly = helpers.readOnly
 
 local AuditLogEntry, get = class('AuditLogEntry', Snowflake)
 
@@ -14,8 +14,8 @@ function AuditLogEntry:__init(data, client)
 	self._user_id = data.user_id
 	self._action_type = data._action_type
 	self._reason = data.reason
-	self._changes = data.changes
-	self._options = data.options
+	self._changes = helpers.structs(AuditLogChange, data.changes)
+	self._options = data.options and AuditLogOptions(data.options)
 end
 
 function AuditLogEntry:getUser()
@@ -51,11 +51,11 @@ function get:reason()
 end
 
 function get:changes()
-	return readOnly(self._changes)
+	return self._changes
 end
 
 function get:options()
-	return readOnly(self._options)
+	return self._options
 end
 
 return AuditLogEntry

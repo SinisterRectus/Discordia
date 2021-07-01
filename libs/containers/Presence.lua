@@ -1,9 +1,8 @@
 local Container = require('./Container')
+local Activity = require('../structs/Activity')
 
 local class = require('../class')
 local helpers = require('../helpers')
-
-local readOnly = helpers.readOnly
 
 local Presence, get = class('Presence', Container)
 
@@ -12,7 +11,7 @@ function Presence:__init(data, client)
 	self._user_id = data.user.id
 	self._guild_id = data.guild_id
 	self._status = data.status
-	self._activities = data.activities
+	self._activities = helpers.structs(Activity, data.activities)
 	if data.client_status then
 		self._desktop_status = data.client_status.desktop
 		self._mobile_status = data.client_status.mobile
@@ -41,12 +40,11 @@ function get:userId()
 end
 
 function get:activity()
-	local activities = self.activities
-	return activities and activities[1]
+	return self._activities and self._activites:get(1)
 end
 
 function get:activities()
-	return readOnly(self._activities)
+	return self._activities
 end
 
 function get:status()
