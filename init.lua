@@ -14,6 +14,7 @@ return {
 	Color = require('./libs/utils/Color'),
 	Date = require('./libs/utils/Date'),
 	Emitter = require('./libs/utils/Emitter'),
+	Iterable = require('./libs/utils/Iterable'),
 	Logger = require('./libs/utils/Logger'),
 	Mutex = require('./libs/utils/Mutex'),
 	Stopwatch = require('./libs/utils/Stopwatch'),

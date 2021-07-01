@@ -67,6 +67,7 @@
 - Added `gatewayIntents`
 - Added `defaultImageExtension`
 - Added `defaultImageSize`
+- Added `defaultAllowedMentions`
 - Added `logColors`
 - Added `status`
 - Added `activity`

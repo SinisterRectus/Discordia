@@ -1,4 +1,4 @@
-local class = require('class')
+local class = require('../class')
 local typing = require('typing')
 
 local insert, sort = table.insert, table.sort
@@ -7,8 +7,8 @@ local checkType, checkCallable = typing.checkType, typing.checkCallable
 local Iterable = class('Iterable')
 
 function Iterable:__init(arr, key, sorter)
-	self._arr = checkType('table', arr)
-	self._key = checkType('string', key)
+	self._arr = arr and checkType('table', arr) or {}
+	self._key = key and checkType('string', key) or nil
 	if sorter then
 		self._sorter = checkCallable(sorter)
 		sort(arr, sorter)
@@ -38,6 +38,9 @@ Iterable.__pairs = Iterable.__ipairs
 function Iterable:get(k)
 	local t = type(k)
 	if t == 'string' then
+		if not self._key then
+			return error('key must be a number', 2)
+		end
 		for _, v in ipairs(self._arr) do
 			if v[self._key] == k then
 				return v
@@ -46,7 +49,7 @@ function Iterable:get(k)
 	elseif t == 'number' then
 		return self._arr[k]
 	else
-		return error('key must be a string or number')
+		return error('key must be a string or number', 2)
 	end
 end
 
@@ -110,17 +113,16 @@ function Iterable:toArray()
 	return ret
 end
 
-function Iterable:toTable(k)
-	if k then
-		checkType('string', k)
+function Iterable:toTable()
+	if self._key then
+		local ret = {}
+		for _, v in ipairs(self._arr) do
+			ret[v[self._key]] = v
+		end
+		return ret
 	else
-		k = self._key
+		return self:toArray()
 	end
-	local ret = {}
-	for _, v in ipairs(self._arr) do
-		ret[v[k]] = v
-	end
-	return ret
 end
 
 function Iterable:random()

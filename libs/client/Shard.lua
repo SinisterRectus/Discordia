@@ -6,7 +6,7 @@ local class = require('../class')
 local helpers = require('../helpers')
 local Mutex = require('../utils/Mutex')
 local Emitter = require('../utils/Emitter')
-local EventHandler = require('./EventHandler')
+local events = require('../events')
 
 local wrap = coroutine.wrap
 local format = string.format
@@ -236,7 +236,7 @@ function Shard:handlePayload(payload)
 		self._seq = s
 		self._namedEvents[t] = self._namedEvents[t] + 1
 		self:log('debug', 'Received OP %s : %s : %s', op, t, s)
-		return EventHandler[t](payload.d, self._client, self)
+		return events[t](payload.d, self._client, self)
 	end
 
 	self:log('debug', 'Received OP %s', op)

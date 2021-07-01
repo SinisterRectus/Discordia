@@ -13,7 +13,7 @@ local Role = require('../containers/Role')
 local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
 
-local Iterable = require('./Iterable')
+local Iterable = require('../utils/Iterable')
 local Cache = require('./Cache')
 local CompoundCache = require('./CompoundCache')
 

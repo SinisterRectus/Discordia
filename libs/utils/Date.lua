@@ -24,10 +24,6 @@ local function offset()
 	return difftime(time(), time(date('!*t')))
 end
 
-local function checkPosInt(n)
-	return checkInteger(n, 10, 0)
-end
-
 local function decompose(a, b, c)
 	return modf(a / b), fmod(a, b) * c
 end
@@ -92,8 +88,8 @@ end
 
 function Date:__init(s, us)
 	if s or us then
-		s = s and checkPosInt(s) or 0
-		us = us and checkPosInt(us) or 0
+		s = s and checkInteger(s, 10, 0) or 0
+		us = us and checkInteger(us, 10, 0) or 0
 	else
 		s, us = gettimeofday()
 	end
@@ -206,15 +202,15 @@ function Date.fromTableUTC(tbl)
 end
 
 function Date.fromSeconds(s)
-	return Date(checkPosInt(s))
+	return Date(checkInteger(s, 10, 0))
 end
 
 function Date.fromMilliseconds(ms)
-	return Date(0, checkPosInt(ms) * US_PER_MS)
+	return Date(0, checkInteger(ms, 10, 0) * US_PER_MS)
 end
 
 function Date.fromMicroseconds(us)
-	return Date(0, checkPosInt(us))
+	return Date(0, checkInteger(us, 10, 0))
 end
 
 function Date:toISO()
