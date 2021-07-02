@@ -314,6 +314,12 @@ function API:createGlobalApplicationCommand(application_id, payload, query)
 	return self:request("POST", endpoint, params, query, payload)
 end
 
+function API:getGlobalApplicationCommand(application_id, command_id, query)
+	local endpoint = endpoints.APPLICATION_COMMAND
+	local params = {application_id, command_id}
+	return self:request("GET", endpoint, params, query)
+end
+
 function API:editGlobalApplicationCommand(application_id, command_id, payload, query)
 	local endpoint = endpoints.APPLICATION_COMMAND
 	local params = {application_id, command_id}
@@ -332,10 +338,22 @@ function API:getGuildApplicationCommands(application_id, guild_id, query)
 	return self:request("GET", endpoint, params, query)
 end
 
+function API:bulkOverwriteGlobalApplicationCommands(application_id, payload, query)
+	local endpoint = endpoints.APPLICATION_COMMANDS
+	local params = {application_id}
+	return self:request("PUT", endpoint, params, query, payload)
+end
+
 function API:createGuildApplicationCommand(application_id, guild_id, payload, query)
 	local endpoint = endpoints.APPLICATION_GUILD_COMMANDS
 	local params = {application_id, guild_id}
 	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:getGuildApplicationCommand(application_id, guild_id, command_id, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMAND
+	local params = {application_id, guild_id, command_id}
+	return self:request("GET", endpoint, params, query)
 end
 
 function API:editGuildApplicationCommand(application_id, guild_id, command_id, payload, query)
@@ -350,10 +368,22 @@ function API:deleteGuildApplicationCommand(application_id, guild_id, command_id,
 	return self:request("DELETE", endpoint, params, query)
 end
 
+function API:bulkOverwriteGuildApplicationCommands(application_id, guild_id, payload, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMANDS
+	local params = {application_id, guild_id}
+	return self:request("PUT", endpoint, params, query, payload)
+end
+
 function API:createInteractionResponse(interaction_id, interaction_token, payload, query)
 	local endpoint = endpoints.INTERACTION_TOKEN_CALLBACK
 	local params = {interaction_id, interaction_token}
 	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:getOriginalInteractionResponse(application_id, interaction_token, query)
+	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGES_ORIGINAL
+	local params = {application_id, interaction_token}
+	return self:request("GET", endpoint, params, query)
 end
 
 function API:editOriginalInteractionResponse(application_id, interaction_token, payload, query)
@@ -384,6 +414,30 @@ function API:deleteFollowupMessage(application_id, interaction_token, message_id
 	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGE
 	local params = {application_id, interaction_token, message_id}
 	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:getGuildApplicationCommandPermissions(application_id, guild_id, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMANDS_PERMISSIONS
+	local params = {application_id, guild_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:getApplicationCommandPermissions(application_id, guild_id, command_id, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS
+	local params = {application_id, guild_id, command_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:editApplicationCommandPermissions(application_id, guild_id, command_id, payload, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS
+	local params = {application_id, guild_id, command_id}
+	return self:request("PUT", endpoint, params, query, payload)
+end
+
+function API:batchEditApplicationCommandPermissions(application_id, guild_id, payload, query)
+	local endpoint = endpoints.APPLICATION_GUILD_COMMANDS_PERMISSIONS
+	local params = {application_id, guild_id}
+	return self:request("PUT", endpoint, params, query, payload)
 end
 
 function API:getGuildAuditLog(guild_id, query)
@@ -530,13 +584,13 @@ function API:getPinnedMessages(channel_id, query)
 	return self:request("GET", endpoint, params, query)
 end
 
-function API:addPinnedChannelMessage(channel_id, message_id, payload, query)
+function API:pinMessage(channel_id, message_id, payload, query)
 	local endpoint = endpoints.CHANNEL_PIN
 	local params = {channel_id, message_id}
 	return self:request("PUT", endpoint, params, query, payload)
 end
 
-function API:deletePinnedChannelMessage(channel_id, message_id, query)
+function API:unpinMessage(channel_id, message_id, query)
 	local endpoint = endpoints.CHANNEL_PIN
 	local params = {channel_id, message_id}
 	return self:request("DELETE", endpoint, params, query)
@@ -552,6 +606,72 @@ function API:groupDMRemoveRecipient(channel_id, user_id, query)
 	local endpoint = endpoints.CHANNEL_RECIPIENT
 	local params = {channel_id, user_id}
 	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:startThreadWithMessage(channel_id, message_id, payload, query)
+	local endpoint = endpoints.CHANNEL_MESSAGE_THREADS
+	local params = {channel_id, message_id}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:startThreadWithoutMessage(channel_id, payload, query)
+	local endpoint = endpoints.CHANNEL_THREADS
+	local params = {channel_id}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:joinThread(channel_id, payload, query)
+	local endpoint = endpoints.CHANNEL_THREAD_MEMBERS_ME
+	local params = {channel_id}
+	return self:request("PUT", endpoint, params, query, payload)
+end
+
+function API:addThreadMember(channel_id, user_id, payload, query)
+	local endpoint = endpoints.CHANNEL_THREAD_MEMBER
+	local params = {channel_id, user_id}
+	return self:request("PUT", endpoint, params, query, payload)
+end
+
+function API:leaveThread(channel_id, query)
+	local endpoint = endpoints.CHANNEL_THREAD_MEMBERS_ME
+	local params = {channel_id}
+	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:removeThreadMember(channel_id, user_id, query)
+	local endpoint = endpoints.CHANNEL_THREAD_MEMBER
+	local params = {channel_id, user_id}
+	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:listThreadMembers(channel_id, query)
+	local endpoint = endpoints.CHANNEL_THREAD_MEMBERS
+	local params = {channel_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:listActiveThreads(channel_id, query)
+	local endpoint = endpoints.CHANNEL_THREADS_ACTIVE
+	local params = {channel_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:listPublicArchivedThreads(channel_id, query)
+	local endpoint = endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC
+	local params = {channel_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:listPrivateArchivedThreads(channel_id, query)
+	local endpoint = endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE
+	local params = {channel_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:listJoinedPrivateArchivedThreads(channel_id, query)
+	local endpoint = endpoints.CHANNEL_USERS_ME_THREADS_ARCHIVED_PRIVATE
+	local params = {channel_id}
+	return self:request("GET", endpoint, params, query)
 end
 
 function API:listGuildEmojis(guild_id, query)
@@ -640,6 +760,12 @@ end
 
 function API:listGuildMembers(guild_id, query)
 	local endpoint = endpoints.GUILD_MEMBERS
+	local params = {guild_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:searchGuildMembers(guild_id, query)
+	local endpoint = endpoints.GUILD_MEMBERS_SEARCH
 	local params = {guild_id}
 	return self:request("GET", endpoint, params, query)
 end
@@ -764,28 +890,10 @@ function API:getGuildIntegrations(guild_id, query)
 	return self:request("GET", endpoint, params, query)
 end
 
-function API:createGuildIntegration(guild_id, payload, query)
-	local endpoint = endpoints.GUILD_INTEGRATIONS
-	local params = {guild_id}
-	return self:request("POST", endpoint, params, query, payload)
-end
-
-function API:modifyGuildIntegration(guild_id, integration_id, payload, query)
-	local endpoint = endpoints.GUILD_INTEGRATION
-	local params = {guild_id, integration_id}
-	return self:request("PATCH", endpoint, params, query, payload)
-end
-
 function API:deleteGuildIntegration(guild_id, integration_id, query)
 	local endpoint = endpoints.GUILD_INTEGRATION
 	local params = {guild_id, integration_id}
 	return self:request("DELETE", endpoint, params, query)
-end
-
-function API:syncGuildIntegration(guild_id, integration_id, payload, query)
-	local endpoint = endpoints.GUILD_INTEGRATION_SYNC
-	local params = {guild_id, integration_id}
-	return self:request("POST", endpoint, params, query, payload)
 end
 
 function API:getGuildWidgetSettings(guild_id, query)
@@ -818,25 +926,37 @@ function API:getGuildWidgetImage(guild_id, query)
 	return self:request("GET", endpoint, params, query)
 end
 
-function API:getInvite(invite_code, query)
-	local endpoint = endpoints.INVITE
-	local params = {invite_code}
+function API:getGuildWelcomeScreen(guild_id, query)
+	local endpoint = endpoints.GUILD_WELCOME_SCREEN
+	local params = {guild_id}
 	return self:request("GET", endpoint, params, query)
 end
 
-function API:deleteInvite(invite_code, query)
-	local endpoint = endpoints.INVITE
-	local params = {invite_code}
-	return self:request("DELETE", endpoint, params, query)
+function API:modifyGuildWelcomeScreen(guild_id, payload, query)
+	local endpoint = endpoints.GUILD_WELCOME_SCREEN
+	local params = {guild_id}
+	return self:request("PATCH", endpoint, params, query, payload)
 end
 
-function API:getTemplate(template_code, query)
+function API:modifyCurrentUserVoiceState(guild_id, payload, query)
+	local endpoint = endpoints.GUILD_VOICE_STATES_ME
+	local params = {guild_id}
+	return self:request("PATCH", endpoint, params, query, payload)
+end
+
+function API:modifyUserVoiceState(guild_id, user_id, payload, query)
+	local endpoint = endpoints.GUILD_VOICE_STATE
+	local params = {guild_id, user_id}
+	return self:request("PATCH", endpoint, params, query, payload)
+end
+
+function API:getGuildTemplate(template_code, query)
 	local endpoint = endpoints.GUILDS_TEMPLATE
 	local params = {template_code}
 	return self:request("GET", endpoint, params, query)
 end
 
-function API:createGuildFromTemplate(template_code, payload, query)
+function API:createGuildFromGuildTemplate(template_code, payload, query)
 	local endpoint = endpoints.GUILDS_TEMPLATE
 	local params = {template_code}
 	return self:request("POST", endpoint, params, query, payload)
@@ -872,6 +992,42 @@ function API:deleteGuildTemplate(guild_id, template_code, query)
 	return self:request("DELETE", endpoint, params, query)
 end
 
+function API:getInvite(invite_code, query)
+	local endpoint = endpoints.INVITE
+	local params = {invite_code}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:deleteInvite(invite_code, query)
+	local endpoint = endpoints.INVITE
+	local params = {invite_code}
+	return self:request("DELETE", endpoint, params, query)
+end
+
+function API:createStageInstance(payload, query)
+	local endpoint = endpoints.STAGE_INSTANCES
+	local params = {}
+	return self:request("POST", endpoint, params, query, payload)
+end
+
+function API:getStageInstance(channel_id, query)
+	local endpoint = endpoints.STAGE_INSTANCE
+	local params = {channel_id}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:modifyStageInstance(channel_id, payload, query)
+	local endpoint = endpoints.STAGE_INSTANCE
+	local params = {channel_id}
+	return self:request("PATCH", endpoint, params, query, payload)
+end
+
+function API:deleteStageInstance(channel_id, query)
+	local endpoint = endpoints.STAGE_INSTANCE
+	local params = {channel_id}
+	return self:request("DELETE", endpoint, params, query)
+end
+
 function API:getCurrentUser(query)
 	local endpoint = endpoints.USERS_ME
 	local params = {}
@@ -900,12 +1056,6 @@ function API:leaveGuild(guild_id, query)
 	local endpoint = endpoints.USERS_ME_GUILD
 	local params = {guild_id}
 	return self:request("DELETE", endpoint, params, query)
-end
-
-function API:getUserDMs(query)
-	local endpoint = endpoints.USERS_ME_CHANNELS
-	local params = {}
-	return self:request("GET", endpoint, params, query)
 end
 
 function API:createDM(payload, query)
@@ -1004,6 +1154,12 @@ function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload, 
 	return self:request("POST", endpoint, params, query, payload)
 end
 
+function API:getWebhookMessage(webhook_id, webhook_token, message_id, query)
+	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGE
+	local params = {webhook_id, webhook_token, message_id}
+	return self:request("GET", endpoint, params, query)
+end
+
 function API:editWebhookMessage(webhook_id, webhook_token, message_id, payload, query)
 	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGE
 	local params = {webhook_id, webhook_token, message_id}
@@ -1022,8 +1178,14 @@ function API:getGatewayBot(query)
 	return self:request("GET", endpoint, params, query)
 end
 
-function API:getCurrentApplicationInformation(query)
+function API:getCurrentBotApplicationInformation(query)
 	local endpoint = endpoints.OAUTH2_APPLICATIONS_ME
+	local params = {}
+	return self:request("GET", endpoint, params, query)
+end
+
+function API:getCurrentAuthorizationInformation(query)
+	local endpoint = endpoints.OAUTH2_ME
 	local params = {}
 	return self:request("GET", endpoint, params, query)
 end

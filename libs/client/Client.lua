@@ -1156,7 +1156,7 @@ end
 function Client:pinMessage(channelId, messageId)
 	channelId = checkSnowflake(channelId)
 	messageId = checkSnowflake(messageId)
-	local data, err = self.api:addPinnedChannelMessage(channelId, messageId)
+	local data, err = self.api:pinMessage(channelId, messageId)
 	if data then
 		return true -- 204
 	else
@@ -1167,7 +1167,7 @@ end
 function Client:unpinMessage(channelId, messageId)
 	channelId = checkSnowflake(channelId)
 	messageId = checkSnowflake(messageId)
-	local data, err = self.api:deletePinnedChannelMessage(channelId, messageId)
+	local data, err = self.api:unpinMessage(channelId, messageId)
 	if data then
 		return true -- 204
 	else
