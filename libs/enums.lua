@@ -146,7 +146,7 @@ proxy.permissionOverwriteType = {
 proxy.status = {
 	online       = 'online',
 	idle         = 'idle',
-	dnd          = 'dnd',
+	doNotDisturb = 'dnd',
 	invisible    = 'invisible', -- only sent?
 	offline      = 'offline', -- only received?
 }
@@ -264,6 +264,50 @@ proxy.actionType = {
 	stageInstanceCreate    = 83,
 	stageInstanceUpdate    = 84,
 	stageInstanceDelete    = 85,
+}
+
+proxy.clientEvent = {
+	httpRequest         = 'httpRequest',
+	gatewayEvent        = 'gatewayEvent',
+	sessionReady        = 'sessionReady',
+	sessionResumed      = 'sessionResumed',
+	heartbeat           = 'heartbeat',
+	gatewayCommand      = 'gatewayCommand',
+	membersChunk        = 'membersChunk',
+	ready               = 'ready',
+	channelCreate       = 'channelCreate',
+	channelUpdate       = 'channelUpdate',
+	channelDelete       = 'channelDelete',
+	pinsUpdate          = 'pinsUpdate',
+	guildAvailable      = 'guildAvailable',
+	guildCreate         = 'guildCreate',
+	guildUpdate         = 'guildUpdate',
+	guildUnavailable    = 'guildUnavailable',
+	guildDelete         = 'guildDelete',
+	userBan             = 'userBan',
+	userUnban           = 'userUnban',
+	emojisUpdate        = 'emojisUpdate',
+	integrationsUpdate  = 'integrationsUpdate',
+	memberJoin          = 'memberJoin',
+	memberUpdate        = 'memberUpdate',
+	memberRemove        = 'memberRemove',
+	roleCreate          = 'roleCreate',
+	roleUpdate          = 'roleUpdate',
+	roleDelete          = 'roleDelete',
+	inviteCreate        = 'inviteCreate',
+	inviteDelete        = 'inviteDelete',
+	messageCreate       = 'messageCreate',
+	messageUpdate       = 'messageUpdate',
+	messageDelete       = 'messageDelete',
+	messageDeleteBulk   = 'messageDeleteBulk',
+	reactionAdd         = 'reactionAdd',
+	reactionRemove      = 'reactionRemove',
+	reactionRemoveAll   = 'reactionRemoveAll',
+	reactionRemoveEmoji = 'reactionRemoveEmoji',
+	presenceUpdate      = 'presenceUpdate',
+	typingStart         = 'typingStart',
+	userUpdate          = 'userUpdate',
+	webhookUpdate       = 'webhookUpdate',
 }
 
 local function flag(n)

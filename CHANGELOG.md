@@ -94,6 +94,11 @@
 - Added `premiumType` enumerations
 - Added `gatewayIntent` enumerations
 - Added `userFlag` enumerations
+- Added `clientEvent` enumerations
+- Added `messageActivityType` enumerations
+- Added `embedType` enumerations
+- Added `timestampStyle` enumerations
+- Added `mentionType` enumerations
 - Added `teamMembershipState` enumerations
 - Added `channelType.store`
 - Added `messageType.channelFollowAdd`
@@ -111,6 +116,8 @@
 - Added `actionType.stageInstanceUpdate`
 - Added `actionType.stageInstanceDelete`
 - Added `activityType.watching`
+- Added `activityType.custom`
+- Added `activityType.competing`
 - Added `logLevel.critical`
 - Added `permission.useSlashCommands`
 - Added `permission.requestToSpeak`
@@ -118,7 +125,6 @@
 - Added `permission.manageThreads`
 - Added `permission.usePublicThreads`
 - Added `permission.usePrivateThreads`
-- Changed `status.doNotDisturb` to `status.dnd`
 - Changed `permission.readMessages` to `permission.viewChannel`
 - Removed `relationshipType` enumeration (not used by bots)
 - Removed `gameType` enumeration (use `actionType` enumeration)
