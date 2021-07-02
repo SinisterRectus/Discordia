@@ -12,11 +12,17 @@ function Presence:__init(data, client)
 	self._guild_id = data.guild_id
 	self._status = data.status
 	self._activities = helpers.structs(Activity, data.activities)
-	if data.client_status then
-		self._desktop_status = data.client_status.desktop
-		self._mobile_status = data.client_status.mobile
-		self._web_status = data.client_status.web
-	end
+	self._desktop_status = data.client_status and data.client_status.desktop
+	self._mobile_status = data.client_status and data.client_status.mobile
+	self._web_status = data.client_status and data.client_status.web
+end
+
+function Presence:__eq(other)
+	return self.guildId == other.guildId and self.user.id == other.user.id
+end
+
+function Presence:toString()
+	return self.guildId .. ':' .. self.user.id
 end
 
 function Presence:getUser()

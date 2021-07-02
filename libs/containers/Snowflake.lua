@@ -14,6 +14,10 @@ function Snowflake:__eq(other)
 	return self.id == other.id
 end
 
+function Snowflake:toString()
+	return self.id
+end
+
 function Snowflake:getDate()
 	return Date.fromSnowflake(self.id)
 end

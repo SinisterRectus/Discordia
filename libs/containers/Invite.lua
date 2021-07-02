@@ -25,6 +25,10 @@ function Invite:__eq(other)
 	return self.code == other.code
 end
 
+function Invite:toString()
+	return self.code
+end
+
 function Invite:delete()
 	return self.client:deleteInvite(self.code)
 end

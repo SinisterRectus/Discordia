@@ -6,8 +6,6 @@ function Container:__init(client)
 	self._client = assert(client)
 end
 
--- TODO: toString methods
-
 function Container.__eq()
 	return error('__eq not implemented')
 end

@@ -29,6 +29,10 @@ function Member:__eq(other)
 	return self.guildId == other.guildId and self.user.id == other.user.id
 end
 
+function Member:toString()
+	return self.guildId .. ':' .. self.user.id
+end
+
 local function makeRoleFilter(ids)
 	local filter = {}
 	for _, id in pairs(ids) do

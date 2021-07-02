@@ -21,6 +21,10 @@ function Reaction:__eq(other)
 	return self.messageId == other.messageId and self.hash == other.hash
 end
 
+function Reaction:toString()
+	return self.messageId .. ':' .. self.hash
+end
+
 function Reaction:getChannel()
 	return self.client:getChannel(self.channelId)
 end

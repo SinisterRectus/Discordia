@@ -23,6 +23,10 @@ function PermissionOverwrite:__eq(other)
 	return self.channelId == other.channelId and self.id == other.id
 end
 
+function PermissionOverwrite:toString()
+	return self.channelId .. ':' .. self.id
+end
+
 function PermissionOverwrite:delete()
 	return self.client:deleteChannelPermission(self.channelId, self.id)
 end

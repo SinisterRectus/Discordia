@@ -15,6 +15,10 @@ function Ban:__eq(other)
 	return self.guildId == other.guildId and self.user.id == other.user.id
 end
 
+function Ban:toString()
+	return self.guildId .. ':' .. self.user.id
+end
+
 function Ban:delete(reason)
 	return self.client:removeGuildBan(self.guildId, self.user.id, reason)
 end
