@@ -130,19 +130,19 @@ end
 
 local function setTimeout(ms, callback, ...)
 	local timer = uv.new_timer()
-	local args = {...}
+	local args, n = {...}, select('#', ...)
 	timer:start(ms, 0, function()
 		timer:close()
-		return callback(unpack(args))
+		return callback(unpack(args, 1, n))
 	end)
 	return timer
 end
 
 local function setInterval(ms, callback, ...)
 	local timer = uv.new_timer()
-	local args = {...}
+	local args, n = {...}, select('#', ...)
 	timer:start(ms, ms, function()
-		return callback(unpack(args))
+		return callback(unpack(args, 1, n))
 	end)
 	return timer
 end

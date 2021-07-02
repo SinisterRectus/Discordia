@@ -73,6 +73,9 @@
 #### Classes
 
 - Added `Bitfield` utility class
+- Added `Application` container class
+- Added `Team` container class
+- Added `TeamMember` container class
 - Added many new "structs" (see documentation for details)
 - Merged `GuildChannel`, `TextChannel`, `GuildCategoryChannel`, `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateChannel` into one `Channel` class
 - Merged `ArrayIterable`, `TableIterable`, and `FilteredIterable` into one `Iterable` class
@@ -91,6 +94,7 @@
 - Added `premiumType` enumerations
 - Added `gatewayIntent` enumerations
 - Added `userFlag` enumerations
+- Added `teamMembershipState` enumerations
 - Added `channelType.store`
 - Added `messageType.channelFollowAdd`
 - Added `messageType.guildDiscoveryDisqualified`
@@ -259,8 +263,7 @@
 - Added `cdn` property (advanced users only)
 - Added `state` property (advanced users only)
 - Removed `shardCount` property
-- Removed `user` property (use `userId` property or `getUser` method)
-- Removed `owner` property
+- Removed `owner` property (use `getApplication` method)
 - Removed `verified` property
 - Removed `mfaEnabled` property
 - Removed `email` property
@@ -587,7 +590,7 @@ Note: Technically a new class that implements the former `UserPresence` features
 
 Note: This is effectively a new class compared to the old one. It provides a similar API, but its behavior in the library is quite different. See documentation for details. The major difference for the context here is that objects are stored in an sequential table instead of a associated table.
 
-- Added `__ipairs` metamethod (`__pairs` remains and is a copy of `__ipairs`)
+- Added `__ipairs` metamethod
 - Added optional support for numerical indexing to `get` method
 - Added `sort` method
 - Added `filter` method
@@ -597,10 +600,6 @@ Note: This is effectively a new class compared to the old one. It provides a sim
 - Removed `sortBy` and `fn` parameters from `toArray` method
 - Removed `pick` method (nil values are problematic)
 - Removed forced sorting in `select` method
-
-#### Bitfield
-
-- New class! See documentation.
 
 #### Clock
 

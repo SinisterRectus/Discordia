@@ -21,6 +21,23 @@ function Iterable:__len()
 	return #self._arr
 end
 
+function Iterable:__pairs()
+	local i = 0
+	local arr = self._arr
+	if self._key then
+		local k = self._key
+		return function()
+			i = i + 1
+			local v = arr[i]
+			if v then
+				return v[k], v
+			end
+		end
+	else
+		return self:__ipairs()
+	end
+end
+
 function Iterable:__ipairs()
 	local i = 0
 	local arr = self._arr
@@ -32,8 +49,6 @@ function Iterable:__ipairs()
 		end
 	end
 end
-
-Iterable.__pairs = Iterable.__ipairs
 
 function Iterable:get(k)
 	local t = type(k)
@@ -139,10 +154,10 @@ end
 
 function Iterable:select(...)
 	local rows = {}
-	local keys = {n = select('#', ...), ...}
+	local keys, n = {...}, select('#', ...)
 	for _, v in ipairs(self._arr) do
 		local row = {}
-		for i = 1, keys.n do
+		for i = 1, n do
 			row[i] = v[keys[i]]
 		end
 		insert(rows, row)

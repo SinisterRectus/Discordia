@@ -175,6 +175,11 @@ proxy.mentionType = {
 	timestamp = 'timestamp',
 }
 
+proxy.teamMembershipState = {
+	invited  = 1,
+	accepted = 2,
+}
+
 proxy.activityType = {
 	playing   = 0,
 	streaming = 1,

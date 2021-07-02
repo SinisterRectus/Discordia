@@ -21,6 +21,7 @@ local Stopwatch = require('../utils/Stopwatch')
 
 local Emoji = require('../containers/Emoji')
 local Reaction = require('../containers/Reaction')
+local Application = require('../containers/Application')
 
 local VoiceRegion = require('../structs/VoiceRegion')
 
@@ -206,6 +207,7 @@ function Client:__init(options)
 	self._shards = {}
 	self._token = nil
 	self._userId = nil
+	self._user = nil
 	self._status = options.status
 	self._activity = options.activity
 end
@@ -232,7 +234,7 @@ function Client:_run(token)
 		return self:log('critical', 'Could not get user information: %s', err1)
 	end
 	self._userId = user.id
-	self.state:newUser(user)
+	self._user = self.state:newUser(user)
 	self:log('info', 'Authenticated as %s#%s', user.username, user.discriminator)
 
 	local gateway, err2 = self.api:getGatewayBot()
@@ -294,6 +296,15 @@ function Client:setActivity(activity)
 	self._activity = activity and checkActivity(activity)
 	for _, shard in pairs(self._shards) do
 		shard:updatePresence(self._status, self._activity)
+	end
+end
+
+function Client:getApplication()
+	local data, err = self.api:getCurrentBotApplicationInformation()
+	if data then
+		return Application(data, self)
+	else
+		return nil, err
 	end
 end
 
@@ -1427,6 +1438,10 @@ end
 
 function get:userId()
 	return self._userId
+end
+
+function get:user()
+	return self._user
 end
 
 return Client
