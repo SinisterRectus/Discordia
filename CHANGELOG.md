@@ -173,6 +173,7 @@
 - Added `getGuildEmojis` method
 - Added `getGuildChannels` method
 - Added `getGuildVoiceRegions` method
+- Added `searchGuildMembers` method
 - Added `createGuildRole` method
 - Added `createGuildEmoji` method
 - Added `createGuildChannel` method
@@ -395,6 +396,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `getEmojis` method
 - Added `getRoles` method
 - Added `getChannels` method
+- Added `searchMembers` method
 - Added `createChannel` method
 - Added `sortRoles` method
 - Added `sortChannels` method

@@ -77,6 +77,10 @@ function Guild:requestMembers(payload, callback)
 	return self.client:requestGuildMembers(self.id, payload, callback)
 end
 
+function Guild:searchMembers(query, limit)
+	return self.client:searchGuildMembers(self.id, query, limit)
+end
+
 function Guild:getIconURL(ext, size)
 	if not self.icon then
 		return nil, 'Guild has no icon'

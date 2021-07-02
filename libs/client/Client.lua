@@ -557,6 +557,19 @@ function Client:getGuildVoiceRegions(guildId)
 	end
 end
 
+function Client:searchGuildMembers(guildId, query, limit)
+	guildId = checkSnowflake(guildId)
+	local data, err = self.api:searchGuildMembers(guildId, {
+		query = checkType('string', query),
+		limit = opt(limit, checkType, 'number'),
+	})
+	if data then
+		return self.state:newMembers(guildId, data)
+	else
+		return nil, err
+	end
+end
+
 function Client:createGuildRole(guildId, payload)
 	guildId = checkSnowflake(guildId)
 	local data, err

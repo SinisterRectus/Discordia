@@ -254,7 +254,7 @@ function get:premiumSince()
 end
 
 function get:muted()
-	return self._muted
+	return self._mute
 end
 
 function get:deafened()
