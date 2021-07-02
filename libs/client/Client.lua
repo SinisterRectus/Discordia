@@ -15,7 +15,6 @@ local State = require('./State')
 
 local Bitfield = require('../utils/Bitfield')
 local Color = require('../utils/Color')
-local Iterable = require('../utils/Iterable')
 local Logger = require('../utils/Logger')
 local Emitter = require('../utils/Emitter')
 local Stopwatch = require('../utils/Stopwatch')
@@ -49,6 +48,7 @@ local isInstance = class.isInstance
 
 local GATEWAY_VERSION = constants.GATEWAY_VERSION
 local GATEWAY_ENCODING = constants.GATEWAY_ENCODING
+local MIN_BITRATE, MAX_BITRATE = constants.MIN_BITRATE, constants.MAX_BITRATE
 
 local Client, get = class('Client', Emitter)
 
@@ -142,6 +142,7 @@ local defaultOptions = {
 	defaultImageExtension = {'png', checkImageExtension},
 	defaultImageSize = {1024, checkImageSize},
 	defaultAllowedMentions = {defaultAllowedMentions, function(o) return checkType('table', o) end},
+	defaultBitrate = {64000, function(o) return checkInteger(o, 10, MIN_BITRATE, MAX_BITRATE) end},
 	logLevel = {enums.logLevel.info, function(o) return checkEnum(enums.logLevel, o) end},
 	dateFormat = {'%F %T', function(o) return checkType('string', o) end},
 	logFile = {'discordia.log', function(o) return checkType('string', o) end},
@@ -196,6 +197,7 @@ function Client:__init(options)
 	self._defaultImageExtension = options.defaultImageExtension
 	self._defaultImageSize = options.defaultImageSize
 	self._defaultAllowedMentions = options.defaultAllowedMentions
+	self._defaultBitrate = options.defaultBitrate
 	self._logger = Logger(options.logLevel, options.dateFormat, options.logFile, options.logColors)
 	self._api = API(self)
 	self._cdn = CDN(self)
@@ -1389,6 +1391,10 @@ end
 
 function get:defaultAllowedMentions()
 	return readOnly(self._defaultAllowedMentions)
+end
+
+function get:defaultBitrate()
+	return readOnly(self._defaultBitrate)
 end
 
 function get:status()

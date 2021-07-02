@@ -19,6 +19,7 @@ function Embed:__init(data)
 	self._description = data.description
 	self._url = data.url
 	self._timestamp = data.timestamp
+	self._color = data.color
 
 	self._footer = data.footer and EmbedFooter(data.footer)
 	self._image = data.image and EmbedImage(data.image)
@@ -49,6 +50,10 @@ end
 
 function get:timestamp()
 	return self._timestamp
+end
+
+function get:color()
+	return self._color
 end
 
 function get:footer()

@@ -25,9 +25,9 @@ return {
 	version = '3.0.0-dev',
 	homepage = 'https://github.com/SinisterRectus/Discordia',
 	dependencies = {
-		'creationix/coro-http@3.1.0',
-		'creationix/coro-websocket@3.1.0',
-		'luvit/secure-socket@1.2.2',
+		'creationix/coro-http@3.2.2',
+		'creationix/coro-websocket@3.1.1',
+		'luvit/secure-socket@1.2.3',
 	},
 	tags = {'discord', 'api'},
 	license = 'MIT',

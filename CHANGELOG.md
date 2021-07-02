@@ -2,15 +2,78 @@
 
 ## 3.0.0-dev (subject to change)
 
-### General Changes
+### General
 
-- TODO
+#### Enhancements
 
-### Public API Changes
+- Added support for gateway intents ("guilds" intent is required)
+- Improved support for message replies and allowed mentions
+- Added utilities for gathering client statistics
+- Loggers, including the client's default logger, can now be configured at runtime (you can toggle the colors, too)
+- All previously raw tables are now available as rich classes or structs
+- Added many direct client methods (e.g. `client:createMessage(channelId, ...)` can be used as an alternative to `channel:send(...)`, which uses the former internally)
+- In addition to the methods above, added many "modify" methods for batch-patching objects
+- Added dynamic type checking and resolution to most user-facing methods
+- Updated to Discord gateway v8
+- Updated to Discord REST API v8
+- Events no longer depend on cached data; they only give you what Discord provides
+- Gateway loop logic was re-written to (hopefully) be more robust
+- Bot tokens do not need to be manually prefixed anymore, but a `tokenPrefix` client option exists for optional configuration
+- Disconnecting a bot with `client:stop()` now correctly closes the connection (finally)
+- Bots now gracefully disconnect on interrupt (SIGINT)
+- Gateway information is not cached to disk anymore (no more `gateway.json`)
+- Member chunking on startup was removed, making startup times much faster; to compensate `guild:requestGuildMembers()` has been made more useful
+- Removed "userbot/selfbot" legacy code
 
-#### Class Changes
+#### Discordia Module
+
+- Added `setInterval`, `setTimeout`, `clearTimer`, and `sleep` functions
+- Added new `Bitfield` class to replace `Permissions` class
+- Removed `extensions` module (you can easily implement these yourself)
+- Removed `Deque` and `Permissions` class
+
+#### Caches, Iterables, and Containers
+
+- `Guild`, `Role`, `Emoji`, and guild `Channel` containers are always cached
+- `User`, `Reaction`, and `PermissionOverwrite` containers, generally being "sub" objects of those above, are always weakly cached
+- All other containers are never explicitly cached!
+- Where cached containers used to be accessible in a dynamic `Cache` handle (e.g. `guild.roles`), the library will now fetch them (from a hidden cache or HTTP request) and return them in a new static `Iterable` (e.g. `guild:getRoles()`)
+- Containers do not have a "parent" object anymore; the only parent of every container is the base `Client` object
+
+#### Class Behavior
+
+- Added `info`, `mixin`, and `copy` to the `class` module
+- Removed `classes`, `type`, and `serialize` from the `class` module
+- Changed from multi- to single-inheritance
+- Class members are now stored in upvalues instead of on the classes
+- Accessing an undefined class member now throws an error
+- Class properties cannot be declared outside of the `__init` method (subject to change)
+- Class properties prefixed by `_` cannot be accessed outside of class member functions (subject to change)
+- Default `__tostring` metamethod added: if the class has a `toString` method, `__tostring` returns `{name}: {string}` where `{name}` is the name of the class and `{string}` is the result of the `toString` call; otherwise, it returns `object: {name}` where `name` is the name of the class
+- Default `__pairs` metamethod added: iterates the `getter` members for the class and returns their `name, value` pair
+
+#### Enumeration Behavior
+
+- Members of the `enums` module are now protected from being overwritten
+- To create a new enumeration set, simply set a field to the `enums` module instead of calling `enums.enum`
+- Different enumerations may now have the same value within the same set
+- All "flags" are now strings to accommodate integer precision greater than that which is allowed by Lua's numbers
+- Resolution by calling an enumeration has been improved: The name may be provided as if indexing the enumeration or a numerical value may be provided as a `number` or as a `string`
+- The result of a successful enumeration set call is now a `name, value` pair instead of just the `name`
+- Example: `channelType("text")`, `channelType(0)`, and `channelType("0")` will all return `"text", 0`; `channelType.text` will only return `0`
+
+#### Dependencies
+
+- Updated coro-http from 3.1.0 to 3.2.2
+- Updated coro-websocket from 3.1.0 to 3.1.1
+- Updated secure-socket from 1.2.2 to 1.2.3
+
+### Public API
+
+#### Classes
 
 - Added `Bitfield` utility class
+- Added many new "structs" (see documentation for details)
 - Merged `GuildChannel`, `TextChannel`, `GuildCategoryChannel`, `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateChannel` into one `Channel` class
 - Merged `ArrayIterable`, `TableIterable`, and `FilteredIterable` into one `Iterable` class
 - Removed `Cache`, `SecondaryCache`, and `WeakCache` (some form of these still used internally)
@@ -74,6 +137,7 @@
 - Renamed `shardCount` to `totalShardCount`
 - Renamed `compress` to `payloadCompression`
 - Renamed `dateTime` to `dateFormat`
+- Renamed `bitrate` to `defaultBitrate`
 - Removed `firstShard`
 - Removed `lastShard`
 - Removed `largeThreshold`
@@ -81,7 +145,6 @@
 - Removed `autoReconnect`
 - Removed `syncGuilds`
 - Removed `gatewayFile`
-- Removed `bitrate`
 
 #### Client Methods
 
@@ -155,6 +218,7 @@
 - Added `modifyWebhook` method
 - Added `deleteWebhook` method
 - Added `getGatewayStatistics` method
+- Added `log` method
 - Removed auto-generated logging methods (use `log` method)
 - Removed `createGuild` method
 - Removed `createGroupChannel` method
@@ -187,10 +251,12 @@
 - Added `payloadCompression` property
 - Added `defaultImageExtension` property
 - Added `defaultImageSize` property
+- Added `defaultAllowedMentions` property
+- Added `defaultBitrate` property
 - Added `status` property
 - Added `activity` property
-- Added `api` propert (advanced users only)
-- Added `cdn` propert (advanced users only)
+- Added `api` property (advanced users only)
+- Added `cdn` property (advanced users only)
 - Added `state` property (advanced users only)
 - Removed `shardCount` property
 - Removed `user` property (use `userId` property or `getUser` method)
@@ -212,6 +278,7 @@
 
 #### Snowflake
 
+- Added `toString` method
 - Removed `createdAt` property (use `getDate():toSeconds()`)
 - Removed `timestamp` property (use `getDate():toISO()`)
 
@@ -288,6 +355,7 @@ Note: All previously existing individual channel sub-classes are considered here
 
 - Added `getGuild` method
 - Added `guildId` property
+- Added `toString` method
 - Added `id` property as a shortcut for `user.id`
 - Changed `__eq` consider the guild in addition to the user
 - Removed `guild` property (use `guildId` property or `getGuild` method)
@@ -371,6 +439,7 @@ Note: All previously existing individual channel sub-classes are considered here
 
 - Added `channel` property
 - Added `guild` property
+- Added `toString` method
 - Removed `guildId` property (use `guild.id` property)
 - Removed `guildName` property (use `guild.name` property)
 - Removed `guildIcon` property (use `guild.icon` property)
@@ -392,6 +461,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `getHighestRole` method
 - Added `toMention` method
 - Added `modify` method
+- Added `toString` method
 - Added `guildId` property
 - Added `roleIds` property
 - Added `id` property as a shortcut for `user.id`
@@ -429,6 +499,7 @@ Note: All previously existing individual channel sub-classes are considered here
 
 - Added `getChannel` method
 - Added `channelId` property
+- Added `toString`
 - Changed `__eq` consider the channel in addition to the role/member
 - Removed `getAllowedPermissions` method (use `allowedPermissions` property and `Bitfield` class)
 - Removed `getDeniedPermissions` method (use `deniedPermissions` property and `Bitfield` class)
@@ -462,6 +533,7 @@ Note: Technically a new class that implements the former `UserPresence` features
 - Added `getChannel` method
 - Added `getMessage` method
 - Added `getEmojiURL` method
+- Added `toString` method
 - Added `channelId` property
 - Added `messageId` property
 - Added `hash` property (evaluates `emojiId or emojiName`)

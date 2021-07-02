@@ -1,6 +1,8 @@
 local package = require('../package')
 
 return {
+	MIN_BITRATE = 8000,
+	MAX_BITRATE = 128000,
 	NS_PER_US = 1000,
 	US_PER_MS = 1000,
 	MS_PER_S = 1000,

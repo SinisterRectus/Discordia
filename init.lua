@@ -19,4 +19,5 @@ return {
 	Mutex = require('./libs/utils/Mutex'),
 	Stopwatch = require('./libs/utils/Stopwatch'),
 	Time = require('./libs/utils/Time'),
+	storage = {},
 }
