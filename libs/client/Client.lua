@@ -1418,7 +1418,7 @@ function get:defaultAllowedMentions()
 end
 
 function get:defaultBitrate()
-	return readOnly(self._defaultBitrate)
+	return self._defaultBitrate
 end
 
 function get:status()

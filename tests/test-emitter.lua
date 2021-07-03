@@ -10,27 +10,36 @@ local em = Emitter()
 
 local name = 'test'
 
-assertEqual(em:getListenerCount(name), 0)
-em:on(name, print)
-assertEqual(em:getListenerCount(name), 1)
-em:on(name, print)
-assertEqual(em:getListenerCount(name), 2)
-em:removeListener(name, print)
-assertEqual(em:getListenerCount(name), 1)
-em:removeListener(name, print)
-assertEqual(em:getListenerCount(name), 0)
+local listener1 = em:on(name, print)
+assertEqual(#em:getListeners(name), 1)
+
+local listener2 = em:on(name, print)
+assertEqual(#em:getListeners(name), 2)
+
+em:removeListener(name, listener1)
+assertEqual(#em:getListeners(name), 1)
+
+em:removeListener(name, listener2)
+assertEqual(#em:getListeners(name), 0)
+
+local listener3 = em:on(name, print)
+assertEqual(#em:getListeners(name), 1)
+
+listener3:unregister()
+assertEqual(#em:getListeners(name), 0)
 
 em:on(name, print)
 em:on(name, tostring)
-assertEqual(em:getListenerCount(name), 2)
-em:removeAllListeners(name)
-assertEqual(em:getListenerCount(name), 0)
+assertEqual(#em:getListeners(name), 2)
 
-assertEqual(em:getListenerCount(name), 0)
+em:removeAllListeners(name)
+assertEqual(#em:getListeners(name), 0)
+
 em:once(name, function() end)
-assertEqual(em:getListenerCount(name), 1)
+assertEqual(#em:getListeners(name), 1)
+
 em:emit(name)
-assertEqual(em:getListenerCount(name), 0)
+assertEqual(#em:getListeners(name), 0)
 
 coroutine.wrap(function()
 	assertTrue(em:waitFor(name))
@@ -53,22 +62,19 @@ end)()
 
 assertError(function() return em:on() end, 'expected string, received nil')
 assertError(function() return em:on(1) end, 'expected string, received number')
-assertError(function() return em:on('test') end, 'expected function, received nil')
-assertError(function() return em:on('test', function() end, 'test') end, 'expected function, received string')
+assertError(function() return em:on('test') end, 'expected callable, received nil')
+assertError(function() return em:on('test', function() end, 'test') end, 'expected callable, received string')
 
 assertError(function() return em:once() end, 'expected string, received nil')
 assertError(function() return em:once(1) end, 'expected string, received number')
-assertError(function() return em:once('test') end, 'expected function, received nil')
-assertError(function() return em:once('test', function() end, 'test') end, 'expected function, received string')
+assertError(function() return em:once('test') end, 'expected callable, received nil')
+assertError(function() return em:once('test', function() end, 'test') end, 'expected callable, received string')
 
 assertError(function() return em:emit() end, 'expected string, received nil')
 assertError(function() return em:emit(1) end, 'expected string, received number')
 
 assertError(function() return em:getListeners() end, 'expected string, received nil')
 assertError(function() return em:getListeners(1) end, 'expected string, received number')
-
-assertError(function() return em:getListenerCount() end, 'expected string, received nil')
-assertError(function() return em:getListenerCount(1) end, 'expected string, received number')
 
 assertError(function() return em:removeListener() end, 'expected string, received nil')
 assertError(function() return em:removeListener(1) end, 'expected string, received number')

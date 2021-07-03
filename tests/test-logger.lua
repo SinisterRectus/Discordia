@@ -59,10 +59,10 @@ do
 	assertEqual(logger:log('debug', '%s', 'debug test'), 'debug test')
 end
 
-assertError(function() return Logger(-1) end, 'invalid enumeration value: -1')
-assertError(function() return Logger('abc') end, 'invalid enumeration name: abc')
+assertError(function() return Logger(-1) end, 'invalid enumeration: -1')
+assertError(function() return Logger('abc') end, 'invalid enumeration: abc')
 assertError(function() return Logger(1, 1) end, 'expected string, received number')
-assertError(function() return Logger(1):log() end, 'invalid enumeration value: nil')
-assertError(function() return Logger(1):log('abc') end, 'invalid enumeration name: abc')
+assertError(function() return Logger(1):log() end, 'invalid enumeration: nil')
+assertError(function() return Logger(1):log('abc') end, 'invalid enumeration: abc')
 assertError(function() return Logger(1):log(1) end, 'expected string, received nil')
 assertError(function() return Logger(1):log(1, 1) end, 'expected string, received number')

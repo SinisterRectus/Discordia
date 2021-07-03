@@ -73,6 +73,7 @@
 #### Classes
 
 - Added `Bitfield` utility class
+- Added `Listener` utility class
 - Added `Application` container class
 - Added `Team` container class
 - Added `TeamMember` container class
@@ -657,11 +658,15 @@ Note: This is effectively a new class compared to the old one. It provides a sim
 
 - Added optional error handler `err` parameter to `on` method
 - Added optional error handler `err` parameter to `once` method
+- Changed `on` and `once` return from `function` to `Listener` object
+- Changed `getListeners` return from `function` to `Iterable` object
 - Changed `emit` method to always coroutine-wrap callbacks
 - Changed `emit` method to `pcall` callbacks if an error handler is available
 - Changed `removeListener` to stop after the first positive result
+- Changed `removeListener` second parameter from `function` to `Listener`
 - Removed `onSync` method (use `on` method)
 - Removed `onceSync` method (use `once` method)
+- Removed `getListenerCount` method (use length operator with `getListeners()`)
 
 #### Logger
 
