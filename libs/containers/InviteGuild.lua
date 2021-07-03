@@ -17,6 +17,7 @@ function InviteGuild:__init(data, client)
 	self._features = data.features
 	self._verification_level = data.verification_level
 	self._vanity_url_code = data.vanity_url_code
+	self._welcome_screen = data.welcome_screen and client.state:newWelcomeScreen(data.id, data.welcome_screen)
 end
 
 function InviteGuild:getIconURL(ext, size)
@@ -80,6 +81,10 @@ end
 
 function get:vanityCode()
 	return self._vanity_url_code
+end
+
+function get:welcomeScreen()
+	return self._welcome_screen
 end
 
 return InviteGuild

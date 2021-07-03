@@ -84,6 +84,7 @@
 	- `TeamMember`
 	- `WebhookChannel`
 	- `WebhookGuild`
+	- `WelcomeScreen`
 - Added many new "structs" (see documentation for details)
 - Merged `GuildChannel`, `TextChannel`, `GuildCategoryChannel`, `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateChannel` into one `Channel` class
 - Merged `ArrayIterable`, `TableIterable`, and `FilteredIterable` into one `Iterable` class
@@ -464,9 +465,9 @@ Note: All previously existing individual channel sub-classes are considered here
 - Removed `guildIcon` property (use `guild.icon` property)
 - Removed `guildBanner` property (use `guild.banner` property)
 - Removed `guildSplash` property (use `guild.splash` property)
-- Removed `guildIconURL`
-- Removed `guildBannerURL`
-- Removed `guildSplashURL`
+- Removed `guildIconURL` property (use `guild:getIconURL` method)
+- Removed `guildBannerURL` property (use `guild:getBannerURL` method)
+- Removed `guildSplashURL` property (use `guild:getSplashURL` method)
 - Removed `guildDescription` property (use `guild.description` property)
 - Removed `guildVerificationLevel` property (use `guild.verificationLevel` property)
 - Removed `channelId` property (use `channel.id` property)

@@ -13,6 +13,7 @@ local Reaction = require('../containers/Reaction')
 local Role = require('../containers/Role')
 local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
+local WelcomeScreen = require('../containers/WelcomeScreen')
 
 local Iterable = require('../utils/Iterable')
 local Cache = require('./Cache')
@@ -95,6 +96,11 @@ function State:newGuildTemplates(data)
 		data[i] = self:newGuildTemplate(v)
 	end
 	return Iterable(data, 'code')
+end
+
+function State:newWelcomeScreen(guildId, data)
+	data.guild_id = guildId
+	return WelcomeScreen(data, self._client)
 end
 
 function State:newWebhook(data)

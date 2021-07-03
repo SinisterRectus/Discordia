@@ -301,6 +301,10 @@ function Guild:getTemplates()
 	return self.client:getGuildTemplates(self.id)
 end
 
+function Guild:getWelcomeScreen()
+	return self.client:getGuildWelcomeScreen(self.id)
+end
+
 ----
 
 function get:shardId()

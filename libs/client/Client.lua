@@ -53,6 +53,17 @@ local MIN_BITRATE, MAX_BITRATE = constants.MIN_BITRATE, constants.MAX_BITRATE
 
 local Client, get = class('Client', Emitter)
 
+local function opt(obj, fn, extra)
+	if obj == nil or obj == json.null then
+		return obj
+	end
+	if extra then
+		return fn(extra, obj)
+	else
+		return fn(obj)
+	end
+end
+
 local function checkActivity(activity)
 	local t = type(activity)
 	if t == 'string' then
@@ -104,6 +115,18 @@ local function checkPermissionOverwrites(overwrites)
 		})
 	end
 	return ret
+end
+
+local function checkWelcomeChannels(channels)
+	local ret = {}
+	for _, obj in pairs(checkType('table', channels)) do
+		insert(ret, {
+			channel_id = checkSnowflake(obj.channelId),
+			description = checkType('string', obj.description),
+			emoji_id = opt(obj.emojiId, checkSnowflake),
+			emoji_name = opt(obj.emojiName, checkType, 'string'),
+		})
+	end
 end
 
 local function checkPositions(positions)
@@ -171,17 +194,6 @@ local function checkOptions(customOptions)
 		end
 	end
 	return options
-end
-
-local function opt(obj, fn, extra)
-	if obj == nil or obj == json.null then
-		return obj
-	end
-	if extra then
-		return fn(extra, obj)
-	else
-		return fn(obj)
-	end
 end
 
 function Client:__init(options)
@@ -773,6 +785,31 @@ function Client:removeGuildBan(guildId, userId, reason)
 		return true -- 204
 	else
 		return false, err
+	end
+end
+
+function Client:getGuildWelcomeScreen(guildId)
+	guildId = checkSnowflake(guildId)
+	local data, err = self.api:getGuildWelcomeScreen(guildId)
+	if data then
+		return self.state:newWelcomeScreen(guildId, data)
+	else
+		return nil, err
+	end
+end
+
+function Client:modifyGuildWelcomeScreen(guildId, payload)
+	guildId = checkSnowflake(guildId)
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyGuildWelcomeScreen(guildId, {
+		enabled = opt(payload.enabled, checkType, 'boolean'),
+		description = opt(payload.description, checkType, 'string'),
+		welcome_channels = opt(payload.welcomeChannels, checkWelcomeChannels),
+	})
+	if data then
+		return self.state:newWelcomeScreen(guildId, data)
+	else
+		return nil, err
 	end
 end
 
