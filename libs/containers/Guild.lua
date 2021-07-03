@@ -293,6 +293,14 @@ function Guild:removeBan(userId, reason)
 	return self.client:removeGuildBan(self.id, userId, reason)
 end
 
+function Guild:createTemplate(payload)
+	return self.client:createGuildTemplate(self.id, payload)
+end
+
+function Guild:getTemplates()
+	return self.client:getGuildTemplates(self.id)
+end
+
 ----
 
 function get:shardId()

@@ -3,6 +3,7 @@ local Ban = require('../containers/Ban')
 local Channel = require('../containers/Channel')
 local Emoji = require('../containers/Emoji')
 local Guild = require('../containers/Guild')
+local GuildTemplate = require('../containers/GuildTemplate')
 local Invite = require('../containers/Invite')
 local Member = require('../containers/Member')
 local Message = require('../containers/Message')
@@ -81,6 +82,17 @@ end
 function State:newInvites(data)
 	for i, v in ipairs(data) do
 		data[i] = self:newInvite(v)
+	end
+	return Iterable(data, 'code')
+end
+
+function State:newGuildTemplate(data)
+	return GuildTemplate(data, self._client)
+end
+
+function State:newGuildTemplates(data)
+	for i, v in ipairs(data) do
+		data[i] = self:newGuildTemplate(v)
 	end
 	return Iterable(data, 'code')
 end

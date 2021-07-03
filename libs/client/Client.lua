@@ -776,6 +776,79 @@ function Client:removeGuildBan(guildId, userId, reason)
 	end
 end
 
+---- Guild Templates ----
+
+function Client:getGuildTemplate(code)
+	code = checkType('string', code)
+	local data, err = self.api:getGuildTemplate(code)
+	if data then
+		return self.state:newGuildTemplate(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:getGuildTemplates(guildId)
+	guildId = checkSnowflake(guildId)
+	local data, err = self.api:getGuildTemplates(guildId)
+	if data then
+		return self.state:newGuildTemplates(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:createGuildTemplate(guildId, payload)
+	guildId = checkSnowflake(guildId)
+	payload = checkType('table', payload)
+	local data, err = self.api:createGuildTemplate(guildId, {
+		name = checkType('string', payload.name),
+		description = opt(payload.description, checkType, 'string'),
+	})
+	if data then
+		return self.state:newGuildTemplate(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:syncGuildTemplate(guildId, code)
+	guildId = checkSnowflake(guildId)
+	code = checkType('string', code)
+	local data, err = self.api:syncGuildTemplate(guildId, code)
+	if data then
+		return self.state:newGuildTemplate(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:modifyGuildTemplate(guildId, code, payload)
+	guildId = checkSnowflake(guildId)
+	code = checkType('string', code)
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyGuildTemplate(guildId, code, {
+		name = opt(payload.name, checkType, 'string'),
+		description = opt(payload.description, checkType, 'string'),
+	})
+	if data then
+		return self.state:newGuildTemplate(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:deleteGuildTemplate(guildId, code)
+	guildId = checkSnowflake(guildId)
+	code = checkType('string', code)
+	local data, err = self.api:deleteGuildTemplate(guildId, code)
+	if data then
+		return true -- 200
+	else
+		return false, err
+	end
+end
+
 ---- Emoji ----
 
 function Client:modifyGuildEmoji(guildId, emojiId, payload)

@@ -75,6 +75,7 @@
 - Added `Bitfield` utility class
 - Added `Listener` utility class
 - Added `Application` container class
+- Added `GuildTemplate` container class
 - Added `Team` container class
 - Added `TeamMember` container class
 - Added many new "structs" (see documentation for details)
@@ -238,7 +239,7 @@
 - Removed `getEmoji` method (use `getGuildEmoji` method)
 - Removed `listVoiceRegions` method
 - Removed `getConnections` method
-- Removed `getApplicationInformation` method
+- Removed `getApplication` method
 - Removed `setGame` method (use `setActivity` method)
 - Removed `setAFK` method
 
