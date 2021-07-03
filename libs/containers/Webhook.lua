@@ -1,7 +1,7 @@
 local Snowflake = require('./Snowflake')
 local User = require('./User')
-local WebhookGuild = require('../structs/WebhookGuild')
-local WebhookChannel = require('../structs/WebhookChannel')
+local WebhookGuild = require('./WebhookGuild')
+local WebhookChannel = require('./WebhookChannel')
 
 local class = require('../class')
 local json = require('json')
@@ -18,8 +18,8 @@ function Webhook:__init(data, client)
 	self._name = data.name
 	self._avatar = data.avatar
 	self._user = data.user and self.client.state:newUser(data.user) or nil
-	self._source_channel = data.source_channel and WebhookChannel(data.source_channel)
-	self._source_guild = data.source_guild and WebhookGuild(data.source_guild)
+	self._source_channel = data.source_channel and WebhookChannel(data.source_channel, client)
+	self._source_guild = data.source_guild and WebhookGuild(data.source_guild, client)
 end
 
 function Webhook:getAvatarURL(size, ext)

@@ -1,6 +1,6 @@
 local Container = require('./Container')
-local InviteChannel = require('../structs/InviteChannel')
-local InviteGuild = require('../structs/InviteGuild')
+local InviteChannel = require('./InviteChannel')
+local InviteGuild = require('./InviteGuild')
 
 local class = require('../class')
 
@@ -17,8 +17,8 @@ function Invite:__init(data, client)
 	self._max_age = data.max_age
 	self._temporary = data.temporary
 	self._created_at = data.created_at
-	self._channel = data.channel and InviteChannel(data.channel)
-	self._guild = data.guild and InviteGuild(data.guild)
+	self._channel = data.channel and InviteChannel(data.channel, client)
+	self._guild = data.guild and InviteGuild(data.guild, client)
 end
 
 function Invite:__eq(other)

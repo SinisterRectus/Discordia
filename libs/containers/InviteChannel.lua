@@ -1,9 +1,11 @@
+local Snowflake = require('./Snowflake')
+
 local class = require('../class')
 
-local InviteChannel, get = class('InviteChannel')
+local InviteChannel, get = class('InviteChannel', Snowflake)
 
-function InviteChannel:__init(data)
-	self._id = data.id
+function InviteChannel:__init(data, client)
+	Snowflake.__init(self, data, client)
 	self._name = data.name
 	self._type = data.type
 end

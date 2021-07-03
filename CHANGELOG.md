@@ -72,12 +72,18 @@
 
 #### Classes
 
-- Added `Bitfield` utility class
-- Added `Listener` utility class
-- Added `Application` container class
-- Added `GuildTemplate` container class
-- Added `Team` container class
-- Added `TeamMember` container class
+- Added utility classes:
+	- `Bitfield`
+	- `Listener`
+- Added container classes:
+	- `Application`
+	- `GuildTemplate`
+	- `InviteChannel`
+	- `InviteGuild`
+	- `Team`
+	- `TeamMember`
+	- `WebhookChannel`
+	- `WebhookGuild`
 - Added many new "structs" (see documentation for details)
 - Merged `GuildChannel`, `TextChannel`, `GuildCategoryChannel`, `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateChannel` into one `Channel` class
 - Merged `ArrayIterable`, `TableIterable`, and `FilteredIterable` into one `Iterable` class
