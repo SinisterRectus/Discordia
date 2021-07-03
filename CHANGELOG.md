@@ -547,14 +547,17 @@ Note: Technically a new class that implements the former `UserPresence` features
 - Added `toString` method
 - Added `channelId` property
 - Added `messageId` property
-- Added `hash` property (evaluates `emojiId or emojiName`)
+- Added `hash` property (evaluates `emoji.id or emoji.name`)
 - Added `whence` and `userId` parameters to `getUsers` method
 - Changed `__eq` consider the message in addition to the emoji
 - Removed `channel` property (use `channelId` property or `getChannel` method)
 - Removed `message` property (use `messageId` property or `getMessage` method)
 - Removed `getUsersBefore` method (use `getUsers` method)
 - Removed `getUsersAfter` method (use `getUsers` method)
-- Removed `emojiURL` property (use `getEmojiURL` method)
+- Removed `emojiId` property (use `emoji.id` property)
+- Removed `emojiName` property (use `emoji.name` property)
+- Removed `emojiHash` property (use `emoji.hash` property)
+- Removed `emojiURL` property
 
 #### Role
 

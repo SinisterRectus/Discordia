@@ -1,9 +1,7 @@
 local Container = require('./Container')
+local ReactionEmoji = require('../structs/ReactionEmoji')
 
 local class = require('../class')
-local typing = require('../typing')
-
-local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.checkImageSize
 
 local Reaction, get = class('Reaction', Container)
 
@@ -13,8 +11,7 @@ function Reaction:__init(data, client)
 	self._message_id = assert(data.message_id)
 	self._count = data.count
 	self._me = data.me
-	self._emoji_id = data.emoji.id
-	self._emoji_name = data.emoji.name
+	self._emoji = ReactionEmoji(data.emoji, client)
 end
 
 function Reaction:__eq(other)
@@ -34,20 +31,11 @@ function Reaction:getMessage()
 end
 
 function Reaction:getUsers(limit, whence, userId)
-	return self.client:getReactionUsers(self.channelId, self.messageId, self.emojiHash, limit, whence, userId)
-end
-
-function Reaction:getEmojiURL(ext, size)
-	if not self.emojiId then
-		return nil, 'Cannot provide URL for default emoji'
-	end
-	ext = ext and checkImageExtension(ext)
-	size = size and checkImageSize(size)
-	return self.client.cdn:getCustomEmojiURL(self.emojiId, ext, size)
+	return self.client:getReactionUsers(self.channelId, self.messageId, self.emoji.hash, limit, whence, userId)
 end
 
 function Reaction:delete(userId)
-	return self.client:removeReaction(self.channelId, self.messageId, self.emojiHash, userId)
+	return self.client:removeReaction(self.channelId, self.messageId, self.emoji.hash, userId)
 end
 
 function get:me()
@@ -66,24 +54,8 @@ function get:messageId()
 	return self._message_id
 end
 
-function get:emojiId()
-	return self._emoji_id
-end
-
-function get:emojiName()
-	return self._emoji_name
-end
-
-function get:emojiHash()
-	if self.emojiId then
-		return self.emojiName .. ':' .. self.emojiId
-	else
-		return self.emojiName
-	end
-end
-
 function get:hash()
-	return self.emojiId or self.emojiName
+	return self.emoji.id or self.emoji.name
 end
 
 return Reaction
