@@ -1,12 +1,27 @@
 local fs = require('fs')
 local pathjoin = require('pathjoin')
+
+local enums = require('./enums')
+local class = require('./class')
 local typing = require('./typing')
 
-local format = string.format
-local readFileSync = fs.readFileSync
+local Color = require('./utils/Color')
+local Bitfield = require('./utils/Bitfield')
+local Emoji = require('./containers/Emoji')
+local Reaction = require('./containers/Reaction')
+
 local splitPath = pathjoin.splitPath
-local insert, remove, concat = table.insert, table.remove, table.concat
+local isInstance = class.isInstance
+local readFileSync = fs.readFileSync
+
+local opt = typing.opt
+local checkType = typing.checkType
+local checkEnum = typing.checkEnum
+local checkInteger = typing.checkInteger
 local checkSnowflake = typing.checkSnowflake
+
+local format = string.format
+local insert, remove, concat = table.insert, table.remove, table.concat
 
 local function parseMention(obj, mentions)
 	if type(obj) == 'table' and type(obj.toMention) == 'function' then
@@ -123,6 +138,67 @@ function messaging.parseMessageReference(payload)
 		}
 	end
 	return messageReference
+end
+
+----
+
+function messaging.checkColor(obj)
+	if isInstance(obj, Color) then
+		return obj:toDec()
+	end
+	return Color(obj):toDec()
+end
+
+function messaging.checkBitfield(obj)
+	if isInstance(obj, Bitfield) then
+		return obj:toDec()
+	end
+	return Bitfield(obj):toDec()
+end
+
+function messaging.checkEmoji(obj)
+	if type(obj) == 'string' then
+		return obj
+	elseif isInstance(obj, Emoji) then
+		return obj.hash
+	elseif isInstance(obj, Reaction) then
+		return obj.emoji.hash
+	else
+		return error('invalid emoji', 2)
+	end
+end
+
+function messaging.checkPermissionOverwrites(overwrites)
+	local ret = {}
+	for _, obj in pairs(checkType('table', overwrites)) do
+		insert(ret, {
+			id = checkSnowflake(obj.id),
+			type = checkEnum(enums.permissionOverwriteType, obj.type),
+			allow = messaging.checkBitfield(obj.allowedPermissions),
+			deny = messaging.checkBitfield(obj.deniedPermissions),
+		})
+	end
+	return ret
+end
+
+function messaging.checkWelcomeChannels(channels)
+	local ret = {}
+	for _, obj in pairs(checkType('table', channels)) do
+		insert(ret, {
+			channel_id = checkSnowflake(obj.channelId),
+			description = checkType('string', obj.description),
+			emoji_id = opt(obj.emojiId, checkSnowflake),
+			emoji_name = opt(obj.emojiName, checkType, 'string'),
+		})
+	end
+end
+
+function messaging.checkPositions(positions)
+	local ret = {}
+	for k, v in pairs(checkType('table', positions)) do
+		insert(ret, {id = checkSnowflake(k), position = checkInteger(v)})
+	end
+	return ret
 end
 
 return messaging

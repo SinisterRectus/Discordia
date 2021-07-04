@@ -1,4 +1,5 @@
 local fs = require('fs')
+local json = require('json')
 local ssl = require('openssl')
 
 local base64 = ssl.base64
@@ -10,6 +11,17 @@ local function typeError(expected, received)
 end
 
 local typing = {}
+
+function typing.opt(obj, fn, extra)
+	if obj == nil or obj == json.null then
+		return obj
+	end
+	if extra then
+		return fn(extra, obj)
+	else
+		return fn(obj)
+	end
+end
 
 function typing.checkType(expected, obj)
 	local received = type(obj)
