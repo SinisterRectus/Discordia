@@ -14,13 +14,12 @@ local State = require('./State')
 
 local GuildClient = require('./GuildClient')
 local ChannelClient = require('./ChannelClient')
+local CommandClient = require('./CommandClient')
 
 local Bitfield = require('../utils/Bitfield')
 local Logger = require('../utils/Logger')
 local Emitter = require('../utils/Emitter')
 local Stopwatch = require('../utils/Stopwatch')
-
-local Application = require('../containers/Application')
 
 local wrap = coroutine.wrap
 local concat = table.concat
@@ -36,7 +35,7 @@ local checkCallable = typing.checkCallable
 local checkImageData = typing.checkImageData
 local checkImageSize = typing.checkImageSize
 local checkImageExtension = typing.checkImageExtension
-local checkSnowflakeArray = typing.checkSnowflakeArray
+local checkArray = typing.checkArray
 local isInstance = class.isInstance
 
 local GATEWAY_VERSION = constants.GATEWAY_VERSION
@@ -240,7 +239,7 @@ end
 function Client:getApplication()
 	local data, err = self.api:getCurrentBotApplicationInformation()
 	if data then
-		return Application(data, self)
+		return self.state:newApplication(data)
 	else
 		return nil, err
 	end
@@ -266,7 +265,7 @@ function Client:requestGuildMembers(guildId, payload, callback)
 
 		local query, users
 		if payload.users then
-			users = opt(payload.users, checkSnowflakeArray)
+			users = opt(payload.users, checkArray, checkSnowflake)
 		else
 			query = opt(payload.query, checkType, 'string') or ''
 		end

@@ -20,7 +20,7 @@ function Application:__init(data, client)
 	self._bot_require_code_grant = data.bot_require_code_grant
 	self._terms_of_service_url = data.terms_of_service_url
 	self._privacy_policy_url = data.privacy_policy_url
-	self._owner = client.state:newUser(data.owner)
+	self._owner = data.owner and client.state:newUser(data.owner)
 	self._summary = data.summary
 	self._verify_key = data.verify_key
 	self._team = data.team and Team(data.team, client)

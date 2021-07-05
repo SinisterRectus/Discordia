@@ -23,6 +23,8 @@ function Member:__init(data, client)
 	self._premium_since = data.premium_since
 	self._deaf = data.deaf
 	self._mute = data.mute
+	self._pending = data.pending
+	self._permissions = data.permissions
 end
 
 function Member:__eq(other)
@@ -259,6 +261,14 @@ end
 
 function get:deafened()
 	return self._deaf
+end
+
+function get:pending()
+	return self._pending
+end
+
+function get:permissions()
+	return self._permissions
 end
 
 function get:guildId()

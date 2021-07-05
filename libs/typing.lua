@@ -74,6 +74,14 @@ function typing.checkCallable(obj)
 	return typeError('callable', type(obj))
 end
 
+function typing.checkArray(fn, arr)
+	local ret = {}
+	for _, obj in ipairs(typing.checkType('table', arr)) do
+		ret[#ret + 1] = fn(obj)
+	end
+	return ret
+end
+
 function typing.checkEnum(enum, obj)
 	local _, v = enum(obj)
 	return v
@@ -91,18 +99,6 @@ function typing.checkSnowflake(obj)
 		return tostring(obj):match('%d*')
 	end
 	return error('Snowflake ID should be an integral string', 2)
-end
-
-function typing.checkSnowflakeArray(obj)
-	local t = type(obj)
-	if t ~= 'table' then
-		return typeError('table', t)
-	end
-	local arr = {}
-	for _, v in pairs(obj) do
-		arr[#arr + 1] = typing.checkSnowflake(v)
-	end
-	return arr
 end
 
 local function imageType(data)

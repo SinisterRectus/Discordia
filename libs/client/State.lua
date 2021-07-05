@@ -1,12 +1,16 @@
+local Application = require('../containers/Application')
+local Command = require('../containers/Command')
 local AuditLogEntry = require('../containers/AuditLogEntry')
 local Ban = require('../containers/Ban')
 local Channel = require('../containers/Channel')
 local Emoji = require('../containers/Emoji')
 local Guild = require('../containers/Guild')
 local GuildTemplate = require('../containers/GuildTemplate')
+local Interaction = require('../containers/Interaction')
 local Invite = require('../containers/Invite')
 local Member = require('../containers/Member')
 local Message = require('../containers/Message')
+local MessageInteraction = require('../containers/MessageInteraction')
 local PermissionOverwrite = require('../containers/PermissionOverwrite')
 local Presence = require('../containers/Presence')
 local Reaction = require('../containers/Reaction')
@@ -30,8 +34,11 @@ function State:__init(client)
 	self._client = assert(client)
 
 	self._privateMap = {} -- userId -> channelId
+	self._applicationId = nil
 
 	self._users = Cache(User, client, true)
+	self._commands = Cache(Command, client, true)
+
 	self._guilds = Cache(Guild, client)
 	self._roles = CompoundCache(Role, client)
 	self._emojis = CompoundCache(Emoji, client)
@@ -112,6 +119,29 @@ function State:newWebhooks(data)
 		data[i] = self:newWebhook(v)
 	end
 	return Iterable(data, 'id')
+end
+
+function State:newApplication(data)
+	return Application(data, self._client)
+end
+
+function State:newCommand(data)
+	return self._commands:update(data.id, data)
+end
+
+function State:newCommands(data)
+	for i, v in ipairs(data) do
+		data[i] = self:newCommand(v)
+	end
+	return Iterable(data, 'id')
+end
+
+function State:newInteraction(data)
+	return Interaction(data, self._client)
+end
+
+function State:newMessageInteraction(data)
+	return MessageInteraction(data, self._client)
 end
 
 function State:newRole(guildId, data)

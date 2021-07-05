@@ -50,10 +50,10 @@ function Message:__init(data, client)
 	self._mentions = data.mentions and client.state:newUsers(data.mentions)
 	self._reactions = data.reactions and client.state:newReactions(data.channel_id, data.id, data.reactions)
 	self._referenced_message = data.referenced_message and client.state:newMessage(data.referenced_message)
+	self._interaction = data.interaction and client.state:newMessageInteraction(data.interaction)
+	self._application = data.application and client.state:newApplication(data.application)
 
 	self._activity = data.activity and MessageActivity(data.activity)
-
-	-- TODO: application
 
 end
 
@@ -72,13 +72,13 @@ end
 function Message:hideEmbeds()
 	local flags = Bitfield(self.flags)
 	flags:disableValue(enums.messageFlag.suppressEmbeds)
-	return self.client:editMessage(self.channelId, self.id, {flags = flags:toDec()})
+	return self.client:editMessage(self.channelId, self.id, {flags = flags})
 end
 
 function Message:showEmbeds()
 	local flags = Bitfield(self.flags)
 	flags:enableValue(enums.messageFlag.suppressEmbeds)
-	return self.client:editMessage(self.channelId, self.id, {flags = flags:toDec()})
+	return self.client:editMessage(self.channelId, self.id, {flags = flags})
 end
 
 function Message:hasFlag(flag)
@@ -275,6 +275,14 @@ end
 
 function get:referencedMessage()
 	return self._referenced_message
+end
+
+function get:interaction()
+	return self._interaction
+end
+
+function get:application()
+	return self._application
 end
 
 function get:activity()

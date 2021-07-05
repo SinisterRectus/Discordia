@@ -225,6 +225,39 @@ proxy.premiumType = {
 	nitro        = 2,
 }
 
+proxy.commandOptionType = {
+	subCommand      = 1,
+	subCommandGroup = 2,
+	string          = 3,
+	integer         = 4,
+	boolean         = 5,
+	user            = 6,
+	channel         = 7,
+	role            = 8,
+	mentionable     = 9,
+}
+
+proxy.commandPermissionType = {
+	role = 1,
+	user = 2,
+}
+
+proxy.interactionRequestType = {
+	ping               = 1,
+	applicationCommand = 2,
+	messageComponent   = 3,
+}
+
+proxy.interactionResponseType = {
+	pong                             = 1,
+	-- unused (acknowledge)          = 2,
+	-- unused (channelMessage)       = 3,
+	channelMessageWithSource         = 4,
+	deferredChannelMessageWithSource = 5,
+	deferredUpdateMessage            = 6,
+	updateMessage                    = 7
+}
+
 proxy.actionType = {
 	guildUpdate            = 1,
 	channelCreate          = 10,
@@ -308,6 +341,10 @@ proxy.clientEvent = {
 	typingStart         = 'typingStart',
 	userUpdate          = 'userUpdate',
 	webhookUpdate       = 'webhookUpdate',
+	commandCreate       = 'commandCreate',
+	commandUpdate       = 'commandUpdate',
+	commandDelete       = 'commandDelete',
+	interactionCreate   = 'interactionCreate',
 }
 
 local function flag(n)
@@ -409,6 +446,19 @@ proxy.activityFlag = {
 	joinRequest = flag(3),
 	sync        = flag(4),
 	play        = flag(5),
+}
+
+proxy.interactionResponseFlag = {
+	ephemeral = flag(6),
+}
+
+proxy.applicationFlag = {
+	gatewayPresence               = flag(12),
+	gatewayPresenceLimited        = flag(13),
+	gatewayGuildMembers           = flag(14),
+	gatewayGuildMembersLimited    = flag(15),
+	verificationPendingGuildLimit = flag(16),
+	embedded                      = flag(17),
 }
 
 return proxy

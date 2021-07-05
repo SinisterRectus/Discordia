@@ -374,10 +374,10 @@ function API:bulkOverwriteGuildApplicationCommands(application_id, guild_id, pay
 	return self:request("PUT", endpoint, params, query, payload)
 end
 
-function API:createInteractionResponse(interaction_id, interaction_token, payload, query)
+function API:createInteractionResponse(interaction_id, interaction_token, payload, query, files)
 	local endpoint = endpoints.INTERACTION_TOKEN_CALLBACK
 	local params = {interaction_id, interaction_token}
-	return self:request("POST", endpoint, params, query, payload)
+	return self:request("POST", endpoint, params, query, payload, files)
 end
 
 function API:getOriginalInteractionResponse(application_id, interaction_token, query)
@@ -386,10 +386,10 @@ function API:getOriginalInteractionResponse(application_id, interaction_token, q
 	return self:request("GET", endpoint, params, query)
 end
 
-function API:editOriginalInteractionResponse(application_id, interaction_token, payload, query)
+function API:editOriginalInteractionResponse(application_id, interaction_token, payload, query, files)
 	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGES_ORIGINAL
 	local params = {application_id, interaction_token}
-	return self:request("PATCH", endpoint, params, query, payload)
+	return self:request("PATCH", endpoint, params, query, payload, files)
 end
 
 function API:deleteOriginalInteractionResponse(application_id, interaction_token, query)
@@ -398,16 +398,16 @@ function API:deleteOriginalInteractionResponse(application_id, interaction_token
 	return self:request("DELETE", endpoint, params, query)
 end
 
-function API:createFollowupMessage(application_id, interaction_token, payload, query)
+function API:createFollowupMessage(application_id, interaction_token, payload, query, files)
 	local endpoint = endpoints.WEBHOOK_TOKEN
 	local params = {application_id, interaction_token}
-	return self:request("POST", endpoint, params, query, payload)
+	return self:request("POST", endpoint, params, query, payload, files)
 end
 
-function API:editFollowupMessage(application_id, interaction_token, message_id, payload, query)
+function API:editFollowupMessage(application_id, interaction_token, message_id, payload, query, files)
 	local endpoint = endpoints.WEBHOOK_TOKEN_MESSAGE
 	local params = {application_id, interaction_token, message_id}
-	return self:request("PATCH", endpoint, params, query, payload)
+	return self:request("PATCH", endpoint, params, query, payload, files)
 end
 
 function API:deleteFollowupMessage(application_id, interaction_token, message_id, query)

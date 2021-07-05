@@ -13,7 +13,7 @@ local checkEnum = typing.checkEnum
 local checkInteger = typing.checkInteger
 local checkImageData = typing.checkImageData
 local checkSnowflake = typing.checkSnowflake
-local checkSnowflakeArray = typing.checkSnowflakeArray
+local checkArray = typing.checkArray
 
 local checkColor = messaging.checkColor
 local checkBitfield = messaging.checkBitfield
@@ -234,7 +234,7 @@ function Client:pruneGuildMembers(guildId, payload)
 		data, err = self.api:beginGuildPrune(guildId, {
 			days = opt(payload.days, checkInteger),
 			compute_prune_count = opt(payload.compute, checkType, 'boolean'),
-			include_roles = opt(payload.roleIds, checkSnowflakeArray),
+			include_roles = opt(payload.roleIds, checkArray, checkSnowflake),
 		})
 	else
 		data, err = self.api:beginGuildPrune(guildId)
@@ -454,7 +454,7 @@ function Client:modifyGuildEmoji(guildId, emojiId, payload)
 	payload = checkType('table', payload)
 	local data, err = self.api:modifyGuildEmoji(guildId, emojiId, {
 		name = opt(payload.name, checkType, 'string'),
-		roles = opt(payload.roleIds, checkSnowflakeArray),
+		roles = opt(payload.roleIds, checkArray, checkSnowflake),
 	})
 	if data then
 		return self.state:newEmoji(guildId, data)
@@ -520,7 +520,7 @@ function Client:modifyGuildMember(guildId, userId, payload)
 	payload = checkType('table', payload)
 	local data, err = self.api:modifyGuildMember(guildId, userId, {
 		nick = opt(payload.nickname, checkType, 'string'),
-		roles = opt(payload.roleIds, checkSnowflakeArray),
+		roles = opt(payload.roleIds, checkArray, checkSnowflake),
 		mute = opt(payload.muted, checkType, 'boolean'),
 		deaf = opt(payload.deafened, checkType, 'boolean'),
 		channel_id = opt(payload.channelId, checkSnowflake),

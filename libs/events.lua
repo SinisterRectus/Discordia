@@ -246,4 +246,24 @@ function events.WEBHOOKS_UPDATE(d, client) -- GUILD_WEBHOOKS
 	})
 end
 
+function events.APPLICATION_COMMAND_CREATE(d, client)
+	local command = client.state:newCommand(d)
+	return client:emit('commandCreate', command)
+end
+
+function events.APPLICATION_COMMAND_UPDATE(d, client)
+	local command = client.state:newCommand(d)
+	return client:emit('commandUpdate', command)
+end
+
+function events.APPLICATION_COMMAND_DELETE(d, client)
+	local command = client.state:newCommand(d)
+	return client:emit('commandDelete', command)
+end
+
+function events.INTERACTION_CREATE(d, client)
+	local interaction = client.state:newInteraction(d)
+	return client:emit('interactionCreate', interaction)
+end
+
 return events

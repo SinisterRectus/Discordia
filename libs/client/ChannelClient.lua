@@ -17,7 +17,7 @@ local checkEnum = typing.checkEnum
 local checkInteger = typing.checkInteger
 local checkImageData = typing.checkImageData
 local checkSnowflake = typing.checkSnowflake
-local checkSnowflakeArray = typing.checkSnowflakeArray
+local checkArray = typing.checkArray
 
 local Client = {}
 
@@ -155,7 +155,7 @@ end
 
 function Client:bulkDeleteMessages(channelId, messageIds)
 	channelId = checkSnowflake(channelId)
-	messageIds = checkSnowflakeArray(messageIds)
+	messageIds = checkArray(checkSnowflake, messageIds)
 	local data, err
 	if #messageIds == 1 then
 		data, err = self.api:deleteMessage(channelId, messageIds[1])
@@ -270,7 +270,7 @@ function Client:editMessage(channelId, messageId, payload)
 	local data, err = self.api:editMessage(channelId, messageId, {
 		content = parseContent(payload),
 		embeds = parseEmbeds(payload),
-		flags = opt(payload.flags, checkInteger),
+		flags = opt(payload.flags, checkBitfield),
 		allowed_mentions = parseAllowedMentions(payload, self.defaultAllowedMentions),
 	}, nil, parseFiles(payload))
 	if data then
