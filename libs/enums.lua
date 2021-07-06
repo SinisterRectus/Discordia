@@ -203,6 +203,11 @@ proxy.explicitContentLevel = {
 	high   = 2,
 }
 
+proxy.stagePrivacyLevel = {
+	public = 1,
+	guild  = 2,
+}
+
 proxy.premiumTier = {
 	none  = 0,
 	tier1 = 1,

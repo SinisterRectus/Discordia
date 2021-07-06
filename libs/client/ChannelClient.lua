@@ -153,6 +153,62 @@ function Client:getChannelWebhooks(channelId)
 	end
 end
 
+function Client:createStageInstance(channelId, payload)
+	channelId = checkSnowflake(channelId)
+	local data, err
+	if type(payload) == 'table' then
+		data, err = self.api:createStageInstance({
+			channel_id = channelId,
+			topic = checkType('string', payload.topic),
+			privacy_level = opt(payload.privacyLevel, checkEnum, enums.stagePrivacyLevel),
+		})
+	else
+		data, err = self.api:createStageInstance({
+			channel_id = channelId,
+			topic = checkType('string', payload),
+		})
+	end
+	if data then
+		return self.state:newStageInstance(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:getStageInstance(channelId)
+	channelId = checkSnowflake(channelId)
+	local data, err = self.api:getStageInstance(channelId)
+	if data then
+		return self.state:newStageInstance(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:modifyStageInstance(channelId, payload)
+	channelId = checkSnowflake(channelId)
+	payload = checkType('table', payload)
+	local data, err = self.api:modifyStageInstance(channelId, {
+		topic = opt(payload.topic, checkType, 'string'),
+		privacy_level = opt(payload.privacyLevel, checkEnum, enums.stagePrivacyLevel),
+	})
+	if data then
+		return self.state:newStageInstance(data)
+	else
+		return nil, err
+	end
+end
+
+function Client:deleteStageInstance(channelId)
+	channelId = checkSnowflake(channelId)
+	local data, err = self.api:deleteStageInstance(channelId)
+	if data then
+		return true -- 204
+	else
+		return false, err
+	end
+end
+
 function Client:bulkDeleteMessages(channelId, messageIds)
 	channelId = checkSnowflake(channelId)
 	messageIds = checkArray(checkSnowflake, messageIds)

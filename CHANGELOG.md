@@ -10,6 +10,7 @@
 - Added support for slash commands
 - Added support for application teams
 - Added support for guild templates, welcome screens, and previews
+- Added support for stage instances
 - Improved support for message replies and allowed mentions
 - Added client statistics (latency, uptime, etc)
 - Loggers, including the client's default logger, can now be configured at runtime (you can toggle the colors, too)
@@ -86,6 +87,7 @@
 	- `InviteChannel`
 	- `InviteGuild`
 	- `MessageInteraction`
+	- `StageInstance`
 	- `Team`
 	- `TeamMember`
 	- `WebhookChannel`
@@ -142,6 +144,7 @@
 - Added `timestampStyle` enumerations
 - Added `mentionType` enumerations
 - Added `teamMembershipState` enumerations
+- Added `stagePrivacyLevel` enumerations
 - Added `channelType.store`
 - Added `messageType.channelFollowAdd`
 - Added `messageType.guildDiscoveryDisqualified`
@@ -257,6 +260,10 @@
 	- `getChannelInvites`
 	- `createWebhook`
 	- `getChannelWebhooks`
+	- `createStageInstance`
+	- `getStageInstance`
+	- `modifyStageInstance`
+	- `deleteStageInstance`
 	- `bulkDeleteMessages`
 	- `getChannelMessage`
 	- `getChannelMessages`
@@ -420,6 +427,7 @@ Note: All previously existing individual channel sub-classes are considered here
 - Added `toMention` method
 - Added `guildId` property
 - Added `setPosition` method
+- Added `createStageInstance`
 - Changed `permissionOverwrites` property from a `Cache` to `Iterable`
 - Changed `recipients` property from a `SecondaryCache` to `Iterable`
 - Removed `moveUp` method (use `setPosition` or `Guild:sortChannels` method)

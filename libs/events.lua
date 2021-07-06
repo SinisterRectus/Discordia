@@ -39,6 +39,21 @@ function events.CHANNEL_PINS_UPDATE(d, client) -- GUILDS / DIRECT_MESSAGES
 	})
 end
 
+function events.STAGE_INSTANCE_CREATE(d, client) -- GUILDS
+	local stage = client.state:newStageInstance(d)
+	return client:emit('stageCreate', stage)
+end
+
+function events.STAGE_INSTANCE_UPDATE(d, client) -- GUILDS
+	local stage = client.state:newStageInstance(d)
+	return client:emit('stageUpdate', stage)
+end
+
+function events.STAGE_INSTANCE_DELETE(d, client) -- GUILDS
+	local stage = client.state:newStageInstance(d)
+	return client:emit('stageDelete', stage)
+end
+
 function events.GUILD_CREATE(d, client, shard) -- GUILDS
 	local guild = client.state:newGuild(d)
 	if shard:guildIsLoading(d.id) then

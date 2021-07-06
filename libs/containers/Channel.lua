@@ -63,7 +63,7 @@ function Channel:getParent()
 	if not self.parentId then
 		return nil, 'Not a child channel'
 	else
-		return self.client:getGuildChannel(self.parentId)
+		return self.client:getChannel(self.parentId)
 	end
 end
 
@@ -125,6 +125,10 @@ end
 
 function Channel:follow(targetId)
 	return self.client:followNewsChannel(self.id, targetId)
+end
+
+function Channel:createStageInstance(payload)
+	return self.client:createStageInstance(self.id, payload)
 end
 
 function Channel:modify(payload)

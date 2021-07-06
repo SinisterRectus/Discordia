@@ -16,6 +16,7 @@ local PermissionOverwrite = require('../containers/PermissionOverwrite')
 local Presence = require('../containers/Presence')
 local Reaction = require('../containers/Reaction')
 local Role = require('../containers/Role')
+local StageInstance = require('../containers/StageInstance')
 local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
 local WelcomeScreen = require('../containers/WelcomeScreen')
@@ -39,6 +40,7 @@ function State:__init(client)
 
 	self._users = Cache(User, client, true)
 	self._commands = Cache(Command, client, true)
+	self._stages = Cache(StageInstance, client, true)
 
 	self._guilds = Cache(Guild, client)
 	self._roles = CompoundCache(Role, client)
@@ -124,6 +126,10 @@ function State:newWebhooks(data)
 		data[i] = self:newWebhook(v)
 	end
 	return Iterable(data, 'id')
+end
+
+function State:newStageInstance(data)
+	return self._stages:update(data.id, data)
 end
 
 function State:newApplication(data)
