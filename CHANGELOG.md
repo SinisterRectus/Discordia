@@ -7,13 +7,16 @@
 #### Enhancements
 
 - Added support for gateway intents ("guilds" intent is required)
+- Added support for slash commands
+- Added support for application teams
+- Added support for guild templates, welcome screens, and previews
 - Improved support for message replies and allowed mentions
-- Added utilities for gathering client statistics
+- Added client statistics (latency, uptime, etc)
 - Loggers, including the client's default logger, can now be configured at runtime (you can toggle the colors, too)
 - All previously raw tables are now available as rich classes or structs
 - Added many direct client methods (e.g. `client:createMessage(channelId, ...)` can be used as an alternative to `channel:send(...)`, which uses the former internally)
-- In addition to the methods above, added many "modify" methods for batch-patching objects
-- Added dynamic type checking and resolution to most user-facing methods
+- In addition to the methods above, added "modify" methods for batch-patching objects (e.g. `channel:modify(payload)`)
+- Added dynamic type checking and resolution to user-facing methods
 - Updated to Discord gateway v8
 - Updated to Discord REST API v8
 - Events no longer depend on cached data; they only give you what Discord provides
@@ -22,7 +25,7 @@
 - Disconnecting a bot with `client:stop()` now correctly closes the connection (finally)
 - Bots now gracefully disconnect on interrupt (SIGINT)
 - Gateway information is not cached to disk anymore (no more `gateway.json`)
-- Member chunking on startup was removed, making startup times much faster; to compensate `guild:requestGuildMembers()` has been made more useful
+- Member chunking on startup was removed, making startup times much faster; to compensate `guild:requestMembers()` has been made more useful
 - Removed "userbot/selfbot" legacy code
 
 #### Discordia Module
@@ -77,15 +80,45 @@
 	- `Listener`
 - Added container classes:
 	- `Application`
+	- `Command`
+	- `Interaction`
 	- `GuildTemplate`
 	- `InviteChannel`
 	- `InviteGuild`
+	- `MessageInteraction`
 	- `Team`
 	- `TeamMember`
 	- `WebhookChannel`
 	- `WebhookGuild`
 	- `WelcomeScreen`
-- Added many new "structs" (see documentation for details)
+- Added struct classes:
+	- `Activity` (previously was a container)
+	- `ActivityAssets`
+	- `ActivityButton`
+	- `ActivityEmoji`
+	- `ActivityParty`
+	- `ActivitySecrets`
+	- `ActivityTimestamps`
+	- `Attachment`
+	- `AuditLogChange`
+	- `AuditLogOptions`
+	- `CommandChoice`
+	- `CommandOption`
+	- `Embed`
+	- `EmbedAuthor`
+	- `EmbedField`
+	- `EmbedFooter`
+	- `EmbedImage`
+	- `EmbedProvider`
+	- `EmbedThumbnail`
+	- `EmbedVideo`
+	- `GuildCounts`
+	- `InteractionData`
+	- `InteractionOption`
+	- `Mention` (does not correspond to an official structure)
+	- `MessageActivity`
+	- `VoiceRegion`
+	- `WelcomeChannel`
 - Merged `GuildChannel`, `TextChannel`, `GuildCategoryChannel`, `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateChannel` into one `Channel` class
 - Merged `ArrayIterable`, `TableIterable`, and `FilteredIterable` into one `Iterable` class
 - Removed `Cache`, `SecondaryCache`, and `WeakCache` (some form of these still used internally)
@@ -167,78 +200,112 @@
 
 #### Client Methods
 
+- Added GuildClient mixin methods:
+	- `getGuildShardId`
+	- `getGuild` (technically not new)
+	- `getGuildCounts`
+	- `getGuildPreview`
+	- `modifyGuild`
+	- `getGuildMember`
+	- `getGuildChannel`
+	- `getGuildRole`
+	- `getGuildEmoji`
+	- `getGuildMembers`
+	- `getGuildRoles`
+	- `getGuildEmojis`
+	- `getGuildChannels`
+	- `getGuildVoiceRegions`
+	- `searchGuildMembers`
+	- `createGuildRole`
+	- `createGuildEmoji`
+	- `createGuildChannel`
+	- `getGuildPruneCount`
+	- `pruneGuildMembers`
+	- `getGuildBan`
+	- `getGuildBans`
+	- `getGuildInvites`
+	- `getGuildWebhooks`
+	- `getGuildAuditLogs`
+	- `leaveGuild`
+	- `deleteGuild`
+	- `removeGuildMember`
+	- `createGuildBan`
+	- `removeGuildBan`
+	- `getGuildWelcomeScreen`
+	- `modifyGuildWelcomeScreen`
+	- `getGuildTemplates`
+	- `createGuildTemplate`
+	- `syncGuildTemplate`
+	- `modifyGuildTemplate`
+	- `deleteGuildTemplate`
+	- `modifyGuildEmoji`
+	- `deleteGuildEmoji`
+	- `modifyGuildRole`
+	- `modifyGuildRolePositions`
+	- `deleteGuildRole`
+	- `modifyGuildMember`
+	- `addGuildMemberRole`
+	- `removeGuildMemberRole`
+	- `modifyGuildChannelPositions`
+- Added ChannelClient mixin methods:
+	- `getChannel` (technically not new)
+	- `modifyChannel`
+	- `editChannelPermissions`
+	- `deleteChannelPermission`
+	- `deleteChannel`
+	- `createChannelInvite`
+	- `getChannelInvites`
+	- `createWebhook`
+	- `getChannelWebhooks`
+	- `bulkDeleteMessages`
+	- `getChannelMessage`
+	- `getChannelMessages`
+	- `getChannelFirstMessage`
+	- `getChannelLastMessage`
+	- `getPinnedMessages`
+	- `triggerTypingIndicator`
+	- `createMessage`
+	- `editMessage`
+	- `deleteMessage`
+	- `pinMessage`
+	- `unpinMessage`
+	- `addReaction`
+	- `removeReaction`
+	- `clearReactions`
+	- `getReactionUsers`
+	- `crosspostMessage`
+	- `followNewsChannel`
+- Added CommandClient mixin methods:
+	- `getGlobalApplicationCommand`
+	- `getGlobalApplicationCommands`
+	- `createGlobalApplicationCommand`
+	- `editGlobalApplicationCommand`
+	- `deleteGlobalApplicationCommand`
+	- `bulkOverwriteGlobalApplicationCommands`
+	- `getGuildApplicationCommand`
+	- `getGuildApplicationCommands`
+	- `createGuildApplicationCommand`
+	- `editGuildApplicationCommand`
+	- `deleteGuildApplicationCommand`
+	- `bulkOverwriteGuildApplicationCommands`
+	- `createInteractionResponse`
+	- `getOriginalInteractionResponse`
+	- `editOriginalInteractionResponse`
+	- `deleteOriginalInteractionResponse`
+	- `createFollowupMessage`
+	- `editFollowupMessage`
+	- `deleteFollowupMessage`
+- Added `log` method
 - Added `requestGuildMembers` method
-- Added `getGuildShardId` method
 - Added `getGatewayURL` method
 - Added `modifyCurrentUser` method
-- Added `getGuildCounts` method
-- Added `modifyGuild` method
-- Added `getGuildMember` method
-- Added `getGuildChannel` method
-- Added `getGuildRole` method
-- Added `getGuildEmoji` method
-- Added `getGuildMembers` method
-- Added `getGuildRoles` method
-- Added `getGuildEmojis` method
-- Added `getGuildChannels` method
-- Added `getGuildVoiceRegions` method
-- Added `searchGuildMembers` method
-- Added `createGuildRole` method
-- Added `createGuildEmoji` method
-- Added `createGuildChannel` method
-- Added `getGuildPruneCount` method
-- Added `pruneGuildMembers` method
-- Added `getGuildBan` method
-- Added `getGuildBans` method
-- Added `getGuildInvites` method
-- Added `getGuildWebhooks` method
-- Added `getGuildAuditLogs` method
-- Added `leaveGuild` method
-- Added `deleteGuild` method
-- Added `removeGuildMember` method
-- Added `createGuildBan` method
-- Added `removeGuildBan` method
-- Added `modifyGuildEmoji` method
-- Added `deleteGuildEmoji` method
-- Added `modifyGuildRole` method
-- Added `modifyGuildRolePositions` method
-- Added `deleteGuildRole` method
-- Added `modifyGuildMember` method
-- Added `addGuildMemberRole` method
-- Added `removeGuildMemberRole` method
-- Added `modifyChannel` method
-- Added `modifyGuildChannelPositions` method
-- Added `editChannelPermissions` method
-- Added `deleteChannelPermission` method
-- Added `deleteChannel` method
-- Added `createChannelInvite` method
-- Added `getChannelInvites` method
-- Added `createWebhook` method
-- Added `getChannelWebhooks` method
-- Added `bulkDeleteMessages` method
-- Added `getChannelMessage` method
-- Added `getChannelMessages` method
-- Added `getChannelFirstMessage` method
-- Added `getChannelLastMessage` method
-- Added `getPinnedMessages` method
-- Added `triggerTypingIndicator` method
-- Added `createMessage` method
+- Added `getGuildTemplate`
 - Added `deleteInvite` method
-- Added `editMessage` method
-- Added `deleteMessage` method
-- Added `pinMessage` method
-- Added `unpinMessage` method
-- Added `addReaction` method
-- Added `removeReaction` method
-- Added `clearReactions` method
-- Added `getReactionUsers` method
-- Added `crosspostMessage` method
-- Added `followNewsChannel` method
-- Added `createDM` method
 - Added `modifyWebhook` method
 - Added `deleteWebhook` method
 - Added `getGatewayStatistics` method
-- Added `log` method
+- Renamed `getApplicationInformation` method to `getApplication`
+- Renamed `getGame` method to `getActivity`
 - Removed auto-generated logging methods (use `log` method)
 - Removed `createGuild` method
 - Removed `createGroupChannel` method
@@ -246,8 +313,6 @@
 - Removed `getEmoji` method (use `getGuildEmoji` method)
 - Removed `listVoiceRegions` method
 - Removed `getConnections` method
-- Removed `getApplication` method
-- Removed `setGame` method (use `setActivity` method)
 - Removed `setAFK` method
 
 #### Client Properties

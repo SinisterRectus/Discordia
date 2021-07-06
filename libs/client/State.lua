@@ -5,6 +5,7 @@ local Ban = require('../containers/Ban')
 local Channel = require('../containers/Channel')
 local Emoji = require('../containers/Emoji')
 local Guild = require('../containers/Guild')
+local GuildPreview = require('../containers/GuildPreview')
 local GuildTemplate = require('../containers/GuildTemplate')
 local Interaction = require('../containers/Interaction')
 local Invite = require('../containers/Invite')
@@ -81,6 +82,10 @@ function State:newGuilds(data)
 		data[i] = self:newGuild(v)
 	end
 	return Iterable(data, 'id')
+end
+
+function State:newGuildPreview(data)
+	return GuildPreview(data, self._client)
 end
 
 function State:newInvite(data)

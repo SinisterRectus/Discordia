@@ -73,6 +73,14 @@ function Guild:__init(data, client)
 
 end
 
+function Guild:getCounts()
+	return self.client:getGuildCounts(self.id)
+end
+
+function Guild:getPreview()
+	return self.client:getGuildPreview(self.id)
+end
+
 function Guild:requestMembers(payload, callback)
 	return self.client:requestGuildMembers(self.id, payload, callback)
 end

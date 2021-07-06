@@ -9,7 +9,7 @@ function AuditLogOptions:__init(data)
 	self._message_id = data.message_id
 	self._count = data.count
 	self._id = data.id
-	self._type = data.type
+	self._type = tonumber(data.type) -- thanks discord
 	self._role_name = data.role_name
 end
 

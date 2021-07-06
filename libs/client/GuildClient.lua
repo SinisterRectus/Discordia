@@ -3,6 +3,7 @@ local typing = require('../typing')
 local helpers = require('../helpers')
 local messaging = require('../messaging')
 
+local GuildCounts = require('../structs/GuildCounts')
 local VoiceRegion = require('../structs/VoiceRegion')
 
 local floor = math.floor
@@ -32,16 +33,21 @@ function Client:getGuild(guildId)
 	return self.state:getGuild(guildId)
 end
 
+function Client:getGuildPreview(guildId)
+	guildId = checkSnowflake(guildId)
+	local data, err = self.api:getGuildPreview(guildId)
+	if data then
+		return self.state:newGuildPreview(data)
+	else
+		return nil, err
+	end
+end
+
 function Client:getGuildCounts(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuild(guildId, {with_counts = true})
 	if data then
-		return {
-			maxMembers = data.max_members,
-			maxPresences = data.max_presences,
-			approximateMemberCount = data.approximate_member_count,
-			approximatePresenceCount = data.approximate_presence_count,
-		}
+		return GuildCounts(data)
 	else
 		return nil, err
 	end
