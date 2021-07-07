@@ -81,13 +81,20 @@ proxy.notificationSetting = {
 }
 
 proxy.channelType = {
-	text     = 0,
-	private  = 1,
-	voice    = 2,
-	group    = 3,
-	category = 4,
-	news     = 5,
-	store    = 6,
+	text          = 0,
+	private       = 1,
+	voice         = 2,
+	group         = 3,
+	category      = 4,
+	news          = 5,
+	store         = 6,
+	-- unused     = 7,
+	-- unused     = 8,
+	-- unused     = 9,
+	newsThread    = 10,
+	publicThread  = 11,
+	privateThread = 12,
+	stageVoice    = 13,
 }
 
 proxy.webhookType = {
@@ -260,7 +267,7 @@ proxy.interactionResponseType = {
 	channelMessageWithSource         = 4,
 	deferredChannelMessageWithSource = 5,
 	deferredUpdateMessage            = 6,
-	updateMessage                    = 7
+	updateMessage                    = 7,
 }
 
 proxy.actionType = {

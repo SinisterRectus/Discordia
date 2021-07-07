@@ -14,7 +14,7 @@
 - Improved support for message replies and allowed mentions
 - Added client statistics (latency, uptime, etc)
 - Loggers, including the client's default logger, can now be configured at runtime (you can toggle the colors, too)
-- All previously raw tables are now available as rich classes or structs
+- Most previously raw tables are now available as rich classes or structs
 - Added many direct client methods (e.g. `client:createMessage(channelId, ...)` can be used as an alternative to `channel:send(...)`, which uses the former internally)
 - In addition to the methods above, added "modify" methods for batch-patching objects (e.g. `channel:modify(payload)`)
 - Added dynamic type checking and resolution to user-facing methods
@@ -145,7 +145,17 @@
 - Added `mentionType` enumerations
 - Added `teamMembershipState` enumerations
 - Added `stagePrivacyLevel` enumerations
+- Added `commanOptionType` enumerations
+- Added `commandPermissionType` enumerations
+- Added `interactionRequestType` enumerations
+- Added `interactionResponseType` enumerations
+- Added `interactionResponseFlag` enumerations
+- Added `applicationFlag` enumerations
 - Added `channelType.store`
+- Added `channelType.newsThread`
+- Added `channelType.publicThread`
+- Added `channelType.privateThread`
+- Added `channelType.stageVoice`
 - Added `messageType.channelFollowAdd`
 - Added `messageType.guildDiscoveryDisqualified`
 - Added `messageType.guildDiscoveryRequalified`
@@ -415,6 +425,7 @@ Note: All previously existing individual channel sub-classes are considered here
 
 - Added `whence` and `messageId` parameters to `getMessages` method
 - Added `modify` method
+- Added `setPermissionOverwrites` method
 - Renamed `broadcastTyping` method to `triggerTyping`
 - Removed `getMessagesAfter` method (use `getMessages` method)
 - Removed `getMessagesBefore` method (use `getMessages` method)

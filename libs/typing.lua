@@ -157,4 +157,25 @@ function typing.checkImageExtension(ext)
 	return ext
 end
 
+function typing.checkOptions(customOptions, defaultOptions)
+	local options = {}
+	for k, v in pairs(defaultOptions) do
+		options[k] = v[1]
+	end
+	if type(customOptions) == 'table' then
+		for k, v in pairs(customOptions) do
+			local default = defaultOptions[k]
+			if not default then
+				return error(format('invalid option %q', k), 3)
+			end
+			local success, res = pcall(default[2], v)
+			if not success then
+				return error(format('invalid option %q: %s', k, res), 3)
+			end
+			options[k] = res
+		end
+	end
+	return options
+end
+
 return typing

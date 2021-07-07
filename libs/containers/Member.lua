@@ -101,7 +101,7 @@ function Member:getPermissions(channelId)
 
 	local channel
 	if channelId then
-		channel, err = self.client:getChannel(checkSnowflake(channelId))
+		channel, err = guild:getChannel(checkSnowflake(channelId))
 		if not channel then
 			return nil, err
 		end

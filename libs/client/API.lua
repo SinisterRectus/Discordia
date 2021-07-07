@@ -110,7 +110,7 @@ function API:request(method, endpoint, params, query, payload, files)
 
 	if #params > 0 then
 		local i = 0
-		route = route:gsub('(/(%a+)/)%%s', function(str, k)
+		route = route:gsub('(/([^/]+)/)%%s', function(str, k)
 			i = i + 1
 			return majorParams[k] and str .. params[i]
 		end)
@@ -185,16 +185,15 @@ function API:commit(method, url, req, payload, route, retries)
 
 	self._stopwatch:reset()
 	local success, res, msg = pcall(request, method, url, req, payload)
-	local latency = self._stopwatch:getTime():toMilliseconds()
-
-	insert(self._latency, latency)
-	if #self._latency > client.latencyLimit then
-		remove(self._latency, 1)
-	end
-
 	if not success then
 		client:log('error', 'HTTP client error: %s', res)
 		return nil, res, delay
+	end
+	local latency = self._stopwatch:getTime():toMilliseconds()
+
+	insert(self._latency, latency)
+	while #self._latency > client.latencyLimit do
+		remove(self._latency, 1)
 	end
 
 	local head = {}
@@ -206,7 +205,7 @@ function API:commit(method, url, req, payload, route, retries)
 	self._tx = self._tx + (payload and #payload or 0)
 	self._requests = self._requests + 1
 
-	client:emit('httpRequest', {
+	client:emit('httpRequest', { -- TODO: need to prevent editing of res/req tables
 		method = method,
 		url = url,
 		requestHeaders = req,

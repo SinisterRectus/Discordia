@@ -23,7 +23,6 @@ local Stopwatch = require('../utils/Stopwatch')
 
 local wrap = coroutine.wrap
 local concat = table.concat
-local format = string.format
 local attachQuery, readOnly = helpers.attachQuery, helpers.readOnly
 local nonce = helpers.nonce
 local opt = typing.opt
@@ -31,6 +30,7 @@ local checkEnum = typing.checkEnum
 local checkSnowflake = typing.checkSnowflake
 local checkInteger = typing.checkInteger
 local checkType = typing.checkType
+local checkOptions = typing.checkOptions
 local checkCallable = typing.checkCallable
 local checkImageData = typing.checkImageData
 local checkImageSize = typing.checkImageSize
@@ -100,30 +100,9 @@ local defaultOptions = {
 	activity = {nil, checkActivity},
 }
 
-local function checkOptions(customOptions)
-	local options = {}
-	for k, v in pairs(defaultOptions) do
-		options[k] = v[1]
-	end
-	if type(customOptions) == 'table' then
-		for k, v in pairs(customOptions) do
-			local default = defaultOptions[k]
-			if not default then
-				return error(format('invalid client option %q', k), 3)
-			end
-			local success, res = pcall(default[2], v)
-			if not success then
-				return error(format('invalid client option %q: %s', k, res), 3)
-			end
-			options[k] = res
-		end
-	end
-	return options
-end
-
 function Client:__init(options)
 	Emitter.__init(self)
-	options = checkOptions(options)
+	options = checkOptions(options, defaultOptions)
 	self._routeDelay = options.routeDelay
 	self._maxRetries = options.maxRetries
 	self._latencyLimit = options.latencyLimit
@@ -302,8 +281,6 @@ end
 function Client:setAvatar(avatar)
 	return self:modifyCurrentUser({avatar = avatar or json.null})
 end
-
----- base ----
 
 function Client:getGatewayURL()
 	local data, err = self.api:getGateway()
