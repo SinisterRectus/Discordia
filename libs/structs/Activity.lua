@@ -2,7 +2,7 @@ local class = require('../class')
 local helpers = require('../helpers')
 
 local ActivityTimestamps = require('./ActivityTimestamps')
-local ActivityEmoji = require('./ActivityEmoji')
+local PartialEmoji = require('./PartialEmoji')
 local ActivityParty = require('./ActivityParty')
 local ActivityAssets = require('./ActivityAssets')
 local ActivitySecrets = require('./ActivitySecrets')
@@ -20,7 +20,7 @@ function Activity:__init(data)
 	self._state = data.state
 	self._instance = data.instance
 	self._flags = data.flags
-	self._emoji = data.emoji and ActivityEmoji(data.emoji)
+	self._emoji = data.emoji and PartialEmoji(data.emoji)
 	self._party = data.party and ActivityParty(data.party)
 	self._assets = data.assets and ActivityAssets(data.assets)
 	self._secrets = data.secrets and ActivitySecrets(data.secrets)

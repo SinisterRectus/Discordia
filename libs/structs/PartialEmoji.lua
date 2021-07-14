@@ -1,8 +1,8 @@
 local class = require('../class')
 
-local ActivityEmoji, get = class('ActivityEmoji')
+local PartialEmoji, get = class('PartialEmoji')
 
-function ActivityEmoji:__init(data)
+function PartialEmoji:__init(data)
 	self._name = data.name
 	self._id = data.id
 	self._animated = data.animated
@@ -28,4 +28,4 @@ function get:animated()
 	return self._animated
 end
 
-return ActivityEmoji
+return PartialEmoji

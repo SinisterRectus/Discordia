@@ -5,6 +5,7 @@ local messaging = require('../messaging')
 local parseFiles = messaging.parseFiles
 local parseEmbeds = messaging.parseEmbeds
 local parseContent = messaging.parseContent
+local parseComponents = messaging.parseComponents
 local parseAllowedMentions = messaging.parseAllowedMentions
 local parseMessageReference = messaging.parseMessageReference
 local checkPermissionOverwrites = messaging.checkPermissionOverwrites
@@ -308,6 +309,7 @@ function Client:createMessage(channelId, payload)
 			embeds = parseEmbeds(payload),
 			message_reference = parseMessageReference(payload),
 			allowed_mentions = parseAllowedMentions(payload, self.defaultAllowedMentions),
+			components = parseComponents(payload),
 		}, nil, parseFiles(payload))
 	else
 		data, err = self.api:createMessage(channelId, {content = payload})
@@ -328,6 +330,7 @@ function Client:editMessage(channelId, messageId, payload)
 		embeds = parseEmbeds(payload),
 		flags = opt(payload.flags, checkBitfield),
 		allowed_mentions = parseAllowedMentions(payload, self.defaultAllowedMentions),
+		components = parseComponents(payload),
 	}, nil, parseFiles(payload))
 	if data then
 		return self.state:newMessage(data)

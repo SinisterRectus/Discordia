@@ -11,6 +11,7 @@ local checkSnowflake = typing.checkSnowflake
 local parseFiles = messaging.parseFiles
 local parseEmbeds = messaging.parseEmbeds
 local parseContent = messaging.parseContent
+local parseComponents = messaging.parseComponents
 local parseAllowedMentions = messaging.parseAllowedMentions
 local checkBitfield = messaging.checkBitfield
 
@@ -63,6 +64,7 @@ local function checkMessage(message, defaultAllowedMentions)
 		content = parseContent(message),
 		embeds = parseEmbeds(message),
 		allowed_mentions = parseAllowedMentions(message, defaultAllowedMentions),
+		components = parseComponents(message),
 		flags = opt(message.flags, checkBitfield),
 		tts = opt(message.tts, checkType, 'boolean'),
 	}, parseFiles(message)
@@ -75,6 +77,7 @@ local function checkMessageUpdate(message, defaultAllowedMentions)
 		content = parseContent(message),
 		embeds = parseEmbeds(message),
 		allowed_mentions = parseAllowedMentions(message, defaultAllowedMentions),
+		components = parseComponents(message),
 	}, parseFiles(message)
 end
 

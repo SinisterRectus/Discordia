@@ -2,6 +2,7 @@ local Snowflake = require('./Snowflake')
 local Bitfield = require('../utils/Bitfield')
 local Embed = require('../structs/Embed')
 local Attachment = require('../structs/Attachment')
+local Component = require('../structs/Component')
 local Mention = require('../structs/Mention')
 local MessageActivity = require('../structs/MessageActivity')
 
@@ -45,6 +46,7 @@ function Message:__init(data, client)
 	self._flags = data.flags
 
 	self._embeds = helpers.structs(Embed, data.embeds)
+	self._components = helpers.structs(Component, data.components)
 	self._attachments = helpers.structs(Attachment, data.attachments)
 
 	self._mentions = data.mentions and client.state:newUsers(data.mentions)

@@ -270,6 +270,20 @@ proxy.interactionResponseType = {
 	updateMessage                    = 7,
 }
 
+proxy.componentType = {
+	actionRow  = 1,
+	button     = 2,
+	selectMenu = 3,
+}
+
+proxy.buttonStyle = {
+	primary   = 1, -- blurple
+	secondary = 2, -- green
+	success   = 3, -- grey
+	danger    = 4, -- red
+	link      = 5, -- grey with link icon
+}
+
 proxy.actionType = {
 	guildUpdate            = 1,
 	channelCreate          = 10,

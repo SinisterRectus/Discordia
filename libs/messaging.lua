@@ -131,13 +131,15 @@ function messaging.parseAllowedMentions(payload, default)
 end
 
 function messaging.parseMessageReference(payload)
-	local messageReference
 	if type(payload.reference) == 'table' then
-		messageReference = {
+		return {
 			message_id = checkSnowflake(payload.reference.message),
 		}
 	end
-	return messageReference
+end
+
+function messaging.parseComponents(payload)
+	return opt(payload.components, checkType, 'table') -- TODO: proper typing
 end
 
 ----

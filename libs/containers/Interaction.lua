@@ -16,7 +16,7 @@ function Interaction:__init(data, client)
 	self._user = data.user and client.state:newUser(data.user)
 	self._token = data.token
 	self._version = data.version
-	self._message = data.message and client.state:newMessage(data.channel_id, data)
+	self._message = data.message and client.state:newMessage(data.message)
 end
 
 function Interaction:respond(payload)

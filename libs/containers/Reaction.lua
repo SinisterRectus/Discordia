@@ -1,5 +1,5 @@
 local Container = require('./Container')
-local ReactionEmoji = require('../structs/ReactionEmoji')
+local PartialEmoji = require('../structs/PartialEmoji')
 
 local class = require('../class')
 
@@ -11,7 +11,7 @@ function Reaction:__init(data, client)
 	self._message_id = assert(data.message_id)
 	self._count = data.count
 	self._me = data.me
-	self._emoji = ReactionEmoji(data.emoji, client)
+	self._emoji = PartialEmoji(data.emoji, client)
 end
 
 function Reaction:__eq(other)
