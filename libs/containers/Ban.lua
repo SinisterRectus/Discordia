@@ -5,9 +5,7 @@ local class = require('../class')
 local Ban, get = class('Ban', Container)
 
 function Ban:__init(data, client)
-	Container.__init(self, client)
-	self._guild_id = assert(data.guild_id)
-	self._reason = data.reason
+	Container.__init(self, data, client)
 	self._user = client.state:newUser(data.user)
 end
 

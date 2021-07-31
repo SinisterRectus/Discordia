@@ -1,10 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local MessageActivity, get = class('MessageActivity')
+local MessageActivity, get = class('MessageActivity', Struct)
 
 function MessageActivity:__init(data)
-	self._type = data.type
-	self._party_id = data.party_id
+	Struct.__init(self, data)
 end
 
 function get:type()

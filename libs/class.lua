@@ -171,8 +171,6 @@ return setmetatable({
 			return rawget(self, properties[k])
 		elseif class[k] ~= nil then
 			return class[k]
-		else
-			return error('undefined class member: ' .. tostring(k))
 		end
 	end
 

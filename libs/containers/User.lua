@@ -16,12 +16,6 @@ local User, get = class('User', Snowflake)
 
 function User:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._username = data.username
-	self._avatar = data.avatar
-	self._discriminator = data.discriminator
-	self._bot = data.bot
-	self._public_flags = data.public_flags
-	self._premium_type = data.premium_type
 end
 
 function User:hasFlag(flag)

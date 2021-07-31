@@ -1,12 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local WelcomeChannel, get = class('WelcomeChannel')
+local WelcomeChannel, get = class('WelcomeChannel', Struct)
 
 function WelcomeChannel:__init(data)
-	self._channel_id = data.channel_id
-	self._description = data.description
-	self._emoji_id = data.emoji_id
-	self._emoji_name = data.emoji_name
+	Struct.__init(self, data)
 end
 
 function get:channelId()

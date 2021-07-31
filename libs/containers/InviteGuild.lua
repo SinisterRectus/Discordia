@@ -9,14 +9,6 @@ local InviteGuild, get = class('InviteGuild', Snowflake)
 
 function InviteGuild:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._name = data.name
-	self._splash = data.splash
-	self._banner = data.banner
-	self._description = data.description
-	self._icon = data.icon
-	self._features = data.features
-	self._verification_level = data.verification_level
-	self._vanity_url_code = data.vanity_url_code
 	self._welcome_screen = data.welcome_screen and client.state:newWelcomeScreen(data.id, data.welcome_screen)
 end
 

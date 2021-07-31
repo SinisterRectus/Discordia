@@ -6,7 +6,7 @@ local class = require('../class')
 local Reaction, get = class('Reaction', Container)
 
 function Reaction:__init(data, client)
-	Container.__init(self, client)
+	Container.__init(self, data, client)
 	self._channel_id = assert(data.channel_id)
 	self._message_id = assert(data.message_id)
 	self._count = data.count

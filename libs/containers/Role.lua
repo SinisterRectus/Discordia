@@ -13,14 +13,6 @@ local Role, get = class('Role', Snowflake)
 
 function Role:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._guild_id = assert(data.guild_id)
-	self._name = data.name
-	self._color = data.color
-	self._hoist = data.hoist
-	self._position = data.position
-	self._permissions = data.permissions
-	self._managed = data.managed
-	self._mentionable = data.mentionable
 end
 
 function Role:delete()

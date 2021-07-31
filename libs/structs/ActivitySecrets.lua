@@ -1,11 +1,11 @@
 local class = require('../class')
 
-local ActivitySecrets, get = class('ActivitySecrets')
+local Struct = require('./Struct')
+
+local ActivitySecrets, get = class('ActivitySecrets', Struct)
 
 function ActivitySecrets:__init(data)
-	self._join = data.join
-	self._spectate = data.spectate
-	self._match = data.match
+	Struct.__init(self, data)
 end
 
 function get:join()

@@ -1,12 +1,11 @@
 local class = require('../class')
 
-local ActivityAssets, get = class('ActivityAssets')
+local Struct = require('./Struct')
+
+local ActivityAssets, get = class('ActivityAssets', Struct)
 
 function ActivityAssets:__init(data)
-	self._large_image = data.large_image
-	self._large_text = data.large_text
-	self._small_image = data.small_image
-	self._small_text = data.small_text
+	Struct.__init(self, data)
 end
 
 function get:largeImage()

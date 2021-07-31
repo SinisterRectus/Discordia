@@ -7,15 +7,9 @@ local Interaction, get = class('Interaction', Snowflake)
 
 function Interaction:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._application_id = data.application_id
-	self._type = data.type
 	self._data = data.data and InteractionData(data.data)
-	self._guild_id = data.guild_id
-	self._channel_id = data.channel_id
 	self._member = data.member and client.state:newMember(data.guild_id, data.member)
 	self._user = data.user and client.state:newUser(data.user)
-	self._token = data.token
-	self._version = data.version
 	self._message = data.message and client.state:newMessage(data.message)
 end
 

@@ -1,16 +1,11 @@
 local class = require('../class')
 
-local Attachment, get = class('Attachment')
+local Struct = require('./Struct')
+
+local Attachment, get = class('Attachment', Struct)
 
 function Attachment:__init(data)
-	self._id = data.id
-	self._filename = data.filename
-	self._content_type = data.content_type
-	self._size = data.size
-	self._url = data.url
-	self._proxy_url = data.proxy_url
-	self._height = data.height
-	self._width = data.width
+	Struct.__init(self, data)
 end
 
 function get:id()

@@ -11,12 +11,7 @@ local checkEnum = typing.checkEnum
 local PermissionOverwrite, get = class('PermissionOverwrite', Container)
 
 function PermissionOverwrite:__init(data, client)
-	Container.__init(self, client)
-	self._id = data.id
-	self._type = data.type
-	self._allow = data.allow
-	self._deny = data.deny
-	self._channel_id = assert(data.channel_id)
+	Container.__init(self, data, client)
 end
 
 function PermissionOverwrite:__eq(other)

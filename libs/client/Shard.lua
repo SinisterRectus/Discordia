@@ -226,7 +226,7 @@ function Shard:handlePayload(payload)
 	self._events = self._events + 1
 	self._client:emit('gatewayEvent', self._id, payload)
 
-	payload = decode(payload)
+	payload = decode(payload, 1, null)
 
 	local op = payload.op
 

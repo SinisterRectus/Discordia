@@ -6,8 +6,6 @@ local InviteChannel, get = class('InviteChannel', Snowflake)
 
 function InviteChannel:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._name = data.name
-	self._type = data.type
 end
 
 function get:id()

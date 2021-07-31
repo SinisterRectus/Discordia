@@ -7,10 +7,8 @@ local helpers = require('../helpers')
 local Presence, get = class('Presence', Container)
 
 function Presence:__init(data, client)
-	Container.__init(self, client)
+	Container.__init(self, data, client)
 	self._user_id = data.user.id
-	self._guild_id = data.guild_id
-	self._status = data.status
 	self._activities = helpers.structs(Activity, data.activities)
 	self._desktop_status = data.client_status and data.client_status.desktop
 	self._mobile_status = data.client_status and data.client_status.mobile

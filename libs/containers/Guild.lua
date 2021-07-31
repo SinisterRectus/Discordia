@@ -14,44 +14,7 @@ function Guild:__init(data, client)
 
 	Snowflake.__init(self, data, client)
 
-	self._name = data.name -- http and wss
-	self._icon = data.icon -- http and wss
-	self._splash = data.splash -- http and wss
-	self._discovery_splash = data.discovery_splash -- http and wss
-	self._owner_id = data.owner_id -- http and wss
-	self._region = data.region -- http and wss
-	self._afk_channel_id = data.afk_channel_id -- http and wss
-	self._afk_timeout = data.afk_timeout -- http and wss
-	self._verification_level = data.verification_level -- http and wss
-	self._default_message_notifications = data.default_message_notifications -- http and wss
-	self._explicit_content_filter = data.explicit_content_filter -- http and wss
 	self._features = data.features -- http and wss
-	self._mfa_level = data.mfa_level -- http and wss
-	self._application_id = data.application_id -- http and wss
-	self._system_channel_id = data.system_channel_id -- http and wss
-	self._system_channel_flags = data.system_channel_flags -- http and wss
-	self._rules_channel_id = data.rules_channel_id -- http and wss
-	self._vanity_url_code = data.vanity_url_code -- http and wss
-	self._description = data.description -- http and wss
-	self._banner = data.banner -- http and wss
-	self._premium_tier = data.premium_tier -- http and wss
-	self._premium_subscription_count = data.premium_subscription_count -- http and wss
-	self._preferred_locale = data.preferred_locale -- http and wss
-	self._public_updates_channel_id = data.public_updates_channel_id -- http and wss
-	self._max_video_channel_users = data.max_video_channel_users -- http and wss
-
-	-- self._max_members = data.max_members -- http and GUILD_UPDATE only
-	-- self._max_presences = data.max_presences -- http and GUILD_UPDATE only
-	-- self._widget_enabled = data.widget_enabled -- http and GUILD_UPDATE only
-	-- self._widget_channel_id = data.widget_channel_id -- http and GUILD_UPDATE only
-	--
-	-- self._approximate_member_count = data.approximate_member_count -- http "with_counts" only
-	-- self._approximate_presence_count = data.approximate_presence_count -- http "with_counts" only
-
-	self._joined_at = data.joined_at -- GUILD_CREATE only
-	self._member_count = data.member_count -- GUILD_CREATE only
-
-	-- ignore: owner, permissions, lazy, large, unavailable
 
 	local id = data.id
 	local state = client.state

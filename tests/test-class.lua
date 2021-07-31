@@ -182,9 +182,9 @@ assertError(function() foo.undefined = 'test' end, 'cannot declare class propert
 assertError(function() bar.undefined = 'test' end, 'cannot declare class property outside of __init')
 assertError(function() baz.undefined = 'test' end, 'cannot declare class property outside of __init')
 
-assertError(function() return foo.undefined end, 'undefined class member: undefined')
-assertError(function() return bar.undefined end, 'undefined class member: undefined')
-assertError(function() return baz.undefined end, 'undefined class member: undefined')
+-- assertError(function() return foo.undefined end, 'undefined class member: undefined')
+-- assertError(function() return bar.undefined end, 'undefined class member: undefined')
+-- assertError(function() return baz.undefined end, 'undefined class member: undefined')
 
 assertError(function() foo.getFoo = 'test' end, 'cannot override class member: getFoo')
 assertError(function() bar.getFoo = 'test' end, 'cannot override class member: getFoo')

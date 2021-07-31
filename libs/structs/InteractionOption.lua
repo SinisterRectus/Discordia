@@ -1,12 +1,11 @@
 local class = require('../class')
 local helpers = require('../helpers')
+local Struct = require('./Struct')
 
-local InteractionOption, get = class('InteractionOption')
+local InteractionOption, get = class('InteractionOption', Struct)
 
 function InteractionOption:__init(data)
-	self._name = data.name
-	self._type = data.type
-	self._value = data.value
+	Struct.__init(self, data)
 	self._options = data.options and helpers.structs(InteractionOption, data.options)
 end
 

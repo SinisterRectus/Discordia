@@ -1,12 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local EmbedAuthor, get = class('EmbedAuthor')
+local EmbedAuthor, get = class('EmbedAuthor', Struct)
 
 function EmbedAuthor:__init(data)
-	self._name = data.name
-	self._url = data.url
-	self._icon_url = data.icon_url
-	self._proxy_icon_url = data.proxy_icon_url
+	Struct.__init(self, data)
 end
 
 function get:name()

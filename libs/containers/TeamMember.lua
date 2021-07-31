@@ -5,10 +5,7 @@ local class = require('../class')
 local TeamMember, get = class('TeamMember', Container)
 
 function TeamMember:__init(data, client)
-	Container.__init(self, client)
-	self._membership_state = data.membership_state
-	self._permissions = data.permissions
-	self._team_id = data.team_id
+	Container.__init(self, data, client)
 	self._user = client.state:newUser(data.user)
 end
 

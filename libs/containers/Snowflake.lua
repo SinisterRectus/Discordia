@@ -6,8 +6,7 @@ local class = require('../class')
 local Snowflake, get = class('Snowflake', Container)
 
 function Snowflake:__init(data, client)
-	Container.__init(self, client)
-	self._id = data.id
+	Container.__init(self, data, client)
 end
 
 function Snowflake:__eq(other)

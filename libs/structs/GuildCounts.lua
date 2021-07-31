@@ -1,12 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local GuildCounts, get = class('GuildCounts')
+local GuildCounts, get = class('GuildCounts', Struct)
 
 function GuildCounts:__init(data)
-	self._max_members = data.max_members
-	self._max_presences = data.max_presences
-	self._approximate_member_count = data.approximate_member_count
-	self._approximate_presence_count = data.approximate_presence_count
+	Struct.__init(self, data)
 end
 
 function get:maxMembers()

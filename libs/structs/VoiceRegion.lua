@@ -1,14 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local VoiceRegion, get = class('VoiceRegion')
+local VoiceRegion, get = class('VoiceRegion', Struct)
 
 function VoiceRegion:__init(data)
-	self._id = data.id
-	self._name = data.name
-	self._vip = data.vip
-	self._optimal = data.optimal
-	self._deprecated = data.deprecated
-	self._custom = data.custom
+	Struct.__init(self, data)
 end
 
 function get:id()

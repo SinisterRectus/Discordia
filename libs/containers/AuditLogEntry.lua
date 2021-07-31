@@ -9,11 +9,6 @@ local AuditLogEntry, get = class('AuditLogEntry', Snowflake)
 
 function AuditLogEntry:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._guild_id = assert(data.guild_id)
-	self._target_id = data.target_id
-	self._user_id = data.user_id
-	self._action_type = data._action_type
-	self._reason = data.reason
 	self._changes = helpers.structs(AuditLogChange, data.changes)
 	self._options = data.options and AuditLogOptions(data.options)
 end

@@ -1,11 +1,11 @@
 local class = require('../class')
 
-local AuditLogChange, get = class('AuditLogChange')
+local Struct = require('./Struct')
+
+local AuditLogChange, get = class('AuditLogChange', Struct)
 
 function AuditLogChange:__init(data)
-	self._old_value = data.old_value
-	self._new_value = data.new_value
-	self._key = data._key
+	Struct.__init(self, data)
 end
 
 function get:old()

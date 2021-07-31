@@ -1,11 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local EmbedField, get = class('EmbedField')
+local EmbedField, get = class('EmbedField', Struct)
 
 function EmbedField:__init(data)
-	self._name = data.name
-	self._value = data.value
-	self._inline = data.inline
+	Struct.__init(self, data)
 end
 
 function get:name()

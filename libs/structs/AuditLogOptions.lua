@@ -1,16 +1,12 @@
 local class = require('../class')
 
-local AuditLogOptions, get = class('AuditLogOptions')
+local Struct = require('./Struct')
+
+local AuditLogOptions, get = class('AuditLogOptions', Struct)
 
 function AuditLogOptions:__init(data)
-	self._delete_member_days = data.delete_member_days
-	self._members_removed = data.members_removed
-	self._channel_id = data.channel_id
-	self._message_id = data.message_id
-	self._count = data.count
-	self._id = data.id
+	Struct.__init(self, data)
 	self._type = tonumber(data.type) -- thanks discord
-	self._role_name = data.role_name
 end
 
 function get:deleteMemberDays()

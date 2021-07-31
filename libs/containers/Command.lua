@@ -9,12 +9,7 @@ local Command, get = class('Command', Snowflake)
 
 function Command:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._application_id = data.application_id
-	self._guild_id = data.guild_id
-	self._name = data.name
-	self._description = data.description
 	self._options = data.options and helpers.structs(CommandOption, data.options)
-	self._default_permission = data.default_permission
 end
 
 function Command:modify(payload)

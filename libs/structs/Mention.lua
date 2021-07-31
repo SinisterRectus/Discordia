@@ -1,15 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local Mention, get = class('Mention')
+local Mention, get = class('Mention', Struct)
 
 function Mention:__init(data)
-	self._id = data.id -- user, channel, role, emoji
-	self._type = data.type -- all
-	self._raw = data.raw -- all
-	self._animated = data.animated -- emoji
-	self._name = data.name -- emoji
-	self._timestamp = data.timestamp -- timestamp
-	self._style = data.style -- timestamp
+	Struct.__init(self, data)
 end
 
 function get:id()

@@ -31,19 +31,7 @@ function Message:__init(data, client)
 
 	Snowflake.__init(self, data, client)
 
-	self._channel_id = data.channel_id
-	self._guild_id = data.guild_id
-	self._webhook_id = data.webhook_id
-	self._type = data.type
 	self._author = client.state:newUser(data.author)
-	self._content = data.content
-	self._timestamp = data.timestamp
-	self._edited_timestamp = data.edited_timestamp
-	self._tts = data.tts
-	self._mention_everyone = data.mention_everyone
-	self._nonce = data.nonce
-	self._pinned = data.pinned
-	self._flags = data.flags
 
 	self._embeds = helpers.structs(Embed, data.embeds)
 	self._components = helpers.structs(Component, data.components)

@@ -12,9 +12,6 @@ local Team, get = class('Team', Snowflake)
 
 function Team:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._name = data.name
-	self._icon = data.icon
-	self._owner_user_id = data.owner_user_id
 	for i, v in ipairs(data.members) do
 		data.members[i] = TeamMember(v, client)
 	end

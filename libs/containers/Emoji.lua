@@ -14,12 +14,6 @@ local Emoji, get = class('Emoji', Snowflake)
 
 function Emoji:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._guild_id = assert(data.guild_id)
-	self._name = data.name
-	self._require_colons = data.require_colons
-	self._managed = data.managed
-	self._animated = data.animated
-	self._available = data.available
 	self._roles = data.roles
 	self._user = data.user and self.client.state:newUser(data.user) or nil -- only available via HTTP
 end

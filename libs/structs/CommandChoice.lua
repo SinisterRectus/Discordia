@@ -1,10 +1,11 @@
 local class = require('../class')
 
-local CommandChoice, get = class('CommandChoice')
+local Struct = require('./Struct')
+
+local CommandChoice, get = class('CommandChoice', Struct)
 
 function CommandChoice:__init(data)
-	self._name = data.name
-	self._value = data.value
+	Struct.__init(self, data)
 end
 
 function get:name()

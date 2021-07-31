@@ -1,6 +1,7 @@
 local class = require('../class')
 local helpers = require('../helpers')
 
+local Struct = require('./Struct')
 local ActivityTimestamps = require('./ActivityTimestamps')
 local PartialEmoji = require('./PartialEmoji')
 local ActivityParty = require('./ActivityParty')
@@ -8,18 +9,10 @@ local ActivityAssets = require('./ActivityAssets')
 local ActivitySecrets = require('./ActivitySecrets')
 local ActivityButton = require('./ActivityButton')
 
-local Activity, get = class('Activity')
+local Activity, get = class('Activity', Struct)
 
 function Activity:__init(data)
-	self._name = data.name
-	self._type = data.type
-	self._url = data.url
-	self._created_at = data.created_at
-	self._application_id = data.application_id
-	self._details = data.details
-	self._state = data.state
-	self._instance = data.instance
-	self._flags = data.flags
+	Struct.__init(self, data)
 	self._emoji = data.emoji and PartialEmoji(data.emoji)
 	self._party = data.party and ActivityParty(data.party)
 	self._assets = data.assets and ActivityAssets(data.assets)

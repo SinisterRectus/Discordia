@@ -1,15 +1,13 @@
 local class = require('../class')
 
 local PartialEmoji = require('./PartialEmoji')
+local Struct = require('./Struct')
 
-local SelectOption, get = class('SelectOption')
+local SelectOption, get = class('SelectOption', Struct)
 
 function SelectOption:__init(data)
-	self._label = data.label
-	self._value = data.value
-	self._description = data.description
+	Struct.__init(self, data)
 	self._emoji = data.emoji and PartialEmoji(data.emoji)
-	self._default = data.default
 end
 
 function get:label()

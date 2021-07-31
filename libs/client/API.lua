@@ -10,7 +10,7 @@ local Stopwatch = require('../utils/Stopwatch')
 local request = http.request
 local format, lower = string.format, string.lower
 local max, random = math.max, math.random
-local encode, decode = json.encode, json.decode
+local encode, decode, null = json.encode, json.decode, json.null
 local insert, remove, concat = table.insert, table.remove, table.concat
 local running = coroutine.running
 local urlEncode, attachQuery = helpers.urlEncode, helpers.attachQuery
@@ -225,7 +225,7 @@ function API:commit(method, url, req, payload, route, retries)
 		self._bucketMutexes[bucket] = self._bucketMutexes[bucket] or Mutex()
 	end
 
-	local data = head['content-type'] == JSON_CONTENT_TYPE and decode(msg) or {}
+	local data = head['content-type'] == JSON_CONTENT_TYPE and decode(msg, 1, null) or {}
 
 	if res.code < 300 then
 		self:log('debug', res, method, url)

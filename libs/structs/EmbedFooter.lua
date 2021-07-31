@@ -1,11 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local EmbedFooter, get = class('EmbedFooter')
+local EmbedFooter, get = class('EmbedFooter', Struct)
 
 function EmbedFooter:__init(data)
-	self._text = data.text
-	self._icon_url = data.icon_url
-	self._proxy_icon_url = data.proxy_icon_url
+	Struct.__init(self, data)
 end
 
 function get:text()

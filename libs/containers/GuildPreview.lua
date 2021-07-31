@@ -10,15 +10,8 @@ local GuildPreview, get = class('GuildPreview', Snowflake)
 
 function GuildPreview:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._name = data.name
-	self._icon = data.icon
-	self._splash = data.splash
-	self._discovery_splash = data.discovery_splash
 	self._emojis = client.state:newEmojis(self.id, data.emojis)
 	self._features = data.features
-	self._approximate_member_count = data.approximate_member_count
-	self._approximate_presence_count = data.approximate_presence_count
-	self._description = data.description
 end
 
 GuildPreview.getIconURL = Guild.getIconURL

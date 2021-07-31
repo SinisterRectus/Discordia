@@ -7,16 +7,8 @@ local class = require('../class')
 local Invite, get = class('Invite', Container)
 
 function Invite:__init(data, client)
-	Container.__init(self, client)
-	self._code = data.code
+	Container.__init(self, data, client)
 	self._inviter = data.inviter and client.state:newUser(data.inviter) or nil
-	self._approximate_presence_count = data.approximate_presence_count -- with_counts
-	self._approximate_member_count = data.approximate_member_count -- with_counts
-	self._uses = data.uses
-	self._max_uses = data.max_uses
-	self._max_age = data.max_age
-	self._temporary = data.temporary
-	self._created_at = data.created_at
 	self._channel = data.channel and InviteChannel(data.channel, client)
 	self._guild = data.guild and InviteGuild(data.guild, client)
 end

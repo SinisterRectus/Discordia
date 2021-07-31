@@ -9,17 +9,13 @@ local EmbedVideo = require('./EmbedVideo')
 local EmbedProvider = require('./EmbedProvider')
 local EmbedAuthor = require('./EmbedAuthor')
 local EmbedField = require('./EmbedField')
+local Struct = require('./Struct')
 
-local Embed, get = class('Embed')
+local Embed, get = class('Embed', Struct)
 
 function Embed:__init(data)
 
-	self._title = data.title
-	self._type = data.type
-	self._description = data.description
-	self._url = data.url
-	self._timestamp = data.timestamp
-	self._color = data.color
+	Struct.__init(self, data)
 
 	self._footer = data.footer and EmbedFooter(data.footer)
 	self._image = data.image and EmbedImage(data.image)

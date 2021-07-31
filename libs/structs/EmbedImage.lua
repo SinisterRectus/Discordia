@@ -1,12 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local EmbedImage, get = class('EmbedImage')
+local EmbedImage, get = class('EmbedImage', Struct)
 
 function EmbedImage:__init(data)
-	self._url = data.url
-	self._proxy_url = data.proxy_url
-	self._height = data.height
-	self._width = data.width
+	Struct.__init(self, data)
 end
 
 function get:url()

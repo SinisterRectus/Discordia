@@ -1,15 +1,14 @@
 local CommandChoice = require('./CommandChoice')
 
+local Struct = require('./Struct')
+
 local class = require('../class')
 local helpers = require('../helpers')
 
-local CommandOption, get = class('CommandOption')
+local CommandOption, get = class('CommandOption', Struct)
 
 function CommandOption:__init(data)
-	self._type = data.type
-	self._name = data.name
-	self._description = data.description
-	self._required = data.required
+	Struct.__init(self, data)
 	self._choices = data.choices and helpers.structs(CommandChoice, data.choices)
 	self._options = data.options and helpers.structs(CommandOption, data.options)
 end

@@ -3,12 +3,11 @@ local json = require('json')
 
 local null = json.null
 
-local Container, get = class('Container')
+local Struct = class('Struct')
 
 local types = {['string'] = true, ['number'] = true, ['boolean'] = true}
 
-function Container:__init(data, client)
-	self._client = assert(client)
+function Struct:__init(data)
 	for k, v in pairs(data) do
 		if types[type(v)] then
 			self['_' .. k] = v
@@ -18,12 +17,4 @@ function Container:__init(data, client)
 	end
 end
 
-function Container.__eq()
-	return error('__eq not implemented')
-end
-
-function get:client()
-	return self._client
-end
-
-return Container
+return Struct

@@ -5,17 +5,8 @@ local class = require('../class')
 local GuildTemplate, get = class('GuildTemplate', Container)
 
 function GuildTemplate:__init(data, client)
-	Container.__init(self, client)
-	self._code = data.code
-	self._name = data.name
-	self._description = data.description
-	self._usage_count = data.usage_count
-	self._creator_id = data.creator_id
+	Container.__init(self, data, client)
 	self._creator = client.state:newUser(data.creator)
-	self._created_at = data.created_at
-	self._updated_at = data.updated_at
-	self._source_guild_id = data.source_guild_id
-	self._is_dirty = data.is_dirty
 end
 
 function GuildTemplate:__eq(other)

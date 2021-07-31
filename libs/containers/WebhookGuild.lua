@@ -9,8 +9,6 @@ local WebhookGuild, get = class('WebhookGuild', Snowflake)
 
 function WebhookGuild:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._name = data.name
-	self._icon = data.icon
 end
 
 function WebhookGuild:getIconURL(ext, size)

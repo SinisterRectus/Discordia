@@ -7,11 +7,6 @@ local StageInstance, get = class('StageInstance', Snowflake)
 
 function StageInstance:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._guild_id = data.guild_id
-	self._channel_id = data.channel_id
-	self._topic = data.topic
-	self._privacy_level = data.privacy_level
-	self._discoverable_disabled = data.discoverable_disabled
 end
 
 function StageInstance:getGuild()

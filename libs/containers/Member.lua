@@ -14,17 +14,9 @@ local format = string.format
 local Member, get = class('Member', Container)
 
 function Member:__init(data, client)
-	Container.__init(self, client)
-	self._guild_id = assert(data.guild_id)
+	Container.__init(self, data, client)
 	self._user = client.state:newUser(data.user)
-	self._nick = data.nick
 	self._roles = data.roles
-	self._joined_at = data.joined_at
-	self._premium_since = data.premium_since
-	self._deaf = data.deaf
-	self._mute = data.mute
-	self._pending = data.pending
-	self._permissions = data.permissions
 end
 
 function Member:__eq(other)

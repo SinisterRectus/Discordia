@@ -1,10 +1,11 @@
 local class = require('../class')
 
-local ActivityButton, get = class('ActivityButton')
+local Struct = require('./Struct')
+
+local ActivityButton, get = class('ActivityButton', Struct)
 
 function ActivityButton:__init(data)
-	self._label = data.label
-	self._url = data.url
+	Struct.__init(self, data)
 end
 
 function get:label()

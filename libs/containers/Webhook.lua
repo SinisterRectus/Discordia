@@ -10,13 +10,6 @@ local Webhook, get = class('Webhook', Snowflake)
 
 function Webhook:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._channel_id = data.channel_id
-	self._guild_id = data.guild_id
-	self._application_id = data.application_id
-	self._token = data.token
-	self._type = data.type
-	self._name = data.name
-	self._avatar = data.avatar
 	self._user = data.user and self.client.state:newUser(data.user) or nil
 	self._source_channel = data.source_channel and WebhookChannel(data.source_channel, client)
 	self._source_guild = data.source_guild and WebhookGuild(data.source_guild, client)

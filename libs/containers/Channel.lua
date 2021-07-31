@@ -20,20 +20,6 @@ Guild Store    = 6
 function Channel:__init(data, client)
 
 	Snowflake.__init(self, data, client)
-	self._guild_id = data.guild_id -- text, voice, category, news, store (excludes private and group)
-	self._type = data.type -- all types
-	self._name = data.name -- text, voice, group, category, news, store (excludes private)
-	self._topic = data.topic -- text, news
-	self._nsfw = data.nsfw -- text, news, store
-	self._position = data.position -- text, voice, category, news, store (excludes private and group)
-	self._icon = data.icon -- group
-	self._owner_id = data.owner_id -- group
-	self._application_id = data.application_id -- group
-	self._parent_id = data.parent_id -- text, voice, news, store (excludes private, group, category)
-	self._last_pin_timestamp = data.last_pin_timestamp -- text, news, private
-	self._bitrate = data.bitrate -- voice
-	self._user_limit = data.user_limit -- voice
-	self._rate_limit_per_user = data.rate_limit_per_user -- text
 
 	if data.permission_overwrites then -- text, voice, category, news, store (excludes private and group)
 		self._permission_overwrites = client.state:newPermissionOverwrites(data.id, data.permission_overwrites)

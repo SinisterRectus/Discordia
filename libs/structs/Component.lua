@@ -3,22 +3,15 @@ local helpers = require('../helpers')
 
 local PartialEmoji = require('./PartialEmoji')
 local SelectOption = require('./SelectOption')
+local Struct = require('./Struct')
 
-local Component, get = class('Component')
+local Component, get = class('Component', Struct)
 
 function Component:__init(data)
-	self._type = data.type -- all
-	self._style = data.style -- button
-	self._label = data.label -- button
+	Struct.__init(self, data)
 	self._emoji = data.emoji and PartialEmoji(data) -- button
-	self._custom_id = data.custom_id -- button, select menu
-	self._url = data.url -- button
-	self._disabled = data.disabled -- button, select menu
 	self._components = helpers.structs(data.components, Component) -- action row
 	self._options = helpers.structs(data.options, SelectOption) -- select menu
-	self._placeholder = data.placeholder
-	self._min_values = data.min_values
-	self._max_values = data.max_values
 end
 
 function get:type()

@@ -6,8 +6,6 @@ local MessageInteraction, get = class('MessageInteraction', Snowflake)
 
 function MessageInteraction:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._name = data.name
-	self._type = data.type
 	self._user = client.state:newUser(data.user)
 end
 

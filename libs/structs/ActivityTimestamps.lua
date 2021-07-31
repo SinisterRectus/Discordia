@@ -1,10 +1,11 @@
 local class = require('../class')
 
-local ActivityTimestamps, get = class('ActivityTimestamps')
+local Struct = require('./Struct')
+
+local ActivityTimestamps, get = class('ActivityTimestamps', Struct)
 
 function ActivityTimestamps:__init(data)
-	self._start = data.start
-	self._stop = data['end'] -- thanks discord
+	Struct.__init(self, data)
 end
 
 function get:start()
@@ -12,7 +13,7 @@ function get:start()
 end
 
 function get:stop()
-	return self._stop
+	return self._end
 end
 
 return ActivityTimestamps

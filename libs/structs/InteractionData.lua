@@ -1,17 +1,15 @@
 local InteractionOption = require('./InteractionOption')
+local Struct = require('./Struct')
 
 local class = require('../class')
 local helpers = require('../helpers')
 
-local InteractionData, get = class('InteractionData')
+local InteractionData, get = class('InteractionData', Struct)
 
 function InteractionData:__init(data)
-	self._id = data.id
-	self._name = data.name
-	self._resolved = nil -- TODO
+	Struct.__init(self, data)
 	self._options = data.options and helpers.structs(InteractionOption, data.options)
-	self._custom_id = data.custom_id
-	self._component_type = data.component_type
+	-- TODO: resolved
 end
 
 function get:id()

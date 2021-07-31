@@ -8,9 +8,7 @@ local json = require('json')
 local WelcomeScreen, get = class('WelcomeScreen', Container)
 
 function WelcomeScreen:__init(data, client)
-	Container.__init(self, client)
-	self._guild_id = assert(data.guild_id)
-	self._description = data.description
+	Container.__init(self, data, client)
 	self._welcome_channels = helpers.structs(WelcomeChannel, data.welcome_channels)
 end
 

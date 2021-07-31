@@ -1,11 +1,10 @@
 local class = require('../class')
+local Struct = require('./Struct')
 
-local PartialEmoji, get = class('PartialEmoji')
+local PartialEmoji, get = class('PartialEmoji', Struct)
 
 function PartialEmoji:__init(data)
-	self._name = data.name
-	self._id = data.id
-	self._animated = data.animated
+	Struct.__init(self, data)
 end
 
 function get:name()

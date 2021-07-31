@@ -1,9 +1,11 @@
 local class = require('../class')
 
-local ActivityParty, get = class('ActivityParty')
+local Struct = require('./Struct')
+
+local ActivityParty, get = class('ActivityParty', Struct)
 
 function ActivityParty:__init(data)
-	self._id = data.id
+	Struct.__init(self, data)
 	self._current_size = data.size and data.size[1]
 	self._max_size = data.size and data.size[2]
 end
