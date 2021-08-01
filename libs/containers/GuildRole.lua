@@ -9,37 +9,37 @@ local json = require('json')
 local checkEnum = typing.checkEnum
 local format = string.format
 
-local Role, get = class('Role', Snowflake)
+local GuildRole, get = class('GuildRole', Snowflake)
 
-function Role:__init(data, client)
+function GuildRole:__init(data, client)
 	Snowflake.__init(self, data, client)
 end
 
-function Role:delete()
+function GuildRole:delete()
 	return self.client:deleteGuildRole(self.guildId, self.id)
 end
 
-function Role:getGuild()
+function GuildRole:getGuild()
 	return self.client:getGuild(self.guildId)
 end
 
-function Role:modify(payload)
+function GuildRole:modify(payload)
 	return self.client:modifyGuildRole(self.guildId, self.id, payload)
 end
 
-function Role:setName(name)
+function GuildRole:setName(name)
 	return self.client:modifyGuildRole(self.guildId, self.id, {name = name or json.null})
 end
 
-function Role:setColor(color)
+function GuildRole:setColor(color)
 	return self.client:modifyGuildRole(self.guildId, self.id, {color = color or json.null})
 end
 
-function Role:setPermissions(permissions)
+function GuildRole:setPermissions(permissions)
 	return self.client:modifyGuildRole(self.guildId, self.id, {permissions = permissions or json.null})
 end
 
-function Role:enablePermissions(...)
+function GuildRole:enablePermissions(...)
 	local permissions = Bitfield(self.permissions)
 	for i = 1, select('#', ...) do
 		permissions:enableValue(checkEnum(enums.permission, select(i, ...)))
@@ -47,7 +47,7 @@ function Role:enablePermissions(...)
 	return self:setPermissions(permissions)
 end
 
-function Role:disablePermissions(...)
+function GuildRole:disablePermissions(...)
 	local permissions = Bitfield(self.permissions)
 	for i = 1, select('#', ...) do
 		permissions:disableValue(checkEnum(enums.permission, select(i, ...)))
@@ -55,23 +55,23 @@ function Role:disablePermissions(...)
 	return self:setPermissions(permissions)
 end
 
-function Role:hoist()
+function GuildRole:hoist()
 	return self.client:modifyGuildRole(self.guildId, self.id, {hoisted = true})
 end
 
-function Role:unhoist()
+function GuildRole:unhoist()
 	return self.client:modifyGuildRole(self.guildId, self.id, {hoisted = false})
 end
 
-function Role:enableMentioning()
+function GuildRole:enableMentioning()
 	return self.client:modifyGuildRole(self.guildId, self.id, {mentionable = true})
 end
 
-function Role:disableMentioning()
+function GuildRole:disableMentioning()
 	return self.client:modifyGuildRole(self.guildId, self.id, {mentionable = false})
 end
 
-function Role:toMention()
+function GuildRole:toMention()
 	return format('<@&%s>', self.id)
 end
 
@@ -107,4 +107,4 @@ function get:guildId()
 	return self._guild_id
 end
 
-return Role
+return GuildRole

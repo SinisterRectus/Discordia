@@ -123,6 +123,9 @@
 	- `WelcomeChannel`
 - Merged `GuildChannel`, `TextChannel`, `GuildCategoryChannel`, `GuildTextChannel`, `GuildVoiceChannel`, and `PrivateChannel` into one `Channel` class
 - Merged `ArrayIterable`, `TableIterable`, and `FilteredIterable` into one `Iterable` class
+- Renamed `Member` to `GuildMember`
+- Renamed `Role` to `GuildRole`
+- Renamed `Emoji` to `GuildEmoji`
 - Removed `Cache`, `SecondaryCache`, and `WeakCache` (some form of these still used internally)
 - Removed `GroupChannel` class (concept was not merged into `Channel`)
 - Removed `Permissions` class (replaced by more general `Bitfield` class)
@@ -463,7 +466,9 @@ Note: All previously existing individual channel sub-classes are considered here
 - Changed `__eq` consider the guild in addition to the user
 - Removed `guild` property (use `guildId` property or `getGuild` method)
 
-#### Emoji
+#### GuildEmoji
+
+Note: Renamed from `Emoji`
 
 - Added `getURL` method
 - Added `getGuild` method
@@ -558,7 +563,9 @@ Note: All previously existing individual channel sub-classes are considered here
 - Removed `channelName` property (use `channel.name` property)
 - Removed `channelType` property (use `channel.type` property)
 
-#### Member
+#### GuildMember
+
+Note: Renamed from `GuildMember`
 
 - Added `getRoles` method
 - Added `getGuild` method
@@ -652,7 +659,9 @@ Note: Technically a new class that implements the former `UserPresence` features
 - Removed `emojiHash` property (use `emoji.hash` property)
 - Removed `emojiURL` property
 
-#### Role
+#### GuildRole
+
+Note: Renamed from `Role`
 
 - Added `getGuild` method
 - Added `toMention` method

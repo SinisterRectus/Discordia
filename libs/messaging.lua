@@ -7,7 +7,8 @@ local typing = require('./typing')
 
 local Color = require('./utils/Color')
 local Bitfield = require('./utils/Bitfield')
-local Emoji = require('./containers/Emoji')
+local GuildEmoji = require('./containers/GuildEmoji')
+local PartialEmoji = require('./structs/PartialEmoji')
 local Reaction = require('./containers/Reaction')
 
 local splitPath = pathjoin.splitPath
@@ -161,7 +162,9 @@ end
 function messaging.checkEmoji(obj)
 	if type(obj) == 'string' then
 		return obj
-	elseif isInstance(obj, Emoji) then
+	elseif isInstance(obj, GuildEmoji) then
+		return obj.hash
+	elseif isInstance(obj, PartialEmoji) then
 		return obj.hash
 	elseif isInstance(obj, Reaction) then
 		return obj.emoji.hash

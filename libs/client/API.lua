@@ -205,16 +205,6 @@ function API:commit(method, url, req, payload, route, retries)
 	self._tx = self._tx + (payload and #payload or 0)
 	self._requests = self._requests + 1
 
-	client:emit('httpRequest', { -- TODO: need to prevent editing of res/req tables
-		method = method,
-		url = url,
-		requestHeaders = req,
-		requestPayload = payload,
-		responseHeaders = res,
-		responsePayload = msg,
-		latency = latency,
-	})
-
 	if head['x-ratelimit-remaining'] == '0' then
 		delay = max(1000 * head['x-ratelimit-reset-after'], delay)
 	end

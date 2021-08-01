@@ -10,41 +10,41 @@ local checkImageExtension, checkImageSize = typing.checkImageExtension, typing.c
 local readOnly = helpers.readOnly
 local format = string.format
 
-local Emoji, get = class('Emoji', Snowflake)
+local GuildEmoji, get = class('GuildEmoji', Snowflake)
 
-function Emoji:__init(data, client)
+function GuildEmoji:__init(data, client)
 	Snowflake.__init(self, data, client)
 	self._roles = data.roles
 	self._user = data.user and self.client.state:newUser(data.user) or nil -- only available via HTTP
 end
 
-function Emoji:modify(payload)
+function GuildEmoji:modify(payload)
 	return self.client:modifyGuildEmoji(self.guildId, self.id, payload)
 end
 
-function Emoji:setName(name)
+function GuildEmoji:setName(name)
 	return self.client:modifyGuildEmoji(self.guildId, self.id, {name = name or json.null})
 end
 
-function Emoji:setRoles(roleIds)
+function GuildEmoji:setRoles(roleIds)
 	return self.client:modifyGuildEmoji(self.guildId, self.id, {roleIds = roleIds or json.null})
 end
 
-function Emoji:delete()
+function GuildEmoji:delete()
 	return self.client:deleteGuildEmoji(self.guildId, self.id)
 end
 
-function Emoji:getURL(ext, size)
+function GuildEmoji:getURL(ext, size)
 	ext = ext and checkImageExtension(ext)
 	size = size and checkImageSize(size)
 	return self.client.cdn:getCustomEmojiURL(self.id, ext, size)
 end
 
-function Emoji:getGuild()
+function GuildEmoji:getGuild()
 	return self.client:getGuild(self.guildId)
 end
 
-function Emoji:hasRole(roleId)
+function GuildEmoji:hasRole(roleId)
 	roleId = checkSnowflake(roleId)
 	for _, v in pairs(self.roleIds) do
 		if v == roleId then
@@ -64,7 +64,7 @@ local function makeRoleFilter(ids)
 	end
 end
 
-function Emoji:getRoles()
+function GuildEmoji:getRoles()
 	local roles, err = self.client:getGuildRoles(self.guildId)
 	if roles then
 		return roles:filter(makeRoleFilter(self.roleIds))
@@ -73,7 +73,7 @@ function Emoji:getRoles()
 	end
 end
 
-function Emoji:toMention()
+function GuildEmoji:toMention()
 	local fmt = self.animated and '<a:%s:%s>' or '<:%s:%s>'
 	return format(fmt, self.name, self.id)
 end
@@ -110,4 +110,4 @@ function get:roleIds()
 	return readOnly(self._roles)
 end
 
-return Emoji
+return GuildEmoji

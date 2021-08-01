@@ -20,11 +20,11 @@ function Guild:__init(data, client)
 	local state = client.state
 
 	for _, v in ipairs(data.roles) do
-		state:newRole(id, v)
+		state:newGuildRole(id, v)
 	end
 
 	for _, v in ipairs(data.emojis) do
-		state:newEmoji(id, v)
+		state:newGuildEmoji(id, v)
 	end
 
 	if data.channels then -- wss only

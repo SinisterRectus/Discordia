@@ -91,7 +91,7 @@ end
 
 function events.GUILD_EMOJIS_UPDATE(d, client) -- GUILD_EMOJIS
 	client.state:deleteGuildEmojis(d.guild_id)
-	local emojis = client.state:newEmojis(d.guild_id, d.emojis)
+	local emojis = client.state:newGuildEmojis(d.guild_id, d.emojis)
 	return client:emit('emojisUpdate', d.guild_id, emojis)
 end
 
@@ -100,12 +100,12 @@ function events.GUILD_INTEGRATIONS_UPDATE(d, client) -- GUILD_INTEGRATIONS
 end
 
 function events.GUILD_MEMBER_ADD(d, client) -- GUILD_MEMBERS
-	local member = client.state:newMember(d.guild_id, d)
+	local member = client.state:newGuildMember(d.guild_id, d)
 	return client:emit('memberJoin', member)
 end
 
 function events.GUILD_MEMBER_UPDATE(d, client) -- GUILD_MEMBERS
-	local member = client.state:newMember(d.guild_id, d)
+	local member = client.state:newGuildMember(d.guild_id, d)
 	return client:emit('memberUpdate', member)
 end
 
@@ -115,7 +115,7 @@ function events.GUILD_MEMBER_REMOVE(d, client) -- GUILD_MEMBERS
 end
 
 function events.GUILD_MEMBERS_CHUNK(d, client, shard) -- no intent; command response
-	local members = client.state:newMembers(d.guild_id, d.members)
+	local members = client.state:newGuildMembers(d.guild_id, d.members)
 	local presences = d.presences and client.state:newPresences(d.guild_id, d.presences)
 	return shard:membersChunk({
 		members = members,
@@ -129,12 +129,12 @@ function events.GUILD_MEMBERS_CHUNK(d, client, shard) -- no intent; command resp
 end
 
 function events.GUILD_ROLE_CREATE(d, client) -- GUILDS
-	local role = client.state:newRole(d.guild_id, d.role)
+	local role = client.state:newGuildRole(d.guild_id, d.role)
 	return client:emit('roleCreate', role)
 end
 
 function events.GUILD_ROLE_UPDATE(d, client) -- GUILDS
-	local role = client.state:newRole(d.guild_id, d.role)
+	local role = client.state:newGuildRole(d.guild_id, d.role)
 	return client:emit('roleUpdate', role)
 end
 
@@ -164,7 +164,7 @@ function events.MESSAGE_CREATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES
 	local member
 	if d.guild_id and d.member then
 		d.member.user = d.author
-		member = client.state:newMember(d.guild_id, d.member)
+		member = client.state:newGuildMember(d.guild_id, d.member)
 	end
 	return client:emit('messageCreate', message, member)
 end
@@ -173,7 +173,7 @@ function events.MESSAGE_UPDATE(d, client) -- GUILD_MESSAGES / DIRECT_MESSAGES
 	local member
 	if d.guild_id and d.member then
 		d.member.user = d.author
-		member = client.state:newMember(d.guild_id, d.member)
+		member = client.state:newGuildMember(d.guild_id, d.member)
 	end
 	return client:emit('messageUpdate', d.channel_id, d.id, member) -- TODO: provide update data
 end
@@ -187,7 +187,7 @@ function events.MESSAGE_DELETE_BULK(d, client) -- GUILD_MESSAGES
 end
 
 function events.MESSAGE_REACTION_ADD(d, client) -- GUILD_MESSAGE_REACTIONS / DIRECT_MESSAGE_REACTIONS
-	local member = d.guild_id and d.member and client.state:newMember(d.guild_id, d.member)
+	local member = d.guild_id and d.member and client.state:newGuildMember(d.guild_id, d.member)
 	return client:emit('reactionAdd', {
 		emoji = d.emoji, -- id, name, animated (all can be nil)
 		userId = d.user_id,
@@ -231,7 +231,7 @@ function events.PRESENCE_UPDATE(d, client) -- GUILD_PRESENCES
 end
 
 function events.TYPING_START(d, client) -- GUILD_MESSAGE_TYPING / DIRECT_MESSAGE_TYPING
-	local member = d.guild_id and d.member and client.state:newMember(d.guild_id, d.member)
+	local member = d.guild_id and d.member and client.state:newGuildMember(d.guild_id, d.member)
 	return client:emit('typingStart', {
 		timestamp = d.timestamp,
 		userId = d.user_id,

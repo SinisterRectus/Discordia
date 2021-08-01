@@ -1,6 +1,4 @@
 local Snowflake = require('./Snowflake')
-local TeamMember = require('./TeamMember')
-local Iterable = require('../utils/Iterable')
 
 local class = require('../class')
 local typing = require('../typing')
@@ -12,10 +10,7 @@ local Team, get = class('Team', Snowflake)
 
 function Team:__init(data, client)
 	Snowflake.__init(self, data, client)
-	for i, v in ipairs(data.members) do
-		data.members[i] = TeamMember(v, client)
-	end
-	self._members = Iterable(data.members, 'id')
+	self._members = data.members and client.state:newTeamMembers(data.members)
 end
 
 function Team:getIconURL(ext, size)

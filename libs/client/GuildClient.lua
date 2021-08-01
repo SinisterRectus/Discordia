@@ -87,7 +87,7 @@ function Client:getGuildMember(guildId, userId)
 	userId = checkSnowflake(userId)
 	local data, err = self.api:getGuildMember(guildId, userId)
 	if data then
-		return self.state:newMember(guildId, data)
+		return self.state:newGuildMember(guildId, data)
 	else
 		return nil, err
 	end
@@ -118,7 +118,7 @@ function Client:getGuildMembers(guildId, limit, after)
 		after = after and checkSnowflake(after) or nil,
 	})
 	if data then
-		return self.state:newMembers(guildId, data)
+		return self.state:newGuildMembers(guildId, data)
 	else
 		return nil, err
 	end
@@ -156,7 +156,7 @@ function Client:searchGuildMembers(guildId, query, limit)
 		limit = opt(limit, checkType, 'number'),
 	})
 	if data then
-		return self.state:newMembers(guildId, data)
+		return self.state:newGuildMembers(guildId, data)
 	else
 		return nil, err
 	end
@@ -177,7 +177,7 @@ function Client:createGuildRole(guildId, payload)
 		data, err = self.api:createGuildRole(guildId, {name = checkType('string', payload)})
 	end
 	if data then
-		return self.state:newRole(guildId, data)
+		return self.state:newGuildRole(guildId, data)
 	else
 		return nil, err
 	end
@@ -191,7 +191,7 @@ function Client:createGuildEmoji(guildId, payload)
 		image = checkImageData(payload.image),
 	})
 	if data then
-		return self.state:newEmoji(guildId, data)
+		return self.state:newGuildEmoji(guildId, data)
 	else
 		return nil, err
 	end
@@ -463,7 +463,7 @@ function Client:modifyGuildEmoji(guildId, emojiId, payload)
 		roles = opt(payload.roleIds, checkArray, checkSnowflake),
 	})
 	if data then
-		return self.state:newEmoji(guildId, data)
+		return self.state:newGuildEmoji(guildId, data)
 	else
 		return nil, err
 	end
@@ -492,7 +492,7 @@ function Client:modifyGuildRole(guildId, roleId, payload)
 		mentionable = opt(payload.mentionable, checkType, 'boolean'),
 	})
 	if data then
-		return self.state:newRole(guildId, data)
+		return self.state:newGuildRole(guildId, data)
 	else
 		return nil, err
 	end
@@ -503,7 +503,7 @@ function Client:modifyGuildRolePositions(guildId, positions)
 	positions = checkPositions(positions)
 	local data, err = self.api:modifyGuildRolePositions(guildId, positions)
 	if data then
-		return self.state:newRoles(guildId, data)
+		return self.state:newGuildRoles(guildId, data)
 	else
 		return nil, err
 	end
@@ -532,7 +532,7 @@ function Client:modifyGuildMember(guildId, userId, payload)
 		channel_id = opt(payload.channelId, checkSnowflake),
 	})
 	if data then
-		return self.state:newMember(guildId, data)
+		return self.state:newGuildMember(guildId, data)
 	else
 		return false, err
 	end

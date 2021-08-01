@@ -11,19 +11,19 @@ local checkSnowflake = typing.checkSnowflake
 local readOnly = helpers.readOnly
 local format = string.format
 
-local Member, get = class('Member', Container)
+local GuildMember, get = class('GuildMember', Container)
 
-function Member:__init(data, client)
+function GuildMember:__init(data, client)
 	Container.__init(self, data, client)
 	self._user = client.state:newUser(data.user)
 	self._roles = data.roles
 end
 
-function Member:__eq(other)
+function GuildMember:__eq(other)
 	return self.guildId == other.guildId and self.user.id == other.user.id
 end
 
-function Member:toString()
+function GuildMember:toString()
 	return self.guildId .. ':' .. self.user.id
 end
 
@@ -37,7 +37,7 @@ local function makeRoleFilter(ids)
 	end
 end
 
-function Member:getRoles()
+function GuildMember:getRoles()
 	local roles, err = self.client:getGuildRoles(self.guildId)
 	if roles then
 		return roles:filter(makeRoleFilter(self.roleIds))
@@ -46,7 +46,7 @@ function Member:getRoles()
 	end
 end
 
-function Member:getGuild()
+function GuildMember:getGuild()
 	return self.client:getGuild(self.guildId)
 end
 
@@ -62,7 +62,7 @@ local function colorFilter(r)
 	return r.color > 0
 end
 
-function Member:getHighestRole()
+function GuildMember:getHighestRole()
 	local roles, err = self:getRoles()
 	if roles then
 		roles:sort(positionSorter)
@@ -72,7 +72,7 @@ function Member:getHighestRole()
 	end
 end
 
-function Member:getColor()
+function GuildMember:getColor()
 	local roles, err = self:getRoles()
 	if roles then
 		roles = roles:filter(colorFilter)
@@ -84,7 +84,7 @@ function Member:getColor()
 	end
 end
 
-function Member:getPermissions(channelId)
+function GuildMember:getPermissions(channelId)
 
 	local guild, err = self:getGuild()
 	if not guild then
@@ -154,15 +154,15 @@ function Member:getPermissions(channelId)
 
 end
 
-function Member:addRole(roleId)
+function GuildMember:addRole(roleId)
 	return self.client:addGuildMemberRole(self.guildId, self.user.id, roleId)
 end
 
-function Member:removeRole(roleId)
+function GuildMember:removeRole(roleId)
 	return self.client:removeGuildMemberRole(self.guildId, self.user.id, roleId)
 end
 
-function Member:hasRole(roleId)
+function GuildMember:hasRole(roleId)
 	roleId = checkSnowflake(roleId)
 	if roleId == self.guildId then
 		return true
@@ -175,51 +175,51 @@ function Member:hasRole(roleId)
 	return false
 end
 
-function Member:modify(payload)
+function GuildMember:modify(payload)
 	return self.client:modifyGuildMember(self.guildId, self.user.id, payload)
 end
 
-function Member:setRoles(roleIds)
+function GuildMember:setRoles(roleIds)
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {roleIds = roleIds or json.null})
 end
 
-function Member:setNickname(nickname)
+function GuildMember:setNickname(nickname)
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {nickname = nickname or json.null})
 end
 
-function Member:setVoiceChannel(channelId)
+function GuildMember:setVoiceChannel(channelId)
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {channelId = channelId or json.null})
 end
 
-function Member:mute()
+function GuildMember:mute()
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {muted = true})
 end
 
-function Member:unmute()
+function GuildMember:unmute()
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {muted = false})
 end
 
-function Member:deafen()
+function GuildMember:deafen()
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {deafened = true})
 end
 
-function Member:undeafen()
+function GuildMember:undeafen()
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {deafened = false})
 end
 
-function Member:kick(reason)
+function GuildMember:kick(reason)
 	return self.client:removeGuildMember(self.guildId, self.user.id, reason)
 end
 
-function Member:ban(reason, days)
+function GuildMember:ban(reason, days)
 	return self.client:createGuildBan(self.guildId, self.user.id, reason, days)
 end
 
-function Member:unban(reason)
+function GuildMember:unban(reason)
 	return self.client:removeGuildBan(self.guildId, self.user.id, reason)
 end
 
-function Member:toMention()
+function GuildMember:toMention()
 	return format('<@%s>', self.user.id)
 end
 
@@ -271,4 +271,4 @@ function get:roleIds()
 	return readOnly(self._roles)
 end
 
-return Member
+return GuildMember

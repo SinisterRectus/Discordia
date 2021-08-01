@@ -3,20 +3,22 @@ local Command = require('../containers/Command')
 local AuditLogEntry = require('../containers/AuditLogEntry')
 local Ban = require('../containers/Ban')
 local Channel = require('../containers/Channel')
-local Emoji = require('../containers/Emoji')
+local GuildEmoji = require('../containers/GuildEmoji')
 local Guild = require('../containers/Guild')
 local GuildPreview = require('../containers/GuildPreview')
 local GuildTemplate = require('../containers/GuildTemplate')
 local Interaction = require('../containers/Interaction')
 local Invite = require('../containers/Invite')
-local Member = require('../containers/Member')
+local GuildMember = require('../containers/GuildMember')
 local Message = require('../containers/Message')
 local MessageInteraction = require('../containers/MessageInteraction')
 local PermissionOverwrite = require('../containers/PermissionOverwrite')
 local Presence = require('../containers/Presence')
 local Reaction = require('../containers/Reaction')
-local Role = require('../containers/Role')
+local GuildRole = require('../containers/GuildRole')
 local StageInstance = require('../containers/StageInstance')
+local Team = require('../containers/Team')
+local TeamMember = require('../containers/TeamMember')
 local User = require('../containers/User')
 local Webhook = require('../containers/Webhook')
 local WelcomeScreen = require('../containers/WelcomeScreen')
@@ -43,8 +45,8 @@ function State:__init(client)
 	self._stages = Cache(StageInstance, client, true)
 
 	self._guilds = Cache(Guild, client)
-	self._roles = CompoundCache(Role, client)
-	self._emojis = CompoundCache(Emoji, client)
+	self._roles = CompoundCache(GuildRole, client)
+	self._emojis = CompoundCache(GuildEmoji, client)
 	self._channels = CompoundCache(Channel, client)
 
 	self._reactions = CompoundCache(Reaction, client, true)
@@ -132,6 +134,21 @@ function State:newStageInstance(data)
 	return self._stages:update(data.id, data)
 end
 
+function State:newTeam(data)
+	return Team(data, self._client)
+end
+
+function State:newTeamMember(data)
+	return TeamMember(data, self._client)
+end
+
+function State:newTeamMembers(data)
+	for i, v in ipairs(data) do
+		data[i] = self:newTeamMember(v)
+	end
+	return Iterable(data, 'id')
+end
+
 function State:newApplication(data)
 	return Application(data, self._client)
 end
@@ -155,38 +172,38 @@ function State:newMessageInteraction(data)
 	return MessageInteraction(data, self._client)
 end
 
-function State:newRole(guildId, data)
+function State:newGuildRole(guildId, data)
 	data.guild_id = guildId
 	return self._roles:update(guildId, data.id, data)
 end
 
-function State:newRoles(guildId, data)
+function State:newGuildRoles(guildId, data)
 	for i, v in ipairs(data) do
-		data[i] = self:newRole(guildId, v)
+		data[i] = self:newGuildRole(guildId, v)
 	end
 	return Iterable(data, 'id')
 end
 
-function State:newEmoji(guildId, data)
+function State:newGuildEmoji(guildId, data)
 	data.guild_id = guildId
 	return self._emojis:update(guildId, data.id, data)
 end
 
-function State:newEmojis(guildId, data)
+function State:newGuildEmojis(guildId, data)
 	for i, v in ipairs(data) do
-		data[i] = self:newEmoji(guildId, v)
+		data[i] = self:newGuildEmoji(guildId, v)
 	end
 	return Iterable(data, 'id')
 end
 
-function State:newMember(guildId, data)
+function State:newGuildMember(guildId, data)
 	data.guild_id = guildId
-	return Member(data, self._client)
+	return GuildMember(data, self._client)
 end
 
-function State:newMembers(guildId, data)
+function State:newGuildMembers(guildId, data)
 	for i, v in ipairs(data) do
-		data[i] = self:newMember(guildId, v)
+		data[i] = self:newGuildMember(guildId, v)
 	end
 	return Iterable(data, 'id')
 end

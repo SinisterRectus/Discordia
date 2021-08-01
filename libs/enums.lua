@@ -247,6 +247,7 @@ proxy.commandOptionType = {
 	channel         = 7,
 	role            = 8,
 	mentionable     = 9,
+	number          = 10,
 }
 
 proxy.commandPermissionType = {
@@ -326,7 +327,6 @@ proxy.actionType = {
 }
 
 proxy.clientEvent = {
-	httpRequest         = 'httpRequest',
 	gatewayEvent        = 'gatewayEvent',
 	sessionReady        = 'sessionReady',
 	sessionResumed      = 'sessionResumed',

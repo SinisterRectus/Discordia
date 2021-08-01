@@ -1,5 +1,4 @@
 local Snowflake = require('./Snowflake')
-local Team = require('./Team')
 
 local class = require('../class')
 local typing = require('../typing')
@@ -12,7 +11,7 @@ local Application, get = class('Application', Snowflake)
 function Application:__init(data, client)
 	Snowflake.__init(self, data, client)
 	self._owner = data.owner and client.state:newUser(data.owner)
-	self._team = data.team and Team(data.team, client)
+	self._team = data.team and client.state:newTeam(data.team)
 end
 
 function Application:getIconURL(ext, size)

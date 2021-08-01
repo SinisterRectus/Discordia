@@ -10,7 +10,7 @@ local GuildPreview, get = class('GuildPreview', Snowflake)
 
 function GuildPreview:__init(data, client)
 	Snowflake.__init(self, data, client)
-	self._emojis = client.state:newEmojis(self.id, data.emojis)
+	self._emojis = client.state:newGuildEmojis(self.id, data.emojis)
 	self._features = data.features
 end
 

@@ -8,7 +8,7 @@ local Interaction, get = class('Interaction', Snowflake)
 function Interaction:__init(data, client)
 	Snowflake.__init(self, data, client)
 	self._data = data.data and InteractionData(data.data)
-	self._member = data.member and client.state:newMember(data.guild_id, data.member)
+	self._member = data.member and client.state:newGuildMember(data.guild_id, data.member)
 	self._user = data.user and client.state:newUser(data.user)
 	self._message = data.message and client.state:newMessage(data.message)
 end
