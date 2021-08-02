@@ -14,6 +14,7 @@ function Container:__init(data, client)
 			self['_' .. k] = v
 		elseif v == null then
 			self['_' .. k] = nil
+			data[k] = nil
 		end
 	end
 end

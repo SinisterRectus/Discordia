@@ -13,6 +13,7 @@ function Struct:__init(data)
 			self['_' .. k] = v
 		elseif v == null then
 			self['_' .. k] = nil
+			data[k] = nil
 		end
 	end
 end
