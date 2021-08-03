@@ -139,7 +139,7 @@ function events.GUILD_ROLE_UPDATE(d, client) -- GUILDS
 end
 
 function events.GUILD_ROLE_DELETE(d, client) -- GUILDS
-	client.state:deleteRole(d.guild_id)
+	client.state:deleteGuildRole(d.guild_id, d.role_id)
 	return client:emit('roleDelete', d.guild_id, d.role_id)
 end
 
