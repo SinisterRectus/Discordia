@@ -348,14 +348,19 @@ end
 function EventHandler.MESSAGE_DELETE_BULK(d, client)
 	local channel = getChannel(client, d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE_BULK') end
+	local messages = {}
 	for _, id in ipairs(d.ids) do
 		local message = channel._messages:_delete(id)
 		if message then
-			client:emit('messageDelete', message)
+			table.insert(messages,message)
 		else
 			client:emit('messageDeleteUncached', channel, id)
 		end
 	end
+	table.sort(messages,function(a,b)
+		return a.id < b.id
+	end)
+	client:emit('messageDeleteBulk', channel, messages)
 end
 
 function EventHandler.MESSAGE_REACTION_ADD(d, client)
