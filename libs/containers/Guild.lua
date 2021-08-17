@@ -25,7 +25,7 @@ local channelType = enums.channelType
 local floor = math.floor
 local format = string.format
 
-local Guild, get = require('class')('Guild', Snowflake)
+local Guild, get, set = require('class')('Guild', Snowflake)
 
 function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -701,9 +701,17 @@ function get.name(self)
 	return self._name
 end
 
+function set.name(self, value)
+	return self:setName(value)
+end
+
 --[=[@p icon string/nil The hash for the guild's custom icon, if one is set.]=]
 function get.icon(self)
 	return self._icon
+end
+
+function set.icon(self, value)
+	return self:setIcon(value)
 end
 
 --[=[@p iconURL string/nil The URL that can be used to view the guild's icon, if one is set.]=]
@@ -718,6 +726,10 @@ function get.splash(self)
 	return self._splash
 end
 
+function set.splash(self, value)
+	return self:setSplash(value)
+end
+
 --[=[@p splashURL string/nil The URL that can be used to view the guild's custom splash image, if one is set.
 Only partnered guilds may have this.]=]
 function get.splashURL(self)
@@ -728,6 +740,10 @@ end
 --[=[@p banner string/nil The hash for the guild's custom banner, if one is set.]=]
 function get.banner(self)
 	return self._banner
+end
+
+function set.banner(self, value)
+	return self:setBanner(value)
 end
 
 --[=[@p bannerURL string/nil The URL that can be used to view the guild's banner, if one is set.]=]
@@ -750,6 +766,10 @@ end
 --[=[@p region string The voice region that is used for all voice connections in the guild.]=]
 function get.region(self)
 	return self._region
+end
+
+function set.region(self, value)
+	return self:setRegion(value)
 end
 
 --[=[@p vanityCode string/nil The guild's vanity invite URL code, if one exists.]=]
@@ -790,6 +810,10 @@ function get.afkTimeout(self)
 	return self._afk_timeout
 end
 
+function set.afkTimeout(self, value)
+	return self:setAFKTimeout(value)
+end
+
 --[=[@p unavailable boolean Whether the guild is unavailable. If the guild is unavailable, then no property
 is guaranteed to exist except for this one and the guild's ID.]=]
 function get.unavailable(self)
@@ -808,16 +832,28 @@ function get.verificationLevel(self)
 	return self._verification_level
 end
 
+function set.verificationLevel(self, value)
+	return self:setVerificationLevel(value)
+end
+
 --[=[@p notificationSetting number The guild's default notification setting. See the `notficationSetting`
 enumeration for a human-readable representation.]=]
 function get.notificationSetting(self)
 	return self._default_message_notifications
 end
 
+function set.notificationSetting(self, value)
+	return self:setNotificationSetting(value)
+end
+
 --[=[@p explicitContentSetting number The guild's explicit content level setting. See the `explicitContentLevel`
 enumeration for a human-readable representation.]=]
 function get.explicitContentSetting(self)
 	return self._explicit_content_filter
+end
+
+function set.explicitContentSetting(self, value)
+	return self:setExplicitContentSetting(value)
 end
 
 --[=[@p premiumTier number The guild's premier tier affected by nitro server
@@ -847,9 +883,17 @@ function get.owner(self)
 	return self._members:get(self._owner_id)
 end
 
+function set.owner(self, value)
+	return self:setOwner(value)
+end
+
 --[=[@p ownerId string The Snowflake ID of the guild member that owns the guild.]=]
 function get.ownerId(self)
 	return self._owner_id
+end
+
+function set.ownerId(self, value)
+	return self:setOwner(value)
 end
 
 --[=[@p afkChannelId string/nil The Snowflake ID of the channel that is used for AFK members, if one is set.]=]
@@ -857,9 +901,17 @@ function get.afkChannelId(self)
 	return self._afk_channel_id
 end
 
+function set.afkChannelId(self, value)
+	return self:setAFKChannel(value)
+end
+
 --[=[@p afkChannel GuildVoiceChannel/nil Equivalent to `Guild.voiceChannels:get(Guild.afkChannelId)`.]=]
 function get.afkChannel(self)
 	return self._voice_channels:get(self._afk_channel_id)
+end
+
+function set.afkChannel(self, value)
+	return self:setAFKChannel(value)
 end
 
 --[=[@p systemChannelId string/nil The channel id where Discord's join messages will be displayed.]=]
@@ -867,9 +919,17 @@ function get.systemChannelId(self)
 	return self._system_channel_id
 end
 
+function set.systemChannelId(self, value)
+	return self:setSystemChannel(value)
+end
+
 --[=[@p systemChannel GuildTextChannel/nil The channel where Discord's join messages will be displayed.]=]
 function get.systemChannel(self)
 	return self._text_channels:get(self._system_channel_id)
+end
+
+function set.systemChannel(self, value)
+	return self:setSystemChannel(value)
 end
 
 --[=[@p defaultRole Role Equivalent to `Guild.roles:get(Guild.id)`.]=]

@@ -21,7 +21,7 @@ local insert, sort = table.insert, table.sort
 local min, max, floor = math.min, math.max, math.floor
 local huge = math.huge
 
-local GuildChannel, get = class('GuildChannel', Channel)
+local GuildChannel, get, set = class('GuildChannel', Channel)
 
 function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
@@ -255,6 +255,10 @@ function get.name(self)
 	return self._name
 end
 
+function set.name(self, value)
+	return self:setName(value)
+end
+
 --[=[@p position number The position of the channel, where 0 is the highest.]=]
 function get.position(self)
 	return self._position
@@ -268,6 +272,10 @@ end
 --[=[@p category GuildCategoryChannel/nil The parent channel category that may contain this channel.]=]
 function get.category(self)
 	return self._parent._categories:get(self._parent_id)
+end
+
+function set.category(self, value)
+	return self:setCategory(value)
 end
 
 --[=[@p private boolean Whether the "everyone" role has permission to view this

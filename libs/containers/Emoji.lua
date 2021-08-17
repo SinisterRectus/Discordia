@@ -11,7 +11,7 @@ local json = require('json')
 
 local format = string.format
 
-local Emoji, get = require('class')('Emoji', Snowflake)
+local Emoji, get, set = require('class')('Emoji', Snowflake)
 
 function Emoji:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -112,6 +112,10 @@ function get.name(self)
 	return self._name
 end
 
+function set.name(self, value)
+	return self:setName(value)
+end
+
 --[=[@p guild Guild The guild in which the emoji exists.]=]
 function get.guild(self)
 	return self._parent
@@ -163,6 +167,10 @@ function get.roles(self)
 		self._roles_raw = nil
 	end
 	return self._roles
+end
+
+function set.roles(self, value)
+	return self:setRoles(value)
 end
 
 return Emoji

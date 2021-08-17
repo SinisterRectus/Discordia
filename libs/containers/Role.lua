@@ -16,7 +16,7 @@ local insert, sort = table.insert, table.sort
 local min, max, floor = math.min, math.max, math.floor
 local huge = math.huge
 
-local Role, get = require('class')('Role', Snowflake)
+local Role, get, set = require('class')('Role', Snowflake)
 
 function Role:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -313,9 +313,25 @@ function get.hoisted(self)
 	return self._hoist
 end
 
+function set.hoisted(self, value)
+	if value == true then
+		return self:hoist()
+	elseif value == false then
+		return self:unhoist()
+	end
+end
+
 --[=[@p mentionable boolean Whether this role can be mentioned in a text channel message.]=]
 function get.mentionable(self)
 	return self._mentionable
+end
+
+function set.mentionable(self, value)
+	if value == true then
+		return self:enableMentioning()
+	elseif value == false then
+		return self:disableMentioning()
+	end
 end
 
 --[=[@p managed boolean Whether this role is managed by some integration or bot inclusion.]=]
@@ -328,6 +344,10 @@ function get.name(self)
 	return self._name
 end
 
+function set.name(self, value)
+	return self:setName(value)
+end
+
 --[=[@p position number The position of the role, where 0 is the lowest.]=]
 function get.position(self)
 	return self._position
@@ -338,9 +358,17 @@ function get.color(self)
 	return self._color
 end
 
+function set.color(self, value)
+	return self:setColor(value)
+end
+
 --[=[@p permissions number Represents the total permissions of the role as a decimal value.]=]
 function get.permissions(self)
 	return self._permissions
+end
+
+function set.permissions(self, value)
+	return self:setPermissions(value)
 end
 
 --[=[@p mentionString string A string that, when included in a message content, may resolve as a role

@@ -19,7 +19,7 @@ local format = string.format
 local messageFlag = enums.messageFlag
 local band, bor, bnot = bit.band, bit.bor, bit.bnot
 
-local Message, get = require('class')('Message', Snowflake)
+local Message, get, set = require('class')('Message', Snowflake)
 
 function Message:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -527,6 +527,10 @@ function get.content(self)
 	return self._content
 end
 
+function set.content(self, value)
+	return self:setContent(value)
+end
+
 --[=[@p author User The object of the user that created the message.]=]
 function get.author(self)
 	return self._author
@@ -547,6 +551,10 @@ end
 message. See the Discord documentation for more information.]=]
 function get.embed(self)
 	return self._embeds and self._embeds[1]
+end
+
+function set.embed(self, value)
+	return self:setEmbed(value)
 end
 
 --[=[@p attachment table/nil A raw data table that represents the first file attachment that exists in this

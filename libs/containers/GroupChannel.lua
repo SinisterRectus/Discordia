@@ -13,7 +13,7 @@ local Resolver = require('client/Resolver')
 
 local format = string.format
 
-local GroupChannel, get = require('class')('GroupChannel', TextChannel)
+local GroupChannel, get, set = require('class')('GroupChannel', TextChannel)
 
 function GroupChannel:__init(data, parent)
 	TextChannel.__init(self, data, parent)
@@ -98,6 +98,10 @@ function get.name(self)
 	return self._name
 end
 
+function set.name(self, value)
+	return self:setName(value)
+end
+
 --[=[@p ownerId string The Snowflake ID of the user that owns (created) the channel.]=]
 function get.ownerId(self)
 	return self._owner_id
@@ -111,6 +115,10 @@ end
 --[=[@p icon string/nil The hash for the channel's custom icon, if one is set.]=]
 function get.icon(self)
 	return self._icon
+end
+
+function set.icon(self, value)
+	return self:setIcon(value)
 end
 
 --[=[@p iconURL string/nil The URL that can be used to view the channel's icon, if one is set.]=]

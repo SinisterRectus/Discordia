@@ -13,7 +13,7 @@ local Resolver = require('client/Resolver')
 
 local defaultAvatar = enums.defaultAvatar
 
-local Webhook, get = require('class')('Webhook', Snowflake)
+local Webhook, get, set = require('class')('Webhook', Snowflake)
 
 function Webhook:__init(data, parent)
 	Snowflake.__init(self, data, parent)
@@ -118,6 +118,10 @@ function get.name(self)
 	return self._name
 end
 
+function set.name(self, value)
+	return self:setName(value)
+end
+
 --[=[@p type number The type of the webhook. See the `webhookType` enum for a human-readable representation.]=]
 function get.type(self)
 	return self._type
@@ -126,6 +130,10 @@ end
 --[=[@p avatar string/nil The hash for the webhook's custom avatar, if one is set.]=]
 function get.avatar(self)
 	return self._avatar
+end
+
+function set.avatar(self, value)
+	return self:setAvatar(value)
 end
 
 --[=[@p avatarURL string Equivalent to the result of calling `Webhook:getAvatarURL()`.]=]

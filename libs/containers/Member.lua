@@ -21,7 +21,7 @@ local band, bor, bnot = bit.band, bit.bor, bit.bnot
 local isInstance = class.isInstance
 local permission = enums.permission
 
-local Member, get = class('Member', UserPresence)
+local Member, get, set = class('Member', UserPresence)
 
 function Member:__init(data, parent)
 	UserPresence.__init(self, data, parent)
@@ -488,6 +488,10 @@ function get.nickname(self)
 	return self._nick
 end
 
+function set.nickname(self, value)
+	return self:setNickname(value)
+end
+
 --[=[@p joinedAt string/nil The date and time at which the current member joined the guild, represented as
 an ISO 8601 string plus microseconds when available. Member objects generated
 via presence updates lack this property.]=]
@@ -508,16 +512,36 @@ function get.voiceChannel(self)
 	return state and guild._voice_channels:get(state.channel_id)
 end
 
+function set.voiceChannel(self, value)
+	return self:setVoiceChannel(value)
+end
+
 --[=[@p muted boolean Whether the member is voice muted in its guild.]=]
 function get.muted(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.mute or state.self_mute) or self._mute
 end
 
+function set.muted(self, value)
+	if value == true then
+		return self:mute()
+	elseif value == false then
+		return self:unmute()
+	end
+end
+
 --[=[@p deafened boolean Whether the member is voice deafened in its guild.]=]
 function get.deafened(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.deaf or state.self_deaf) or self._deaf
+end
+
+function set.deafened(self, value)
+	if value == true then
+		return self:deafen()
+	elseif value == false then
+		return self:undeafen()
+	end
 end
 
 --[=[@p guild Guild The guild in which this member exists.]=]
@@ -535,6 +559,13 @@ function get.highestRole(self)
 		end
 	end
 	return ret or self.guild.defaultRole
+end
+
+--[=[@p color Color The color object that represents the member's color as determined by
+its highest colored role. If the member has no colored roles, then the default
+color with a value of 0 is returned.]=]
+function get.color(self)
+	return self:getColor()
 end
 
 return Member

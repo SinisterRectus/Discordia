@@ -15,7 +15,7 @@ local band, bor = bit.band, bit.bor
 local bnot = bit.bnot
 local isInstance = class.isInstance
 
-local Color, get = class('Color')
+local Color, get, set = class('Color')
 
 local function check(self, other)
 	if not isInstance(self, Color) or not isInstance(other, Color) then
@@ -266,6 +266,18 @@ end
 --[=[@p b number The value that represents the color's blue-level.]=]
 function get.b(self)
 	return getByte(self._value, 0)
+end
+
+function set.r(self, value)
+	return self:setRed(value)
+end
+
+function set.g(self, value)
+	return self:setGreen(value)
+end
+
+function set.b(self, value)
+	return self:setBlue(value)
 end
 
 local function setByte(value, offset, new)
