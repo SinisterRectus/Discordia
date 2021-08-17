@@ -134,6 +134,10 @@ function EventHandler.CHANNEL_CREATE(d, client)
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
 		channel = guild._voice_channels:_insert(d)
+	elseif t == channelType.stage then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_CREATE') end
+		channel = guild._stage_channels:_insert(d)
 	elseif t == channelType.private then
 		channel = client._private_channels:_insert(d)
 	elseif t == channelType.group then
@@ -159,6 +163,10 @@ function EventHandler.CHANNEL_UPDATE(d, client)
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
 		channel = guild._voice_channels:_insert(d)
+	elseif t == channelType.stage then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_UPDATE') end
+		channel = guild._stage_channels:_insert(d)
 	elseif t == channelType.private then -- private channels should never update
 		channel = client._private_channels:_insert(d)
 	elseif t == channelType.group then
@@ -184,6 +192,10 @@ function EventHandler.CHANNEL_DELETE(d, client)
 		local guild = client._guilds:get(d.guild_id)
 		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
 		channel = guild._voice_channels:_remove(d)
+	elseif t == channelType.stage then
+		local guild = client._guilds:get(d.guild_id)
+		if not guild then return warning(client, 'Guild', d.guild_id, 'CHANNEL_DELETE') end
+		channel = guild._stage_channels:_remove(d)
 	elseif t == channelType.private then
 		channel = client._private_channels:_remove(d)
 	elseif t == channelType.group then
@@ -484,6 +496,7 @@ function EventHandler.VOICE_STATE_UPDATE(d, client)
 	if not member then return warning(client, 'Member', d.user_id, 'VOICE_STATE_UPDATE') end
 	local states = guild._voice_states
 	local channels = guild._voice_channels
+	local stageChannels = guild._stage_channels
 	local new_channel_id = d.channel_id
 	local state = states[d.user_id]
 	if state then -- user is already connected
@@ -493,8 +506,18 @@ function EventHandler.VOICE_STATE_UPDATE(d, client)
 			if new_channel_id == old_channel_id then -- user did not change channels
 				client:emit('voiceUpdate', member)
 			else -- user changed channels
+				local oldStage = false
 				local old = channels:get(old_channel_id)
+				if not old then
+					oldStage = true
+					old = stageChannels:get(old_channel_id)
+				end
+				local newStage = false
 				local new = channels:get(new_channel_id)
+				if not new then
+					newStage = true
+					new = stageChannels:get(new_channel_id)
+				end
 				if d.user_id == client._user._id then -- move connection to new channel
 					local connection = old._connection
 					if connection then
@@ -504,20 +527,46 @@ function EventHandler.VOICE_STATE_UPDATE(d, client)
 						connection:_continue(true)
 					end
 				end
-				client:emit('voiceChannelLeave', member, old)
-				client:emit('voiceChannelJoin', member, new)
+				if oldStage then
+					client:emit('stageChannelLeave', member, old)
+				else
+					client:emit('voiceChannelLeave', member, old)
+				end
+				if newStage then
+					client:emit('stageChannelJoin', member, new)
+				else
+					client:emit('voiceChannelJoin', member, new)
+				end
 			end
 		else -- user has disconnected
 			states[d.user_id] = nil
+			local oldStage = false
 			local old = channels:get(old_channel_id)
-			client:emit('voiceChannelLeave', member, old)
+			if not old then
+				oldStage = true
+				old = stageChannels:get(old_channel_id)
+			end
+			if oldStage then
+				client:emit('stageChannelLeave', member, old)
+			else
+				client:emit('voiceChannelLeave', member, old)
+			end
 			client:emit('voiceDisconnect', member)
 		end
 	else -- user has connected
 		states[d.user_id] = d
+		local newStage = false
 		local new = channels:get(new_channel_id)
+		if not new then
+			newStage = true
+			new = stageChannels:get(new_channel_id)
+		end
 		client:emit('voiceConnect', member)
-		client:emit('voiceChannelJoin', member, new)
+		if newStage then
+			client:emit('stageChannelJoin', member, new)
+		else
+			client:emit('voiceChannelJoin', member, new)
+		end
 	end
 end
 
@@ -527,11 +576,52 @@ function EventHandler.VOICE_SERVER_UPDATE(d, client)
 	local state = guild._voice_states[client._user._id]
 	if not state then return client:warning('Voice state not initialized before VOICE_SERVER_UPDATE') end
 	load(state, d)
-	local channel = guild._voice_channels:get(state.channel_id)
-	if not channel then return warning(client, 'GuildVoiceChannel', state.channel_id, 'VOICE_SERVER_UPDATE') end
+	local channel = guild._voice_channels:get(state.channel_id) or guild._stage_channels:get(state.channel_id)
+	if not channel then return warning(client, 'GuildVoiceChannel/GuildStageChannel', state.channel_id, 'VOICE_SERVER_UPDATE') end
 	local connection = channel._connection
 	if not connection then return client:warning('Voice connection not initialized before VOICE_SERVER_UPDATE') end
 	return client._voice:_prepareConnection(state, connection)
+end
+
+local StageInstance = require('voice/StageInstance')
+
+function EventHandler.STAGE_INSTANCE_CREATE(d, client)
+	local guild = client._guilds:get(d.guild_id)
+	if not guild then return warning(client, 'Guild', d.guild_id, 'STAGE_INSTANCE_CREATE') end
+	local channel = guild._stage_channels:get(d.channel_id)
+	if not channel then return warning(client, 'GuildStageChannel', d.channel_id, 'STAGE_INSTANCE_CREATE') end
+	local instance = channel._instance
+	if instance and instance.id == d.id then
+		instance:_load(d)
+	else
+		instance = StageInstance(d, channel)
+		channel._instance = instance
+	end
+	return client:emit('stageInstanceCreate', instance)
+end
+
+function EventHandler.STAGE_INSTANCE_UPDATE(d, client)
+	local guild = client._guilds:get(d.guild_id)
+	if not guild then return warning(client, 'Guild', d.guild_id, 'STAGE_INSTANCE_UPDATE') end
+	local channel = guild._stage_channels:get(d.channel_id)
+	if not channel then return warning(client, 'GuildStageChannel', d.channel_id, 'STAGE_INSTANCE_UPDATE') end
+	local instance = channel._instance
+	if (instance and instance.id ~= d.id) or not instance then return warning(client, 'StageInstance', d.id, 'STAGE_INSTANCE_UPDATE') end
+	instance:_load(d)
+	return client:emit('stageInstanceUpdate', instance)
+end
+
+function EventHandler.STAGE_INSTANCE_DELETE(d, client)
+	local guild = client._guilds:get(d.guild_id)
+	if not guild then return warning(client, 'Guild', d.guild_id, 'STAGE_INSTANCE_DELETE') end
+	local channel = guild._stage_channels:get(d.channel_id)
+	if not channel then return warning(client, 'GuildStageChannel', d.channel_id, 'STAGE_INSTANCE_DELETE') end
+	local instance = channel._instance
+	if (instance and instance.id ~= d.id) or not instance then
+		instance = StageInstance(d, channel)
+	end
+	channel._instance = nil
+	return client:emit('stageInstanceDelete', instance)
 end
 
 function EventHandler.WEBHOOKS_UPDATE(d, client) -- webhook object is not provided

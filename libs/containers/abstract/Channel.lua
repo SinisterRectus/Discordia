@@ -39,6 +39,8 @@ function Channel:_delete()
 			cache = self._parent._group_channels
 		elseif t == channelType.voice then
 			cache = self._parent._voice_channels
+		elseif t == channelType.stage then
+			cache = self._parent._stage_channels
 		elseif t == channelType.category then
 			cache = self._parent._categories
 		end

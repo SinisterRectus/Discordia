@@ -347,6 +347,44 @@ function Member:setNickname(nick)
 end
 
 --[=[
+@m setVoiceState
+@t http
+@p id Channel-ID-Resolvable
+@p suppress? boolean
+@r boolean
+@d Updates the member's voice state.
+]=]
+function Member:setVoiceState(channel_id, suppress)
+	channel_id = channel_id and Resolver.channelId(channel_id)
+	local data, err = self.client._api:modifyUserVoiceState(self._parent._id, self.id, {channel_id = channel_id or json.null, suppress = suppress or json.null})
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+--[=[
+@m setConnectedChannel
+@t http
+@p id Channel-ID-Resolvable
+@r boolean
+@d Moves the member to a new voice/stage channel, but only if the member has an active
+voice connection in the current guild. Due to complexities in voice state
+handling, the member's `connectedChannel` property will update asynchronously via
+WebSocket; not as a result of the HTTP request.
+]=]
+function Member:setConnectedChannel(id)
+	id = id and Resolver.channelId(id)
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id or json.null})
+	if data then
+		return true
+	else
+		return false, err
+	end
+end
+
+--[=[
 @m setVoiceChannel
 @t http
 @p id Channel-ID-Resolvable
@@ -357,13 +395,7 @@ handling, the member's `voiceChannel` property will update asynchronously via
 WebSocket; not as a result of the HTTP request.
 ]=]
 function Member:setVoiceChannel(id)
-	id = id and Resolver.channelId(id)
-	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {channel_id = id or json.null})
-	if data then
-		return true
-	else
-		return false, err
-	end
+	return self:setConnectedChannel(id)
 end
 
 --[=[
@@ -505,6 +537,17 @@ function get.premiumSince(self)
 	return self._premium_since
 end
 
+--[=[@p connectedChannel GuildVoiceChannel/GuildStageChannel/nil The channel to which this member is connected in the current guild.]=]
+function get.connectedChannel(self)
+	local guild = self._parent
+	local state = guild._voice_states[self:__hash()]
+	return state and (guild._voice_channels:get(state.channel_id) or guild._stage_channels:get(state.channel_id))
+end
+
+function set.connectedChannel(self, value)
+	return self:setConnectedChannel(value)
+end
+
 --[=[@p voiceChannel GuildVoiceChannel/nil The voice channel to which this member is connected in the current guild.]=]
 function get.voiceChannel(self)
 	local guild = self._parent
@@ -513,7 +556,18 @@ function get.voiceChannel(self)
 end
 
 function set.voiceChannel(self, value)
-	return self:setVoiceChannel(value)
+	return self:setConnectedChannel(value)
+end
+
+--[=[@p stageChannel GuildStageChannel/nil The stage channel to which this member is connected in the current guild.]=]
+function get.stageChannel(self)
+	local guild = self._parent
+	local state = guild._voice_states[self:__hash()]
+	return state and guild._stage_channels:get(state.channel_id)
+end
+
+function set.stageChannel(self, value)
+	return self:setConnectedChannel(value)
 end
 
 --[=[@p muted boolean Whether the member is voice muted in its guild.]=]

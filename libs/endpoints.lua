@@ -37,6 +37,8 @@ return {
 	GUILD_REGIONS                 = "/guilds/%s/regions",
 	GUILD_ROLE                    = "/guilds/%s/roles/%s",
 	GUILD_ROLES                   = "/guilds/%s/roles",
+	GUILD_VOICE_STATE             = "/guilds/%s/voice-states/%s",
+	GUILD_VOICE_STATE_ME          = "/guilds/%s/voice-states/@me",
 	GUILD_WEBHOOKS                = "/guilds/%s/webhooks",
 	INVITE                        = "/invites/%s",
 	OAUTH2_APPLICATION_ME         = "/oauth2/applications/@me",
@@ -51,4 +53,6 @@ return {
 	WEBHOOK_TOKEN                 = "/webhooks/%s/%s",
 	WEBHOOK_TOKEN_GITHUB          = "/webhooks/%s/%s/github",
 	WEBHOOK_TOKEN_SLACK           = "/webhooks/%s/%s/slack",
+	STAGE_INSTANCE                = "/stage-instances/%s",
+	STAGE_INSTANCES               = "/stage-instances",
 }

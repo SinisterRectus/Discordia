@@ -78,6 +78,8 @@ local function getSortedChannels(self)
 		channels = self._parent._text_channels
 	elseif t == channelType.voice then
 		channels = self._parent._voice_channels
+	elseif t == channelType.stage then
+		channels = self._parent._stage_channels
 	elseif t == channelType.category then
 		channels = self._parent._categories
 	end

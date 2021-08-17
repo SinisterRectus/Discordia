@@ -631,6 +631,26 @@ function API:listVoiceRegions() -- Client:listVoiceRegions
 	return self:request("GET", endpoint)
 end
 
+function API:createStageInstance(payload) -- GuildStageChannel:createInstance
+	local endpoint = endpoints.STAGE_INSTANCES
+	return self:request("POST", endpoint, payload)
+end
+
+function API:getStageInstance(channel_id) -- GuildStageChannel:getInstance
+	local endpoint = f(endpoints.STAGE_INSTANCE, channel_id)
+	return self:request("GET", endpoint)
+end
+
+function API:modifyStageInstance(channel_id, payload) -- StageInstance:_modify
+	local endpoint = f(endpoints.STAGE_INSTANCE, channel_id)
+	return self:request("PATCH", endpoint, payload)
+end
+
+function API:deleteStageInstance(channel_id) -- GuildStageChannel:deleteInstance / StageInstance:delete
+	local endpoint = f(endpoints.STAGE_INSTANCE, channel_id)
+	return self:request("DELETE", endpoint)
+end
+
 function API:createWebhook(channel_id, payload) -- GuildTextChannel:createWebhook
 	local endpoint = f(endpoints.CHANNEL_WEBHOOKS, channel_id)
 	return self:request("POST", endpoint, payload)
@@ -689,6 +709,16 @@ end
 function API:executeGitHubCompatibleWebhook(webhook_id, webhook_token, payload) -- not exposed, needs webhook client
 	local endpoint = f(endpoints.WEBHOOK_TOKEN_GITHUB, webhook_id, webhook_token)
 	return self:request("POST", endpoint, payload)
+end
+
+function API:modifyUserVoiceState(guild_id, user_id, payload) -- Member:setVoiceState
+	local endpoint = f(endpoints.GUILD_VOICE_STATE, guild_id, user_id)
+	return self:request("PATCH", endpoint, payload)
+end
+
+function API:modifyCurrentUserVoiceState(guild_id, payload) -- not exposed, maybe in the future
+	local endpoint = f(endpoints.GUILD_VOICE_STATE_ME, guild_id)
+	return self:request("PATCH", endpoint, payload)
 end
 
 function API:getGateway() -- Client:run

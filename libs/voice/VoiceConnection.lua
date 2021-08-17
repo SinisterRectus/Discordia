@@ -423,7 +423,7 @@ function VoiceConnection:close()
 	return self._client._shards[guild.shardId]:updateVoice(guild._id)
 end
 
---[=[@p channel GuildVoiceChannel/nil The corresponding GuildVoiceChannel for
+--[=[@p channel GuildVoiceChannel/GuildStageChannel/nil The corresponding GuildVoiceChannel/GuildStageChannel for
 this connection, if one exists.]=]
 function get.channel(self)
 	return self._channel

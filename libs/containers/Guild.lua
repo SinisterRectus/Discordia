@@ -15,6 +15,7 @@ local Resolver = require('client/Resolver')
 local AuditLogEntry = require('containers/AuditLogEntry')
 local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
+local GuildStageChannel = require('containers/GuildStageChannel')
 local GuildCategoryChannel = require('containers/GuildCategoryChannel')
 local Snowflake = require('containers/abstract/Snowflake')
 
@@ -34,6 +35,7 @@ function Guild:__init(data, parent)
 	self._members = Cache({}, Member, self)
 	self._text_channels = Cache({}, GuildTextChannel, self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, self)
+	self._stage_channels = Cache({}, GuildStageChannel, self)
 	self._categories = Cache({}, GuildCategoryChannel, self)
 	self._voice_states = {}
 	if not data.unavailable then
@@ -67,6 +69,7 @@ function Guild:_makeAvailable(data)
 
 	local text_channels = self._text_channels
 	local voice_channels = self._voice_channels
+	local stage_channels = self._stage_channels
 	local categories = self._categories
 
 	for _, channel in ipairs(data.channels) do
@@ -75,6 +78,8 @@ function Guild:_makeAvailable(data)
 			text_channels:_insert(channel)
 		elseif t == channelType.voice then
 			voice_channels:_insert(channel)
+		elseif t == channelType.stage then
+			stage_channels:_insert(channel)
 		elseif t == channelType.category then
 			categories:_insert(channel)
 		end
@@ -204,7 +209,7 @@ end
 ]=]
 function Guild:getChannel(id)
 	id = Resolver.channelId(id)
-	return self._text_channels:get(id) or self._voice_channels:get(id) or self._categories:get(id)
+	return self._text_channels:get(id) or self._voice_channels:get(id) or self._stage_channels:get(id) or self._categories:get(id)
 end
 
 --[=[
@@ -236,6 +241,23 @@ function Guild:createVoiceChannel(name)
 	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.voice})
 	if data then
 		return self._voice_channels:_insert(data)
+	else
+		return nil, err
+	end
+end
+
+--[=[
+@m createStageChannel
+@t http
+@p name string
+@r GuildStageChannel
+@d Creates a new stage channel in this guild. The name must be between 2 and 100
+characters in length.
+]=]
+function Guild:createStageChannel(name)
+	local data, err = self.client._api:createGuildChannel(self._id, {name = name, type = channelType.stage})
+	if data then
+		return self._stage_channels:_insert(data)
 	else
 		return nil, err
 	end
@@ -971,6 +993,11 @@ end
 --[=[@p voiceChannels Cache An iterable cache of all voice channels that exist in this guild.]=]
 function get.voiceChannels(self)
 	return self._voice_channels
+end
+
+--[=[@p stageChannels Cache An iterable cache of all stage channels that exist in this guild.]=]
+function get.stageChannels(self)
+	return self._stage_channels
 end
 
 --[=[@p categories Cache An iterable cache of all channel categories that exist in this guild.]=]

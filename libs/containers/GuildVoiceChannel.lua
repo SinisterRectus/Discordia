@@ -16,6 +16,10 @@ function GuildVoiceChannel:__init(data, parent)
 	GuildChannel.__init(self, data, parent)
 end
 
+function GuildVoiceChannel:_load(data)
+	GuildChannel._load(self, data)
+end
+
 --[=[
 @m setBitrate
 @t http

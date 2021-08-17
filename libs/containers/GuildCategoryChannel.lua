@@ -58,6 +58,27 @@ function GuildCategoryChannel:createVoiceChannel(name)
 	end
 end
 
+--[=[
+@m createStageChannel
+@t http
+@p name string
+@r GuildStageChannel
+@d Creates a new GuildStageChannel with this category as it's parent. Similar to `Guild:createStageChannel(name)`
+]=]
+function GuildCategoryChannel:createStageChannel(name)
+	local guild = self._parent
+	local data, err = guild.client._api:createGuildChannel(guild._id, {
+		name = name,
+		type = channelType.stage,
+		parent_id = self._id
+	})
+	if data then
+		return guild._stage_channels:_insert(data)
+	else
+		return nil, err
+	end
+end
+
 --[=[@p textChannels FilteredIterable Iterable of all textChannels in the Category.]=]
 function get.textChannels(self)
 	if not self._text_channels then
