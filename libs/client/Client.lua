@@ -14,7 +14,7 @@ local State = require('./State')
 
 local GuildClient = require('./GuildClient')
 local ChannelClient = require('./ChannelClient')
-local CommandClient = require('./CommandClient')
+-- local CommandClient = require('./CommandClient')
 
 local Bitfield = require('../utils/Bitfield')
 local Logger = require('../utils/Logger')
@@ -46,7 +46,7 @@ local Client, get = class('Client', Emitter)
 
 class.mixin(Client, GuildClient)
 class.mixin(Client, ChannelClient)
-class.mixin(Client, CommandClient)
+-- class.mixin(Client, CommandClient)
 
 local function checkActivity(activity)
 	local t = type(activity)

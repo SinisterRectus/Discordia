@@ -7,7 +7,6 @@
 #### Enhancements
 
 - Added support for gateway intents ("guilds" intent is required)
-- Added support for slash commands
 - Added support for application teams
 - Added support for guild templates, welcome screens, and previews
 - Added support for stage instances
@@ -81,12 +80,9 @@
 	- `Listener`
 - Added container classes:
 	- `Application`
-	- `Command`
-	- `Interaction`
 	- `GuildTemplate`
 	- `InviteChannel`
 	- `InviteGuild`
-	- `MessageInteraction`
 	- `StageInstance`
 	- `Team`
 	- `TeamMember`
@@ -104,8 +100,6 @@
 	- `Attachment`
 	- `AuditLogChange`
 	- `AuditLogOptions`
-	- `CommandChoice`
-	- `CommandOption`
 	- `Embed`
 	- `EmbedAuthor`
 	- `EmbedField`
@@ -115,8 +109,6 @@
 	- `EmbedThumbnail`
 	- `EmbedVideo`
 	- `GuildCounts`
-	- `InteractionData`
-	- `InteractionOption`
 	- `Mention` (does not correspond to an official structure)
 	- `MessageActivity`
 	- `VoiceRegion`
@@ -295,26 +287,6 @@
 	- `getReactionUsers`
 	- `crosspostMessage`
 	- `followNewsChannel`
-- Added CommandClient mixin methods:
-	- `getGlobalApplicationCommand`
-	- `getGlobalApplicationCommands`
-	- `createGlobalApplicationCommand`
-	- `editGlobalApplicationCommand`
-	- `deleteGlobalApplicationCommand`
-	- `bulkOverwriteGlobalApplicationCommands`
-	- `getGuildApplicationCommand`
-	- `getGuildApplicationCommands`
-	- `createGuildApplicationCommand`
-	- `editGuildApplicationCommand`
-	- `deleteGuildApplicationCommand`
-	- `bulkOverwriteGuildApplicationCommands`
-	- `createInteractionResponse`
-	- `getOriginalInteractionResponse`
-	- `editOriginalInteractionResponse`
-	- `deleteOriginalInteractionResponse`
-	- `createFollowupMessage`
-	- `editFollowupMessage`
-	- `deleteFollowupMessage`
 - Added `log` method
 - Added `requestGuildMembers` method
 - Added `getGatewayURL` method
@@ -565,7 +537,7 @@ Note: Renamed from `Emoji`
 
 #### GuildMember
 
-Note: Renamed from `GuildMember`
+Note: Renamed from `Member`
 
 - Added `getRoles` method
 - Added `getGuild` method
