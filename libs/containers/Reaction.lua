@@ -38,6 +38,10 @@ function Reaction:delete(userId)
 	return self.client:removeReaction(self.channelId, self.messageId, self.emoji.hash, userId)
 end
 
+function get:emoji()
+	return self._emoji
+end
+
 function get:me()
 	return self._me
 end
