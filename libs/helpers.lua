@@ -99,6 +99,16 @@ local function readOnly(tbl)
 				return k, v
 			end
 		end,
+		__ipairs = function()
+			local i = 0
+			return function()
+				i = i + 1
+				if i <= #tbl then return i, tbl[i] end
+			end
+		end,
+		__len = function()
+			return #tbl
+		end
 	})
 end
 
