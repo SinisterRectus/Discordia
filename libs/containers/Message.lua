@@ -388,7 +388,7 @@ function get.mentionedUsers(self)
 	if not self._mentioned_users then
 		local users = self.client._users
 		local mentions = parseMentions(self._content, '<@!?(%d+)>')
-		if self._reply_target then
+		if self._reply_target and mentions then
 			insert(mentions, 1, self._reply_target)
 		end
 		self._mentioned_users = ArrayIterable(mentions, function(id)
