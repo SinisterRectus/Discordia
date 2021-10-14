@@ -94,8 +94,8 @@ function API:setToken(token)
 	end
 end
 
-function API:log(level, res, method, url)
-	return self._client:log(level, '%i - %s : %s %s', res.code, res.reason, method, url)
+function API:log(level, res, method, url, extra)
+	return self._client:log(level, '%i - %s : %s %s%s', res.code, res.reason, method, url, extra or "")
 end
 
 function API:request(method, endpoint, params, query, payload, files)
@@ -242,7 +242,12 @@ function API:commit(method, url, req, payload, route, retries)
 		msg = parseErrors({msg}, data.errors, 'payload')
 	end
 
-	self:log('error', res, method, url)
+	if client.logFullErrors then
+		self:log('error', res, method, url, "\n" .. msg)
+	else
+		self:log('error', res, method, url)
+	end
+
 	return nil, msg, delay
 
 end
