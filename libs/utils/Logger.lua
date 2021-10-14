@@ -5,7 +5,7 @@ local enums = require('../enums')
 local typing = require('../typing')
 
 local date = os.date
-local format = string.format
+local format, gsub, rep = string.format, string.gsub, string.rep
 local stdout = pp.stdout
 local openSync, writeSync, closeSync = fs.openSync, fs.writeSync, fs.closeSync
 local checkEnum, checkType = typing.checkEnum, typing.checkType
@@ -79,7 +79,11 @@ function Logger:log(level, msg, ...)
 	local line = self._line
 	line[1] = date(self._dateFormat)
 	line[3] = label[1]
-	line[5] = format(msg, ...)
+	line[5] = gsub(
+		format(msg, ...),
+		'\r?\n',
+		'%0' .. rep(' ', #line[1] + 16 - 2) .. '| ' -- Timestamp + label (10) + separators (6)
+	)
 
 	if self._file then
 		writeSync(self._file, -1, line)
