@@ -35,11 +35,12 @@ end
 
 local Logger = class('Logger')
 
-function Logger:__init(level, dateFormat, filePath, useColors)
+function Logger:__init(level, dateFormat, filePath, useColors, prettyNewlines)
 	self._level = checkEnum(enums.logLevel, level)
 	self._dateFormat = dateFormat and checkType('string', dateFormat)
 	self._file = filePath and openSync(filePath, 'a')
 	self._useColors = not not useColors
+	self._prettyNewlines = prettyNewlines
 	self._line = {nil, ' | ', nil, ' | ', nil, '\n'}
 end
 
@@ -68,6 +69,14 @@ function Logger:disableColors()
 	self._useColors = false
 end
 
+function Logger:enablePrettyNewlines()
+	self._prettyNewlines = true
+end
+
+function Logger:disablePrettyNewlines()
+	self._prettyNewlines = false
+end
+
 function Logger:log(level, msg, ...)
 
 	level = checkEnum(enums.logLevel, level)
@@ -79,11 +88,15 @@ function Logger:log(level, msg, ...)
 	local line = self._line
 	line[1] = date(self._dateFormat)
 	line[3] = label[1]
-	line[5] = gsub(
-		format(msg, ...),
-		'\r?\n',
-		'%0' .. rep(' ', #line[1] + 16 - 2) .. '| ' -- Timestamp + label (10) + separators (6)
-	)
+	line[5] = format(msg, ...)
+
+	if self._prettyNewlines then
+		line[5] = gsub(
+			line[5],
+			'\r?\n',
+			'%0' .. rep(' ', #line[1] + 16 - 2) .. '| ' -- Timestamp + label (10) + separators (6)
+		)
+	end
 
 	if self._file then
 		writeSync(self._file, -1, line)

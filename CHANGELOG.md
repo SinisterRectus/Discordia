@@ -192,6 +192,7 @@
 - Added `defaultImageSize`
 - Added `defaultAllowedMentions`
 - Added `logColors`
+- Added `prettyNewlines`
 - Added `status`
 - Added `activity`
 - Renamed `shardCount` to `totalShardCount`
@@ -745,12 +746,14 @@ Note: This is effectively a new class compared to the old one. It provides a sim
 
 - Changed label colors from bold standard to non-bold bright
 - Added "critical" log-level with highest priority
-- Added `filePath` and `useColors` parameters to initializer
+- Added `filePath`, `useColors` and `prettyNewlines` parameters to initializer
 - Added `setLevel` method
 - Added `setDateTime` method
 - Added `setFile` method
 - Added `enableColors` method
 - Added `disableColors` method
+- Added `enablePrettyNewlines` method
+- Added `disablePrettyNewlines` method
 
 #### Mutex
 
