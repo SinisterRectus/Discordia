@@ -617,6 +617,7 @@ Note: Technically a new class that implements the former `UserPresence` features
 - Added `getMessage` method
 - Added `getEmojiURL` method
 - Added `toString` method
+- Added `emoji` property
 - Added `channelId` property
 - Added `messageId` property
 - Added `hash` property (evaluates `emoji.id or emoji.name`)
