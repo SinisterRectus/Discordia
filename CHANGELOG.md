@@ -211,6 +211,7 @@
 - Added GuildClient mixin methods:
 	- `getGuildShardId`
 	- `getGuild` (technically not new)
+	- `getGuilds`
 	- `getGuildCounts`
 	- `getGuildPreview`
 	- `modifyGuild`

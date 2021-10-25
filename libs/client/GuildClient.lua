@@ -33,6 +33,10 @@ function Client:getGuild(guildId)
 	return self.state:getGuild(guildId)
 end
 
+function Client:getGuilds()
+	return self.state:getGuilds()
+end
+
 function Client:getGuildPreview(guildId)
 	guildId = checkSnowflake(guildId)
 	local data, err = self.api:getGuildPreview(guildId)
