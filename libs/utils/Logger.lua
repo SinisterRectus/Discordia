@@ -28,6 +28,7 @@ local labels = {
 	{'[INFO]    ', colors.green},
 	{'[DEBUG]   ', colors.cyan},
 }
+local newlinePadding = 3 + #labels[1][1] + 3 -- sep + label + sep
 
 for _, v in ipairs(labels) do
 	v[2] = format('\27[%i;%im%s\27[0m', 0, v[2], v[1])
@@ -94,7 +95,7 @@ function Logger:log(level, msg, ...)
 		line[5] = gsub(
 			line[5],
 			'\r?\n',
-			'%0' .. rep(' ', #line[1] + 16 - 2) .. '| ' -- Timestamp + label (10) + separators (6)
+			'%0' .. rep(' ', newlinePadding + #line[1] - 2) .. '| '
 		)
 	end
 
