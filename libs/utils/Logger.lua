@@ -28,11 +28,16 @@ local labels = {
 	{'[INFO]    ', colors.green},
 	{'[DEBUG]   ', colors.cyan},
 }
-local newlinePadding = 3 + #labels[1][1] + 3 -- sep + label + sep
 
 for _, v in ipairs(labels) do
 	v[2] = format('\27[%i;%im%s\27[0m', 0, v[2], v[1])
 end
+
+local separator = ' | '
+
+local labelLen = #labels[1][1]
+local separatorLen = #separator
+
 
 local Logger = class('Logger')
 
@@ -42,7 +47,7 @@ function Logger:__init(level, dateFormat, filePath, useColors, prettyNewlines)
 	self._file = filePath and openSync(filePath, 'a')
 	self._useColors = not not useColors
 	self._prettyNewlines = prettyNewlines
-	self._line = {nil, ' | ', nil, ' | ', nil, '\n'}
+	self._line = {nil, separator, nil, separator, nil, '\n'}
 end
 
 function Logger:setLevel(level)
@@ -95,7 +100,8 @@ function Logger:log(level, msg, ...)
 		line[5] = gsub(
 			line[5],
 			'\r?\n',
-			'%0' .. rep(' ', newlinePadding + #line[1] - 2) .. '| '
+			'%0' .. rep(' ', #line[1] + separatorLen + labelLen) .. separator
+			-- ^ Make the padding take up the same amount of space as line[1-3] (timestamp + separator + label)
 		)
 	end
 
