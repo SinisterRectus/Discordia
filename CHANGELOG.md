@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.2
+- Fixes a crash when accessing `Message.mentionedUsers` for reply messages that have no mentions
+
 ## 2.9.1
 - The mentioned author of a referenced message is now in `Message.mentionedUsers`
 - Fixed a bug where mentions were ignored in replies
