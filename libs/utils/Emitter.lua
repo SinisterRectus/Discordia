@@ -35,7 +35,7 @@ local function clean(listeners)
 	listeners.marked = nil
 end
 
-local once = {}
+local once = setmetatable({}, {__mode = "k"})
 
 function Emitter:__init()
 	self._listeners = setmetatable({}, meta)
