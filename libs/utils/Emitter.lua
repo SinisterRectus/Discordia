@@ -21,18 +21,12 @@ local meta = {
 	end
 }
 
-local function mark(listeners, i)
-	listeners[i] = false
-	listeners.marked = true
-end
-
 local function clean(listeners)
 	for i = #listeners, 1, -1 do
 		if not listeners[i] then
 			remove(listeners, i)
 		end
 	end
-	listeners.marked = nil
 end
 
 local once = setmetatable({}, {__mode = "k"})
@@ -56,16 +50,18 @@ end
 
 function Emitter:emit(eventName, ...)
 	local listeners = self._listeners[checkType('string', eventName)]
+	local needsCleaning = false
 	for i = 1, #listeners do
 		local listener = listeners[i]
 		if listener then
 			if once[listener] then
-				mark(listeners, i)
+				listeners[i] = false
+				needsCleaning = true
 			end
 			listener:fire(...)
 		end
 	end
-	if listeners.marked then
+	if needsCleaning then
 		clean(listeners)
 	end
 end
