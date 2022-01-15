@@ -96,7 +96,7 @@ local defaultOptions = {
 	dateFormat = {'%F %T', function(o) return checkType('string', o) end},
 	logFile = {'discordia.log', function(o) return checkType('string', o) end},
 	logColors = {true, function(o) return checkType('boolean', o) end},
-	logFullErrors = {true, function(o) return checkType('boolean', o) end},
+	logFullErrors = {false, function(o) return checkType('boolean', o) end},
 	status = {nil, function(o) return checkEnum(enums.status, o) end},
 	activity = {nil, checkActivity},
 }
