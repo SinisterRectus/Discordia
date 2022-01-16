@@ -576,14 +576,20 @@ function get.deafened(self)
 	return state and (state.deaf or state.self_deaf) or self._deaf
 end
 
---[=[@p timedout boolean Whether the member is timed out in its guild.]=]
-function get.timedout(self)
+--[=[@p timedOut boolean Whether the member is timed out in its guild.]=]
+function get.timedOut(self)
 	local state = self._communication_disabled_until
 	if not state then
 		return false
 	else
 		return Date.fromISO(state) > Date()
 	end
+end
+
+--[=[@p timedOutUntil string/nil The raw communication_disabled_until member property.
+Note this may be provided even when the member's time out have expired.]=]
+function get.timedOutUntil(self)
+	return self._communication_disabled_until
 end
 
 --[=[@p guild Guild The guild in which this member exists.]=]
