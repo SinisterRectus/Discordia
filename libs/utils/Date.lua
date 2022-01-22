@@ -263,7 +263,7 @@ end
 function Date:toMention(style)
 	local t = floor(self:toSeconds())
 	if style then
-		return format('<t:%s:%s>', t, checkEnum(enums.dateTimeStyle, style))
+		return format('<t:%s:%s>', t, checkEnum(enums.timestampStyle, style))
 	else
 		return format('<t:%s>', t)
 	end
