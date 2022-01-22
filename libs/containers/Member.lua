@@ -15,6 +15,8 @@ local Color = require('utils/Color')
 local Resolver = require('client/Resolver')
 local GuildChannel = require('containers/abstract/GuildChannel')
 local Permissions = require('utils/Permissions')
+local Date = require('utils/Date')
+local Time = require('utils/Time')
 
 local insert, remove, sort = table.insert, table.remove, table.sort
 local band, bor, bnot = bit.band, bit.bor, bit.bnot
@@ -464,6 +466,62 @@ function Member:unban(reason)
 	return self._parent:unbanUser(self._user, reason)
 end
 
+function Member:_timeout(val)
+	local data, err = self.client._api:modifyGuildMember(self._parent._id, self.id, {communication_disabled_until = val or json.null})
+	if data then
+		self._communication_disabled_until = val ~= json.null and val or nil
+		return true
+	else
+		return false, err
+	end
+end
+
+--[=[
+@m timeoutFor
+@t http
+@p duration Time/number
+@r boolean
+@d Sets a timeout for a guild member.
+`duration` is either `Time` object or a `number` of seconds representing how long the timeout lasts.
+To set an expiration date, use `timeoutUntil` instead.
+]=]
+function Member:timeoutFor(duration)
+	if type(duration) == 'number' then
+		duration = (Date() + Time.fromSeconds(duration)):toISO()
+	elseif isInstance(duration, Time) then
+		duration = (Date() + duration):toISO()
+	end
+	return self:_timeout(duration)
+end
+
+--[=[
+@m timeoutUntil
+@t http
+@p date Date/number
+@r boolean
+@d Sets a timeout for a guild member.
+`date` is either `Date` object or a UNIX epoch in seconds at which the member's timeout ends.
+To set a duration, use `timeoutFor` instead.
+]=]
+function Member:timeoutUntil(date)
+	if type(date) == 'number' then
+		date = Date(date):toISO()
+	elseif isInstance(date, Date) then
+		date = date:toISO()
+	end
+	return self:_timeout(date)
+end
+
+--[=[
+@m removeTimeout
+@t http
+@r boolean
+@d Removes the timeout of the member.
+]=]
+function Member:removeTimeout()
+	return self:_timeout()
+end
+
 --[=[@p roles ArrayIterable An iterable array of guild roles that the member has. This does not explicitly
 include the default everyone role. Object order is not guaranteed.]=]
 function get.roles(self)
@@ -518,6 +576,22 @@ end
 function get.deafened(self)
 	local state = self._parent._voice_states[self:__hash()]
 	return state and (state.deaf or state.self_deaf) or self._deaf
+end
+
+--[=[@p timedOut boolean Whether the member is timed out in its guild.]=]
+function get.timedOut(self)
+	local state = self._communication_disabled_until
+	if not state then
+		return false
+	else
+		return Date.fromISO(state) > Date()
+	end
+end
+
+--[=[@p timedOutUntil string/nil The raw communication_disabled_until member property.
+Note this may be provided even when the member's time out have expired.]=]
+function get.timedOutUntil(self)
+	return self._communication_disabled_until
 end
 
 --[=[@p guild Guild The guild in which this member exists.]=]
