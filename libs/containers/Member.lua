@@ -481,8 +481,9 @@ end
 @t http
 @p duration Time/number
 @r boolean
-@d Timeouts the member in its Guild.
-`duration` is either a Time object or a number of seconds representing the duration the timeout stays for.
+@d Sets a timeout for a guild member.
+`duration` is either `Time` object or a `number` of seconds representing how long the timeout lasts.
+To set an expiration date, use `timeoutUntil` instead.
 ]=]
 function Member:timeoutFor(duration)
 	if type(duration) == 'number' then
@@ -498,8 +499,9 @@ end
 @t http
 @p date Date/number
 @r boolean
-@d Timeouts the member in its Guild.
-`date` is either a Date object or a UNIX epoch in seconds at which the member's timeout ends.
+@d Sets a timeout for a guild member.
+`date` is either `Date` object or a UNIX epoch in seconds at which the member's timeout ends.
+To set a duration, use `timeoutFor` instead.
 ]=]
 function Member:timeoutUntil(date)
 	if type(date) == 'number' then
