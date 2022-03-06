@@ -545,9 +545,11 @@ Note: Renamed from `Member`
 - Added `getHighestRole` method
 - Added `toMention` method
 - Added `modify` method
+- Added `getGuildAvatarURL` method
 - Added `toString` method
 - Added `guildId` property
 - Added `roleIds` property
+- Added `guildAvatar` property
 - Added `id` property as a shortcut for `user.id`
 - Changed superclass from `UserPresence` to `Container`
 - Removed `hasPermission` method (use `getPermissions()`)
@@ -641,6 +643,9 @@ Note: Renamed from `Role`
 - Added `toMention` method
 - Added `guildId` property
 - Added `modify` method
+- Added `getIconURL` method
+- Added `icon` property
+- Added `emoji` property
 - Removed `guild` property (use `guildId` property or `getGuild` method)
 - Removed `moveUp` method (use `Guild:sortRoles` method)
 - Removed `moveDown` method (use `Guild:sortRoles` method)
@@ -656,6 +661,9 @@ Note: Renamed from `Role`
 
 - Added `hasFlag` method
 - Added `toMention` method
+- Added `getBannerURL` method
+- Added `banner` property
+- Added `accentColor` property
 - Removed `sendf` method (use `send` method with `string.format`)
 - Removed deprecated `fullname` property (use `tag` property)
 - Removed `avatarURL` property (use `getAvatarURL` method)

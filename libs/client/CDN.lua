@@ -9,13 +9,16 @@ local endpoints = {
 	GUILD_SPLASH           = "/splashes/%s/%s",
 	GUILD_DISCOVERY_SPLASH = "/discovery-splashes/%s/%s",
 	GUILD_BANNER           = "/banners/%s/%s",
+	USER_BANNER            = "/banners/%s/%s",
 	DEFAULT_USER_AVATAR    = "/embed/avatars/%s",
 	USER_AVATAR            = "/avatars/%s/%s",
+	GUILD_MEMBER_AVATAR    = "/guilds/%s/users/%s/avatars/%s",
 	APPLICATION_ICON       = "/app-icons/%s/%s",
 	APPLICATION_COVER      = "/app-icons/%s/%s",
 	APPLICATION_ASSET      = "/app-assets/%s/%s",
 	ACHIEVEMENT_ICON       = "/app-assets/%s/achievements/%s/icons/%s",
 	TEAM_ICON              = "/team-icons/%s/%s",
+	ROLE_ICON              = "/role-icons/%s/%s",
 }
 
 local CDN = class('CDN')
@@ -51,12 +54,20 @@ function CDN:getGuildBannerURL(guild_id, banner, ext, size)
 	return self:buildURL(endpoints.GUILD_BANNER:format(guild_id, banner), ext, size)
 end
 
+function CDN:getUserBannerURL(user_id, banner, ext, size)
+	return self:buildURL(endpoints.USER_BANNER:format(user_id, banner), ext, size)
+end
+
 function CDN:getDefaultUserAvatarURL(default_avatar, ext, size)
 	return self:buildURL(endpoints.DEFAULT_USER_AVATAR:format(default_avatar), ext, size)
 end
 
 function CDN:getUserAvatarURL(user_id, avatar, ext, size)
 	return self:buildURL(endpoints.USER_AVATAR:format(user_id, avatar), ext, size)
+end
+
+function CDN:getGuildMemberAvatarURL(guild_id, user_id, avatar, ext, size)
+	return self:buildURL(endpoints.GUILD_MEMBER_AVATAR:format(guild_id, user_id, avatar), ext, size)
 end
 
 function CDN:getApplicationIconURL(application_id, icon, ext, size)
@@ -77,6 +88,10 @@ end
 
 function CDN:getTeamIconURL(team_id, team_icon, ext, size)
 	return self:buildURL(endpoints.TEAM_ICON:format(team_id, team_icon), ext, size)
+end
+
+function CDN:getRoleIconURL(role_id, role_icon, ext, size)
+	return self:buildURL(endpoints.ROLE_ICON:format(role_id, role_icon), ext, size)
 end
 
 return CDN

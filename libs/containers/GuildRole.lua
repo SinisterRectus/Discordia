@@ -23,6 +23,13 @@ function GuildRole:getGuild()
 	return self.client:getGuild(self.guildId)
 end
 
+function GuildRole:getIconURL(ext, size)
+	if not self.icon then
+		return nil, 'Role has no icon'
+	end
+	return self.client.cdn:getRoleIconURL(self.id, self.icon, ext, size)
+end
+
 function GuildRole:modify(payload)
 	return self.client:modifyGuildRole(self.guildId, self.id, payload)
 end
@@ -97,6 +104,14 @@ end
 
 function get:color()
 	return self._color
+end
+
+function get:icon()
+	return self._icon
+end
+
+function get:emoji()
+	return self._unicode_emoji
 end
 
 function get:permissions()

@@ -38,6 +38,15 @@ function User:getDefaultAvatarURL(ext, size)
 	return self.client.cdn:getDefaultUserAvatarURL(self.defaultAvatar, ext, size)
 end
 
+function User:getBannerURL(ext, size)
+	if not self.banner then
+		return nil, 'User has no banner'
+	end
+	size = size and checkImageSize(size)
+	ext = ext and checkImageExtension(ext)
+	return self.client.cdn:getUserBannerURL(self.id, self.banner, ext, size)
+end
+
 function User:getPrivateChannel()
 	return self.client:createDM(self.id)
 end
@@ -80,6 +89,14 @@ end
 
 function get:defaultAvatar()
 	return self.discriminator % DEFAULT_AVATARS
+end
+
+function get:banner()
+	return self._banner
+end
+
+function get:accentColor()
+	return self._accent_color
 end
 
 function get:flags()

@@ -84,6 +84,13 @@ function GuildMember:getColor()
 	end
 end
 
+function GuildMember:getGuildAvatarURL(ext, size)
+	if not self.guildAvatar then
+		return nil, 'Member has no guild avatar'
+	end
+	return self.client.cdn:getGuildMemberAvatarURL(self.guildId, self.id, self.guildAvatar, ext, size)
+end
+
 function GuildMember:getPermissions(channelId)
 
 	local guild, err = self:getGuild()
@@ -237,6 +244,10 @@ end
 
 function get:nickname()
 	return self._nick
+end
+
+function get:guildAvatar()
+	return self._avatar
 end
 
 function get:joinedAt()
