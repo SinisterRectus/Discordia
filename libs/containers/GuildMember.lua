@@ -1,5 +1,7 @@
 local Container = require('./Container')
 local Bitfield = require('../utils/Bitfield')
+local Date = require('../utils/Date')
+local Time = require('../utils/Time')
 
 local class = require('../class')
 local enums = require('../enums')
@@ -10,6 +12,7 @@ local json = require('json')
 local checkSnowflake = typing.checkSnowflake
 local readOnly = helpers.readOnly
 local format = string.format
+local isInstance = class.isInstance
 
 local GuildMember, get = class('GuildMember', Container)
 
@@ -198,6 +201,10 @@ function GuildMember:setVoiceChannel(channelId)
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {channelId = channelId or json.null})
 end
 
+function GuildMember:setTimedOutUntil(date)
+	return self.client:modifyGuildMember(self.guildId, self.user.id, {timedOutUntil = date or json.null})
+end
+
 function GuildMember:mute()
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {muted = true})
 end
@@ -212,6 +219,15 @@ end
 
 function GuildMember:undeafen()
 	return self.client:modifyGuildMember(self.guildId, self.user.id, {deafened = false})
+end
+
+function GuildMember:timeout(date)
+	if isInstance(date, Date) then
+		date = date:toISO()
+	elseif isInstance(date, Time) then
+		date = (Date() + date):toISO()
+	end
+	return self:setTimedOutUntil(date)
 end
 
 function GuildMember:kick(reason)
@@ -256,6 +272,15 @@ end
 
 function get:premiumSince()
 	return self._premium_since
+end
+
+function get:timedOut()
+	local state = self._communication_disabled_until
+	return state and Date.fromISO(state) > Date() or false
+end
+
+function get:timedOutUntil()
+	return self._communication_disabled_until
 end
 
 function get:muted()

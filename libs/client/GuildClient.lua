@@ -534,6 +534,7 @@ function Client:modifyGuildMember(guildId, userId, payload)
 		mute = opt(payload.muted, checkType, 'boolean'),
 		deaf = opt(payload.deafened, checkType, 'boolean'),
 		channel_id = opt(payload.channelId, checkSnowflake),
+		communication_disabled_until = opt(payload.timedOutUntil, checkType, 'string'),
 	})
 	if data then
 		return self.state:newGuildMember(guildId, data)
