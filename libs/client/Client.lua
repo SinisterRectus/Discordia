@@ -96,6 +96,7 @@ local defaultOptions = {
 	dateFormat = {'%F %T', function(o) return checkType('string', o) end},
 	logFile = {'discordia.log', function(o) return checkType('string', o) end},
 	logColors = {true, function(o) return checkType('boolean', o) end},
+	logFullErrors = {false, function(o) return checkType('boolean', o) end},
 	status = {nil, function(o) return checkEnum(enums.status, o) end},
 	activity = {nil, checkActivity},
 }
@@ -116,6 +117,7 @@ function Client:__init(options)
 	self._defaultAllowedMentions = options.defaultAllowedMentions
 	self._defaultBitrate = options.defaultBitrate
 	self._logger = Logger(options.logLevel, options.dateFormat, options.logFile, options.logColors)
+	self._logFullErrors = options.logFullErrors
 	self._api = API(self)
 	self._cdn = CDN(self)
 	self._state = State(self)
@@ -493,6 +495,10 @@ end
 
 function get:logger()
 	return self._logger
+end
+
+function get:logFullErrors()
+	return self._logFullErrors
 end
 
 function get:token()
