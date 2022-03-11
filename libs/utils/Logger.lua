@@ -5,7 +5,7 @@ local enums = require('../enums')
 local typing = require('../typing')
 
 local date = os.date
-local format = string.format
+local format, gsub, rep = string.format, string.gsub, string.rep
 local stdout = pp.stdout
 local openSync, writeSync, closeSync = fs.openSync, fs.writeSync, fs.closeSync
 local checkEnum, checkType = typing.checkEnum, typing.checkType
@@ -33,14 +33,21 @@ for _, v in ipairs(labels) do
 	v[2] = format('\27[%i;%im%s\27[0m', 0, v[2], v[1])
 end
 
+local separator = ' | '
+
+local labelLen = #labels[1][1]
+local separatorLen = #separator
+
+
 local Logger = class('Logger')
 
-function Logger:__init(level, dateFormat, filePath, useColors)
+function Logger:__init(level, dateFormat, filePath, useColors, prettyNewlines)
 	self._level = checkEnum(enums.logLevel, level)
 	self._dateFormat = dateFormat and checkType('string', dateFormat)
 	self._file = filePath and openSync(filePath, 'a')
 	self._useColors = not not useColors
-	self._line = {nil, ' | ', nil, ' | ', nil, '\n'}
+	self._prettyNewlines = prettyNewlines
+	self._line = {nil, separator, nil, separator, nil, '\n'}
 end
 
 function Logger:setLevel(level)
@@ -68,6 +75,14 @@ function Logger:disableColors()
 	self._useColors = false
 end
 
+function Logger:enablePrettyNewlines()
+	self._prettyNewlines = true
+end
+
+function Logger:disablePrettyNewlines()
+	self._prettyNewlines = false
+end
+
 function Logger:log(level, msg, ...)
 
 	level = checkEnum(enums.logLevel, level)
@@ -80,6 +95,15 @@ function Logger:log(level, msg, ...)
 	line[1] = date(self._dateFormat)
 	line[3] = label[1]
 	line[5] = format(msg, ...)
+
+	if self._prettyNewlines then
+		line[5] = gsub(
+			line[5],
+			'\r?\n',
+			'%0' .. rep(' ', #line[1] + separatorLen + labelLen) .. separator
+			-- ^ Make the padding take up the same amount of space as line[1-3] (timestamp + separator + label)
+		)
+	end
 
 	if self._file then
 		writeSync(self._file, -1, line)

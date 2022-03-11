@@ -96,6 +96,7 @@ local defaultOptions = {
 	dateFormat = {'%F %T', function(o) return checkType('string', o) end},
 	logFile = {'discordia.log', function(o) return checkType('string', o) end},
 	logColors = {true, function(o) return checkType('boolean', o) end},
+	prettyNewlines = {true, function(o) return checkType('boolean', o) end},
 	status = {nil, function(o) return checkEnum(enums.status, o) end},
 	activity = {nil, checkActivity},
 }
@@ -115,7 +116,7 @@ function Client:__init(options)
 	self._defaultImageSize = options.defaultImageSize
 	self._defaultAllowedMentions = options.defaultAllowedMentions
 	self._defaultBitrate = options.defaultBitrate
-	self._logger = Logger(options.logLevel, options.dateFormat, options.logFile, options.logColors)
+	self._logger = Logger(options.logLevel, options.dateFormat, options.logFile, options.logColors, options.prettyNewlines)
 	self._api = API(self)
 	self._cdn = CDN(self)
 	self._state = State(self)
