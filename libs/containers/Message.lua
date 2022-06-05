@@ -187,7 +187,13 @@ end
 must be from 1 to 2000 characters in length.
 ]=]
 function Message:setContent(content)
-	return self:_modify({content = content or null})
+	return self:_modify({
+		content = content or null,
+		allowed_mentions = {
+			parse = {'users', 'roles', 'everyone'},
+			replied_user = not not self._reply_target,
+		},
+	})
 end
 
 --[=[
@@ -251,6 +257,10 @@ function Message:update(data)
 	return self:_modify({
 		content = data.content or null,
 		embed = data.embed or null,
+		allowed_mentions = {
+			parse = {'users', 'roles', 'everyone'},
+			replied_user = not not self._reply_target,
+		},
 	})
 end
 
