@@ -435,7 +435,7 @@ end
 --[=[
 @m kick
 @t http
-@p reason string
+@op reason string
 @r boolean
 @d Equivalent to `Member.guild:kickUser(Member.user, reason)`
 ]=]
@@ -446,8 +446,8 @@ end
 --[=[
 @m ban
 @t http
-@p reason string
-@p days number
+@op reason string
+@op days number
 @r boolean
 @d Equivalent to `Member.guild:banUser(Member.user, reason, days)`
 ]=]
@@ -458,7 +458,7 @@ end
 --[=[
 @m unban
 @t http
-@p reason string
+@op reason string
 @r boolean
 @d Equivalent to `Member.guild:unbanUser(Member.user, reason)`
 ]=]
