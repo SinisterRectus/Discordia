@@ -1,5 +1,5 @@
 --[=[
-@c GuildVoiceChannel x GuildChannel
+@c GuildVoiceChannel x GuildTextChannel
 @d Represents a voice channel in a Discord guild, where guild members can connect
 and communicate via voice chat.
 ]=]
