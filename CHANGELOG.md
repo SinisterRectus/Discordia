@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.10.0
+- Adds support for member timeouts
+- Fixes a bug in trying to sleep where `retry_after` is `nil` on 429.
+- Fixes mention consistency in for edited reply messages
+
 ## 2.9.2
 - Fixes a crash when accessing `Message.mentionedUsers` for reply messages that have no mentions
 
