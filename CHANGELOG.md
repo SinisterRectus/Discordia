@@ -2,6 +2,11 @@
 
 ## 2.10.0
 - Adds support for member timeouts
+	- Adds `Member:timeoutFor`
+	- Adds `Member:timeoutUntil`
+	- Adds `Member:removeTimeout`
+	- Adds `Member.timedOut`
+	- Adds `Member.timedOutUntil`
 - Fixes a bug in trying to sleep where `retry_after` is `nil` on 429.
 - Fixes mention consistency in for edited reply messages
 
