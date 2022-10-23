@@ -102,6 +102,10 @@ function Message:_loadMore(data)
 		self._attachments = #data.attachments > 0 and data.attachments or nil
 	end
 
+    if data.components then
+        self._components = #data.components > 0 and data.components or nil
+    end
+
 end
 
 function Message:_addReaction(d)
@@ -575,6 +579,18 @@ end
 there are none, this table will not be present.]=]
 function get.attachments(self)
 	return self._attachments
+end
+
+function get.components(self)
+    return self._components
+end
+
+function get.buttons(self)
+    return self._components and self._components[1]["components"]
+end
+
+function get.button(self)
+    return self._components and self._components[1]["components"][1]
 end
 
 --[=[@p guild Guild/nil The guild in which this message was sent. This will not exist if the message
