@@ -3,7 +3,7 @@ return {
 	ID_DELAY = 5000, -- milliseconds
 	GATEWAY_DELAY = 500, -- milliseconds,
 	DISCORD_EPOCH = 1420070400000, -- milliseconds
-	GATEWAY_VERSION = 6,
+	GATEWAY_VERSION = 10,
 	DEFAULT_AVATARS = 5,
 	ZWSP = '\226\128\139',
 	NS_PER_US = 1000,
@@ -13,5 +13,5 @@ return {
 	MIN_PER_HOUR = 60,
 	HOUR_PER_DAY = 24,
 	DAY_PER_WEEK = 7,
-	GATEWAY_VERSION_VOICE = 3,
+	GATEWAY_VERSION_VOICE = 4,
 }
