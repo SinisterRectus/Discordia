@@ -212,7 +212,9 @@ local function writeParameters(f, parameters)
 	local optional
 	if #parameters > 0 then
 		for i, param in ipairs(parameters) do
+			f:write("`")
 			f:write(param[1])
+			f:write("`")
 			if i < #parameters then
 				f:write(', ')
 			end
