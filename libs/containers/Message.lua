@@ -187,7 +187,13 @@ end
 must be from 1 to 2000 characters in length.
 ]=]
 function Message:setContent(content)
-	return self:_modify({content = content or null})
+	return self:_modify({
+		content = content or null,
+		allowed_mentions = {
+			parse = {'users', 'roles', 'everyone'},
+			replied_user = not not self._reply_target,
+		},
+	})
 end
 
 --[=[
@@ -251,6 +257,10 @@ function Message:update(data)
 	return self:_modify({
 		content = data.content or null,
 		embed = data.embed or null,
+		allowed_mentions = {
+			parse = {'users', 'roles', 'everyone'},
+			replied_user = not not self._reply_target,
+		},
 	})
 end
 
@@ -516,7 +526,7 @@ function get.editedTimestamp(self)
 	return self._edited_timestamp
 end
 
---[=[@p oldContent string/table Yields a table containing keys as timestamps and
+--[=[@p oldContent table/nil Yields a table containing keys as timestamps and
 value as content of the message at that time.]=]
 function get.oldContent(self)
 	return self._old

@@ -26,7 +26,7 @@ end
 
 --[=[
 @m getMessage
-@t http
+@t http?
 @p id Message-ID-Resolvable
 @r Message
 @d Gets a message object by ID. If the object is already cached, then the cached

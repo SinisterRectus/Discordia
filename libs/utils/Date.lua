@@ -176,7 +176,7 @@ end
 --[=[
 @m parseTable
 @t static
-@p tbl table
+@op tbl table
 @r number
 @d Interprets a Lua date table as a local time and converts it to a Unix time in
 seconds. Equivalent to `os.time(tbl)`.
@@ -188,7 +188,7 @@ end
 --[=[
 @m parseTableUTC
 @t static
-@p tbl table
+@op tbl table
 @r number
 @d Interprets a Lua date table as a UTC time and converts it to a Unix time in
 seconds. Equivalent to `os.time(tbl)` with a correction for UTC.

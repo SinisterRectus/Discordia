@@ -215,7 +215,7 @@ function API:commit(method, url, req, payload, retries)
 				retry = retries < options.maxRetries
 			end
 
-			if retry then
+			if retry and delay then
 				client:warning('%i - %s : retrying after %i ms : %s %s', res.code, res.reason, delay, method, url)
 				sleep(delay)
 				return self:commit(method, url, req, payload, retries + 1)

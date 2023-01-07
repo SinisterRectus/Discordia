@@ -2,6 +2,7 @@
 @c Time
 @t ui
 @mt mem
+@op value number
 @d Represents a length of time and provides utilities for converting to and from
 different formats. Supported units are: weeks, days, hours, minutes, seconds,
 and milliseconds.
