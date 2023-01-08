@@ -5,7 +5,7 @@ local enums = require('enums')
 
 local WebSocket = require('client/WebSocket')
 
-local logLevel = enums.logLevel
+local logLevel = assert(enums.logLevel)
 local format = string.format
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 local wrap = coroutine.wrap

@@ -21,7 +21,7 @@ local Snowflake = require('containers/abstract/Snowflake')
 local json = require('json')
 local enums = require('enums')
 
-local channelType = enums.channelType
+local channelType = assert(enums.channelType)
 local floor = math.floor
 local format = string.format
 

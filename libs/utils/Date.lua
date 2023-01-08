@@ -30,7 +30,7 @@ local months = {
 }
 
 local function offset() -- difference between *t and !*t
-	return difftime(time(), time(date('!*t')))
+	return difftime(time(), time(date('!*t'))) ---@diagnostic disable-line: param-type-mismatch
 end
 
 local Date = class('Date')

@@ -40,8 +40,8 @@ local VoiceManager = require('voice/VoiceManager')
 local encode, decode, null = json.encode, json.decode, json.null
 local readFileSync, writeFileSync = fs.readFileSync, fs.writeFileSync
 
-local logLevel = enums.logLevel
-local gameType = enums.gameType
+local logLevel = assert(enums.logLevel)
+local gameType = assert(enums.gameType)
 
 local wrap = coroutine.wrap
 local time, difftime = os.time, os.difftime
@@ -101,7 +101,7 @@ local Client, get = require('class')('Client', Emitter)
 
 function Client:__init(options)
 	Emitter.__init(self)
-	options = parseOptions(options)
+	options = assert(parseOptions(options))
 	self._options = options
 	self._shards = {}
 	self._api = API(self)

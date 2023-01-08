@@ -68,7 +68,7 @@ end
 is not guaranteed.
 ]=]
 function SecondaryCache:iter()
-	local objects, k, obj = self._objects
+	local objects, k, obj = self._objects, nil, nil
 	return function()
 		k, obj = next(objects, k)
 		return obj

@@ -1,8 +1,8 @@
 local VoiceSocket = require('voice/VoiceSocket')
 local Emitter = require('utils/Emitter')
 
-local opus = require('voice/opus')
-local sodium = require('voice/sodium')
+local opus = require('voice/opus') or {}
+local sodium = require('voice/sodium') or {}
 local constants = require('constants')
 
 local wrap = coroutine.wrap

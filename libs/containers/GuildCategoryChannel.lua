@@ -8,7 +8,7 @@ local GuildChannel = require('containers/abstract/GuildChannel')
 local FilteredIterable = require('iterables/FilteredIterable')
 local enums = require('enums')
 
-local channelType = enums.channelType
+local channelType = assert(enums.channelType)
 
 local GuildCategoryChannel, get = require('class')('GuildCategoryChannel', GuildChannel)
 

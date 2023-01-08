@@ -1,7 +1,7 @@
 local enums = require('enums')
 local json = require('json')
 
-local channelType = enums.channelType
+local channelType = assert(enums.channelType)
 local insert = table.insert
 local null = json.null
 

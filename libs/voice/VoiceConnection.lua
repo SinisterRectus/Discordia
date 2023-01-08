@@ -11,8 +11,8 @@ local FFmpegProcess = require('voice/streams/FFmpegProcess')
 local uv = require('uv')
 local ffi = require('ffi')
 local constants = require('constants')
-local opus = require('voice/opus')
-local sodium = require('voice/sodium')
+local opus = require('voice/opus') or {}
+local sodium = require('voice/sodium') or {}
 
 local CHANNELS = 2
 local SAMPLE_RATE = 48000 -- Hz

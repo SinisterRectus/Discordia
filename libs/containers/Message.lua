@@ -16,7 +16,7 @@ local Resolver = require('client/Resolver')
 local insert = table.insert
 local null = json.null
 local format = string.format
-local messageFlag = enums.messageFlag
+local messageFlag = assert(enums.messageFlag)
 local band, bor, bnot = bit.band, bit.bor, bit.bnot
 
 local Message, get = require('class')('Message', Snowflake)
