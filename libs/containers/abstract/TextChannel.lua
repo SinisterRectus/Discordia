@@ -261,6 +261,14 @@ function TextChannel:send(content)
 			content = concat(mentions, ' ')
 		end
 
+		local embeds
+		if tbl.embed then
+			embeds = {tbl.embed}
+		end
+		if type(tbl.embeds) == 'table' and #tbl.embeds > 0 then
+			embeds = tbl.embeds
+		end
+
 		local files
 		if tbl.file then
 			files, err = parseFile(tbl.file)
@@ -290,7 +298,7 @@ function TextChannel:send(content)
 			content = content,
 			tts = tbl.tts,
 			nonce = tbl.nonce,
-			embed = tbl.embed,
+			embeds = embeds,
 			message_reference = refMessage,
 			allowed_mentions = refMention,
 		}, files)
