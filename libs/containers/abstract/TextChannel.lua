@@ -216,6 +216,16 @@ local function parseMention(obj, mentions)
 	return mentions
 end
 
+local function parseEmbed(obj, embeds)
+	if type(obj) == 'table' and next(obj) then
+		embeds = embeds or {}
+		insert(embeds, obj)
+	else
+		return nil, 'Invalid embed object: ' .. tostring(obj)
+	end
+	return embeds
+end
+
 --[=[
 @m send
 @t http
@@ -263,10 +273,18 @@ function TextChannel:send(content)
 
 		local embeds
 		if tbl.embed then
-			embeds = {tbl.embed}
+			embeds, err = parseEmbed(tbl.embed)
+			if err then
+				return nil, err
+			end
 		end
-		if type(tbl.embeds) == 'table' and #tbl.embeds > 0 then
-			embeds = tbl.embeds
+		if type(tbl.embeds) == 'table' then
+			for _, embed in ipairs(tbl.embeds) do
+				embeds, err = parseEmbed(embed, embeds)
+				if err then
+					return nil, err
+				end
+			end
 		end
 
 		local files
