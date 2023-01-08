@@ -14,7 +14,7 @@ file is desired. See the `logLevel` enumeration for acceptable log level values.
 local fs = require('fs')
 
 local date = os.date
-local format = string.format
+local format, gsub, rep = string.format, string.gsub, string.rep
 local stdout = _G.process.stdout.handle
 local openSync, writeSync = fs.openSync, fs.writeSync
 
@@ -43,9 +43,10 @@ end
 
 local Logger = require('class')('Logger')
 
-function Logger:__init(level, dateTime, file)
+function Logger:__init(level, dateTime, file, prettyNewlines)
 	self._level = level
 	self._dateTime = dateTime
+	self._prettyNewlines = prettyNewlines
 	self._file = file and openSync(file, 'a')
 end
 
@@ -67,13 +68,22 @@ function Logger:log(level, msg, ...)
 	local tag = config[level]
 	if not tag then return end
 
+	local d = date(self._dateTime)
 	msg = format(msg, ...)
 
-	local d = date(self._dateTime)
-	if self._file then
-		writeSync(self._file, -1, format('%s | %s | %s\n', d, tag[1], msg))
+	local prettyfied = msg
+	if self._prettyNewlines then
+		prettyfied = gsub(
+			prettyfied,
+			'\r?\n',
+			'%0' .. rep(' ', #d + 3 + #tag[1]) .. ' | '
+		)
 	end
-	stdout:write(format('%s | %s | %s\n', d, tag[2], msg))
+
+	if self._file then
+		writeSync(self._file, -1, format('%s | %s | %s\n', d, tag[1], prettyfied))
+	end
+	stdout:write(format('%s | %s | %s\n', d, tag[2], prettyfied))
 
 	return msg
 
