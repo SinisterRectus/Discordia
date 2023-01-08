@@ -15,7 +15,7 @@ local Resolver = require('client/Resolver')
 
 local isInstance = class.isInstance
 local classes = class.classes
-local channelType = enums.channelType
+local channelType = assert(enums.channelType)
 
 local insert, sort = table.insert, table.sort
 local min, max, floor = math.min, math.max, math.floor

@@ -19,7 +19,7 @@ local commands = {
 }
 
 client:on('ready', function()
-	p(string.format('Logged in as %s', client.user.username))
+	print(string.format('Logged in as %s', client.user.username))
 end)
 
 client:on("messageCreate", function(message)

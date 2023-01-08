@@ -6,7 +6,7 @@
 local Snowflake = require('containers/abstract/Snowflake')
 
 local enums = require('enums')
-local actionType = enums.actionType
+local actionType = assert(enums.actionType)
 
 local AuditLogEntry, get = require('class')('AuditLogEntry', Snowflake)
 

@@ -21,7 +21,7 @@ local Time = require('utils/Time')
 local insert, remove, sort = table.insert, table.remove, table.sort
 local band, bor, bnot = bit.band, bit.bor, bit.bnot
 local isInstance = class.isInstance
-local permission = enums.permission
+local permission = assert(enums.permission)
 
 local Member, get = class('Member', UserPresence)
 

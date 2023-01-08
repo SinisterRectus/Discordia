@@ -7,7 +7,7 @@ local WebSocket = require('client/WebSocket')
 local constants = require('constants')
 local enums = require('enums')
 
-local logLevel = enums.logLevel
+local logLevel = assert(enums.logLevel)
 local min, max, random = math.min, math.max, math.random
 local null = json.null
 local format = string.format
@@ -45,6 +45,11 @@ local ignore = {
 	['INTEGRATION_CREATE'] = true,
 	['INTEGRATION_UPDATE'] = true,
 	['INTEGRATION_DELETE'] = true,
+	['EMBEDDED_ACTIVITY_UPDATE'] = true,
+	['GIFT_CODE_UPDATE'] = true,
+	['GUILD_JOIN_REQUEST_UPDATE'] = true,
+	['GUILD_JOIN_REQUEST_DELETE'] = true,
+	['APPLICATION_COMMAND_PERMISSIONS_UPDATE'] = true,
 }
 
 local Shard = require('class')('Shard', WebSocket)

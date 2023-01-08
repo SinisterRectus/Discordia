@@ -10,7 +10,7 @@ permissions. See the `permission` enumeration for acceptable permission values.
 local enums = require('enums')
 local Resolver = require('client/Resolver')
 
-local permission = enums.permission
+local permission = assert(enums.permission)
 
 local format = string.format
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor

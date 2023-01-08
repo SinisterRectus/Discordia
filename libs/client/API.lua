@@ -132,14 +132,14 @@ function API:request(method, endpoint, payload, query, files)
 	local url = BASE_URL .. endpoint
 
 	if query and next(query) then
-		url = {url}
+		local buf = {url}
 		for k, v in pairs(query) do
-			insert(url, #url == 1 and '?' or '&')
-			insert(url, urlencode(k))
-			insert(url, '=')
-			insert(url, urlencode(v))
+			insert(buf, #buf == 1 and '?' or '&')
+			insert(buf, urlencode(k))
+			insert(buf, '=')
+			insert(buf, urlencode(v))
 		end
-		url = concat(url)
+		url = concat(buf)
 	end
 
 	local req = {

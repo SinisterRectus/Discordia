@@ -10,7 +10,7 @@ all stored objects should have a `__hash` method.
 ]=]
 
 local random = math.random
-local insert, sort, pack = table.insert, table.sort, table.pack
+local insert, sort, pack, unpack = table.insert, table.sort, table.pack, table.unpack
 
 local Iterable = require('class')('Iterable')
 
@@ -240,6 +240,7 @@ function Iterable:select(...)
 				return sorter(a[i], b[i])
 			end
 		end
+		return false
 	end)
 	return rows
 end

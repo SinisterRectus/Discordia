@@ -11,7 +11,7 @@ local Snowflake = require('containers/abstract/Snowflake')
 local User = require('containers/User')
 local Resolver = require('client/Resolver')
 
-local defaultAvatar = enums.defaultAvatar
+local defaultAvatar = assert(enums.defaultAvatar)
 
 local Webhook, get = require('class')('Webhook', Snowflake)
 
