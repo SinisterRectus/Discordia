@@ -38,29 +38,29 @@ function UserPresence:_loadPresence(presence)
 		self._mobile_status = status.mobile
 		self._desktop_status = status.desktop
 	end
-	local game = presence.game
-	if game == null then
+	local activity = presence.activities[1]
+	if activity == null then
 		self._activity = nil
-	elseif game then
+	elseif activity then
 		local arr = presence.activities
 		if arr and arr[2] then
 			for i = 2, #arr do
 				for k, v in pairs(arr[i]) do
-					game[k] = v
+					activity[k] = v
 				end
 			end
 		end
 		if self._activity then
-			self._activity:_load(game)
+			self._activity:_load(activity)
 		else
-			local activity = activities[self:__hash()]
-			if activity then
-				activity:_load(game)
+			local cached = activities[self:__hash()]
+			if cached then
+				cached:_load(activity)
 			else
-				activity = Activity(game, self)
-				activities[self:__hash()] = activity
+				cached = Activity(activity, self)
+				activities[self:__hash()] = cached
 			end
-			self._activity = activity
+			self._activity = cached
 		end
 	end
 end

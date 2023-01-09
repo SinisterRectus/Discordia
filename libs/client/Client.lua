@@ -42,7 +42,7 @@ local readFileSync, writeFileSync = fs.readFileSync, fs.writeFileSync
 local band, bor, bnot = bit.band, bit.bor, bit.bnot
 
 local logLevel = assert(enums.logLevel)
-local gameType = assert(enums.gameType)
+local activityType = assert(enums.activityType)
 local gatewayIntent = assert(enums.gatewayIntent)
 
 local wrap = coroutine.wrap
@@ -281,7 +281,7 @@ managed by Luvit libraries and a libuv event loop, multiple clients per process
 and multiple shards per client can operate concurrently. This should be the last
 method called after all other code and event handlers have been initialized. If
 a presence table is provided, it will act as if the user called `setStatus`
-and `setGame` after `run`.
+and `setActivity` after `run`.
 ]=]
 function Client:run(token, presence)
 	self._presence = presence or {}
@@ -573,7 +573,7 @@ end
 local function updateStatus(self)
 	local presence = self._presence
 	presence.afk = presence.afk or null
-	presence.game = presence.game or null
+	presence.activities = presence.activity and {presence.activity} or null
 	presence.since = presence.since or null
 	presence.status = presence.status or null
 	for _, shard in pairs(self._shards) do
@@ -604,35 +604,40 @@ function Client:setStatus(status)
 	return updateStatus(self)
 end
 
---[=[
-@m setGame
-@t ws
-@p game string/table
-@r nil
-@d Sets the current user's game on all shards that are managed by this client.
-If a string is passed, it is treated as the game name. If a table is passed, it
-must have a `name` field and may optionally have a `url` or `type` field. Pass `nil` to
-remove the game status.
-]=]
 function Client:setGame(game)
-	if type(game) == 'string' then
-		game = {name = game, type = gameType.default}
-	elseif type(game) == 'table' then
-		if type(game.name) == 'string' then
-			if type(game.type) ~= 'number' then
-				if type(game.url) == 'string' then
-					game.type = gameType.streaming
+	self:_deprecated(self.__name, 'setGame', 'setActivity')
+	return self:setActivity(game)
+end
+
+--[=[
+@m setActivity
+@t ws
+@p activity string/table
+@r nil
+@d Sets the current user's activity on all shards that are managed by this client.
+If a string is passed, it is treated as the activity name. If a table is passed, it
+must have a `name` field and may optionally have a `url` or `type` field. Pass `nil` to
+remove the activity status.
+]=]
+function Client:setActivity(activity)
+	if type(activity) == 'string' then
+		activity = {name = activity, type = activityType.default}
+	elseif type(activity) == 'table' then
+		if type(activity.name) == 'string' then
+			if type(activity.type) ~= 'number' then
+				if type(activity.url) == 'string' then
+					activity.type = activityType.streaming
 				else
-					game.type = gameType.default
+					activity.type = activityType.default
 				end
 			end
 		else
-			game = null
+			activity = null
 		end
 	else
-		game = null
+		activity = null
 	end
-	self._presence.game = game
+	self._presence.activity = activity
 	return updateStatus(self)
 end
 
