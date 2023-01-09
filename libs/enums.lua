@@ -46,17 +46,28 @@ enums.notificationSetting = enum {
 }
 
 enums.channelType = enum {
-	text     = 0,
-	private  = 1,
-	voice    = 2,
-	group    = 3,
-	category = 4,
-	news     = 5,
+	text          = 0,
+	private       = 1,
+	voice         = 2,
+	group         = 3,
+	category      = 4,
+	news          = 5,
+	store         = 6,
+	-- unused     = 7,
+	-- unused     = 8,
+	-- unused     = 9,
+	newsThread    = 10,
+	publicThread  = 11,
+	privateThread = 12,
+	stageVoice    = 13,
+	directory     = 14,
+	forum         = 15,
 }
 
 enums.webhookType = enum {
 	incoming        = 1,
 	channelFollower = 2,
+	application     = 3,
 }
 
 enums.messageType = enum {
@@ -72,6 +83,20 @@ enums.messageType = enum {
 	premiumGuildSubscriptionTier1 = 9,
 	premiumGuildSubscriptionTier2 = 10,
 	premiumGuildSubscriptionTier3 = 11,
+	channelFollowAdd              = 12,
+	-- unused (guildStream)       = 13,
+	guildDiscoveryDisqualified    = 14,
+	guildDiscoveryRequalified     = 15,
+	guildDiscoveryInitialWarning  = 16,
+	guildDiscoveryFinalWarning    = 17,
+	threadCreated                 = 18,
+	reply                         = 19,
+	chatInputCommand              = 20,
+	threadStarterMessage          = 21,
+	guildInviteReminder           = 22,
+	contextMenuCommand            = 23,
+	autoModerationAction          = 24,
+	roleSubscriptionPurchase      = 25,
 }
 
 enums.relationshipType = enum {
@@ -86,21 +111,26 @@ enums.activityType = enum {
 	default   = 0,
 	streaming = 1,
 	listening = 2,
+	watching  = 3,
 	custom    = 4,
+	competing = 5,
 }
 
 enums.status = enum {
-	online = 'online',
-	idle = 'idle',
+	online       = 'online',
+	idle         = 'idle',
 	doNotDisturb = 'dnd',
-	invisible = 'invisible',
+	invisible    = 'invisible', -- only sent?
+	offline      = 'offline', -- only received?
 }
 
 enums.gameType = enum { -- NOTE: deprecated; use activityType
 	default   = 0,
 	streaming = 1,
 	listening = 2,
+	watching  = 3,
 	custom    = 4,
+	competing = 5,
 }
 
 enums.verificationLevel = enum {
@@ -124,45 +154,61 @@ enums.premiumTier = enum {
 	tier3 = 3,
 }
 
+local function flag(n)
+	return 2^n
+end
+
 enums.permission = enum {
-	createInstantInvite = 0x00000001,
-	kickMembers         = 0x00000002,
-	banMembers          = 0x00000004,
-	administrator       = 0x00000008,
-	manageChannels      = 0x00000010,
-	manageGuild         = 0x00000020,
-	addReactions        = 0x00000040,
-	viewAuditLog        = 0x00000080,
-	prioritySpeaker     = 0x00000100,
-	stream              = 0x00000200,
-	readMessages        = 0x00000400,
-	sendMessages        = 0x00000800,
-	sendTextToSpeech    = 0x00001000,
-	manageMessages      = 0x00002000,
-	embedLinks          = 0x00004000,
-	attachFiles         = 0x00008000,
-	readMessageHistory  = 0x00010000,
-	mentionEveryone     = 0x00020000,
-	useExternalEmojis   = 0x00040000,
-	connect             = 0x00100000,
-	speak               = 0x00200000,
-	muteMembers         = 0x00400000,
-	deafenMembers       = 0x00800000,
-	moveMembers         = 0x01000000,
-	useVoiceActivity    = 0x02000000,
-	changeNickname      = 0x04000000,
-	manageNicknames     = 0x08000000,
-	manageRoles         = 0x10000000,
-	manageWebhooks      = 0x20000000,
-	manageEmojis        = 0x40000000,
+	createInstantInvite = flag(0),
+	kickMembers         = flag(1),
+	banMembers          = flag(2),
+	administrator       = flag(3),
+	manageChannels      = flag(4),
+	manageGuild         = flag(5),
+	addReactions        = flag(6),
+	viewAuditLog        = flag(7),
+	prioritySpeaker     = flag(8),
+	stream              = flag(9),
+	readMessages        = flag(10),
+	sendMessages        = flag(11),
+	sendTextToSpeech    = flag(12),
+	manageMessages      = flag(13),
+	embedLinks          = flag(14),
+	attachFiles         = flag(15),
+	readMessageHistory  = flag(16),
+	mentionEveryone     = flag(17),
+	useExternalEmojis   = flag(18),
+	viewGuildInsights   = flag(19),
+	connect             = flag(20),
+	speak               = flag(21),
+	muteMembers         = flag(22),
+	deafenMembers       = flag(23),
+	moveMembers         = flag(24),
+	useVoiceActivity    = flag(25),
+	changeNickname      = flag(26),
+	manageNicknames     = flag(27),
+	manageRoles         = flag(28),
+	manageWebhooks      = flag(29),
+	manageEmojis        = flag(30),
+	useSlashCommands    = flag(31),
+	requestToSpeak      = flag(32),
+	manageEvents        = flag(33),
+	manageThreads       = flag(34),
+	usePublicThreads    = flag(35),
+	usePrivateThreads   = flag(36),
 }
 
 enums.messageFlag = enum {
-	crossposted          = 0x00000001,
-	isCrosspost          = 0x00000002,
-	suppressEmbeds       = 0x00000004,
-	sourceMessageDeleted = 0x00000008,
-	urgent               = 0x00000010,
+	crossposted          = flag(0),
+	isCrosspost          = flag(1),
+	suppressEmbeds       = flag(2),
+	sourceMessageDeleted = flag(3),
+	urgent               = flag(4),
+	hasThread            = flag(5),
+	ephemeral            = flag(6),
+	loading              = flag(7),
+}
+
 }
 
 enums.actionType = enum {
@@ -201,6 +247,24 @@ enums.actionType = enum {
 	integrationCreate      = 80,
 	integrationUpdate      = 81,
 	integrationDelete      = 82,
+	stageInstanceCreate    = 83,
+	stageInstanceUpdate    = 84,
+	stageInstanceDelete    = 85,
+	stickerCreate          = 90,
+	stickerUpdate          = 91,
+	stickerDelete          = 92,
+	eventCreate            = 100,
+	eventUpdate            = 101,
+	eventDelete            = 102,
+	threadCreate           = 110,
+	threadUpdate           = 111,
+	threadDelete           = 112,
+	autoModRuleCreate      = 140,
+	autoModRuleUpdate      = 141,
+	autoModRuleDelete      = 142,
+	autoModMessageBlock    = 144,
+	autoModMessageFlag     = 144,
+	autoModUserTimeout     = 145,
 }
 
 enums.logLevel = enum {
