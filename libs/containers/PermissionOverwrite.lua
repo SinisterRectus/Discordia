@@ -8,8 +8,6 @@ local Snowflake = require('containers/abstract/Snowflake')
 local Permissions = require('utils/Permissions')
 local Resolver = require('client/Resolver')
 
-local band, bnot = bit.band, bit.bnot
-
 local PermissionOverwrite, get = require('class')('PermissionOverwrite', Snowflake)
 
 function PermissionOverwrite:__init(data, parent)
@@ -53,7 +51,7 @@ function PermissionOverwrite:getObject()
 end
 
 local function getPermissions(self)
-	return Permissions(self._allow), Permissions(self._deny)
+	return Permissions(self._allow_new or self._allow), Permissions(self._deny_new or self._deny)
 end
 
 local function setPermissions(self, allow, deny)
@@ -76,7 +74,7 @@ end
 explicitly allows.
 ]=]
 function PermissionOverwrite:getAllowedPermissions()
-	return Permissions(self._allow)
+	return Permissions(self._allow_new or self._allow)
 end
 
 --[=[
@@ -87,7 +85,7 @@ end
 explicitly denies.
 ]=]
 function PermissionOverwrite:getDeniedPermissions()
-	return Permissions(self._deny)
+	return Permissions(self._deny_new or self._deny)
 end
 
 --[=[
@@ -113,9 +111,9 @@ end
 @d Sets the permissions that this overwrite explicitly allows.
 ]=]
 function PermissionOverwrite:setAllowedPermissions(allowed)
-	local allow = Resolver.permissions(allowed)
-	local deny = band(bnot(allow), self._deny) -- un-deny the allowed permissions
-	return setPermissions(self, allow, deny)
+	local allow = Permissions(Resolver.permissions(allowed))
+	local deny = allow:complement(self:getDeniedPermissions()) -- un-deny the allowed permissions
+	return setPermissions(self, allow.value, deny.value)
 end
 
 --[=[
@@ -126,9 +124,9 @@ end
 @d Sets the permissions that this overwrite explicitly denies.
 ]=]
 function PermissionOverwrite:setDeniedPermissions(denied)
-	local deny = Resolver.permissions(denied)
-	local allow = band(bnot(deny), self._allow) -- un-allow the denied permissions
-	return setPermissions(self, allow, deny)
+	local deny = Permissions(Resolver.permissions(denied))
+	local allow = deny:complement(self:getAllowedPermissions()) -- un-allow the denied permissions
+	return setPermissions(self, allow.value, deny.value)
 end
 
 --[=[
@@ -141,7 +139,7 @@ end
 function PermissionOverwrite:allowPermissions(...)
 	local allowed, denied = getPermissions(self)
 	allowed:enable(...); denied:disable(...)
-	return setPermissions(self, allowed._value, denied._value)
+	return setPermissions(self, allowed.value, denied.value)
 end
 
 --[=[
@@ -154,7 +152,7 @@ end
 function PermissionOverwrite:denyPermissions(...)
 	local allowed, denied = getPermissions(self)
 	allowed:disable(...); denied:enable(...)
-	return setPermissions(self, allowed._value, denied._value)
+	return setPermissions(self, allowed.value, denied.value)
 end
 
 --[=[
@@ -167,7 +165,7 @@ end
 function PermissionOverwrite:clearPermissions(...)
 	local allowed, denied = getPermissions(self)
 	allowed:disable(...); denied:disable(...)
-	return setPermissions(self, allowed._value, denied._value)
+	return setPermissions(self, allowed.value, denied.value)
 end
 
 --[=[
@@ -179,7 +177,7 @@ end
 function PermissionOverwrite:allowAllPermissions()
 	local allowed, denied = getPermissions(self)
 	allowed:enableAll(); denied:disableAll()
-	return setPermissions(self, allowed._value, denied._value)
+	return setPermissions(self, allowed.value, denied.value)
 end
 
 --[=[
@@ -191,7 +189,7 @@ end
 function PermissionOverwrite:denyAllPermissions()
 	local allowed, denied = getPermissions(self)
 	allowed:disableAll(); denied:enableAll()
-	return setPermissions(self, allowed._value, denied._value)
+	return setPermissions(self, allowed.value, denied.value)
 end
 
 --[=[
@@ -203,12 +201,18 @@ end
 function PermissionOverwrite:clearAllPermissions()
 	local allowed, denied = getPermissions(self)
 	allowed:disableAll(); denied:disableAll()
-	return setPermissions(self, allowed._value, denied._value)
+	return setPermissions(self, allowed.value, denied.value)
 end
 
 --[=[@p type string The overwrite type; either "role" or "member".]=]
 function get.type(self)
-	return self._type
+	if type(self._type) == 'string' then
+		return self._type
+	elseif self._type == 1 then
+		return 'member'
+	else -- 0
+		return 'role'
+	end
 end
 
 --[=[@p channel GuildChannel The channel in which this overwrite exists.]=]
@@ -223,12 +227,12 @@ end
 
 --[=[@p allowedPermissions number The number representing the total permissions allowed by this overwrite.]=]
 function get.allowedPermissions(self)
-	return self._allow
+	return tonumber(self._allow_new) or tonumber(self._allow)
 end
 
 --[=[@p deniedPermissions number The number representing the total permissions denied by this overwrite.]=]
 function get.deniedPermissions(self)
-	return self._deny
+	return tonumber(self._deny_new) or tonumber(self._deny)
 end
 
 return PermissionOverwrite

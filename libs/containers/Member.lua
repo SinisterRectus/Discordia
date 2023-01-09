@@ -19,7 +19,6 @@ local Date = require('utils/Date')
 local Time = require('utils/Time')
 
 local insert, remove, sort = table.insert, table.remove, table.sort
-local band, bor, bnot = bit.band, bit.bor, bit.bnot
 local isInstance = class.isInstance
 local permission = assert(enums.permission)
 
@@ -75,10 +74,6 @@ function Member:getColor()
 	return roles[1] and roles[1]:getColor() or Color()
 end
 
-local function has(a, b)
-	return band(a, b) > 0
-end
-
 --[=[
 @m hasPermission
 @t mem
@@ -113,15 +108,15 @@ function Member:hasPermission(channel, perm)
 		return true
 	end
 
-	local rolePermissions = guild.defaultRole.permissions
+	local rolePermissions = guild.defaultRole:getPermissions()
 
 	for role in self.roles:iter() do
 		if role.id ~= guild.id then -- just in case
-			rolePermissions = bor(rolePermissions, role.permissions)
+			rolePermissions = rolePermissions:union(role:getPermissions())
 		end
 	end
 
-	if has(rolePermissions, permission.administrator) then
+	if rolePermissions:has(permission.administrator) then
 		return true
 	end
 
@@ -131,10 +126,10 @@ function Member:hasPermission(channel, perm)
 
 		local overwrite = overwrites:get(self.id)
 		if overwrite then
-			if has(overwrite.allowedPermissions, n) then
+			if overwrite:getAllowedPermissions():has(n) then
 				return true
 			end
-			if has(overwrite.deniedPermissions, n) then
+			if overwrite:getDeniedPermissions():has(n) then
 				return false
 			end
 		end
@@ -144,32 +139,32 @@ function Member:hasPermission(channel, perm)
 			if role.id ~= guild.id then -- just in case
 				overwrite = overwrites:get(role.id)
 				if overwrite then
-					allow = bor(allow, overwrite.allowedPermissions)
-					deny = bor(deny, overwrite.deniedPermissions)
+					allow = allow:union(overwrite:getAllowedPermissions())
+					deny = deny:union(overwrite:getDeniedPermissions())
 				end
 			end
 		end
 
-		if has(allow, n) then
+		if allow:has(n) then
 			return true
 		end
-		if has(deny, n) then
+		if deny:has(n) then
 			return false
 		end
 
 		local everyone = overwrites:get(guild.id)
 		if everyone then
-			if has(everyone.allowedPermissions, n) then
+			if everyone:getAllowedPermissions():has(n) then
 				return true
 			end
-			if has(everyone.deniedPermissions, n) then
+			if everyone:getDeniedPermissions():has(n) then
 				return false
 			end
 		end
 
 	end
 
-	return has(rolePermissions, n)
+	return rolePermissions:has(n)
 
 end
 
@@ -195,15 +190,15 @@ function Member:getPermissions(channel)
 		return Permissions.all()
 	end
 
-	local ret = guild.defaultRole.permissions
+	local ret = guild.defaultRole:getPermissions()
 
 	for role in self.roles:iter() do
 		if role.id ~= guild.id then -- just in case
-			ret = bor(ret, role.permissions)
+			ret = ret:union(role:getPermissions())
 		end
 	end
 
-	if band(ret, permission.administrator) > 0 then
+	if ret:has(permission.administrator) then
 		return Permissions.all()
 	end
 
@@ -213,8 +208,8 @@ function Member:getPermissions(channel)
 
 		local everyone = overwrites:get(guild.id)
 		if everyone then
-			ret = band(ret, bnot(everyone.deniedPermissions))
-			ret = bor(ret, everyone.allowedPermissions)
+			ret = ret:complement(everyone:getDeniedPermissions())
+			ret = ret:union(everyone:getAllowedPermissions())
 		end
 
 		local allow, deny = 0, 0
@@ -222,23 +217,23 @@ function Member:getPermissions(channel)
 			if role.id ~= guild.id then -- just in case
 				local overwrite = overwrites:get(role.id)
 				if overwrite then
-					deny = bor(deny, overwrite.deniedPermissions)
-					allow = bor(allow, overwrite.allowedPermissions)
+					deny = deny:union(overwrite:getDeniedPermissions())
+					allow = allow:union(overwrite:getAllowedPermissions())
 				end
 			end
 		end
-		ret = band(ret, bnot(deny))
-		ret = bor(ret, allow)
+		ret = ret:complement(deny)
+		ret = ret:union(allow)
 
 		local overwrite = overwrites:get(self.id)
 		if overwrite then
-			ret = band(ret, bnot(overwrite.deniedPermissions))
-			ret = bor(ret, overwrite.allowedPermissions)
+			ret = ret:complement(overwrite:getDeniedPermissions())
+			ret = ret:union(overwrite:getAllowedPermissions())
 		end
 
 	end
 
-	return Permissions(ret)
+	return ret
 
 end
 

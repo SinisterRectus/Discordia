@@ -304,7 +304,7 @@ end
 has enabled.
 ]=]
 function Role:getPermissions()
-	return Permissions(self._permissions)
+	return Permissions(self._permissions_new or self._permissions)
 end
 
 --[=[@p hoisted boolean Whether members with this role should be shown separated from other members
@@ -340,7 +340,7 @@ end
 
 --[=[@p permissions number Represents the total permissions of the role as a decimal value.]=]
 function get.permissions(self)
-	return self._permissions
+	return tonumber(self._permissions_new) or tonumber(self._permissions)
 end
 
 --[=[@p mentionString string A string that, when included in a message content, may resolve as a role

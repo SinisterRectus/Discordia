@@ -16,7 +16,7 @@ local format = string.format
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
 local sort, insert, concat = table.sort, table.insert, table.concat
 
-local ALL = 0
+local ALL = 0ULL
 for _, value in pairs(permission) do
 	ALL = bor(ALL, value)
 end
@@ -24,7 +24,7 @@ end
 local Permissions, get = require('class')('Permissions')
 
 function Permissions:__init(value)
-	self._value = tonumber(value) or 0
+	self._value = (tonumber(value) or 0) + 0ULL
 end
 
 --[=[
@@ -39,7 +39,7 @@ function Permissions:__tostring()
 	else
 		local a = self:toArray()
 		sort(a)
-		return format('Permissions: %i (%s)', self._value, concat(a, ', '))
+		return format('Permissions: %i (%s)', self.value, concat(a, ', '))
 	end
 end
 
@@ -82,7 +82,7 @@ local function getPerm(i, ...)
 	if not n then
 		return error('Invalid permission: ' .. tostring(v), 2)
 	end
-	return n
+	return n + 0ULL
 end
 
 --[=[
@@ -150,7 +150,7 @@ end
 @d Disables all permissions values.
 ]=]
 function Permissions:disableAll()
-	self._value = 0
+	self._value = 0ULL
 end
 
 --[=[
@@ -249,7 +249,7 @@ end
 
 --[=[@p value number The raw decimal value that represents the permissions value.]=]
 function get.value(self)
-	return self._value
+	return tonumber(self._value)
 end
 
 return Permissions
