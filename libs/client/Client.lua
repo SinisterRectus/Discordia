@@ -39,9 +39,11 @@ local VoiceManager = require('voice/VoiceManager')
 
 local encode, decode, null = json.encode, json.decode, json.null
 local readFileSync, writeFileSync = fs.readFileSync, fs.writeFileSync
+local band, bor, bnot = bit.band, bit.bor, bit.bnot
 
 local logLevel = assert(enums.logLevel)
 local gameType = assert(enums.gameType)
+local gatewayIntent = assert(enums.gatewayIntent)
 
 local wrap = coroutine.wrap
 local time, difftime = os.time, os.difftime
@@ -68,6 +70,7 @@ local defaultOptions = {
 	gatewayFile = 'gateway.json',
 	dateTime = '%F %T',
 	syncGuilds = false,
+	gatewayIntents = 3243773, -- all non-privileged intents
 }
 
 local function parseOptions(customOptions)
@@ -118,6 +121,7 @@ function Client:__init(options)
 	self._emoji_map = {}
 	self._channel_map = {}
 	self._events = require('client/EventHandler')
+	self._intents = options.gatewayIntents
 end
 
 for name, level in pairs(logLevel) do
@@ -295,6 +299,47 @@ function Client:stop()
 	for _, shard in pairs(self._shards) do
 		shard:disconnect()
 	end
+end
+
+local function getIntent(i, ...)
+	local v = select(i, ...)
+	local n = Resolver.gatewayIntent(v)
+	if not n then
+		return error('Invalid gateway intent: ' .. tostring(v), 2)
+	end
+	return n
+end
+
+function Client:getIntents()
+	return self._intents
+end
+
+function Client:setIntents(intents)
+	self._intents = tonumber(intents) or 0
+end
+
+function Client:enableIntents(...)
+	for i = 1, select('#', ...) do
+		local intent = getIntent(i, ...)
+		self._intents = bor(self._intents, intent)
+	end
+end
+
+function Client:disableIntents(...)
+	for i = 1, select('#', ...) do
+		local intent = getIntent(i, ...)
+		self._intents = band(self._intents, bnot(intent))
+	end
+end
+
+function Client:enableAllIntents()
+	for _, value in pairs(gatewayIntent) do
+		self._intents = bor(self._intents, value)
+	end
+end
+
+function Client:disableAllIntents()
+	self._intents = 0
 end
 
 function Client:_modify(payload)
