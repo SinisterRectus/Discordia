@@ -587,4 +587,7 @@ end
 function EventHandler.STAGE_INSTANCE_DELETE(d, client)
 end
 
+function EventHandler.GUILD_AUDIT_LOG_ENTRY_CREATE(d, client)
+end
+
 return EventHandler

@@ -4,6 +4,7 @@ local http = require('coro-http')
 local package = require('../../package.lua')
 local Mutex = require('utils/Mutex')
 local endpoints = require('endpoints')
+local constants = require('constants')
 
 local request = http.request
 local f, gsub, byte = string.format, string.gsub, string.byte
@@ -13,8 +14,8 @@ local insert, concat = table.insert, table.concat
 local sleep = timer.sleep
 local running = coroutine.running
 
-local VERSION = 7
-local BASE_URL = "https://discord.com/api/" .. 'v' .. VERSION
+local API_VERSION = constants.API_VERSION
+local BASE_URL = "https://discord.com/api/" .. 'v' .. API_VERSION
 local JSON = 'application/json'
 local PRECISION = 'millisecond'
 local MULTIPART = 'multipart/form-data;boundary='
@@ -147,7 +148,7 @@ function API:request(method, endpoint, payload, query, files)
 		{'Authorization', self._token},
 	}
 
-	if VERSION < 8 then
+	if API_VERSION < 8 then
 		insert(req, {'X-RateLimit-Precision', PRECISION})
 	end
 

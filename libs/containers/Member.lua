@@ -134,7 +134,7 @@ function Member:hasPermission(channel, perm)
 			end
 		end
 
-		local allow, deny = 0, 0
+		local allow, deny = Permissions(), Permissions()
 		for role in self.roles:iter() do
 			if role.id ~= guild.id then -- just in case
 				overwrite = overwrites:get(role.id)

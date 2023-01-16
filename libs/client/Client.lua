@@ -50,7 +50,7 @@ local time, difftime = os.time, os.difftime
 local format = string.format
 
 local CACHE_AGE = constants.CACHE_AGE
-local GATEWAY_VERSION = constants.GATEWAY_VERSION
+local API_VERSION = constants.API_VERSION
 
 -- do not change these options here
 -- pass a custom table on client initialization instead
@@ -152,6 +152,11 @@ local function run(self, token)
 	local api = self._api
 	local users = self._users
 	local options = self._options
+
+	if options.cacheAllMembers and bit.band(self._intents, gatewayIntent.guildMembers) == 0 then
+		self:warning('Cannot cache all members while guildMembers intent is disabled')
+		options.cacheAllMembers = false
+	end
 
 	local user, err1 = api:authenticate(token)
 	if not user then
@@ -262,7 +267,7 @@ local function run(self, token)
 		self._shards[id] = Shard(id, self)
 	end
 
-	local path = format('/?v=%i&encoding=json', GATEWAY_VERSION)
+	local path = format('/?v=%i&encoding=json', API_VERSION)
 	for _, shard in pairs(self._shards) do
 		wrap(shard.connect)(shard, url, path)
 		shard:identifyWait()
