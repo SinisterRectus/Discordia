@@ -13,8 +13,8 @@ local insert, concat = table.insert, table.concat
 local sleep = timer.sleep
 local running = coroutine.running
 
-local BASE_URL = "https://discord.com/api/v7"
-
+local VERSION = 7
+local BASE_URL = "https://discord.com/api/" .. 'v' .. VERSION
 local JSON = 'application/json'
 local PRECISION = 'millisecond'
 local MULTIPART = 'multipart/form-data;boundary='
@@ -144,9 +144,12 @@ function API:request(method, endpoint, payload, query, files)
 
 	local req = {
 		{'User-Agent', USER_AGENT},
-		{'X-RateLimit-Precision', PRECISION},
 		{'Authorization', self._token},
 	}
+
+	if VERSION < 8 then
+		insert(req, {'X-RateLimit-Precision', PRECISION})
+	end
 
 	if payloadRequired[method] then
 		payload = payload and encode(payload) or '{}'

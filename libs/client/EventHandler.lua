@@ -427,13 +427,6 @@ function EventHandler.PRESENCE_UPDATE(d, client) -- may have incomplete data
 		else
 			if d.status == 'offline' then -- uncache offline members
 				member = guild._members:_delete(d.user.id)
-			else
-				if d.user.username then -- member was offline
-					member = guild._members:_insert(d)
-				elseif user then -- member was invisible, user is still cached
-					member = guild._members:_insert(d)
-					member._user = user
-				end
 			end
 		end
 		if member then
@@ -535,6 +528,63 @@ function EventHandler.WEBHOOKS_UPDATE(d, client) -- webhook object is not provid
 	local channel = guild._text_channels:get(d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'WEBHOOKS_UPDATE') end
 	return client:emit('webhooksUpdate', channel)
+end
+
+function EventHandler.AUTO_MODERATION_RULE_CREATE(d, client)
+end
+
+function EventHandler.AUTO_MODERATION_RULE_UPDATE(d, client)
+end
+
+function EventHandler.AUTO_MODERATION_RULE_DELETE(d, client)
+end
+
+function EventHandler.AUTO_MODERATION_ACTION_EXECUTION(d, client)
+end
+
+function EventHandler.THREAD_CREATE(d, client)
+end
+
+function EventHandler.THREAD_UPDATE(d, client)
+end
+
+function EventHandler.THREAD_DELETE(d, client)
+end
+
+function EventHandler.THREAD_LIST_SYNC(d, client)
+end
+
+function EventHandler.THREAD_MEMBER_UPDATE(d, client)
+end
+
+function EventHandler.THREAD_MEMBERS_UPDATE(d, client)
+end
+
+function EventHandler.GUILD_STICKERS_UPDATE(d, client)
+end
+
+function EventHandler.GUILD_SCHEDULED_EVENT_CREATE(d, client)
+end
+
+function EventHandler.GUILD_SCHEDULED_EVENT_UPDATE(d, client)
+end
+
+function EventHandler.GUILD_SCHEDULED_EVENT_DELETE(d, client)
+end
+
+function EventHandler.GUILD_SCHEDULED_EVENT_USER_ADD(d, client)
+end
+
+function EventHandler.GUILD_SCHEDULED_EVENT_USER_REMOVE(d, client)
+end
+
+function EventHandler.STAGE_INSTANCE_CREATE(d, client)
+end
+
+function EventHandler.STAGE_INSTANCE_UPDATE(d, client)
+end
+
+function EventHandler.STAGE_INSTANCE_DELETE(d, client)
 end
 
 return EventHandler
