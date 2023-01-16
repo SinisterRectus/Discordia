@@ -3,7 +3,7 @@ return {
 	ID_DELAY = 5000, -- milliseconds
 	GATEWAY_DELAY = 500, -- milliseconds,
 	DISCORD_EPOCH = 1420070400000, -- milliseconds
-	API_VERSION = 7,
+	API_VERSION = 8,
 	DEFAULT_AVATARS = 5,
 	ZWSP = '\226\128\139',
 	NS_PER_US = 1000,

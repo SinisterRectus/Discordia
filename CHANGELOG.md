@@ -1,12 +1,87 @@
 # Changelog
 
+## 2.11.0
+- Bumped the internal Discord API version to 8.
+- Added support for gateway intents:
+	- Added `gatewayIntent` enumeration
+	- Added `gatewayIntents` client option
+	- Added `Client:getIntents` method
+	- Added `Client:setIntents` method
+	- Added `Client:enableIntents` method
+	- Added `Client:disableIntents` method
+	- Added `Client:enableAllIntents` method
+	- Added `Client:disableAllIntents` method
+- Added support for permission precision greater than 31 bits
+- Deprecated `Client:setGame`, use `Client:setActivity`
+- Added support for `embeds` field in `TextChannel:send`
+- Added `channelType` enumerations:
+	- `store`
+	- `newsThread`
+	- `publicThread`
+	- `privateThread`
+	- `stageVoice`
+	- `directory`
+	- `forum`
+- Added `webhookType` enumeration:
+	- `application`
+- Added `messageType` enumerations:
+	- `channelFollowAdd`
+	- `guildDiscoveryDisqualified`
+	- `guildDiscoveryRequalified`
+	- `guildDiscoveryInitialWarning`
+	- `guildDiscoveryFinalWarning`
+	- `threadCreated`
+	- `reply`
+	- `chatInputCommand`
+	- `threadStarterMessage`
+	- `guildInviteReminder`
+	- `contextMenuCommand`
+	- `autoModerationAction`
+	- `roleSubscriptionPurchase`
+- Added `activityType` enumerations:
+	- `watching`
+	- `competing`
+- Added `status` enumeration:
+	- `offline`
+- Added `permission` enumerations:
+	- `viewGuildInsights`
+	- `useSlashCommands`
+	- `requestToSpeak`
+	- `manageEvents`
+	- `manageThreads`
+	- `usePublicThreads`
+	- `usePrivateThreads`
+- Added `messageFlag` enumerations:
+	- `hasThread`
+	- `ephemeral`
+	- `loading`
+- Added `actionType` enumerations:
+	- `stageInstanceCreate`
+	- `stageInstanceUpdate`
+	- `stageInstanceDelete`
+	- `stickerCreate`
+	- `stickerUpdate`
+	- `stickerDelete`
+	- `eventCreate`
+	- `eventUpdate`
+	- `eventDelete`
+	- `threadCreate`
+	- `threadUpdate`
+	- `threadDelete`
+	- `autoModRuleCreate`
+	- `autoModRuleUpdate`
+	- `autoModRuleDelete`
+	- `autoModMessageBlock`
+	- `autoModMessageFlag`
+	- `autoModUserTimeout`
+
 ## 2.10.0
-- Adds support for member timeouts
-	- Adds `Member:timeoutFor`
-	- Adds `Member:timeoutUntil`
-	- Adds `Member:removeTimeout`
-	- Adds `Member.timedOut`
-	- Adds `Member.timedOutUntil`
+- Added support for member timeouts
+	- Added `Member:timeoutFor`
+	- Added `Member:timeoutUntil`
+	- Added `Member:removeTimeout`
+	- Added `Member.timedOut`
+	- Added `Member.timedOutUntil`
 - Fixes a bug in trying to sleep where `retry_after` is `nil` on 429.
 - Fixes mention consistency in for edited reply messages
 

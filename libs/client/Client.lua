@@ -315,14 +315,36 @@ local function getIntent(i, ...)
 	return n
 end
 
+--[=[
+@m getIntents
+@t mem
+@r number
+@d Returns a number that represents the gateway intents enabled for this client.
+]=]
 function Client:getIntents()
 	return self._intents
 end
 
+--[=[
+@m setIntents
+@t mem
+@p intents Intents-Resolvable
+@r nothing
+@d Sets the gateway intents that this client will use. The new value will not be
+used internally until the client (re-)identifies.
+]=]
 function Client:setIntents(intents)
 	self._intents = tonumber(intents) or 0
 end
 
+--[=[
+@m enableIntents
+@t mem
+@p ... Intents-Resolvables
+@r nothing
+@d Enables individual gateway intents for this client. The new value will not be
+used internally until the client (re-)identifies.
+]=]
 function Client:enableIntents(...)
 	for i = 1, select('#', ...) do
 		local intent = getIntent(i, ...)
@@ -330,6 +352,14 @@ function Client:enableIntents(...)
 	end
 end
 
+--[=[
+@m disableIntents
+@t mem
+@p ... Intents-Resolvables
+@r nothing
+@d Disables individual gateway intents for this client. The new value will not be
+used internally until the client (re-)identifies.
+]=]
 function Client:disableIntents(...)
 	for i = 1, select('#', ...) do
 		local intent = getIntent(i, ...)
@@ -337,12 +367,26 @@ function Client:disableIntents(...)
 	end
 end
 
+--[=[
+@m enableAllIntents
+@t mem
+@r nothing
+@d Enables all known gateway intents for this client. The new value will not be
+used internally until the client (re-)identifies.
+]=]
 function Client:enableAllIntents()
 	for _, value in pairs(gatewayIntent) do
 		self._intents = bor(self._intents, value)
 	end
 end
 
+--[=[
+@m disableAllIntents
+@t mem
+@r nothing
+@d Disables all gateway intents for this client. The new value will not be
+used internally until the client (re-)identifies.
+]=]
 function Client:disableAllIntents()
 	self._intents = 0
 end
