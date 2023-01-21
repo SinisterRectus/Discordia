@@ -24,13 +24,19 @@ local function checkReady(shard)
 	return client:emit('ready')
 end
 
-local function getChannel(client, id)
-	local guild = client._channel_map[id]
-	if guild then
-		return guild._text_channels:get(id)
-	else
-		return client._private_channels:get(id) or client._group_channels:get(id)
+local function getChannel(client, d)
+	local channel = client:getChannel(d.channel_id)
+	if not channel and not d.guild_id then
+		channel = client._api:getChannel(d.channel_id)
+		if channel then
+			if channel.type == channelType.private then
+				channel = client._private_channels:_insert(channel)
+			elseif channel.type == channelType.group then
+				channel = client._group_channels:_insert(channel)
+			end
+		end
 	end
+	return channel
 end
 
 local EventHandler = setmetatable({}, {__index = function(self, k)
@@ -315,14 +321,14 @@ function EventHandler.GUILD_ROLE_DELETE(d, client) -- role object not provided
 end
 
 function EventHandler.MESSAGE_CREATE(d, client)
-	local channel = getChannel(client, d.channel_id)
+	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_CREATE') end
 	local message = channel._messages:_insert(d)
 	return client:emit('messageCreate', message)
 end
 
 function EventHandler.MESSAGE_UPDATE(d, client) -- may not contain the whole message
-	local channel = getChannel(client, d.channel_id)
+	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_UPDATE') end
 	local message = channel._messages:get(d.id)
 	if message then
@@ -335,7 +341,7 @@ function EventHandler.MESSAGE_UPDATE(d, client) -- may not contain the whole mes
 end
 
 function EventHandler.MESSAGE_DELETE(d, client) -- message object not provided
-	local channel = getChannel(client, d.channel_id)
+	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE') end
 	local message = channel._messages:_delete(d.id)
 	if message then
@@ -346,7 +352,7 @@ function EventHandler.MESSAGE_DELETE(d, client) -- message object not provided
 end
 
 function EventHandler.MESSAGE_DELETE_BULK(d, client)
-	local channel = getChannel(client, d.channel_id)
+	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE_BULK') end
 	for _, id in ipairs(d.ids) do
 		local message = channel._messages:_delete(id)
@@ -359,7 +365,7 @@ function EventHandler.MESSAGE_DELETE_BULK(d, client)
 end
 
 function EventHandler.MESSAGE_REACTION_ADD(d, client)
-	local channel = getChannel(client, d.channel_id)
+	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_ADD') end
 	local message = channel._messages:get(d.message_id)
 	if message then
@@ -372,7 +378,7 @@ function EventHandler.MESSAGE_REACTION_ADD(d, client)
 end
 
 function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
-	local channel = getChannel(client, d.channel_id)
+	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_REMOVE') end
 	local message = channel._messages:get(d.message_id)
 	if message then
@@ -389,7 +395,7 @@ function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
 end
 
 function EventHandler.MESSAGE_REACTION_REMOVE_ALL(d, client)
-	local channel = getChannel(client, d.channel_id)
+	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_REMOVE_ALL') end
 	local message = channel._messages:get(d.message_id)
 	if message then
@@ -407,7 +413,7 @@ function EventHandler.MESSAGE_REACTION_REMOVE_ALL(d, client)
 end
 
 function EventHandler.CHANNEL_PINS_UPDATE(d, client)
-	local channel = getChannel(client, d.channel_id)
+	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'CHANNEL_PINS_UPDATE') end
 	return client:emit('pinsUpdate', channel)
 end
