@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.11.1
+- Fixes missing direct message channels on message events
+
 ## 2.11.0
 - Bumped the internal Discord API version to 8.
 - Added support for gateway intents:

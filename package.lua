@@ -22,7 +22,7 @@ SOFTWARE.]]
 
 return {
 	name = 'SinisterRectus/discordia',
-	version = '2.11.0',
+	version = '2.11.1',
 	homepage = 'https://github.com/SinisterRectus/Discordia',
 	dependencies = {
 		'creationix/coro-http@3.1.0',
