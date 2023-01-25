@@ -70,7 +70,7 @@ local defaultOptions = {
 	gatewayFile = 'gateway.json',
 	dateTime = '%F %T',
 	syncGuilds = false,
-	gatewayIntents = 3243773, -- all non-privileged intents
+	gatewayIntents = 3276799, -- all non-privileged intents
 }
 
 local function parseOptions(customOptions)
