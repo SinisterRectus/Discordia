@@ -36,7 +36,7 @@ local function getChannel(client, d)
 			end
 		end
 	end
-	return channel
+	return channel and channel._messages and channel
 end
 
 local EventHandler = setmetatable({}, {__index = function(self, k)
