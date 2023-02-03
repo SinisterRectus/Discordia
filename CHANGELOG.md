@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.11.2
+- Fixes a crash when messages are received in voice channels
+
 ## 2.11.1
 - Fixes missing direct message channels on message events
 
