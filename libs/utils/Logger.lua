@@ -76,7 +76,7 @@ function Logger:log(level, msg, ...)
 		prettyfied = gsub(
 			prettyfied,
 			'\r?\n',
-			'%0' .. rep(' ', #d + 3 + #tag[1]) .. ' | '
+			'%0' .. rep(' ', #d) .. ' | ' .. rep(' ', #tag[1]) .. ' | '
 		)
 	end
 
