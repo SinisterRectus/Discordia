@@ -10,7 +10,7 @@ local format = string.format
 local setInterval, clearInterval = timer.setInterval, timer.clearInterval
 local wrap = coroutine.wrap
 local time = os.time
-local unpack = string.unpack -- luacheck: ignore
+local unpack, pack = string.unpack, string.pack -- luacheck: ignore
 
 local ENCRYPTION_MODE = 'xsalsa20_poly1305'
 
@@ -171,8 +171,8 @@ function VoiceSocket:handshake(server_ip, server_port)
 		local client_port = unpack('<I2', data, -2)
 		return wrap(self.selectProtocol)(self, client_ip, client_port)
 	end)
-	local PADDING = string.pack('>I2I2I4c64H', 0x1, 70, self._ssrc, self._ip, self._port)
-	return udp:send(PADDING, server_ip, server_port)
+	local packet = pack('>I2I2I4c64H', 0x1, 70, self._ssrc, self._ip, self._port)
+	return udp:send(packet, server_ip, server_port)
 end
 
 function VoiceSocket:selectProtocol(address, port)
