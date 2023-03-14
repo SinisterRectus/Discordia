@@ -175,7 +175,7 @@ function VoiceSocket:handshake(server_ip, server_port)
 	for i = 1, #self._ip do
 		table.insert(bytes_ip, string.byte(self._ip))
 	end
-	local PADDING = string.pack('>I2I2c64H', 0x1, 70, self._ssrc, table.unpack(bytes_ip), port)
+	local PADDING = string.pack('>I2I2c64H', 0x1, 70, self._ssrc, table.unpack(bytes_ip), self._port)
 	return udp:send(PADDING, server_ip, server_port)
 end
 
