@@ -4,7 +4,7 @@
 
 ### Introduction
 
-**[Discord](https://discord.com/)** is a freeware, multi-platform, voice and text client. It has a [documented RESTful API](https://discord.com/developers/docs/intro) that allows developers to make Discord bots for use on their servers.
+**[Discord](https://discord.com/)** is a freemium, multi-platform, voice and text client. It has a [documented RESTful API](https://discord.com/developers/docs/intro) that allows developers to make Discord bots for use on their servers.
 
 **[Luvit](https://luvit.io)** is an open-source, asynchronous I/O Lua runtime environment. It is a combination of [LuaJIT](http://luajit.com/) and [libuv](http://libuv.org/), layered with various libraries to provide server-side functionality similar to that of [Node.js](https://nodejs.org/en/), but with Lua instead of JavaScript. Luvit's companion package manager, lit, makes it easy to set up the Luvit runtime and its published libraries.
 
