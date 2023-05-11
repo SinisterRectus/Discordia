@@ -150,7 +150,7 @@ function Resolver.permissions(obj)
 	if isInstance(obj, classes.Permissions) then
 		return obj.value
 	end
-	return tonumber(obj)
+	return int(obj)
 end
 
 function Resolver.permission(obj)
@@ -159,7 +159,11 @@ function Resolver.permission(obj)
 	if t == 'string' then
 		n = permission[obj]
 	elseif t == 'number' then
-		n = permission(obj) and obj
+		n = permission(uint64_t(obj)) and obj
+	elseif t == 'cdata' then
+		if istype(int64_t, obj) or istype(uint64_t, obj) then
+			n = permission(uint64_t(obj)) and obj
+		end
 	end
 	return n
 end
@@ -170,7 +174,11 @@ function Resolver.gatewayIntent(obj)
 	if t == 'string' then
 		n = gatewayIntent[obj]
 	elseif t == 'number' then
-		n = gatewayIntent(obj) and obj
+		n = gatewayIntent(uint64_t(obj)) and obj
+	elseif t == 'cdata' then
+		if istype(int64_t, obj) or istype(uint64_t, obj) then
+			n = gatewayIntent(uint64_t(obj)) and obj
+		end
 	end
 	return n
 end
@@ -192,7 +200,11 @@ function Resolver.messageFlag(obj)
 	if t == 'string' then
 		n = messageFlag[obj]
 	elseif t == 'number' then
-		n = messageFlag(obj) and obj
+		n = messageFlag(uint64_t(obj)) and obj
+	elseif t == 'cdata' then
+		if istype(int64_t, obj) or istype(uint64_t, obj) then
+			n = messageFlag(uint64_t(obj)) and obj
+		end
 	end
 	return n
 end

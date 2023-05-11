@@ -216,7 +216,7 @@ end
 ]=]
 function Message:hideEmbeds()
 	local flags = bor(self._flags or 0, messageFlag.suppressEmbeds)
-	return self:_modify({flags = flags})
+	return self:_modify({flags = tonumber(flags)})
 end
 
 --[=[
@@ -227,7 +227,7 @@ end
 ]=]
 function Message:showEmbeds()
 	local flags = band(self._flags or 0, bnot(messageFlag.suppressEmbeds))
-	return self:_modify({flags = flags})
+	return self:_modify({flags = tonumber(flags)})
 end
 
 --[=[
