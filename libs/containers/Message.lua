@@ -102,6 +102,10 @@ function Message:_loadMore(data)
 		self._attachments = #data.attachments > 0 and data.attachments or nil
 	end
 
+	if data.sticker_items then
+		self._sticker_items = #data.sticker_items > 0 and data.sticker_items or nil
+	end
+
 end
 
 function Message:_addReaction(d)
@@ -453,6 +457,14 @@ function get.mentionedChannels(self)
 		end)
 	end
 	return self._mentioned_channels
+end
+
+--[=[@p ArrayIterable An iterable array of all stickers that are sent in this message.]=]
+function get.sticker_items(self)
+	if not self._stickers then
+		self._stickers = ArrayIterable(self._sticker_items, function(sticker) return sticker end)
+	end
+	return self._stickers
 end
 
 local usersMeta = {__index = function(_, k) return '@' .. k end}
