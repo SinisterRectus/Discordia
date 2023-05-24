@@ -312,13 +312,20 @@ function TextChannel:send(content)
 			}
 		end
 
+		local sticker
+		if tbl.sticker then
+			sticker = {Resolver.stickerId(tbl.sticker)}
+		end
+
 		data, err = self.client._api:createMessage(self._id, {
 			content = content,
 			tts = tbl.tts,
 			nonce = tbl.nonce,
 			embeds = embeds,
 			message_reference = refMessage,
-			allowed_mentions = refMention,
+			allowed_mentions = tbl.allowed_mentions or refMention,
+			sticker_ids = sticker,
+			flags = tbl.silent and 2^12 or nil,
 		}, files)
 
 	else

@@ -119,6 +119,7 @@ function Client:__init(options)
 	self._voice = VoiceManager(self)
 	self._role_map = {}
 	self._emoji_map = {}
+	self._sticker_map = {}
 	self._channel_map = {}
 	self._events = require('client/EventHandler')
 	self._intents = options.gatewayIntents
@@ -378,6 +379,7 @@ function Client:enableAllIntents()
 	for _, value in pairs(gatewayIntent) do
 		self._intents = bor(self._intents, value)
 	end
+	return self
 end
 
 --[=[
@@ -583,6 +585,20 @@ function Client:getEmoji(id)
 	id = Resolver.emojiId(id)
 	local guild = self._emoji_map[id]
 	return guild and guild._emojis:get(id)
+end
+
+--[=[
+@m getSticker
+@t mem
+@p id Sticker-ID-Resolvable
+@r Sticker
+@d Gets a sticker object by ID. The current user must be in the sticker's guild
+and the client must be running the appropriate shard that serves the sticker's guild.
+]=]
+function Client:getSticker(id)
+	id = Resolver.stickerId(id)
+	local guild = self._sticker_map[id]
+	return guild and guild._stickers:get(id)
 end
 
 --[=[

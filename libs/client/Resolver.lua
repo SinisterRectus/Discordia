@@ -86,6 +86,13 @@ function Resolver.emojiId(obj)
 	return int(obj)
 end
 
+function Resolver.stickerId(obj)
+	if isInstance(obj, classes.Sticker) then
+		return obj.id
+	end
+	return int(obj)
+end
+
 function Resolver.guildId(obj)
 	if isInstance(obj, classes.Guild) then
 		return obj.id
@@ -135,6 +142,13 @@ function Resolver.emoji(obj)
 		return obj.emojiHash
 	elseif isInstance(obj, classes.Activity) then
 		return obj.emojiHash
+	end
+	return tostring(obj)
+end
+
+function Resolver.sticker(obj)
+	if isInstance(obj, classes.Sticker) then
+		return obj.hash
 	end
 	return tostring(obj)
 end
