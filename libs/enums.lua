@@ -199,14 +199,20 @@ enums.permission = enum {
 }
 
 enums.messageFlag = enum {
-	crossposted          = flag(0),
-	isCrosspost          = flag(1),
-	suppressEmbeds       = flag(2),
-	sourceMessageDeleted = flag(3),
-	urgent               = flag(4),
-	hasThread            = flag(5),
-	ephemeral            = flag(6),
-	loading              = flag(7),
+	crossposted                = flag(0),
+	isCrosspost                = flag(1),
+	suppressEmbeds             = flag(2),
+	sourceMessageDeleted       = flag(3),
+	urgent                     = flag(4),
+	hasThread                  = flag(5),
+	ephemeral                  = flag(6),
+	loading                    = flag(7),
+	threadFailedToMentionRoles = flag(8),
+	-- unused                  = flag(9),
+	-- unused                  = flag(10),
+	-- unused                  = flag(11),
+	suppressNotification       = flag(12),
+	isVoiceMessage             = flag(14),
 }
 
 enums.gatewayIntent = enum {

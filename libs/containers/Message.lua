@@ -435,7 +435,7 @@ function get.mentionedEmojis(self)
 		local mentions = parseMentions(self._content, '<a?:[%w_]+:(%d+)>')
 		self._mentioned_emojis = ArrayIterable(mentions, function(id)
 			local guild = client._emoji_map[id]
-			return guild and guild._emojis:get(id)
+			return guild and guild._emojis:get(id) or nil
 		end)
 	end
 	return self._mentioned_emojis
@@ -459,12 +459,25 @@ function get.mentionedChannels(self)
 	return self._mentioned_channels
 end
 
---[=[@p ArrayIterable An iterable array of all stickers that are sent in this message.]=]
+--[=[@p Sticker ArrayIterable An iterable array of all stickers that are sent in this message.]=]
 function get.sticker_items(self)
 	if not self._stickers then
-		self._stickers = ArrayIterable(self._sticker_items, function(sticker) return sticker end)
+		local client = self.client
+		self._stickers = ArrayIterable(self._sticker_items, function(sticker)
+			if sticker.format_type == 1 then
+				local guild = client._sticker_map[sticker.id]
+				return guild and guild._stickers:get(sticker.id) or nil
+			else
+				-- return client:getSticker(sticker.id) ??
+			end
+		end)
 	end
 	return self._stickers
+end
+
+--[=[@p Sticker The first sticker that is sent in this message.]=]
+function get.sticker(self)
+	return self.sticker_items and self.sticker_items.first or nil
 end
 
 local usersMeta = {__index = function(_, k) return '@' .. k end}
