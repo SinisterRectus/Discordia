@@ -531,9 +531,9 @@ function get.roles(self)
 end
 
 --[=[@p name string If the member has a nickname, then this will be equivalent to that nickname.
-Otherwise, this is equivalent to `Member.user.username`.]=]
+Otherwise, this is equivalent to `Member.user.name`.]=]
 function get.name(self)
-	return self._nick or self._user._username
+	return self._nick or self._user.name
 end
 
 --[=[@p nickname string/nil The member's nickname, if one is set.]=]

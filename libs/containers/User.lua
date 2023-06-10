@@ -117,9 +117,9 @@ function get.bot(self)
 	return self._bot or false
 end
 
---[=[@p name string Equivalent to `User.username`.]=]
+--[=[@p name string Equivalent to `Used.globalName or User.username`.]=]
 function get.name(self)
-	return self._username
+	return self._global_name or self._username
 end
 
 --[=[@p username string The name of the user. This should be between 2 and 32 characters in length.]=]
@@ -127,20 +127,35 @@ function get.username(self)
 	return self._username
 end
 
---[=[@p discriminator number The discriminator of the user. This is a 4-digit string that is used to
-discriminate the user from other users with the same username.]=]
+--[=[@p globalName string/nil The global display name of the user.
+If set, this has priority over the a username in displays, but not over a guild nickname.]=]
+function get.globalName(self)
+	return self._global_name
+end
+
+--[=[@p discriminator number The discriminator of the user. This is a string that is used to
+discriminate the user from other users with the same username. Note that this will be "0" 
+for users with unique usernames.]=]
 function get.discriminator(self)
 	return self._discriminator
 end
 
---[=[@p tag string The user's username and discriminator concatenated by an `#`.]=]
+--[=[@p tag string The user's username if unique or username and discriminator concatenated by an `#`.]=]
 function get.tag(self)
-	return self._username .. '#' .. self._discriminator
+	if self._discriminator == "0" then
+		return self._username
+	else
+		return self._username .. '#' .. self._discriminator
+	end
 end
 
 function get.fullname(self)
 	self.client:_deprecated(self.__name, 'fullname', 'tag')
-	return self._username .. '#' .. self._discriminator
+	if self._discriminator == "0" then
+		return self._username
+	else
+		return self._username .. '#' .. self._discriminator
+	end
 end
 
 --[=[@p avatar string/nil The hash for the user's custom avatar, if one is set.]=]
