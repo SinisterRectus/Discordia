@@ -117,7 +117,7 @@ function get.bot(self)
 	return self._bot or false
 end
 
---[=[@p name string Equivalent to `Used.globalName or User.username`.]=]
+--[=[@p name string Equivalent to `User.globalName or User.username`.]=]
 function get.name(self)
 	return self._global_name or self._username
 end
