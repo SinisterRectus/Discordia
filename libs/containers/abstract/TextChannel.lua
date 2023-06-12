@@ -323,7 +323,6 @@ function TextChannel:send(content)
 			nonce = tbl.nonce,
 			embeds = embeds,
 			message_reference = refMessage,
-			allowed_mentions = tbl.allowed_mentions or refMention,
 			sticker_ids = sticker,
 			flags = tbl.silent and 2^12 or nil,
 		}, files)

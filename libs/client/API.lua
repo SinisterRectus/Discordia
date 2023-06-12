@@ -397,7 +397,7 @@ end
 
 function API:createGuildSticker(guild_id, payload) -- Guild:createSticker
 	local endpoint = f(endpoints.GUILD_STICKERS, guild_id)
-	return self:request("POST", endpoint, payload, nil, {payload.file})
+	return self:request("POST", endpoint, payload, nil, {{ "sticker.png", payload.image}})
 end
 
 function API:getGuildStickers(guild_id) -- not exposed, use cache

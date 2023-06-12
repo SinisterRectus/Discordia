@@ -212,7 +212,7 @@ enums.messageFlag = enum {
 	-- unused                  = flag(10),
 	-- unused                  = flag(11),
 	suppressNotification       = flag(12),
-	isVoiceMessage             = flag(14),
+	isVoiceMessage             = flag(13),
 }
 
 enums.gatewayIntent = enum {
