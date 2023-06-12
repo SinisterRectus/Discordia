@@ -318,7 +318,7 @@ function TextChannel:send(content)
 			nonce = tbl.nonce,
 			embeds = embeds,
 			message_reference = refMessage,
-			allowed_mentions = tbl.allowed_mentions or refMention,
+			allowed_mentions = refMention,
 		}, files)
 
 	else
