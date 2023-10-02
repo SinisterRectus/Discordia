@@ -352,6 +352,7 @@ end
 voice connection in the current guild. Due to complexities in voice state
 handling, the member's `voiceChannel` property will update asynchronously via
 WebSocket; not as a result of the HTTP request.
+Not supplying an ID will result in the member being disconnected from the channel.
 ]=]
 function Member:setVoiceChannel(id)
 	id = id and Resolver.channelId(id)
