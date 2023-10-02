@@ -248,7 +248,7 @@ end
 @p data table
 @r boolean
 @d Sets multiple properties of the message at the same time using a table similar
-to the one supported by `TextChannel.send`, except only `content` and `embed`
+to the one supported by `TextChannel.send`, except only `content` and `embed(s)`
 are valid fields; `mention(s)`, `file(s)`, etc are not supported. The message
 must be authored by the current user. (ie: you cannot change the embed of messages
 sent by other users).
@@ -257,6 +257,7 @@ function Message:update(data)
 	return self:_modify({
 		content = data.content or null,
 		embed = data.embed or null,
+		embeds = data.embeds or null,
 		allowed_mentions = {
 			parse = {'users', 'roles', 'everyone'},
 			replied_user = not not self._reply_target,
