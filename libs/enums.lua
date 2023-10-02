@@ -1,6 +1,14 @@
+local ffi = require('ffi')
+local istype = ffi.istype
+local uint64_t = ffi.typeof('uint64_t')
+
 local function enum(tbl)
 	local call = {}
 	for k, v in pairs(tbl) do
+		if istype(uint64_t, v) then
+			v = tonumber(v)
+		end
+
 		if call[v] then
 			return error(string.format('enum clash for %q and %q', k, call[v]))
 		end
@@ -8,6 +16,9 @@ local function enum(tbl)
 	end
 	return setmetatable({}, {
 		__call = function(_, k)
+			if istype(uint64_t, k) then
+				k = tonumber(k)
+			end
 			if call[k] then
 				return call[k]
 			else
@@ -155,47 +166,57 @@ enums.premiumTier = enum {
 }
 
 local function flag(n)
-	return 2^n
+	return 2ULL^n
 end
 
 enums.permission = enum {
-	createInstantInvite = flag(0),
-	kickMembers         = flag(1),
-	banMembers          = flag(2),
-	administrator       = flag(3),
-	manageChannels      = flag(4),
-	manageGuild         = flag(5),
-	addReactions        = flag(6),
-	viewAuditLog        = flag(7),
-	prioritySpeaker     = flag(8),
-	stream              = flag(9),
-	readMessages        = flag(10),
-	sendMessages        = flag(11),
-	sendTextToSpeech    = flag(12),
-	manageMessages      = flag(13),
-	embedLinks          = flag(14),
-	attachFiles         = flag(15),
-	readMessageHistory  = flag(16),
-	mentionEveryone     = flag(17),
-	useExternalEmojis   = flag(18),
-	viewGuildInsights   = flag(19),
-	connect             = flag(20),
-	speak               = flag(21),
-	muteMembers         = flag(22),
-	deafenMembers       = flag(23),
-	moveMembers         = flag(24),
-	useVoiceActivity    = flag(25),
-	changeNickname      = flag(26),
-	manageNicknames     = flag(27),
-	manageRoles         = flag(28),
-	manageWebhooks      = flag(29),
-	manageEmojis        = flag(30),
-	useSlashCommands    = flag(31),
-	requestToSpeak      = flag(32),
-	manageEvents        = flag(33),
-	manageThreads       = flag(34),
-	usePublicThreads    = flag(35),
-	usePrivateThreads   = flag(36),
+	createInstantInvite  = flag(0),
+	kickMembers          = flag(1),
+	banMembers           = flag(2),
+	administrator        = flag(3),
+	manageChannels       = flag(4),
+	manageGuild          = flag(5),
+	addReactions         = flag(6),
+	viewAuditLog         = flag(7),
+	prioritySpeaker      = flag(8),
+	stream               = flag(9),
+	readMessages         = flag(10),
+	sendMessages         = flag(11),
+	sendTextToSpeech     = flag(12),
+	manageMessages       = flag(13),
+	embedLinks           = flag(14),
+	attachFiles          = flag(15),
+	readMessageHistory   = flag(16),
+	mentionEveryone      = flag(17),
+	useExternalEmojis    = flag(18),
+	viewGuildInsights    = flag(19),
+	connect              = flag(20),
+	speak                = flag(21),
+	muteMembers          = flag(22),
+	deafenMembers        = flag(23),
+	moveMembers          = flag(24),
+	useVoiceActivity     = flag(25),
+	changeNickname       = flag(26),
+	manageNicknames      = flag(27),
+	manageRoles          = flag(28),
+	manageWebhooks       = flag(29),
+	manageEmojis         = flag(30),
+	useSlashCommands     = flag(31),
+	requestToSpeak       = flag(32),
+	manageEvents         = flag(33),
+	manageThreads        = flag(34),
+	usePublicThreads     = flag(35),
+	usePrivateThreads    = flag(36),
+	useExternalStickers  = flag(37),
+	sendMessagesThreads  = flag(38),
+	useVoiceActivities   = flag(39),
+	moderateMembers      = flag(40),
+	viewCreatorAnalytics = flag(41),
+	useSoundboard        = flag(42),
+	-- unused            = flag(43),
+	-- unused            = flag(44),
+	-- unused            = flag(45),
+	sendVoiceMessages    = flag(46),
 }
 
 enums.messageFlag = enum {

@@ -222,7 +222,7 @@ function Shard:identify()
 		large_threshold = options.largeThreshold,
 		shard = {self._id, client._total_shard_count},
 		presence = next(client._presence) and client._presence,
-		intents = client._intents,
+		intents = tonumber(client._intents),
 	}, true)
 
 end

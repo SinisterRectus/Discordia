@@ -55,6 +55,9 @@ local function getPermissions(self)
 end
 
 local function setPermissions(self, allow, deny)
+	allow = string.format('%i', allow):match('^(%d+)')
+	deny = string.format('%i', deny):match('^(%d+)')
+
 	local data, err = self.client._api:editChannelPermissions(self._parent._id, self._id, {
 		allow = allow, deny = deny, type = self._type
 	})
