@@ -144,7 +144,7 @@ function Client:_deprecated(clsName, before, after)
 	)
 end
 
-local function run(self, token)
+local function run(self, token, bot=true)
 
 	self:info('Discordia %s', package.version)
 	self:info('Connecting to Discord...')
@@ -158,12 +158,20 @@ local function run(self, token)
 		options.cacheAllMembers = false
 	end
 
-	local user, err1 = api:authenticate(token)
+	if bot == true then
+		newToken = "Bot " .. token
+	elseif bot == false then
+		newToken = token
+	else 
+		return self:error('Invaild option for the bot arguement in the run function')
+	end
+
+	local user, err1 = api:authenticate(newToken)
 	if not user then
 		return self:error('Could not authenticate, check token: ' .. err1)
 	end
 	self._user = users:_insert(user)
-	self._token = token
+	self._token = newToken
 
 	self:info('Authenticated as %s#%s', user.username, user.discriminator)
 
