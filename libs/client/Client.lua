@@ -158,6 +158,8 @@ local function run(self, token, bot=true)
 		options.cacheAllMembers = false
 	end
 
+	local user, err1 = api:authenticate(token)
+
 	if bot == true then
 		newToken = "Bot " .. token
 	elseif bot == false then
