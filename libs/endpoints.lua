@@ -25,6 +25,8 @@ return {
 	GUILD_EMBED                   = "/guilds/%s/embed",
 	GUILD_EMOJI                   = "/guilds/%s/emojis/%s",
 	GUILD_EMOJIS                  = "/guilds/%s/emojis",
+	GUILD_STICKER                 = "/guilds/%s/stickers/%s",
+	GUILD_STICKERS                = "/guilds/%s/stickers",
 	GUILD_INTEGRATION             = "/guilds/%s/integrations/%s",
 	GUILD_INTEGRATIONS            = "/guilds/%s/integrations",
 	GUILD_INTEGRATION_SYNC        = "/guilds/%s/integrations/%s/sync",

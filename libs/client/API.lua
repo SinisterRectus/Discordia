@@ -395,6 +395,31 @@ function API:deleteGuildEmoji(guild_id, emoji_id) -- Emoji:delete
 	return self:request("DELETE", endpoint)
 end
 
+function API:createGuildSticker(guild_id, payload) -- Guild:createSticker
+	local endpoint = f(endpoints.GUILD_STICKERS, guild_id)
+	return self:request("POST", endpoint, payload, nil, {{ "sticker.png", payload.image}})
+end
+
+function API:getGuildStickers(guild_id) -- not exposed, use cache
+	local endpoint = f(endpoints.GUILD_STICKERS, guild_id)
+	return self:request("GET", endpoint)
+end
+
+function API:getGuildSticker(guild_id, sticker_id) -- Guild:getSticker
+	local endpoint = f(endpoints.GUILD_STICKER, guild_id, sticker_id)
+	return self:request("GET", endpoint)
+end
+
+function API:modifyGuildSticker(guild_id, sticker_id, payload) -- Sticker:_modify
+	local endpoint = f(endpoints.GUILD_STICKER, guild_id, sticker_id)
+	return self:request("PATCH", endpoint, payload)
+end
+
+function API:deleteGuildSticker(guild_id, sticker_id) -- Sticker:delete
+	local endpoint = f(endpoints.GUILD_STICKER, guild_id, sticker_id)
+	return self:request("DELETE", endpoint)
+end
+
 function API:createGuild(payload) -- Client:createGuild
 	local endpoint = endpoints.GUILDS
 	return self:request("POST", endpoint, payload)

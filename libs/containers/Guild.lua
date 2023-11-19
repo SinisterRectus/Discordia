@@ -7,6 +7,7 @@ channels, and roles that represents one community.
 local Cache = require('iterables/Cache')
 local Role = require('containers/Role')
 local Emoji = require('containers/Emoji')
+local Sticker = require('containers/Sticker')
 local Invite = require('containers/Invite')
 local Webhook = require('containers/Webhook')
 local Ban = require('containers/Ban')
@@ -31,6 +32,7 @@ function Guild:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self._roles = Cache({}, Role, self)
 	self._emojis = Cache({}, Emoji, self)
+	self._stickers = Cache({}, Sticker, self)
 	self._members = Cache({}, Member, self)
 	self._text_channels = Cache({}, GuildTextChannel, self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, self)
@@ -56,6 +58,7 @@ function Guild:_makeAvailable(data)
 
 	self._roles:_load(data.roles)
 	self._emojis:_load(data.emojis)
+	self._stickers:_load(data.stickers)
 	self:_loadMore(data)
 
 	if not data.channels then return end -- incomplete guild
@@ -196,6 +199,18 @@ function Guild:getEmoji(id)
 end
 
 --[=[
+@m getSticker
+@t mem
+@p id Sticker-ID-Resolvable
+@r Sticker
+@d Gets a sticker object by ID.
+]=]
+function Guild:getSticker(id)
+	id = Resolver.stickerId(id)
+	return self._stickers:get(id)
+end
+
+--[=[
 @m getChannel
 @t mem
 @p id Channel-ID-Resolvable
@@ -289,6 +304,28 @@ function Guild:createEmoji(name, image)
 	local data, err = self.client._api:createGuildEmoji(self._id, {name = name, image = image})
 	if data then
 		return self._emojis:_insert(data)
+	else
+		return nil, err
+	end
+end
+
+--[=[
+@m createSticker
+@t http
+@p name string
+@p description string
+@p tags string
+@p file Base64-Resolvable
+@r Sticker
+@d Creates a new sticker in this guild. The name must be between 2 and 30 characters. The description
+must be between 2 and 100 characters, and the tags must be between 2 and 200 characters. The file must
+be a PNG, APNG, or LOTTIE file, and must be under 500kb and 320x320 pixels.
+]=]
+function Guild:createSticker(name, description, tags, file)
+	file = Resolver.base64(file)
+	local data, err = self.client._api:createGuildSticker(self._id, {name = name, description = description, tags = tags, file = file})
+	if data then
+		return self._stickers:_insert(data)
 	else
 		return nil, err
 	end
@@ -890,6 +927,11 @@ end
 unicode emojis are not found here; only custom emojis.]=]
 function get.emojis(self)
 	return self._emojis
+end
+
+--[=[@p stickers Cache An iterable cache of all stickers that exist in this guild.]=]
+function get.stickers(self)
+	return self._stickers
 end
 
 --[=[@p members Cache An iterable cache of all members that exist in this guild and have been
