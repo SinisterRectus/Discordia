@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.12.0
+- Added support for stickers (@Ta-noshii)
+	- Added `Sticker` class
+	- Added `Client:getSticker`
+	- Added `Guild:getSticker`
+	- Added `Guild:createSticker`
+	- Added `Guild.stickers`
+	- Added `Message.sticker`
+	- Added `Message.stickers`
+- Added support for unique and global usernames
+- Added support for the raw `embeds` field in `Message:update`
+- Fixed a bug in `Member:getPermissions`
+- Fixed a bug in `PermissionOverwrite:getObject`
+- Fixed a bug in voice connection server discovery
+
 ## 2.11.2
 - Fixes a crash when messages are received in voice channels
 
