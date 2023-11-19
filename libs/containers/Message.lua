@@ -463,7 +463,7 @@ function get.mentionedChannels(self)
 end
 
 --[=[@p Sticker ArrayIterable An iterable array of all stickers that are sent in this message.]=]
-function get.sticker_items(self)
+function get.stickers(self)
 	if not self._stickers then
 		local client = self.client
 		self._stickers = ArrayIterable(self._sticker_items, function(sticker)
@@ -480,7 +480,7 @@ end
 
 --[=[@p Sticker The first sticker that is sent in this message.]=]
 function get.sticker(self)
-	return self.sticker_items and self.sticker_items.first or nil
+	return self.stickers and self.stickers.first or nil
 end
 
 local usersMeta = {__index = function(_, k) return '@' .. k end}
