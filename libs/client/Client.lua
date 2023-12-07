@@ -67,6 +67,7 @@ local defaultOptions = {
 	bitrate = 64000,
 	logFile = 'discordia.log',
 	logLevel = logLevel.info,
+	logFullErrors = false,
 	gatewayFile = 'gateway.json',
 	dateTime = '%F %T',
 	syncGuilds = false,
@@ -107,7 +108,7 @@ function Client:__init(options)
 	options = assert(parseOptions(options))
 	self._options = options
 	self._shards = {}
-	self._api = API(self)
+	self._api = API(self, options.logFullErrors)
 	self._mutex = Mutex()
 	self._users = Cache({}, User, self)
 	self._guilds = Cache({}, Guild, self)
