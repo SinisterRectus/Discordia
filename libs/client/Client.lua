@@ -108,7 +108,7 @@ function Client:__init(options)
 	options = assert(parseOptions(options))
 	self._options = options
 	self._shards = {}
-	self._api = API(self, options.logFullErrors)
+	self._api = API(self)
 	self._mutex = Mutex()
 	self._users = Cache({}, User, self)
 	self._guilds = Cache({}, Guild, self)

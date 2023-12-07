@@ -113,10 +113,9 @@ end
 
 local API = require('class')('API')
 
-function API:__init(client, logFullErrors)
+function API:__init(client)
 	self._client = client
 	self._mutexes = setmetatable({}, mutexMeta)
-	self._logFullErrors = logFullErrors
 end
 
 function API:authenticate(token)
@@ -238,7 +237,7 @@ function API:commit(method, url, req, payload, retries)
 		end
 
 		local errMsg = f('%i - %s : %s %s', res.code, res.reason, method, url)
-		if self._logFullErrors then
+		if options.logFullErrors then
 			errMsg = errMsg .. "\n" .. msg
 		end
 		client:error(errMsg)
