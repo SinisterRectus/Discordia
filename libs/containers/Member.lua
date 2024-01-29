@@ -208,7 +208,7 @@ function Member:getPermissions(channel)
 
 		local everyone = overwrites:get(guild.id)
 		if everyone then
-			ret = ret:complement(everyone:getDeniedPermissions())
+			ret = everyone:getDeniedPermissions():complement(ret)
 			ret = ret:union(everyone:getAllowedPermissions())
 		end
 
@@ -222,12 +222,12 @@ function Member:getPermissions(channel)
 				end
 			end
 		end
-		ret = ret:complement(deny)
+		ret = deny:complement(ret)
 		ret = ret:union(allow)
 
 		local overwrite = overwrites:get(self.id)
 		if overwrite then
-			ret = ret:complement(overwrite:getDeniedPermissions())
+			ret = overwrite:getDeniedPermissions():complement(ret)
 			ret = ret:union(overwrite:getAllowedPermissions())
 		end
 
