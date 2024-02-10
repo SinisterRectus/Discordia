@@ -38,6 +38,7 @@ enums.defaultAvatar = enum {
 	green   = 2,
 	orange  = 3,
 	red     = 4,
+	pink    = 5,
 }
 
 enums.notificationSetting = enum {
@@ -62,6 +63,7 @@ enums.channelType = enum {
 	stageVoice    = 13,
 	directory     = 14,
 	forum         = 15,
+	media         = 16,
 }
 
 enums.webhookType = enum {
@@ -101,8 +103,9 @@ enums.messageType = enum {
 	stageStart                     = 27,
 	stageEnd                       = 28,
 	stageSpeaker                   = 29,
-	stageTopic                     = 30,
-	applicationPremiumSubscription = 31,
+	-- unused                      = 30,
+	stageTopic                     = 31,
+	applicationPremiumSubscription = 32,
 }
 
 enums.relationshipType = enum {
@@ -209,8 +212,8 @@ enums.permission = enum {
 	moderateMembers       = flag(40),
 	monetizationAnalytics = flag(41),
 	useSoundboard         = flag(42),
-	-- unused             = flag(43),
-	-- unused             = flag(44),
+	createExpressions     = flag(43),
+	createEvents          = flag(44),
 	useExternalSounds     = flag(45),
 	sendVoiceMessages     = flag(46),
 }
