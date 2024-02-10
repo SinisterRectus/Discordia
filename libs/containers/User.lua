@@ -166,7 +166,11 @@ end
 --[=[@p defaultAvatar number The user's default avatar. See the `defaultAvatar` enumeration for a
 human-readable representation.]=]
 function get.defaultAvatar(self)
-	return self._discriminator % DEFAULT_AVATARS
+	if self._discriminator == '0' then
+		return (self._id / 2^22) % 6
+	else
+		return self._discriminator % 5
+	end
 end
 
 --[=[@p avatarURL string Equivalent to the result of calling `User:getAvatarURL()`.]=]
