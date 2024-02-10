@@ -367,12 +367,13 @@ end
 function EventHandler.MESSAGE_REACTION_ADD(d, client)
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_ADD') end
+	local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
+	client:emit('reactionAddAny', channel, d.message_id, k, d.user_id)
 	local message = channel._messages:get(d.message_id)
 	if message then
 		local reaction = message:_addReaction(d)
 		return client:emit('reactionAdd', reaction, d.user_id)
 	else
-		local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
 		return client:emit('reactionAddUncached', channel, d.message_id, k, d.user_id)
 	end
 end
@@ -380,6 +381,8 @@ end
 function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_REMOVE') end
+	local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
+	client:emit('reactionRemoveAny', channel, d.message_id, k, d.user_id)
 	local message = channel._messages:get(d.message_id)
 	if message then
 		local reaction = message:_removeReaction(d)
@@ -389,7 +392,6 @@ function EventHandler.MESSAGE_REACTION_REMOVE(d, client)
 		end
 		return client:emit('reactionRemove', reaction, d.user_id)
 	else
-		local k = d.emoji.id ~= null and d.emoji.id or d.emoji.name
 		return client:emit('reactionRemoveUncached', channel, d.message_id, k, d.user_id)
 	end
 end
@@ -397,6 +399,7 @@ end
 function EventHandler.MESSAGE_REACTION_REMOVE_ALL(d, client)
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_REACTION_REMOVE_ALL') end
+	client:emit('reactionRemoveAllAny', channel, d.message_id)
 	local message = channel._messages:get(d.message_id)
 	if message then
 		local reactions = message._reactions
