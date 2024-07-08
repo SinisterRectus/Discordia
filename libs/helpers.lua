@@ -1,159 +1,92 @@
 local uv = require('uv')
-local Iterable = require('./utils/Iterable')
 
-local hrtime = uv.hrtime
-local insert, concat = table.insert, table.concat
-local random = math.random
-local format, byte, gsub = string.format, string.byte, string.gsub
-local resume, yield, running = coroutine.resume, coroutine.yield, coroutine.running
+-- local function merge(sink, source)
+-- 	for k, v in pairs(source) do
+-- 		sink[k] = v
+-- 	end
+-- 	return sink
+-- end
 
-local function nonce(size)
-	local buf = {}
-	for i = 1, size do
-		buf[i] = random(0, 9)
-	end
-	return concat(buf)
-end
-
-local function toPercent(char)
-	return format('%%%02X', byte(char))
-end
-
-local function urlEncode(obj)
-	return (gsub(tostring(obj), '%W', toPercent))
-end
-
-local function attachQuery(url, query)
-	local first = true
-	for k, v in pairs(query) do
-		insert(url, first and '?' or '&')
-		insert(url, urlEncode(k))
-		insert(url, '=')
-		insert(url, urlEncode(v))
-		first = false
-	end
-end
+-- local function has(tbl, value)
+-- 	for _, v in pairs(tbl) do
+-- 		if v == value then return true end
+-- 	end
+-- end
 
 local function benchmark(n, fn, ...)
 
 	local _ = {}
 
-	collectgarbage()
-	collectgarbage()
+	collectgarbage('collect')
+	collectgarbage('collect')
+	collectgarbage('stop')
+
 	local m1 = collectgarbage('count')
-	local t1 = hrtime()
+	local t1 = uv.hrtime()
 
 	for i = 1, n do
 		_[i] = fn(...)
 	end
 
-	collectgarbage()
-	collectgarbage()
+	local t2 = uv.hrtime()
 	local m2 = collectgarbage('count')
-	local t2 = hrtime()
 
-	return (m2 - m1) / n, (t2 - t1) / n
+	collectgarbage('restart')
 
-end
+	return (t2 - t1) / n, (m2 - m1) / n, ...
 
-local function str2int(str, base)
-
-	local i = 1
-	local n = 0ULL
-	local neg = false
-	base = base or 10
-
-	str = str:match('^%s*(.-)%s*$')
-
-	if str:sub(i, i) == '-' then
-		neg = true
-		i = i + 1
-	elseif str:sub(i, i) == '+' then
-		i = i + 1
-	end
-
-	local s = #str
-	repeat
-		local digit = tonumber(str:sub(i, i), base)
-		if not digit then
-			return nil
-		end
-		n = n * base + digit
-		i = i + 1
-	until i > s
-
-	return neg and -n or n
-
-end
-
-local function readOnly(tbl)
-	tbl = tbl or {}
-	return setmetatable({}, {
-		__index = function(_, k)
-			return tbl[k]
-		end,
-		__pairs = function()
-			local k, v
-			return function()
-				k, v = next(tbl, k)
-				return k, v
-			end
-		end,
-		__ipairs = function()
-			local i = 0
-			return function()
-				i = i + 1
-				if i <= #tbl then return i, tbl[i] end
-			end
-		end,
-		__len = function()
-			return #tbl
-		end
-	})
-end
-
-local function structs(constructor, data)
-	if data and data[1] then
-		for i, v in ipairs(data) do
-			data[i] = constructor(v)
-		end
-		return Iterable(data)
-	end
 end
 
 local function assertResume(thread, ...)
-	local success, err = resume(thread, ...)
+	local success, err = coroutine.resume(thread, ...)
 	if not success then
 		error(debug.traceback(thread, err), 0)
 	end
-end
-
-local function sleep(ms)
-	local thread = running()
-	local timer = uv.new_timer()
-	timer:start(ms, 0, function()
-		timer:close()
-		return assertResume(thread)
-	end)
-	return yield()
+	-- return assert(coroutine.resume(thread, ...))
 end
 
 local function setTimeout(ms, callback, ...)
 	local timer = uv.new_timer()
-	local args, n = {...}, select('#', ...)
-	timer:start(ms, 0, function()
-		timer:close()
-		return callback(unpack(args, 1, n))
-	end)
+	local n = select('#', ...)
+	if n == 0 then
+		timer:start(ms, 0, function()
+			timer:close()
+			return callback()
+		end)
+	elseif n == 1 then
+		local arg = ...
+		timer:start(ms, 0, function()
+			timer:close()
+			return callback(arg)
+		end)
+	else
+		local args = {...}
+		timer:start(ms, 0, function()
+			timer:close()
+			return callback(unpack(args, 1, n))
+		end)
+	end
 	return timer
 end
 
 local function setInterval(ms, callback, ...)
 	local timer = uv.new_timer()
-	local args, n = {...}, select('#', ...)
-	timer:start(ms, ms, function()
-		return callback(unpack(args, 1, n))
-	end)
+	local n = select('#', ...)
+	if n == 0 then
+		timer:start(ms, 0, function()
+			return callback()
+		end)
+	elseif n == 1 then
+		local arg = ...
+		timer:start(ms, 0, function()
+			return callback(arg)
+		end)
+	else
+		local args = {...}
+		timer:start(ms, 0, function()
+			return callback(unpack(args, 1, n))
+		end)
+	end
 	return timer
 end
 
@@ -163,17 +96,21 @@ local function clearTimer(timer)
 	timer:close()
 end
 
+local function sleep(ms)
+	local thread = coroutine.running()
+	local timer = uv.new_timer()
+	timer:start(ms, 0, function()
+		timer:close()
+		return assertResume(thread)
+	end)
+	return coroutine.yield()
+end
+
 return {
-	nonce = nonce,
-	urlEncode = urlEncode,
-	attachQuery = attachQuery,
 	benchmark = benchmark,
-	str2int = str2int,
-	readOnly = readOnly,
-	structs = structs,
 	assertResume = assertResume,
-	sleep = sleep,
 	setTimeout = setTimeout,
 	setInterval = setInterval,
 	clearTimer = clearTimer,
+	sleep = sleep,
 }

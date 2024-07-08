@@ -6,7 +6,7 @@ local assertTrue = utils.assertTrue
 local assertError = utils.assertError
 
 local a = 10
-local n = 3
+local n = 5
 
 local function run(fn, ...)
 	return coroutine.wrap(fn)(...)
@@ -16,7 +16,7 @@ do
 	local done = {}
 	for i = n, 1, -1 do
 		run(function()
-			sleep(a ^ i)
+			sleep(a * i)
 			done[i] = true
 			for j = 1, i do
 				assertTrue(done[j])
@@ -31,7 +31,7 @@ do
 	for i = n, 1, -1 do
 		run(function()
 			mutex:lock()
-			sleep(a ^ i)
+			sleep(a * i)
 			done[i] = true
 			for j = i, n do
 				assertTrue(done[j])
@@ -47,7 +47,7 @@ do
 	for i = n, 1, -1 do
 		run(function()
 			mutex:lock()
-			mutex:unlockAfter(a ^ i)
+			mutex:unlockAfter(a * i)
 			done[i] = true
 			for j = i, n do
 				assertTrue(done[j])

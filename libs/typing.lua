@@ -1,29 +1,21 @@
-local fs = require('fs')
 local json = require('json')
-local ssl = require('openssl')
-
-local base64 = ssl.base64
-local format = string.format
-local readFileSync = fs.readFileSync
+local f = string.format
 
 local function typeError(expected, received)
-	return error(format('expected %s, received %s', expected, received), 2)
+	return error(f('expected %s, received %s', expected, received), 2)
 end
 
-local typing = {}
-
-function typing.opt(obj, fn, extra)
+local function opt(obj, fn, extra)
 	if obj == nil or obj == json.null then
 		return obj
-	end
-	if extra then
+	elseif extra then
 		return fn(extra, obj)
 	else
 		return fn(obj)
 	end
 end
 
-function typing.checkType(expected, obj)
+local function checkType(expected, obj)
 	local received = type(obj)
 	if received ~= expected then
 		return typeError(expected, received)
@@ -31,7 +23,7 @@ function typing.checkType(expected, obj)
 	return obj
 end
 
-function typing.checkNumber(obj, base, mn, mx)
+local function checkNumber(obj, base, mn, mx)
 	local success, n = pcall(tonumber, obj, base)
 	if not success or not n then
 		return typeError('number', type(obj))
@@ -45,7 +37,7 @@ function typing.checkNumber(obj, base, mn, mx)
 	return n
 end
 
-function typing.checkInteger(obj, base, mn, mx)
+local function checkInteger(obj, base, mn, mx)
 	local success, n = pcall(tonumber, obj, base)
 	if not success or not n then
 		return typeError('integer', type(obj))
@@ -62,120 +54,61 @@ function typing.checkInteger(obj, base, mn, mx)
 	return n
 end
 
-function typing.checkCallable(obj)
+local function checkString(obj, mn, mx)
+	local str = tostring(obj)
+	if not str then
+		return typeError('string', type(obj))
+	end
+	local n = #str
+	if mn and n < mn then
+		return typeError('minimum length ' .. mn, n)
+	end
+	if mx and n > mx then
+		return typeError('maximum length ' .. mx, n)
+	end
+	return str
+end
+
+local function checkStringStrict(obj, mn, mx)
+	if type(obj) ~= 'string' then
+		return typeError('string', type(obj))
+	end
+	local n = #obj
+	if mn and n < mn then
+		return typeError('minimum length ' .. mn, n)
+	end
+	if mx and n > mx then
+		return typeError('maximum length ' .. mx, n)
+	end
+	return obj
+end
+
+local function checkCallable(obj)
 	if type(obj) == 'function' then
 		return obj
-	else
-		local meta = getmetatable(obj)
-		if meta and type(meta.__call) == 'function' then
-			return obj
-		end
+	end
+	local meta = getmetatable(obj)
+	if meta and type(meta.__call) == 'function' then
+		return obj
 	end
 	return typeError('callable', type(obj))
 end
 
-function typing.checkArray(fn, arr)
-	local ret = {}
-	for _, obj in ipairs(typing.checkType('table', arr)) do
-		ret[#ret + 1] = fn(obj)
-	end
-	return ret
-end
-
-function typing.checkEnum(enum, obj)
-	local _, v = enum(obj)
-	return v
-end
-
-function typing.checkSnowflake(obj)
+local function checkSnowflake(obj)
 	local t = type(obj)
 	if t == 'string' and tonumber(obj) then
 		return obj
 	elseif t == 'number' and obj < 2^32 then
-		return format('%i', obj)
+		return f('%i', obj)
 	elseif t == 'table' then
-		return typing.checkSnowflake(obj.id)
-	elseif t == 'cdata' and tonumber(obj) then
-		return tostring(obj):match('%d*')
+		return checkSnowflake(obj.id)
 	end
 	return error('Snowflake ID should be an integral string', 2)
 end
 
-local function imageType(data)
-	if data:sub(1, 8) == '\x89\x50\x4E\x47\x0D\x0A\x1A\x0A' then
-		return 'image/png'
-	elseif data:sub(1, 3) == '\xFF\xD8\xFF' then
-		return 'image/jpeg'
-	elseif data:sub(1, 6) == '\x47\x49\x46\x38\x37\x61' then
-		return 'image/gif'
-	elseif data:sub(1, 6) == '\x47\x49\x46\x38\x39\x61' then
-		return 'image/gif'
-	elseif data:sub(1, 4) == 'RIFF' and data:sub(9, 12) == 'WEBP' then
-		return 'image/webp'
-	end
-end
-
-function typing.checkImageData(str)
-	local t = type(str)
-	if t ~= 'string' then
-		return typeError('image', t)
-	end
-	local data = readFileSync(str) or str
-	t = imageType(data)
-	if not t then
-		return typeError('image', type(data))
-	end
-	return 'data:' .. t .. ';base64,' .. base64(data)
-end
-
-local sizes = {
-	[16] = true, [32] = true,
-	[64] = true, [128] = true,
-	[256] = true, [1024] = true,
-	[2048] = true, [4096] = true,
+return {
+	checkType = checkType,
+	checkNumber = checkNumber,
+	checkInteger = checkInteger,
+	checkSnowflake = checkSnowflake,
 }
-
-function typing.checkImageSize(size)
-	if not sizes[size] then
-		return error('invalid image size; must be a power of 2 between 16 and 4096', 2)
-	end
-	return size
-end
-
-local extensions = {
-	['jpg'] = true,
-	['jpeg'] = true,
-	['png'] = true,
-	['webp'] = true,
-	['gif'] = true,
-}
-
-function typing.checkImageExtension(ext)
-	if not extensions[ext] then
-		return error('invalid image extension; must be one of: jpg, jpeg, png, webp, gif', 2)
-	end
-	return ext
-end
-
-function typing.checkOptions(customOptions, defaultOptions)
-	local options = {}
-	for k, v in pairs(defaultOptions) do
-		options[k] = v[1]
-	end
-	if type(customOptions) == 'table' then
-		for k, v in pairs(customOptions) do
-			local default = defaultOptions[k]
-			if not default then
-				return error(format('invalid option %q', k), 3)
-			end
-			local success, res = pcall(default[2], v)
-			if not success then
-				return error(format('invalid option %q: %s', k, res), 3)
-			end
-			options[k] = res
-		end
-	end
-	return options
-end
-
-return typing

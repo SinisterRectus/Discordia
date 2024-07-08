@@ -1,6 +1,15 @@
-local helpers = require('../libs/helpers')
-
+local uv = require('uv')
 local f = string.format
+
+local function sleep(ms)
+	local thread = coroutine.running()
+	local timer = uv.new_timer()
+	timer:start(ms, 0, function()
+		timer:close()
+		return assert(thread)
+	end)
+	return coroutine.yield()
+end
 
 local function assertEqual(a, b)
 	if a ~= b then
@@ -32,7 +41,7 @@ local function assertError(fn, expected)
 end
 
 return {
-	sleep = helpers.sleep,
+	sleep = sleep,
 	assertEqual = assertEqual,
 	assertTrue = assertTrue,
 	assertFalse = assertFalse,

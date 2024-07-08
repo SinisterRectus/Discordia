@@ -4,7 +4,6 @@ local constants = require('../constants')
 local Time = require('./Time')
 
 local hrtime = uv.hrtime
-
 local NS_PER_US = constants.NS_PER_US
 
 local Stopwatch = class('Stopwatch')

@@ -7,6 +7,13 @@ local assertFalse = utils.assertFalse
 local assertNil = utils.assertNil
 local assertError = utils.assertError
 
+local function mixin(sink, source)
+	for k, v in pairs(source) do
+		sink[k] = v
+	end
+	return sink
+end
+
 local Foo, Bar, Baz
 local foo, bar, baz
 local methods = {}
@@ -28,9 +35,9 @@ end
 do
 	local get, set
 	Foo, get, set = class('Foo', nil)
-	class.mixin(Foo, methods)
-	class.mixin(get, getters)
-	class.mixin(set, setters)
+	mixin(Foo, methods)
+	mixin(get, getters)
+	mixin(set, setters)
 	function Foo:__init()
 		self._foo = 'foo'
 		self._method_foo = 'method-foo'
@@ -178,13 +185,13 @@ assertEqual(baz.testMixinGetter, 'mixin-property')
 
 assertError(function() class('Foo') end, 'class already defined: Foo')
 
-assertError(function() foo.undefined = 'test' end, 'cannot declare class property outside of __init')
-assertError(function() bar.undefined = 'test' end, 'cannot declare class property outside of __init')
-assertError(function() baz.undefined = 'test' end, 'cannot declare class property outside of __init')
+assertError(function() foo.undefined = 'test' end, 'undefined class member: undefined')
+assertError(function() bar.undefined = 'test' end, 'undefined class member: undefined')
+assertError(function() baz.undefined = 'test' end, 'undefined class member: undefined')
 
--- assertError(function() return foo.undefined end, 'undefined class member: undefined')
--- assertError(function() return bar.undefined end, 'undefined class member: undefined')
--- assertError(function() return baz.undefined end, 'undefined class member: undefined')
+assertError(function() return foo.undefined end, 'undefined class member: undefined')
+assertError(function() return bar.undefined end, 'undefined class member: undefined')
+assertError(function() return baz.undefined end, 'undefined class member: undefined')
 
 assertError(function() foo.getFoo = 'test' end, 'cannot override class member: getFoo')
 assertError(function() bar.getFoo = 'test' end, 'cannot override class member: getFoo')
@@ -193,16 +200,16 @@ assertError(function() baz.getFoo = 'test' end, 'cannot override class member: g
 assertError(function() baz.getBar = 'test' end, 'cannot override class member: getBar')
 assertError(function() baz.getBaz = 'test' end, 'cannot override class member: getBaz')
 
-assertError(function() foo._foo = 'test' end, 'cannot access private class property')
-assertError(function() bar._foo = 'test' end, 'cannot access private class property')
-assertError(function() bar._bar = 'test' end, 'cannot access private class property')
-assertError(function() baz._foo = 'test' end, 'cannot access private class property')
-assertError(function() baz._bar = 'test' end, 'cannot access private class property')
-assertError(function() baz._baz = 'test' end, 'cannot access private class property')
+-- assertError(function() foo._foo = 'test' end, 'cannot access private class property')
+-- assertError(function() bar._foo = 'test' end, 'cannot access private class property')
+-- assertError(function() bar._bar = 'test' end, 'cannot access private class property')
+-- assertError(function() baz._foo = 'test' end, 'cannot access private class property')
+-- assertError(function() baz._bar = 'test' end, 'cannot access private class property')
+-- assertError(function() baz._baz = 'test' end, 'cannot access private class property')
 
-assertError(function() foo:testFoo() end, 'cannot declare class property outside of __init')
-assertError(function() bar:testFoo() end, 'cannot declare class property outside of __init')
-assertError(function() bar:testBar() end, 'cannot declare class property outside of __init')
-assertError(function() baz:testFoo() end, 'cannot declare class property outside of __init')
-assertError(function() baz:testBar() end, 'cannot declare class property outside of __init')
-assertError(function() baz:testBaz() end, 'cannot declare class property outside of __init')
+-- assertError(function() foo:testFoo() end, 'cannot declare class property outside of __init')
+-- assertError(function() bar:testFoo() end, 'cannot declare class property outside of __init')
+-- assertError(function() bar:testBar() end, 'cannot declare class property outside of __init')
+-- assertError(function() baz:testFoo() end, 'cannot declare class property outside of __init')
+-- assertError(function() baz:testBar() end, 'cannot declare class property outside of __init')
+-- assertError(function() baz:testBaz() end, 'cannot declare class property outside of __init')

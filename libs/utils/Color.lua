@@ -15,16 +15,20 @@ local function lerp(a, b, t)
 	return a + t * (b - a)
 end
 
-local function checkByte(n, m)
-	return lshift(clamp(floor(checkNumber(n)), 0, 0xFF), m)
+local function round(n)
+	return floor(n + 0.5)
 end
 
 local function getByte(n, m)
 	return band(rshift(n, m), 0xFF)
 end
 
+local function checkByte(n, m)
+	return lshift(clamp(round(checkNumber(n)), 0, 0xFF), m)
+end
+
 local function checkValue(n, base)
-	return clamp(floor(checkNumber(n, base)), 0, 0xFFFFFF)
+	return clamp(round(checkNumber(n, base)), 0, 0xFFFFFF)
 end
 
 local function checkFloat(n)
@@ -32,7 +36,7 @@ local function checkFloat(n)
 end
 
 local function checkAngle(n)
-	return floor(checkNumber(n) % 360 + 0.5)
+	return round(checkNumber(n) % 360)
 end
 
 local function fromHue(h, c, m)
@@ -158,10 +162,6 @@ function Color:__mul(other)
 	else
 		return error('cannot perform operation')
 	end
-end
-
-function Color.__mod()
-	return error('cannot perform operation')
 end
 
 function Color:__div(other)
