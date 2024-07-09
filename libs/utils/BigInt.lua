@@ -92,8 +92,8 @@ Input formats:
  
 	Numbers are accepted except for those that are too large to be represented
 	without precision loss (such that n + 1 == n) or are "not a number"
-	(such that n ~= n). Fractions are truncated (rounded towards zero). If a
-	number and base are provided at the same time, the input is rejected.
+	(such that n ~= n). Fractions are floored. If a number and base are provided
+	at the same time, the input is rejected.
 
 	Big-endian sign-magnitude numerical strings are supported. Leading and
 	trailing whitespace is ignored. Unary positive (+) and negative (-) signs
@@ -158,69 +158,91 @@ local function compare(a, b) -- unsigned
 	return nil
 end
 
-local function add(a, b, base) -- unsigned
+local function setDigit(digits, i, v, base)
+	digits[i] = v
+	if v >= base then
+		local n = math.floor(v / base)
+		digits[i + 1] = digits[i + 1] + n
+		digits[i] = v - n * base
+	elseif v < 0 then
+		local n = math.ceil(-v / base)
+		digits[i + 1] = digits[i + 1] - n
+		digits[i] = v + n * base
+	end
+end
+
+local function getSum(a, b, base) -- unsigned
 	local c = array()
 	for i = 1, math.max(#a, #b) do
-		c[i] = c[i] + a[i] + b[i]
-		if c[i] >= base then
-			local carry = math.floor(c[i] / base)
-			c[i + 1] = c[i + 1] + carry
-			c[i] = c[i] - carry * base
-		end
+		setDigit(c, i, c[i] + a[i] + b[i], base)
 	end
 	return c
 end
 
-local function sub(a, b, base) -- unsigned
-	local c = array()
+local function addInPlace(a, b, base) -- unsigned
 	for i = 1, math.max(#a, #b) do
-		c[i] = c[i] + a[i] - b[i]
-		if c[i] < 0 then
-			local borrow = math.ceil(-c[i] / base)
-			c[i + 1] = c[i + 1] - borrow
-			c[i] = c[i] + borrow * base
-		end
+		setDigit(a, i, a[i] + b[i], base)
+	end
+end
+
+local function getDifference(a, b, base) -- unsigned
+	local n, m = #a, #b
+	assert(n >= m)
+	local c = array()
+	for i = 1, n do
+		setDigit(c, i, c[i] + a[i] - b[i], base)
 	end
 	trim(c)
 	return c
 end
 
-local function mul(a, b, base) -- unsigned
+local function subtractInPlace(a, b, base) -- unsigned
+	local n, m = #a, #b
+	assert(n >= m)
+	for i = 1, n do
+		setDigit(a, i, a[i] - b[i], base)
+	end
+	trim(a)
+end
+
+local function getProduct(a, b, base) -- unsigned
 	local c = array()
 	for i = 1, #a do
 		for j = 1, #b do
 			local k = i + j - 1
-			c[k] = c[k] + a[i] * b[j]
-			if c[k] >= base then
-				local carry = math.floor(c[k] / base)
-				c[k + 1] = c[k + 1] + carry
-				c[k] = c[k] - carry * base
-			end
+			setDigit(c, k, c[k] + a[i] * b[j], base)
 		end
 	end
 	return c
 end
 
+local function getComplement(digits, n)
+	local complement = array()
+	for i = 1, n do
+		complement[i] = math.abs(digits[i] - 1)
+	end
+	addInPlace(complement, POSITIVE_ONE, 2)
+	return complement
+end
+
+local function complementInPlace(digits, n)
+	for i = 1, n do
+		digits[i] = math.abs(digits[i] - 1)
+	end
+	addInPlace(digits, POSITIVE_ONE, 2)
+end
+
 local function bitop(a, b, fn)
 
 	local n = math.max(#a, #b)
+	local signed = fn(a.sign, b.sign)
 
 	if a.sign == 1 then
-		local flipped = array()
-		for i = 1, n do
-			flipped[i] = math.abs(a[i] - 1)
-		end
-		a = add(flipped, POSITIVE_ONE, 2)
-		a.sign = 1
+		a = getComplement(a, n)
 	end
 
 	if b.sign == 1 then
-		local flipped = array()
-		for i = 1, n do
-			flipped[i] = math.abs(b[i] - 1)
-		end
-		b = add(flipped, POSITIVE_ONE, 2)
-		b.sign = 1
+		b = getComplement(b, n)
 	end
 
 	local c = array()
@@ -228,12 +250,8 @@ local function bitop(a, b, fn)
 		c[i] = fn(a[i], b[i]) and 1 or 0
 	end
 
-	if fn(a.sign, b.sign) then
-		local flipped = array()
-		for i = 1, n do
-			flipped[i] = math.abs(c[i] - 1)
-		end
-		c = add(flipped, POSITIVE_ONE, 2)
+	if signed then
+		complementInPlace(c, n)
 		c.sign = 1
 	end
 
@@ -321,8 +339,8 @@ local function parseString(str, inputBase, outputBase) -- BE string to LE array
 		local base = parseUnsigned(inputBase, outputBase)
 		for i = a, b, 1 do
 			local digit = parseUnsigned(checkDigit(str, i, inputBase), outputBase)
-			digits = mul(digits, base, outputBase)
-			digits = add(digits, digit, outputBase)
+			digits = getProduct(digits, base, outputBase)
+			addInPlace(digits, digit, outputBase)
 		end
 	end
 
@@ -337,8 +355,8 @@ local function convertDigits(old, inputBase, outputBase)
 	local base = parseUnsigned(inputBase, outputBase)
 	for i = #old, 1, -1 do
 		local digit = parseUnsigned(old[i], outputBase)
-		new = mul(new, base, outputBase)
-		new = add(new, digit, outputBase)
+		new = getProduct(new, base, outputBase)
+		addInPlace(new, digit, outputBase)
 	end
 	new.sign = rawget(old, 'sign')
 	return new
@@ -484,17 +502,17 @@ function BigInt:__add(other)
 	end
 
 	if a.sign == b.sign then
-		local c = add(a, b, STORAGE_BASE)
+		local c = getSum(a, b, STORAGE_BASE)
 		c.sign = rawget(a, 'sign')
 		return BigInt(c)
 	else
 		local comp = compare(a, b)
 		if comp == true then
-			local c = sub(b, a, STORAGE_BASE)
+			local c = getDifference(b, a, STORAGE_BASE)
 			c.sign = rawget(b, 'sign')
 			return BigInt(c)
 		elseif comp == false then
-			local c = sub(a, b, STORAGE_BASE)
+			local c = getDifference(a, b, STORAGE_BASE)
 			c.sign = rawget(a, 'sign')
 			return BigInt(c)
 		elseif comp == nil then
@@ -517,19 +535,19 @@ function BigInt:__sub(other)
 	end
 
 	if a.sign ~= b.sign then
-		local c = add(a, b, STORAGE_BASE)
+		local c = getSum(a, b, STORAGE_BASE)
 		c.sign = rawget(a, 'sign')
 		return BigInt(c)
 	else
 		local comp = compare(a, b)
 		if comp == true then
-			local c = sub(b, a, STORAGE_BASE)
+			local c = getDifference(b, a, STORAGE_BASE)
 			if #c > 0 and a.sign == 0 then
 				c.sign = 1
 			end
 			return BigInt(c)
 		elseif comp == false then
-			local c = sub(a, b, STORAGE_BASE)
+			local c = getDifference(a, b, STORAGE_BASE)
 			c.sign = rawget(a, 'sign')
 			return BigInt(c)
 		elseif comp == nil then
@@ -567,7 +585,7 @@ function BigInt:__mul(other)
 		end
 	end
 
-	local c = mul(a, b, STORAGE_BASE)
+	local c = getProduct(a, b, STORAGE_BASE)
 	if a.sign ~= b.sign then
 		c.sign = 1
 	end
@@ -617,7 +635,7 @@ function BigInt:__div(other)
 				table.insert(r, 1, a[i])
 			end
 			if not compare(r, b) then
-				r = sub(r, b, 2)
+				subtractInPlace(r, b, 2)
 				c[i] = 1
 			else
 				c[i] = 0
@@ -630,7 +648,7 @@ function BigInt:__div(other)
 				if #c == 0 then
 					c = NEGATIVE_ONE
 				else
-					c = add(c, POSITIVE_ONE, 2)
+					addInPlace(c, POSITIVE_ONE, 2)
 				end
 			end
 			c.sign = 1
@@ -679,14 +697,14 @@ function BigInt:__pow(other)
 
 	if a.sign == 0 then
 		repeat
-			c = mul(c, a, STORAGE_BASE)
-			i = sub(i, POSITIVE_ONE, STORAGE_BASE)
+			c = getProduct(c, a, STORAGE_BASE)
+			subtractInPlace(i, POSITIVE_ONE, STORAGE_BASE)
 		until #i == 0
 	else
 		local sign = c.sign
 		repeat
-			c = mul(c, a, STORAGE_BASE)
-			i = sub(i, POSITIVE_ONE, STORAGE_BASE)
+			c = getProduct(c, a, STORAGE_BASE)
+			subtractInPlace(i, POSITIVE_ONE, STORAGE_BASE)
 			sign = math.abs(sign - 1)
 		until #i == 0
 		c.sign = sign == 1 and sign or nil
