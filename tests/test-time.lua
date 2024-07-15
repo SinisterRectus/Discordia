@@ -7,7 +7,6 @@ local assertError = utils.assertError
 
 for n = -64, 64 do
 	n = 2 ^ n
-	assertEqual(Time(n).value, n)
 	assertEqual(Time.fromWeeks(n):toWeeks(), n)
 	assertEqual(Time.fromDays(n):toDays(), n)
 	assertEqual(Time.fromHours(n):toHours(), n)
@@ -80,20 +79,20 @@ end
 
 do -- reversibility for integers
 	local t = Time(1)
-	assertEqual(t.value, 1)
+	assertEqual(t:toMicroseconds(), 1)
 	local tbl = t:toTable()
 	assertEqual(tbl.microseconds, 1)
 	assertEqual(t:toString(), '1 microsecond')
-	assertEqual(Time.fromTable(tbl).value, 1)
+	assertEqual(Time.fromTable(tbl):toMicroseconds(), 1)
 end
 
 do -- reversibility for floats
 	local t = Time(1.8)
-	assertEqual(t.value, 1.8)
+	assertEqual(t:toMicroseconds(), 1.8)
 	local tbl = t:toTable()
-	assertEqual(tbl.microseconds, 1) -- WARNING: value floored
-	assertEqual(t:toString(), '1 microsecond') -- WARNING: value floored
-	assertEqual(Time.fromTable(tbl).value, 1) -- WARNING: not reversible
+	assertEqual(tbl.microseconds, 1) -- WARNING: value truncated
+	assertEqual(t:toString(), '1 microsecond') -- WARNING: value truncated
+	assertEqual(Time.fromTable(tbl):toMicroseconds(), 1) -- WARNING: not reversible
 end
 
 assertTrue(Time(1) == Time(1))

@@ -79,11 +79,11 @@ end
 
 local Color, get = class('Color')
 
-local function checkColor(obj)
+local function checkColorRGB(obj)
 	if isInstance(obj, Color) then
 		return obj:toRGB()
 	end
-	return error('cannot perform operation', 2)
+	return error('cannot perform operation')
 end
 
 function Color:__init(n, base)
@@ -123,41 +123,41 @@ function Color.fromHSL(h, s, l)
 end
 
 function Color:__eq(other)
-	local r1, g1, b1 = checkColor(self)
-	local r2, g2, b2 = checkColor(other)
+	local r1, g1, b1 = checkColorRGB(self)
+	local r2, g2, b2 = checkColorRGB(other)
 	return r1 == r2 and g1 == g2 and b1 == b2
 end
 
 function Color:__lt(other)
-	local r1, g1, b1 = checkColor(self)
-	local r2, g2, b2 = checkColor(other)
+	local r1, g1, b1 = checkColorRGB(self)
+	local r2, g2, b2 = checkColorRGB(other)
 	return r1 < r2 and g1 < g2 and b1 < b2
 end
 
 function Color:__le(other)
-	local r1, g1, b1 = checkColor(self)
-	local r2, g2, b2 = checkColor(other)
+	local r1, g1, b1 = checkColorRGB(self)
+	local r2, g2, b2 = checkColorRGB(other)
 	return r1 <= r2 and g1 <= g2 and b1 <= b2
 end
 
 function Color:__add(other)
-	local r1, g1, b1 = checkColor(self)
-	local r2, g2, b2 = checkColor(other)
+	local r1, g1, b1 = checkColorRGB(self)
+	local r2, g2, b2 = checkColorRGB(other)
 	return Color.fromRGB(r1 + r2, g1 + g2, b1 + b2)
 end
 
 function Color:__sub(other)
-	local r1, g1, b1 = checkColor(self)
-	local r2, g2, b2 = checkColor(other)
+	local r1, g1, b1 = checkColorRGB(self)
+	local r2, g2, b2 = checkColorRGB(other)
 	return Color.fromRGB(r1 - r2, g1 - g2, b1 - b2)
 end
 
 function Color:__mul(other)
 	if tonumber(other) then
-		local r, g, b = checkColor(self)
+		local r, g, b = checkColorRGB(self)
 		return Color.fromRGB(r * other, g * other, b * other)
 	elseif tonumber(self) then
-		local r, g, b = checkColor(other)
+		local r, g, b = checkColorRGB(other)
 		return Color.fromRGB(r * self, g * self, b * self)
 	else
 		return error('cannot perform operation')
@@ -166,7 +166,7 @@ end
 
 function Color:__div(other)
 	if tonumber(other) then
-		local r, g, b = checkColor(self)
+		local r, g, b = checkColorRGB(self)
 		return Color.fromRGB(r / other, g / other, b / other)
 	elseif tonumber(self) then
 		return error('division not commutative')
@@ -177,8 +177,8 @@ end
 
 function Color:lerp(other, t)
 	t = checkFloat(t)
-	local r1, g1, b1 = checkColor(self)
-	local r2, g2, b2 = checkColor(other)
+	local r1, g1, b1 = checkColorRGB(self)
+	local r2, g2, b2 = checkColorRGB(other)
 	return Color.fromRGB(lerp(r1, r2, t), lerp(g1, g2, t), lerp(b1, b2, t))
 end
 

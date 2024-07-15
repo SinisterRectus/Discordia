@@ -30,11 +30,11 @@ end
 
 local Time, get = class('Time')
 
-local function checkTime(obj)
+local function checkTimeValue(obj)
 	if isInstance(obj, Time) then
-		return obj.value
+		return obj:toMicroseconds()
 	end
-	return error('cannot perform operation', 2)
+	return error('cannot perform operation')
 end
 
 function Time:__init(value)
@@ -42,34 +42,34 @@ function Time:__init(value)
 end
 
 function Time:__eq(other)
-	return checkTime(self) == checkTime(other)
+	return checkTimeValue(self) == checkTimeValue(other)
 end
 
 function Time:__lt(other)
-	return checkTime(self) < checkTime(other)
+	return checkTimeValue(self) < checkTimeValue(other)
 end
 
 function Time:__le(other)
-	return checkTime(self) <= checkTime(other)
+	return checkTimeValue(self) <= checkTimeValue(other)
 end
 
 function Time:__add(other)
-	return Time(checkTime(self) + checkTime(other))
+	return Time(checkTimeValue(self) + checkTimeValue(other))
 end
 
 function Time:__sub(other)
-	return Time(checkTime(self) - checkTime(other))
+	return Time(checkTimeValue(self) - checkTimeValue(other))
 end
 
 function Time:__mod(other)
-	return Time(checkTime(self) % checkTime(other))
+	return Time(checkTimeValue(self) % checkTimeValue(other))
 end
 
 function Time:__mul(other)
 	if tonumber(other) then
-		return Time(checkTime(self) * other)
+		return Time(checkTimeValue(self) * other)
 	elseif tonumber(self) then
-		return Time(self * checkTime(other))
+		return Time(self * checkTimeValue(other))
 	else
 		return error('cannot perform operation')
 	end
@@ -77,7 +77,7 @@ end
 
 function Time:__div(other)
 	if tonumber(other) then
-		return Time(checkTime(self) / other)
+		return Time(checkTimeValue(self) / other)
 	elseif tonumber(self) then
 		return error('division not commutative')
 	else
@@ -173,12 +173,6 @@ function Time:toTable()
 		ret[unit[1]], v = decompose(v, unit[2])
 	end
 	return ret
-end
-
-----
-
-function get:value()
-	return self._value
 end
 
 return Time

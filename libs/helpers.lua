@@ -40,9 +40,8 @@ end
 local function assertResume(thread, ...)
 	local success, err = coroutine.resume(thread, ...)
 	if not success then
-		error(debug.traceback(thread, err), 0)
+		error(debug.traceback(thread, err))
 	end
-	-- return assert(coroutine.resume(thread, ...))
 end
 
 local function setTimeout(ms, callback, ...)
@@ -73,17 +72,17 @@ local function setInterval(ms, callback, ...)
 	local timer = uv.new_timer()
 	local n = select('#', ...)
 	if n == 0 then
-		timer:start(ms, 0, function()
+		timer:start(ms, ms, function()
 			return callback()
 		end)
 	elseif n == 1 then
 		local arg = ...
-		timer:start(ms, 0, function()
+		timer:start(ms, ms, function()
 			return callback(arg)
 		end)
 	else
 		local args = {...}
-		timer:start(ms, 0, function()
+		timer:start(ms, ms, function()
 			return callback(unpack(args, 1, n))
 		end)
 	end

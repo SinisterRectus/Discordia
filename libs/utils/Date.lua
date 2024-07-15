@@ -61,29 +61,29 @@ local function toTime(tbl, utc)
 	end
 	local sec = time(new)
 	if not sec then
-		return error('date could not be converted to time', 2)
+		return error('date could not be converted to time')
 	end
 	if utc then
 		sec = sec + offset()
 	end
-	return normalize(sec, new.usec, US_PER_S)
+	return sec, new.usec
 end
 
 local function toDate(fmt, t)
 	local d = date(fmt, t)
 	if not d then
-		return error('time could not be converted to date', 2)
+		return error('time could not be converted to date')
 	end
 	return d
 end
 
 local Date = class('Date')
 
-local function checkDate(obj)
+local function checkDateValue(obj)
 	if isInstance(obj, Date) then
 		return obj:toMicroseconds()
 	end
-	return error('cannot perform operation', 2)
+	return error('cannot perform operation')
 end
 
 function Date:__init(s, us)
@@ -97,15 +97,15 @@ function Date:__init(s, us)
 end
 
 function Date:__eq(other)
-	return checkDate(self) == checkDate(other)
+	return checkDateValue(self) == checkDateValue(other)
 end
 
 function Date:__lt(other)
-	return checkDate(self) < checkDate(other)
+	return checkDateValue(self) < checkDateValue(other)
 end
 
 function Date:__le(other)
-	return checkDate(self) <= checkDate(other)
+	return checkDateValue(self) <= checkDateValue(other)
 end
 
 function Date:__add(other)
@@ -146,13 +146,14 @@ local function parseString(patterns, tbl, str)
 	local valid = false
 	for _, v in ipairs(patterns) do
 		local i, j, n = str:find(v[2])
-		if not valid and i == 1 and j == #str then
-			valid = true
-		end
 		tbl[v[1]] = n or v[3]
+		if i == 1 and j == #str then
+			valid = true
+			break
+		end
 	end
 	if not valid then
-		return error('invalid ISO 8601 string')
+		error('invalid ISO 8601 string', 3)
 	end
 	return tbl
 end

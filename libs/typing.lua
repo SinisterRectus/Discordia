@@ -2,7 +2,7 @@ local json = require('json')
 local f = string.format
 
 local function typeError(expected, received)
-	return error(f('expected %s, received %s', expected, received), 2)
+	return error(f('expected %s, received %s', expected, received))
 end
 
 local function opt(obj, fn, extra)
@@ -18,7 +18,7 @@ end
 local function checkType(expected, obj)
 	local received = type(obj)
 	if received ~= expected then
-		return typeError(expected, received)
+		typeError(expected, received)
 	end
 	return obj
 end
@@ -26,13 +26,11 @@ end
 local function checkNumber(obj, base, mn, mx)
 	local success, n = pcall(tonumber, obj, base)
 	if not success or not n then
-		return typeError('number', type(obj))
-	end
-	if mn and n < mn then
-		return typeError('minimum ' .. mn, n)
-	end
-	if mx and n > mx then
-		return typeError('maximum ' .. mx, n)
+		typeError('number', type(obj))
+	elseif mn and n < mn then
+		typeError('minimum ' .. mn, n)
+	elseif mx and n > mx then
+		typeError('maximum ' .. mx, n)
 	end
 	return n
 end
@@ -40,58 +38,27 @@ end
 local function checkInteger(obj, base, mn, mx)
 	local success, n = pcall(tonumber, obj, base)
 	if not success or not n then
-		return typeError('integer', type(obj))
-	end
-	if n % 1 ~= 0 then
-		return typeError('integer', n)
-	end
-	if mn and n < mn then
-		return typeError('minimum ' .. mn, n)
-	end
-	if mx and n > mx then
-		return typeError('maximum ' .. mx, n)
+		typeError('integer', type(obj))
+	elseif n % 1 ~= 0 then
+		typeError('integer', n)
+	elseif mn and n < mn then
+		typeError('minimum ' .. mn, n)
+	elseif mx and n > mx then
+		typeError('maximum ' .. mx, n)
 	end
 	return n
 end
 
-local function checkString(obj, mn, mx)
-	local str = tostring(obj)
-	if not str then
-		return typeError('string', type(obj))
-	end
-	local n = #str
-	if mn and n < mn then
-		return typeError('minimum length ' .. mn, n)
-	end
-	if mx and n > mx then
-		return typeError('maximum length ' .. mx, n)
-	end
-	return str
-end
-
-local function checkStringStrict(obj, mn, mx)
-	if type(obj) ~= 'string' then
-		return typeError('string', type(obj))
-	end
-	local n = #obj
-	if mn and n < mn then
-		return typeError('minimum length ' .. mn, n)
-	end
-	if mx and n > mx then
-		return typeError('maximum length ' .. mx, n)
-	end
-	return obj
-end
-
 local function checkCallable(obj)
-	if type(obj) == 'function' then
+	local t = type(obj)
+	if t == 'function' then
 		return obj
 	end
 	local meta = getmetatable(obj)
 	if meta and type(meta.__call) == 'function' then
 		return obj
 	end
-	return typeError('callable', type(obj))
+	typeError('callable', t)
 end
 
 local function checkSnowflake(obj)
@@ -103,12 +70,19 @@ local function checkSnowflake(obj)
 	elseif t == 'table' then
 		return checkSnowflake(obj.id)
 	end
-	return error('Snowflake ID should be an integral string', 2)
+	return error('Snowflake ID should be an integral string')
+end
+
+local function checkEnum(enum, obj)
+	local _, v = enum(obj)
+	return v
 end
 
 return {
 	checkType = checkType,
 	checkNumber = checkNumber,
 	checkInteger = checkInteger,
+	checkCallable = checkCallable,
 	checkSnowflake = checkSnowflake,
+	checkEnum = checkEnum,
 }

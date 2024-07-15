@@ -1,5 +1,4 @@
 local BigInt = require('../libs/utils/BigInt')
-local Stopwatch = require('../libs/utils/Stopwatch')
 local utils = require('./utils')
 
 local f = string.format
@@ -7,8 +6,6 @@ local assertEqual = utils.assertEqual
 local assertTrue = utils.assertTrue
 local assertFalse = utils.assertFalse
 local assertError = utils.assertError
-
-local sw = Stopwatch()
 
 for _, STORAGE_BASE in ipairs {2, 10, 36, 2^4, 2^8, 2^16} do BigInt._debug(STORAGE_BASE)
 
@@ -160,5 +157,3 @@ assertError(function() BigInt(2^512) end, 'number too large')
 assertError(function() BigInt(math.huge) end, 'number too large')
 
 end
-
-print(sw)
