@@ -68,18 +68,9 @@ function Emitter:emit(eventName, ...)
 				local success, err = pcall(wrap(listener.callback), ...)
 				if not success then
 					wrap(listener.errorHandler)(err, ...)
-					self:emit('error', err, ...)
 				end
 			else
-				local _, e = next(self._listeners['error'])
-				if e then
-					local success, err = pcall(wrap(listener.callback), ...)
-					if not success then
-						self:emit('error', err, ...)
-					end
-				else
-					wrap(listener.callback)(...)
-				end
+				wrap(listener.callback)(...)
 			end
 		end
 	end
@@ -104,7 +95,7 @@ function Emitter:removeListener(eventName, callback)
 	checkCallable(callback)
 	for i, v in ipairs(listeners) do
 		if v and v.callback == callback then
-			listeners[i] = false
+			mark(listeners, i)
 			return true
 		end
 	end
