@@ -5,6 +5,7 @@ client:on("ready", function() -- bot is ready
 	print("Logged in as " .. client.user.username)
 end)
 
+-- here your first command Ping!
 client:on("messageCreate", function(message)
 
 	local content = message.content

@@ -101,11 +101,11 @@ function Role:moveDown(n) -- TODO: fix attempt to move roles that cannot be move
 		return self:moveDown(-n)
 	end
 
-	local roles = getSortedRoles(self)
+	local role = getSortedRoles(self)
 
 	local new = huge
-	for i = #roles, 1, -1 do
-		local v = roles[i]
+	for i = #role, 1, -1 do
+		local v = role[i]
 		if v.id == self._id then
 			new = max(1, i - floor(n))
 			v.position = new
@@ -116,7 +116,7 @@ function Role:moveDown(n) -- TODO: fix attempt to move roles that cannot be move
 		end
 	end
 
-	return setSortedRoles(self, roles)
+	return setSortedRoles(self, role)
 
 end
 

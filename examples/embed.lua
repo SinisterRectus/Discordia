@@ -15,7 +15,7 @@ client:on("messageCreate", function(message)
 		message:reply {
 			embed = {
 				title = "Embed Title",
-				description = "Here is my fancy description!",
+				description = "Here is my description of fancy!",
 				author = {
 					name = author.username,
 					icon_url = author.avatarURL
