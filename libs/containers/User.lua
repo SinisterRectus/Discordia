@@ -63,6 +63,18 @@ function User:getDefaultAvatarURL(size)
 end
 
 --[=[
+@m hasBadge
+@t mem
+@p badge User-Flag-Resolvable
+@r boolean
+@d Indicates whether the user has the badge given.
+]=]
+function User:hasBadge(badge)
+	badge = Resolver.userFlag(badge)
+	return band(self._public_flags or 0, badge) == badge
+end
+
+--[=[
 @m getPrivateChannel
 @t http
 @r PrivateChannel
