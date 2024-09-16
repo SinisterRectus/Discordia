@@ -14,7 +14,7 @@ local time = os.time
 local unpack, pack = string.unpack, string.pack -- luacheck: ignore
 
 local SUPPORTED_ENCRYPTION_MODES = { 'aead_xchacha20_poly1305_rtpsize' }
-if sodium.aead_aes256_gcm then
+if sodium.aead_aes256_gcm then -- AEAD AES256-GCM is only available if the hardware supports it
 	table.insert(SUPPORTED_ENCRYPTION_MODES, 1, 'aead_aes256_gcm_rtpsize')
 end
 

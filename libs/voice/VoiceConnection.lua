@@ -10,6 +10,7 @@ local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
 local ffi = require('ffi')
+local bit = require('bit')
 local constants = require('constants')
 local opus = require('voice/opus') or {}
 local sodium = require('voice/sodium') or {}
@@ -79,7 +80,6 @@ end
 
 function VoiceConnection:_prepare(key, socket)
 
-	self._key = key
 	self._socket = socket
 	self._ip = socket._ip
 	self._port = socket._port
@@ -89,8 +89,17 @@ function VoiceConnection:_prepare(key, socket)
 	self._manager = socket._manager
 	self._client = socket._client
 
-	self._s = 0
-	self._t = 0
+	if self._mode == 'aead_xchacha20_poly1305_rtpsize' then
+		self._crypto = sodium.aead_xchacha20_poly1305
+	elseif self._mode == 'aead_aes256_gcm_rtpsize' then
+		self._crypto = sodium.aead_aes256_gcm
+	else
+		return error('unsupported encryption mode: ' .. self._mode)
+	end
+
+	self._key = self._crypto.key(key)
+	self._s = sodium.random() % (MAX_SEQUENCE + 1)
+	self._t = sodium.random() % (MAX_TIMESTAMP + 1)
 	self._n = 0
 
 	self._encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
@@ -201,37 +210,69 @@ function VoiceConnection:_createAudioPacket(opus_data, opus_len, ssrc, key)
 	self._n = n >= MAX_NONCE and 0 or n
 
 	local header = pack(HEADER_FMT, 0x80, 0x78, s, t, ssrc)
-	if self._mode == 'aead_xchacha20_poly1305_rtpsize' then
-		local nonce = sodium.aead_xchacha20_poly1305.nonce(n)
-		local nonce_padding = ffi.string(nonce, 4)
 
-		local k = sodium.aead_xchacha20_poly1305.key(key)
+	local nonce = self._crypto.nonce(n)
+	local nonce_padding = ffi.string(nonce, 4)
 
-		local ciphertext, ciphertext_len = sodium.aead_xchacha20_poly1305.encrypt(
-			opus_data, opus_len, nonce, k, header
-		)
-		if not ciphertext then
-			return nil, ciphertext_len -- report error
-		end
-
-		return header .. ffi.string(ciphertext, ciphertext_len) .. nonce_padding
-	elseif self._mode == 'aead_aes256_gcm_rtpsize' then
-		local nonce = sodium.aead_aes256_gcm.nonce(n)
-		local nonce_padding = ffi.string(nonce, 4)
-
-		local k = sodium.aead_aes256_gcm.key(key)
-
-		local ciphertext, ciphertext_len = sodium.aead_aes256_gcm.encrypt(
-			opus_data, opus_len, nonce, k, header
-		)
-		if not ciphertext then
-			return nil, ciphertext_len -- report error
-		end
-
-		return header .. ffi.string(ciphertext, ciphertext_len) .. nonce_padding
-	else
-		return nil, 'unknown encryption mode'
+	local ciphertext, ciphertext_len = self._crypto.encrypt(opus_data, opus_len, header, #header, nonce, key)
+	if not ciphertext then
+		return nil, ciphertext_len -- report error
 	end
+
+	return header .. ffi.string(ciphertext, ciphertext_len) .. nonce_padding
+
+end
+
+function VoiceConnection:_parseAudioPacket(packet, key)
+
+	if #packet < 12 then
+		return nil, 'packet too short'
+	end
+
+	local first_byte, payload_type, sequence, timestamp, ssrc = string.unpack(HEADER_FMT, packet)
+
+	local rtp_version = bit.rshift(first_byte, 6)
+	local has_padding = bit.band(first_byte, 0x20) == 0x20
+	local has_extension = bit.band(first_byte, 0x10) == 0x10
+	local num_csrc = bit.band(first_byte, 0x0F)
+	if rtp_version ~= 2 then
+		return nil, 'invalid RTP version'
+	elseif payload_type ~= 0x78 then
+		return nil, 'invalid payload type'
+	end
+
+	local header_len = 12 + num_csrc * 4
+	local extension_len = 0
+
+	if has_extension then
+		extension_len = string.unpack('>I2', packet, header_len + 3) * 4
+		header_len = header_len + 4
+	end
+
+	local payload = ffi.cast('const char *', packet) + header_len
+	local payload_len = #packet - header_len - 4
+
+	if payload_len < 0 then
+		return nil, 'invalid payload length'
+	end
+
+	local nonce_bytes = packet:sub(-4)
+	local nonce = self._crypto.nonce(nonce_bytes)
+
+	local message, message_len = self._crypto.decrypt(payload, payload_len, packet, header_len, nonce, key)
+	if not message then
+		return nil, message_len -- report error
+	end
+
+	if has_padding then
+		local padding_len = message[message_len - 1]
+		if padding_len > message_len then
+			return nil, 'invalid padding length'
+		end
+		message_len = message_len - padding_len
+	end
+
+	return ffi.string(message + extension_len, message_len - extension_len), sequence, timestamp, ssrc
 
 end
 
