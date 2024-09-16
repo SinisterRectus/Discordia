@@ -26,16 +26,17 @@ local MAX_COMPLEXITY = 10
 
 local MAX_SEQUENCE = 0xFFFF
 local MAX_TIMESTAMP = 0xFFFFFFFF
+local MAX_NONCE = 0xFFFFFFFF
 
 local HEADER_FMT = '>BBI2I4I4'
-local PADDING = string.rep('\0', 12)
 
 local MS_PER_NS = 1 / (constants.NS_PER_US * constants.US_PER_MS)
 local MS_PER_S = constants.MS_PER_S
 
+local FRAME_SIZE = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
+
 local max = math.max
 local hrtime = uv.hrtime
-local ffi_string = ffi.string
 local pack = string.pack -- luacheck: ignore
 local format = string.format
 local insert = table.insert
@@ -78,7 +79,7 @@ end
 
 function VoiceConnection:_prepare(key, socket)
 
-	self._key = sodium.key(key)
+	self._key = key
 	self._socket = socket
 	self._ip = socket._ip
 	self._port = socket._port
@@ -90,6 +91,7 @@ function VoiceConnection:_prepare(key, socket)
 
 	self._s = 0
 	self._t = 0
+	self._n = 0
 
 	self._encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
 
@@ -187,23 +189,51 @@ function VoiceConnection:setComplexity(complexity)
 	self._encoder:set(opus.SET_COMPLEXITY_REQUEST, complexity)
 end
 
----- debugging
-local t0, m0
-local t_sum, m_sum, n = 0, 0, 0
-local function open() -- luacheck: ignore
-	-- collectgarbage()
-	m0 = collectgarbage('count')
-	t0 = hrtime()
-end
-local function close() -- luacheck: ignore
-	local dt = (hrtime() - t0) * MS_PER_NS
-	local dm = collectgarbage('count') - m0
+function VoiceConnection:_createAudioPacket(opus_data, opus_len, ssrc, key)
+	local s, t, n = self._s, self._t, self._n
+
+	s = s + 1
+	t = t + FRAME_SIZE
 	n = n + 1
-	t_sum = t_sum + dt
-	m_sum = m_sum + dm
-	print(format('dt: %g | dm: %g | avg dt: %g | avg dm: %g', dt, dm, t_sum / n, m_sum / n))
+
+	self._s = s >= MAX_SEQUENCE and 0 or s
+	self._t = t >= MAX_TIMESTAMP and 0 or t
+	self._n = n >= MAX_NONCE and 0 or n
+
+	local header = pack(HEADER_FMT, 0x80, 0x78, s, t, ssrc)
+	if self._mode == 'aead_xchacha20_poly1305_rtpsize' then
+		local nonce = sodium.aead_xchacha20_poly1305.nonce(n)
+		local nonce_padding = ffi.string(nonce, 4)
+
+		local k = sodium.aead_xchacha20_poly1305.key(key)
+
+		local ciphertext, ciphertext_len = sodium.aead_xchacha20_poly1305.encrypt(
+			opus_data, opus_len, nonce, k, header
+		)
+		if not ciphertext then
+			return nil, ciphertext_len -- report error
+		end
+
+		return header .. ffi.string(ciphertext, ciphertext_len) .. nonce_padding
+	elseif self._mode == 'aead_aes256_gcm_rtpsize' then
+		local nonce = sodium.aead_aes256_gcm.nonce(n)
+		local nonce_padding = ffi.string(nonce, 4)
+
+		local k = sodium.aead_aes256_gcm.key(key)
+
+		local ciphertext, ciphertext_len = sodium.aead_aes256_gcm.encrypt(
+			opus_data, opus_len, nonce, k, header
+		)
+		if not ciphertext then
+			return nil, ciphertext_len -- report error
+		end
+
+		return header .. ffi.string(ciphertext, ciphertext_len) .. nonce_padding
+	else
+		return nil, 'unknown encryption mode'
+	end
+
 end
----- debugging
 
 function VoiceConnection:_play(stream, duration)
 
@@ -217,8 +247,7 @@ function VoiceConnection:_play(stream, duration)
 	local ssrc, key = self._ssrc, self._key
 	local encoder = self._encoder
 
-	local frame_size = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
-	local pcm_len = frame_size * CHANNELS
+	local pcm_len = FRAME_SIZE * CHANNELS
 
 	local start = hrtime()
 	local reason
@@ -231,28 +260,18 @@ function VoiceConnection:_play(stream, duration)
 			break
 		end
 
-		local data, len = encoder:encode(pcm, pcm_len, frame_size, pcm_len * 2)
+		local data, data_len = encoder:encode(pcm, pcm_len, FRAME_SIZE, pcm_len * 2)
 		if not data then
 			reason = 'could not encode audio data'
 			break
 		end
 
-		local s, t = self._s, self._t
-		local header = pack(HEADER_FMT, 0x80, 0x78, s, t, ssrc)
-
-		s = s + 1
-		t = t + frame_size
-
-		self._s = s > MAX_SEQUENCE and 0 or s
-		self._t = t > MAX_TIMESTAMP and 0 or t
-
-		local encrypted, encrypted_len = sodium.encrypt(data, len, header .. PADDING, key)
-		if not encrypted then
-			reason = 'could not encrypt audio data'
+		local packet, err = self:_createAudioPacket(data, data_len, ssrc, key)
+		if not packet then
+			reason = err
 			break
 		end
 
-		local packet = header .. ffi_string(encrypted, encrypted_len)
 		udp:send(packet, ip, port)
 
 		elapsed = elapsed + FRAME_DURATION

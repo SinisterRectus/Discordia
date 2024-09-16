@@ -2,6 +2,7 @@ local uv = require('uv')
 local class = require('class')
 local timer = require('timer')
 local enums = require('enums')
+local sodium = require('voice/sodium') or {}
 
 local WebSocket = require('client/WebSocket')
 
@@ -12,7 +13,10 @@ local wrap = coroutine.wrap
 local time = os.time
 local unpack, pack = string.unpack, string.pack -- luacheck: ignore
 
-local ENCRYPTION_MODE = 'xsalsa20_poly1305'
+local SUPPORTED_ENCRYPTION_MODES = { 'aead_xchacha20_poly1305_rtpsize' }
+if sodium.aead_aes256_gcm then
+	table.insert(SUPPORTED_ENCRYPTION_MODES, 1, 'aead_aes256_gcm_rtpsize')
+end
 
 local IDENTIFY        = 0
 local SELECT_PROTOCOL = 1
@@ -26,9 +30,11 @@ local HELLO           = 8
 local RESUMED         = 9
 
 local function checkMode(modes)
-	for _, mode in ipairs(modes) do
-		if mode == ENCRYPTION_MODE then
-			return mode
+	for _, ENCRYPTION_MODE in ipairs(SUPPORTED_ENCRYPTION_MODES) do
+		for _, mode in ipairs(modes) do
+			if mode == ENCRYPTION_MODE then
+				return mode
+			end
 		end
 	end
 end
@@ -76,6 +82,7 @@ function VoiceSocket:handlePayload(payload)
 		self:info('Received READY')
 		local mode = checkMode(d.modes)
 		if mode then
+			self:debug('Selected encryption mode %q', mode)
 			self._mode = mode
 			self._ssrc = d.ssrc
 			self:handshake(d.ip, d.port)
