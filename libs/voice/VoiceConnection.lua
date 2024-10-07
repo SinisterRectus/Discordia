@@ -10,6 +10,7 @@ local FFmpegProcess = require('voice/streams/FFmpegProcess')
 
 local uv = require('uv')
 local ffi = require('ffi')
+local bit = require('bit')
 local constants = require('constants')
 local opus = require('voice/opus') or {}
 local sodium = require('voice/sodium') or {}
@@ -26,16 +27,17 @@ local MAX_COMPLEXITY = 10
 
 local MAX_SEQUENCE = 0xFFFF
 local MAX_TIMESTAMP = 0xFFFFFFFF
+local MAX_NONCE = 0xFFFFFFFF
 
 local HEADER_FMT = '>BBI2I4I4'
-local PADDING = string.rep('\0', 12)
 
 local MS_PER_NS = 1 / (constants.NS_PER_US * constants.US_PER_MS)
 local MS_PER_S = constants.MS_PER_S
 
+local FRAME_SIZE = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
+
 local max = math.max
 local hrtime = uv.hrtime
-local ffi_string = ffi.string
 local pack = string.pack -- luacheck: ignore
 local format = string.format
 local insert = table.insert
@@ -78,7 +80,6 @@ end
 
 function VoiceConnection:_prepare(key, socket)
 
-	self._key = sodium.key(key)
 	self._socket = socket
 	self._ip = socket._ip
 	self._port = socket._port
@@ -88,8 +89,18 @@ function VoiceConnection:_prepare(key, socket)
 	self._manager = socket._manager
 	self._client = socket._client
 
-	self._s = 0
-	self._t = 0
+	if self._mode == 'aead_xchacha20_poly1305_rtpsize' then
+		self._crypto = sodium.aead_xchacha20_poly1305
+	elseif self._mode == 'aead_aes256_gcm_rtpsize' then
+		self._crypto = sodium.aead_aes256_gcm
+	else
+		return error('unsupported encryption mode: ' .. self._mode)
+	end
+
+	self._key = self._crypto.key(key)
+	self._s = sodium.random() % (MAX_SEQUENCE + 1)
+	self._t = sodium.random() % (MAX_TIMESTAMP + 1)
+	self._n = 0
 
 	self._encoder = opus.Encoder(SAMPLE_RATE, CHANNELS)
 
@@ -187,23 +198,83 @@ function VoiceConnection:setComplexity(complexity)
 	self._encoder:set(opus.SET_COMPLEXITY_REQUEST, complexity)
 end
 
----- debugging
-local t0, m0
-local t_sum, m_sum, n = 0, 0, 0
-local function open() -- luacheck: ignore
-	-- collectgarbage()
-	m0 = collectgarbage('count')
-	t0 = hrtime()
-end
-local function close() -- luacheck: ignore
-	local dt = (hrtime() - t0) * MS_PER_NS
-	local dm = collectgarbage('count') - m0
+function VoiceConnection:_createAudioPacket(opus_data, opus_len, ssrc, key)
+	local s, t, n = self._s, self._t, self._n
+
+	s = s + 1
+	t = t + FRAME_SIZE
 	n = n + 1
-	t_sum = t_sum + dt
-	m_sum = m_sum + dm
-	print(format('dt: %g | dm: %g | avg dt: %g | avg dm: %g', dt, dm, t_sum / n, m_sum / n))
+
+	self._s = s >= MAX_SEQUENCE and 0 or s
+	self._t = t >= MAX_TIMESTAMP and 0 or t
+	self._n = n >= MAX_NONCE and 0 or n
+
+	local header = pack(HEADER_FMT, 0x80, 0x78, s, t, ssrc)
+
+	local nonce = self._crypto.nonce(n)
+	local nonce_padding = ffi.string(nonce, 4)
+
+	local ciphertext, ciphertext_len = self._crypto.encrypt(opus_data, opus_len, header, #header, nonce, key)
+	if not ciphertext then
+		return nil, ciphertext_len -- report error
+	end
+
+	return header .. ffi.string(ciphertext, ciphertext_len) .. nonce_padding
+
 end
----- debugging
+
+function VoiceConnection:_parseAudioPacket(packet, key)
+
+	if #packet < 12 then
+		return nil, 'packet too short'
+	end
+
+	local first_byte, payload_type, sequence, timestamp, ssrc = string.unpack(HEADER_FMT, packet)
+
+	local rtp_version = bit.rshift(first_byte, 6)
+	local has_padding = bit.band(first_byte, 0x20) == 0x20
+	local has_extension = bit.band(first_byte, 0x10) == 0x10
+	local num_csrc = bit.band(first_byte, 0x0F)
+	if rtp_version ~= 2 then
+		return nil, 'invalid RTP version'
+	elseif payload_type ~= 0x78 then
+		return nil, 'invalid payload type'
+	end
+
+	local header_len = 12 + num_csrc * 4
+	local extension_len = 0
+
+	if has_extension then
+		extension_len = string.unpack('>I2', packet, header_len + 3) * 4
+		header_len = header_len + 4
+	end
+
+	local payload = ffi.cast('const char *', packet) + header_len
+	local payload_len = #packet - header_len - 4
+
+	if payload_len < 0 then
+		return nil, 'invalid payload length'
+	end
+
+	local nonce_bytes = packet:sub(-4)
+	local nonce = self._crypto.nonce(nonce_bytes)
+
+	local message, message_len = self._crypto.decrypt(payload, payload_len, packet, header_len, nonce, key)
+	if not message then
+		return nil, message_len -- report error
+	end
+
+	if has_padding then
+		local padding_len = message[message_len - 1]
+		if padding_len > message_len then
+			return nil, 'invalid padding length'
+		end
+		message_len = message_len - padding_len
+	end
+
+	return ffi.string(message + extension_len, message_len - extension_len), sequence, timestamp, ssrc
+
+end
 
 function VoiceConnection:_play(stream, duration)
 
@@ -217,8 +288,7 @@ function VoiceConnection:_play(stream, duration)
 	local ssrc, key = self._ssrc, self._key
 	local encoder = self._encoder
 
-	local frame_size = SAMPLE_RATE * FRAME_DURATION / MS_PER_S
-	local pcm_len = frame_size * CHANNELS
+	local pcm_len = FRAME_SIZE * CHANNELS
 
 	local start = hrtime()
 	local reason
@@ -231,28 +301,18 @@ function VoiceConnection:_play(stream, duration)
 			break
 		end
 
-		local data, len = encoder:encode(pcm, pcm_len, frame_size, pcm_len * 2)
+		local data, data_len = encoder:encode(pcm, pcm_len, FRAME_SIZE, pcm_len * 2)
 		if not data then
 			reason = 'could not encode audio data'
 			break
 		end
 
-		local s, t = self._s, self._t
-		local header = pack(HEADER_FMT, 0x80, 0x78, s, t, ssrc)
-
-		s = s + 1
-		t = t + frame_size
-
-		self._s = s > MAX_SEQUENCE and 0 or s
-		self._t = t > MAX_TIMESTAMP and 0 or t
-
-		local encrypted, encrypted_len = sodium.encrypt(data, len, header .. PADDING, key)
-		if not encrypted then
-			reason = 'could not encrypt audio data'
+		local packet, err = self:_createAudioPacket(data, data_len, ssrc, key)
+		if not packet then
+			reason = err
 			break
 		end
 
-		local packet = header .. ffi_string(encrypted, encrypted_len)
 		udp:send(packet, ip, port)
 
 		elapsed = elapsed + FRAME_DURATION
