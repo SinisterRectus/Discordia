@@ -187,7 +187,7 @@ end
 @d Sets the role's icon.
 ]=]
 function Role:setIcon(icon)
-	icon = Resolver.base64(icon)
+	icon = icon and Resolver.base64(icon)
 	return self:_modify({icon = icon or json.null})
 end
 
