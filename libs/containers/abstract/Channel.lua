@@ -41,6 +41,8 @@ function Channel:_delete()
 			cache = self._parent._voice_channels
 		elseif t == channelType.category then
 			cache = self._parent._categories
+		elseif t.isThread then
+			cache = self._parent._thread_channels
 		end
 		if cache then
 			cache:_delete(self._id)
@@ -61,6 +63,16 @@ end
 may resolve as a link to a channel in the official Discord client.]=]
 function get.mentionString(self)
 	return format('<#%s>', self._id)
+end
+
+local threadTypes = {
+	[channelType.newsThread] = true,
+	[channelType.publicThread] = true,
+	[channelType.privateThread] = true,
+}
+--[=[@p isThread boolean Whether this channel is a thread channel.]=]
+function get.isThread(self)
+	return threadTypes[self._type] or false
 end
 
 return Channel

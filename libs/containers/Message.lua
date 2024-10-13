@@ -17,6 +17,7 @@ local insert = table.insert
 local null = json.null
 local format = string.format
 local messageFlag = assert(enums.messageFlag)
+local channelType = assert(enums.channelType)
 local band, bor, bnot = bit.band, bit.bor, bit.bnot
 
 local Message, get = require('class')('Message', Snowflake)
@@ -26,7 +27,7 @@ function Message:__init(data, parent)
 	self._author = self.client._users:_insert(data.author)
 	if data.member then
 		data.member.user = data.author
-		self._parent._parent._members:_insert(data.member)
+		self._parent.guild._members:_insert(data.member)
 	end
 	self._timestamp = nil -- waste of space; can be calculated from Snowflake ID
 	if data.reactions and #data.reactions > 0 then
@@ -60,7 +61,7 @@ function Message:_loadMore(data)
 			mentions[user.id] = true
 			if user.member then
 				user.member.user = user
-				self._parent._parent._members:_insert(user.member)
+				self._parent.guild._members:_insert(user.member)
 			else
 				self.client._users:_insert(user)
 			end
@@ -391,6 +392,50 @@ end
 ]=]
 function Message:reply(content)
 	return self._parent:send(content)
+end
+
+--[=[
+@m startPublicThread
+@t http
+@p name string
+@op autoArchiveDuration number
+@op rateLimit number
+@r boolean
+@d Creates a new thread public channel with this message as the starter message.
+There can only exist one thread per one message.
+
+Equivalent to `Message.channel:startThread({...}, self)`.
+]=]
+function Message:startPublicThread(name, autoArchiveDuration, rateLimit)
+	-- TODO: do we want to use the same interface as in _channel:startThread
+	return self._channel:startThread({
+		name = name,
+		type = channelType.publicThread,
+		auto_archive_duration = autoArchiveDuration,
+		rate_limit_per_user = rateLimit,
+	}, self)
+end
+
+--[=[
+@m startPrivateThread
+@t http
+@p name string
+@op autoArchiveDuration number
+@op rateLimit number
+@r boolean
+@d Creates a new private thread channel with this message as the starter message.
+There can only exist one thread per one message.
+
+Equivalent to `Message.channel:startThread({...}, self)`.
+]=]
+function Message:startPrivateThread(name, autoArchiveDuration, rateLimit)
+	-- TODO: do we want to use the same interface as in _channel:startThread
+	return self._channel:startThread({
+		name = name,
+		type = channelType.privateThread,
+		auto_archive_duration = autoArchiveDuration,
+		rate_limit_per_user = rateLimit,
+	}, self)
 end
 
 --[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]

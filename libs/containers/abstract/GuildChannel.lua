@@ -9,9 +9,12 @@ local enums = require('enums')
 local class = require('class')
 local Channel = require('containers/abstract/Channel')
 local PermissionOverwrite = require('containers/PermissionOverwrite')
+local GuildThreadChannel = require('containers/GuildThreadChannel')
 local Invite = require('containers/Invite')
 local Cache = require('iterables/Cache')
+local SecondaryCache = require('iterables/SecondaryCache')
 local Resolver = require('client/Resolver')
+local Time = require('utils/Time')
 
 local isInstance = class.isInstance
 local classes = class.classes
@@ -27,6 +30,7 @@ function GuildChannel:__init(data, parent)
 	Channel.__init(self, data, parent)
 	self.client._channel_map[self._id] = parent
 	self._permission_overwrites = Cache({}, PermissionOverwrite, self)
+	self._thread_channels = SecondaryCache(GuildThreadChannel, self._parent._thread_channels)
 	return self:_loadMore(data)
 end
 
@@ -244,6 +248,109 @@ function GuildChannel:delete()
 	return self:_delete()
 end
 
+--[=[
+@m setDefaultAutoArchiveDuration
+@t http
+@p duration Time/number
+@r boolean
+@d Sets the current default duration after which Discord considers a thread created under this
+channel to be inactive. This is only a default value and individual threads may have a different value.
+
+Possible durations are `60` (1 hour), `1440` (1 day), `4320` (7 days).
+]=]
+function GuildChannel:setDefaultAutoArchiveDuration(duration)
+  if isInstance(duration, Time) then
+		duration = duration:toMinutes()
+	end
+  return self:_modify({default_auto_archive_duration = duration})
+end
+
+--[=[
+@m startThread
+@t http
+@p channelData string/table
+@op message Message-ID-Resolvable
+@r GuildThreadChannel
+@d Create a new thread under this channel.
+To create a private thread set `channelData.type` to `channelType.privateThread`.
+]=]
+function GuildChannel:startThread(channelData, message)
+	channelData = type(channelData) == 'string' and {name = channelData} or channelData
+	if not channelData.type then
+		-- future proofing; Discord will start requiring this field in the future
+		channelData.type = channelType.publicThread
+	end
+	message = Resolver.messageId(message)
+	local data, err
+	if message then
+		data, err = self.client._api:startThreadWithMessage(self._id, message, channelData)
+	else
+		data, err = self.client._api:startThreadWithoutMessage(self._id, channelData)
+	end
+	if data then
+		return self._thread_channels:_insert(data, self)
+	else
+		return nil, err
+	end
+end
+
+local function getArchivedThreads(channel, req, limit, before)
+  local data, err = req(channel.client._api, channel._id, {
+    limit = limit,
+    before = before,
+  })
+  if data then
+    local cache = SecondaryCache(data.threads, channel._thread_channels, channel)
+		for _, member in ipairs(data.members) do
+			local thread = cache:get(member.id)
+			thread:_loadMember(member)
+		end
+		cache._has_more = data.has_more -- TODO: how do we want to expose this?
+		return cache
+  else
+    return nil, err
+  end
+end
+
+--[=[
+@m getArchivedPublicThreads
+@t http
+@op limit number
+@op before ISO-Timestamp-Resolvable
+@r SecondaryCache
+@d Returns an iterable cache of public archived threads under this channel.
+]=]
+function GuildChannel:getArchivedPublicThreads(limit, before)
+  before = Resolver.isoTimestamp(before)
+	return getArchivedThreads(self, self.client._api.listArchivedPublicThreads, limit, before)
+end
+
+--[=[
+@m getArchivedPrivateThreads
+@t http
+@op limit number
+@op before ISO-Timestamp-Resolvable
+@r SecondaryCache
+@d Returns an iterable cache of private archived threads under this channel.
+]=]
+function GuildChannel:getArchivedPrivateThreads(limit, before)
+  before = Resolver.isoTimestamp(before)
+	return getArchivedThreads(self, self.client._api.listArchivedPrivateThreads, limit, before)
+end
+
+--[=[
+@m getJoinedArchivedPrivateThreads
+@t http
+@op limit number
+@op before Channel-ID-Resolvable
+@r SecondaryCache
+@d Returns an iterable cache of private archived threads that the current user has joined under this channel.
+]=]
+function GuildChannel:getJoinedArchivedPrivateThreads(limit, before)
+	before = Resolver.channelId(before)
+	return getArchivedThreads(self, self.client._api.listJoinedArchivedPrivateThreads, limit, before)
+end
+
 --[=[@p permissionOverwrites Cache An iterable cache of all overwrites that exist in this channel. To access an
 overwrite that may exist, but is not cached, use `GuildChannel:getPermissionOverwriteFor`.]=]
 function get.permissionOverwrites(self)
@@ -276,6 +383,17 @@ icon and private voice channels are not visible.]=]
 function get.private(self)
 	local overwrite = self._permission_overwrites:get(self._parent._id)
 	return overwrite and overwrite:getDeniedPermissions():has('readMessages')
+end
+
+function get.threads(self)
+	return self._thread_channels
+end
+
+--[=[@p defaultAutoArchiveDuration number/nil The current default duration after which Discord considers
+a thread created under this channel to be inactive. This is only a default value and individual threads
+may have a different value.]=]
+function get.defaultAutoArchiveDuration(self)
+	return self._default_auto_archive_duration
 end
 
 return GuildChannel
