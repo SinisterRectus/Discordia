@@ -81,7 +81,7 @@ function Cache:_insert(data, parent)
 end
 
 function Cache:_remove(data)
-	local k = assert(self.hash(data))
+	local k = assert(self._hash(data))
 	local old = self._objects[k]
 	if old then
 		old:_load(data)
