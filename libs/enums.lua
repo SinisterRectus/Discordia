@@ -219,8 +219,8 @@ enums.permission = enum {
 }
 
 enums.channelFlag = enum {
-	pinned						= flag(0),
-	requireTag				= flag(1),
+	pinned            = flag(0),
+	requireTag        = flag(1),
 	hideMediaDownload = flag(2),
 }
 
