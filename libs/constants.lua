@@ -14,4 +14,9 @@ return {
 	HOUR_PER_DAY = 24,
 	DAY_PER_WEEK = 7,
 	GATEWAY_VERSION_VOICE = 8,
+	THREAD_TYPES = {
+		[10] = true,
+		[11] = true,
+		[12] = true,
+	}
 }

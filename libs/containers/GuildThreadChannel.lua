@@ -270,6 +270,16 @@ function GuildThreadChannel:unpin()
 end
 
 --[=[
+@m delete
+@t http
+@r boolean
+@d Permanently deletes the thread. This cannot be undone!
+]=]
+function GuildThreadChannel:delete()
+	return self:_delete()
+end
+
+--[=[
 @m setAutoArchiveDuration
 @t http
 @p duration Time/number

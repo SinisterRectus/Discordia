@@ -5,6 +5,8 @@ local channelType = assert(enums.channelType)
 local insert = table.insert
 local null = json.null
 
+local THREAD_TYPES = require('constants').THREAD_TYPES
+
 local function warning(client, object, id, event)
 	return client:warning('Uncached %s (%s) on %s', object, id, event)
 end
@@ -24,11 +26,6 @@ local function checkReady(shard)
 	return client:emit('ready')
 end
 
-local threadTypes = {
-	[channelType.newsThread] = true,
-	[channelType.publicThread] = true,
-	[channelType.privateThread] = true,
-}
 local function getChannel(client, d)
 	local channel = client:getChannel(d.channel_id)
 	if channel and channel._messages then
@@ -41,7 +38,7 @@ local function getChannel(client, d)
 			channel = client._private_channels:_insert(data)
 		elseif data.type == channelType.group then
 			channel = client._group_channels:_insert(data)
-		elseif threadTypes[data.type] then
+		elseif THREAD_TYPES[data.type] then
 			local parent_channel = getChannel(client, {channel_id = data.parent_id})
 			if parent_channel then
 				channel = parent_channel._thread_channels:_insert(data, parent_channel)
@@ -336,7 +333,7 @@ function EventHandler.MESSAGE_CREATE(d, client)
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_CREATE') end
 	local message = channel._messages:_insert(d)
-	if threadTypes[channel._type] then
+	if THREAD_TYPES[channel._type] then
 		channel._message_count = channel._message_count + 1
 		channel._total_message_sent = channel._total_message_sent + 1
 	end
@@ -359,7 +356,7 @@ end
 function EventHandler.MESSAGE_DELETE(d, client) -- message object not provided
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE') end
-	if threadTypes[channel._type] then
+	if THREAD_TYPES[channel._type] then
 		channel._message_count = channel._message_count - 1
 	end
 	local message = channel._messages:_delete(d.id)
@@ -373,7 +370,7 @@ end
 function EventHandler.MESSAGE_DELETE_BULK(d, client)
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE_BULK') end
-	if threadTypes[channel._type] then
+	if THREAD_TYPES[channel._type] then
 		channel._message_count = channel._message_count - #d.ids
 	end
 	for _, id in ipairs(d.ids) do

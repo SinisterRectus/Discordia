@@ -10,6 +10,8 @@ local enums = require('enums')
 local format = string.format
 local channelType = assert(enums.channelType)
 
+local THREAD_TYPES = require('constants').THREAD_TYPES
+
 local Channel, get = require('class')('Channel', Snowflake)
 
 function Channel:__init(data, parent)
@@ -41,7 +43,7 @@ function Channel:_delete()
 			cache = self._parent._voice_channels
 		elseif t == channelType.category then
 			cache = self._parent._categories
-		elseif t.isThread then
+		elseif THREAD_TYPES[t] then
 			cache = self._parent._thread_channels
 		end
 		if cache then
@@ -65,14 +67,9 @@ function get.mentionString(self)
 	return format('<#%s>', self._id)
 end
 
-local threadTypes = {
-	[channelType.newsThread] = true,
-	[channelType.publicThread] = true,
-	[channelType.privateThread] = true,
-}
 --[=[@p isThread boolean Whether this channel is a thread channel.]=]
 function get.isThread(self)
-	return threadTypes[self._type] or false
+	return THREAD_TYPES[self._type] or false
 end
 
 return Channel
