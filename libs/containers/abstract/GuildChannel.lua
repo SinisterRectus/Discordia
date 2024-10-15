@@ -259,10 +259,10 @@ channel to be inactive. This is only a default value and individual threads may 
 Possible durations are `60` (1 hour), `1440` (1 day), `4320` (7 days).
 ]=]
 function GuildChannel:setDefaultAutoArchiveDuration(duration)
-  if isInstance(duration, Time) then
+	if isInstance(duration, Time) then
 		duration = duration:toMinutes()
 	end
-  return self:_modify({default_auto_archive_duration = duration})
+	return self:_modify({default_auto_archive_duration = duration})
 end
 
 --[=[
@@ -295,20 +295,20 @@ function GuildChannel:startThread(channelData, message)
 end
 
 local function getArchivedThreads(channel, req, limit, before)
-  local data, err = req(channel.client._api, channel._id, {
-    limit = limit,
-    before = before,
-  })
-  if data then
-    local cache = SecondaryCache(data.threads, channel._thread_channels, channel)
+	local data, err = req(channel.client._api, channel._id, {
+		limit = limit,
+		before = before,
+	})
+	if data then
+		local cache = SecondaryCache(data.threads, channel._thread_channels, channel)
 		for _, member in ipairs(data.members) do
 			local thread = cache:get(member.id)
 			thread:_loadMember(member)
 		end
 		return cache, data.has_more or false
-  else
-    return nil, err
-  end
+	else
+		return nil, err
+	end
 end
 
 --[=[
@@ -321,7 +321,7 @@ end
 @d Returns an iterable cache of public archived threads under this channel.
 ]=]
 function GuildChannel:getArchivedPublicThreads(limit, before)
-  before = Resolver.isoTimestamp(before)
+	before = Resolver.isoTimestamp(before)
 	return getArchivedThreads(self, self.client._api.listArchivedPublicThreads, limit, before)
 end
 
@@ -335,7 +335,7 @@ end
 @d Returns an iterable cache of private archived threads under this channel.
 ]=]
 function GuildChannel:getArchivedPrivateThreads(limit, before)
-  before = Resolver.isoTimestamp(before)
+	before = Resolver.isoTimestamp(before)
 	return getArchivedThreads(self, self.client._api.listArchivedPrivateThreads, limit, before)
 end
 
