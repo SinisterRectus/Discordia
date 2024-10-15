@@ -4,7 +4,6 @@
 inside an existing channel.
 ]=]
 
-local json = require('json')
 local enums = require('enums')
 local class = require('class')
 local Resolver = require('client/Resolver')
@@ -16,6 +15,7 @@ local Date = require('utils/Date')
 local Time = require('utils/Time')
 
 local isInstance = class.isInstance
+local channelType = assert(enums.channelType)
 local channelFlag = assert(enums.channelFlag)
 local permission = assert(enums.permission)
 local band, bor, bnot = bit.band, bit.bor, bit.bnot
@@ -326,14 +326,21 @@ end
 
 --[=[
 @m canSend
-@t mem
+@t http?
 @op member Member
-@r boolean
+@r boolean/nil
 @d Whether the provided member is able of sending messages in this thread.
-Defaults to the current user.
+Defaults to `GuildThreadChannel.member`.
 ]=]
 function GuildThreadChannel:canSend(member)
-	member = member or self._member
+	member = member or (self._member and self._member.member)
+	if not member then
+		local err
+		member, err = self.guild:getMember(self.client.user.id)
+		if not member then
+			return nil, err
+		end
+	end
 	local permissions = member:getPermissions(self._parent)
 	if permissions:has(permission.administrator) then
 		return true
@@ -351,19 +358,26 @@ function GuildThreadChannel:canSend(member)
 	if member.timedOut then
 		return false
 	end
-	return member:hasPermission(permission.sendMessageInThreads)
+	return member:hasPermission(permission.sendMessagesInThreads)
 end
 
 --[=[
 @m canManage
-@t mem
+@t http?
 @op member Member
-@r boolean
+@r boolean/nil
 @d Whether the provided Member is able to manage this thread.
-Defaults to the current user.
+Defaults to `GuildThreadChannel.member`.
 ]=]
 function GuildThreadChannel:canManage(member)
-	member = member or self._member
+	member = member or (self._member and self._member.member)
+	if not member then
+		local err
+		member, err = self.guild:getMember(self.client.user.id)
+		if not member then
+			return nil, err
+		end
+	end
 	local permissions = member:getPermissions(self._parent)
 	if permissions:has(permission.administrator) then
 		return true
@@ -373,14 +387,21 @@ end
 
 --[=[
 @m canUnarchive
-@t mem
+@t http?
 @op member Member
-@r boolean
+@r boolean/nil
 @d Whether the provided Member is able to unarchive this thread.
-Defaults to the current thread.
+Defaults to `GuildThreadChannel.member`.
 ]=]
 function GuildThreadChannel:canUnarchive(member)
-	member = member or self._member
+	member = member or (self._member and self._member.member)
+	if not member then
+		local err
+		member, err = self.guild:getMember(self.client.user.id)
+		if not member then
+			return nil, err
+		end
+	end
 	if not self.archived then
 		return false
 	end
@@ -447,10 +468,14 @@ function get.locked(self)
 	return self._thread_metadata.locked
 end
 
---[=[@p invitable/nil Whether non-moderators can add other non-moderators to a thread.
-Only available for private threads.]=]
+--[=[@p invitable Whether non-moderators can add other non-moderators to a thread.
+Only relevant for private threads, always returns true for public threads.]=]
 function get.invitable(self)
-	return self._thread_metadata.invitable
+	local val = self._thread_metadata.invitable
+	if not self.isPrivate and not val then
+		val = true
+	end
+	return val
 end
 
 --[=[@p pinned boolean Whether the thread is pinned.
@@ -466,7 +491,7 @@ end
 
 --[=[@p isPrivate boolean Whether the thread is a private thread.]=]
 function get.isPrivate(self)
-	return self._type == 12
+	return self._type == channelType.privateThread
 end
 
 --[=[@p nsfw boolean Whether the parent channel is marked as NSFW (not safe for work).]=]
