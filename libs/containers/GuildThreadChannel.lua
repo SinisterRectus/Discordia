@@ -499,4 +499,9 @@ function get.name(self)
 	return self._name
 end
 
+--[=[@p parent TextChannel The channel object this thread is created under.]=]
+function get.parent(self)
+	return self._parent
+end
+
 return GuildThreadChannel
