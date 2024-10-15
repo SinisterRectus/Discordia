@@ -305,8 +305,7 @@ local function getArchivedThreads(channel, req, limit, before)
 			local thread = cache:get(member.id)
 			thread:_loadMember(member)
 		end
-		cache._has_more = data.has_more -- TODO: how do we want to expose this?
-		return cache
+		return cache, data.has_more or false
   else
     return nil, err
   end
@@ -318,6 +317,7 @@ end
 @op limit number
 @op before ISO-Timestamp-Resolvable
 @r SecondaryCache
+@r boolean
 @d Returns an iterable cache of public archived threads under this channel.
 ]=]
 function GuildChannel:getArchivedPublicThreads(limit, before)
@@ -331,6 +331,7 @@ end
 @op limit number
 @op before ISO-Timestamp-Resolvable
 @r SecondaryCache
+@r boolean
 @d Returns an iterable cache of private archived threads under this channel.
 ]=]
 function GuildChannel:getArchivedPrivateThreads(limit, before)
@@ -344,6 +345,7 @@ end
 @op limit number
 @op before Channel-ID-Resolvable
 @r SecondaryCache
+@r boolean
 @d Returns an iterable cache of private archived threads that the current user has joined under this channel.
 ]=]
 function GuildChannel:getJoinedArchivedPrivateThreads(limit, before)
