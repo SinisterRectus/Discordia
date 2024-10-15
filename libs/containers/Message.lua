@@ -395,47 +395,18 @@ function Message:reply(content)
 end
 
 --[=[
-@m startPublicThread
+@m startThread
 @t http
-@p name string
-@op autoArchiveDuration number
-@op rateLimit number
+@p channelData string/table
 @r boolean
-@d Creates a new thread public channel with this message as the starter message.
+@d Creates a new thread channel with this message as the starter message.
 There can only exist one thread per one message.
+Threads started from a message are always public.
 
-Equivalent to `Message.channel:startThread({...}, self)`.
+Equivalent to `Message.channel:startThread(channelData, self)`.
 ]=]
-function Message:startPublicThread(name, autoArchiveDuration, rateLimit)
-	-- TODO: do we want to use the same interface as in _channel:startThread
-	return self._channel:startThread({
-		name = name,
-		type = channelType.publicThread,
-		auto_archive_duration = autoArchiveDuration,
-		rate_limit_per_user = rateLimit,
-	}, self)
-end
-
---[=[
-@m startPrivateThread
-@t http
-@p name string
-@op autoArchiveDuration number
-@op rateLimit number
-@r boolean
-@d Creates a new private thread channel with this message as the starter message.
-There can only exist one thread per one message.
-
-Equivalent to `Message.channel:startThread({...}, self)`.
-]=]
-function Message:startPrivateThread(name, autoArchiveDuration, rateLimit)
-	-- TODO: do we want to use the same interface as in _channel:startThread
-	return self._channel:startThread({
-		name = name,
-		type = channelType.privateThread,
-		auto_archive_duration = autoArchiveDuration,
-		rate_limit_per_user = rateLimit,
-	}, self)
+function Message:startThread(channelData)
+	return self._channel:startThread(channelData, self)
 end
 
 --[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]
