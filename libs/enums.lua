@@ -324,4 +324,14 @@ enums.logLevel = enum {
 	debug   = 4,
 }
 
+enums.timestampStyle = enum {
+	shortTime      = 't',
+	longTime       = 'T',
+	shortDate      = 'd',
+	longDate       = 'D',
+	shortDateTime  = 'f',
+	longDateTime   = 'F',
+	relativeTime   = 'R',
+}
+
 return enums
