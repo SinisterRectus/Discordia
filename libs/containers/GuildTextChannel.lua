@@ -118,6 +118,26 @@ function GuildTextChannel:enableNSFW()
 end
 
 --[=[
+@m follow
+@t http
+@p targetId Channel-ID-Resolvable
+@r string
+@d Follow this News channel and publish announcements to `targetId`.
+Returns a 403 HTTP error if `GuildTextChannel.isNews` is false.
+]=]
+function GuildTextChannel:follow(targetId)
+	targetId = Resolver.channelId(targetId)
+	local data, err = self.client._api:followNewsChannel(self._id, {
+		webhook_channel_id = targetId,
+	})
+	if data then
+		return data.webhook_id
+	else
+		return nil, err
+	end
+end
+
+--[=[
 @m disableNSFW
 @t http
 @r boolean
