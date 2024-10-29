@@ -3,7 +3,7 @@ return {
 	ID_DELAY = 5000, -- milliseconds
 	GATEWAY_DELAY = 500, -- milliseconds,
 	DISCORD_EPOCH = 1420070400000, -- milliseconds
-	API_VERSION = 8,
+	API_VERSION = 9,
 	DEFAULT_AVATARS = 5,
 	ZWSP = '\226\128\139',
 	NS_PER_US = 1000,
@@ -14,4 +14,9 @@ return {
 	HOUR_PER_DAY = 24,
 	DAY_PER_WEEK = 7,
 	GATEWAY_VERSION_VOICE = 8,
+	THREAD_TYPES = {
+		[10] = true,
+		[11] = true,
+		[12] = true,
+	}
 }
