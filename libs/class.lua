@@ -27,11 +27,11 @@ function default:__hash()
 end
 
 local function isClass(cls)
-	return classes[cls]
+	return not not classes[cls]
 end
 
 local function isObject(obj)
-	return objects[obj]
+	return not not objects[obj]
 end
 
 local function isSubclass(sub, cls)
