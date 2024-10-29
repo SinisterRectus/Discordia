@@ -13,16 +13,10 @@ local Sticker, get = require('class')('Sticker', Snowflake)
 function Sticker:__init(data, parent)
 	Snowflake.__init(self, data, parent)
 	self.client._sticker_map[self._id] = parent
-	return self:_loadMore(data)
 end
 
 function Sticker:_load(data)
 	Snowflake._load(self, data)
-	return self:_loadMore(data)
-end
-
-function Sticker:_loadMore(data)
-	
 end
 
 function Sticker:_modify(payload)
@@ -77,10 +71,7 @@ end
 function Sticker:delete()
 	local data, err = self.client._api:deleteGuildSticker(self._parent._id, self._id)
 	if data then
-		local cache = self._parent._stickers
-		if cache then
-			cache:_delete(self._id)
-		end
+		self._parent._stickers:_delete(self._id)
 		return true
 	else
 		return false, err
@@ -102,6 +93,7 @@ function get.tags(self)
 	return self._tags
 end
 
+--[=[@p type number The sticker format type.]=]
 function get.type(self)
 	return self._format_type
 end
