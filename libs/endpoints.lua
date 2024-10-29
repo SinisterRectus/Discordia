@@ -1,9 +1,11 @@
 return {
 	CHANNEL                       = "/channels/%s",
+	CHANNEL_FOLLOWERS             = "/channels/%s/followers",
 	CHANNEL_INVITES               = "/channels/%s/invites",
 	CHANNEL_MESSAGE               = "/channels/%s/messages/%s",
 	CHANNEL_MESSAGES              = "/channels/%s/messages",
 	CHANNEL_MESSAGES_BULK_DELETE  = "/channels/%s/messages/bulk-delete",
+	CHANNEL_MESSAGE_CROSSPOST     = "/channels/%s/messages/%s/crosspost",
 	CHANNEL_MESSAGE_REACTION      = "/channels/%s/messages/%s/reactions/%s",
 	CHANNEL_MESSAGE_REACTIONS     = "/channels/%s/messages/%s/reactions",
 	CHANNEL_MESSAGE_REACTION_ME   = "/channels/%s/messages/%s/reactions/%s/@me",
