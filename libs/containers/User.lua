@@ -7,8 +7,13 @@ specific guild's context.
 local Snowflake = require('containers/abstract/Snowflake')
 local FilteredIterable = require('iterables/FilteredIterable')
 local constants = require('constants')
+local enums = require('enums')
+local bit = require('bit')
 
+local band = bit.band
 local format = string.format
+local insert = table.insert
+
 local DEFAULT_AVATARS = constants.DEFAULT_AVATARS
 
 local User, get = require('class')('User', Snowflake)
@@ -55,6 +60,18 @@ function User:getDefaultAvatarURL(size)
 	else
 		return format('https://cdn.discordapp.com/embed/avatars/%s.png', avatar)
 	end
+end
+
+--[=[
+@m hasBadge
+@t mem
+@p badge User-Flag-Resolvable
+@r boolean
+@d Indicates whether the user has the badge given.
+]=]
+function User:hasBadge(badge)
+	badge = Resolver.userFlag(badge)
+	return band(self._public_flags or 0, badge) == badge
 end
 
 --[=[
@@ -200,6 +217,20 @@ function get.mutualGuilds(self)
 		end)
 	end
 	return self._mutual_guilds
+end
+
+--[=[@p badges Array An array of all badges the user has, represented by the badge's name.]=]
+function get.badges(self)
+	local badges = {}
+	local publicflags = self._public_flags
+
+	for badge, flag in pairs(enums.userFlag) do
+		if band(publicflags, flag) == flag then
+			insert(badges, badge)
+		end
+	end
+	
+	return badges
 end
 
 return User
