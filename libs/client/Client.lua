@@ -278,6 +278,7 @@ end
 
 --[=[
 @m run
+@t ws
 @p token string
 @op presence table
 @r nil
