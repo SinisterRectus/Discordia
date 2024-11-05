@@ -8,6 +8,7 @@ local permission = assert(enums.permission)
 local gatewayIntent = assert(enums.gatewayIntent)
 local actionType = assert(enums.actionType)
 local messageFlag = assert(enums.messageFlag)
+local userFlag = assert(enums.userFlag)
 local base64 = ssl.base64
 local readFileSync = fs.readFileSync
 local classes = class.classes
@@ -207,6 +208,17 @@ function Resolver.messageFlag(obj)
 		n = messageFlag[obj]
 	elseif t == 'number' then
 		n = messageFlag(obj) and obj
+	end
+	return n
+end
+
+function Resolver.userFlag(obj)
+	local t = type(obj)
+	local n = nil
+	if t == 'string' then
+		n = userFlag[obj]
+	elseif t == 'number' then
+		n = userFlag(obj) and obj
 	end
 	return n
 end
