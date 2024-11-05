@@ -330,10 +330,10 @@ end
 --[=[
 @m setIntents
 @t mem
-@p intents Intents-Resolvable
+@op intents number
 @r nothing
 @d Sets the gateway intents that this client will use. The new value will not be
-used internally until the client (re-)identifies.
+used internally until the client (re-)identifies. Defaults to `0`.
 ]=]
 function Client:setIntents(intents)
 	self._intents = tonumber(intents) or 0
@@ -342,7 +342,7 @@ end
 --[=[
 @m enableIntents
 @t mem
-@p ... Intents-Resolvables
+@p ... Intents-Resolvable
 @r nothing
 @d Enables individual gateway intents for this client. The new value will not be
 used internally until the client (re-)identifies.
@@ -357,7 +357,7 @@ end
 --[=[
 @m disableIntents
 @t mem
-@p ... Intents-Resolvables
+@p ... Intents-Resolvable
 @r nothing
 @d Disables individual gateway intents for this client. The new value will not be
 used internally until the client (re-)identifies.
