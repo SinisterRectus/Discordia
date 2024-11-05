@@ -329,7 +329,7 @@ end
 --[=[
 @m setIntents
 @t mem
-@p intents Intents-Resolvable
+@p intents Gateway-Intent-Resolvable
 @r nothing
 @d Sets the gateway intents that this client will use. The new value will not be
 used internally until the client (re-)identifies.
@@ -341,7 +341,7 @@ end
 --[=[
 @m enableIntents
 @t mem
-@p ... Intents-Resolvables
+@p ... Gateway-Intent-Resolvables
 @r nothing
 @d Enables individual gateway intents for this client. The new value will not be
 used internally until the client (re-)identifies.
@@ -356,7 +356,7 @@ end
 --[=[
 @m disableIntents
 @t mem
-@p ... Intents-Resolvables
+@p ... Gateway-Intent-Resolvables
 @r nothing
 @d Disables individual gateway intents for this client. The new value will not be
 used internally until the client (re-)identifies.
