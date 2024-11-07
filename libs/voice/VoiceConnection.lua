@@ -156,7 +156,7 @@ end
 @m getBitrate
 @t mem
 @r nil
-@d Returns the bitrate of the interal Opus encoder in bits per second (bps).
+@d Returns the bitrate of the internal Opus encoder in bits per second (bps).
 ]=]
 function VoiceConnection:getBitrate()
 	return self._encoder:get(opus.GET_BITRATE_REQUEST)
@@ -167,7 +167,7 @@ end
 @t mem
 @p bitrate number
 @r nil
-@d Sets the bitrate of the interal Opus encoder in bits per second (bps).
+@d Sets the bitrate of the internal Opus encoder in bits per second (bps).
 This should be between 8000 and 128000, inclusive.
 ]=]
 function VoiceConnection:setBitrate(bitrate)
@@ -179,7 +179,7 @@ end
 @m getComplexity
 @t mem
 @r number
-@d Returns the complexity of the interal Opus encoder.
+@d Returns the complexity of the internal Opus encoder.
 ]=]
 function VoiceConnection:getComplexity()
 	return self._encoder:get(opus.GET_COMPLEXITY_REQUEST)
@@ -190,7 +190,7 @@ end
 @t mem
 @p complexity number
 @r nil
-@d Sets the complexity of the interal Opus encoder.
+@d Sets the complexity of the internal Opus encoder.
 This should be between 0 and 10, inclusive.
 ]=]
 function VoiceConnection:setComplexity(complexity)

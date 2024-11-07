@@ -371,7 +371,7 @@ end
 @t http
 @p default_message_notifications number
 @r boolean
-@d Sets the guild's default notification setting. See the `notficationSetting`
+@d Sets the guild's default notification setting. See the `notificationSetting`
 enumeration for acceptable values.
 ]=]
 function Guild:setNotificationSetting(default_message_notifications)
@@ -416,7 +416,7 @@ end
 --[=[
 @m setSystemChannel
 @t http
-@p id Channel-Id-Resolvable
+@p id Channel-ID-Resolvable
 @r boolean
 @d Sets the guild's join message channel.
 ]=]
@@ -845,7 +845,7 @@ function get.verificationLevel(self)
 	return self._verification_level
 end
 
---[=[@p notificationSetting number The guild's default notification setting. See the `notficationSetting`
+--[=[@p notificationSetting number The guild's default notification setting. See the `notificationSetting`
 enumeration for a human-readable representation.]=]
 function get.notificationSetting(self)
 	return self._default_message_notifications
