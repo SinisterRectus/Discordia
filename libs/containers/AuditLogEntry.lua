@@ -209,7 +209,7 @@ function get.targetId(self)
 	return self._target_id
 end
 
---[=[@p userId string The Snowflake ID of the user who commited the action.]=]
+--[=[@p userId string The Snowflake ID of the user who committed the action.]=]
 function get.userId(self)
 	return self._user_id
 end
