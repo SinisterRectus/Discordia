@@ -236,7 +236,12 @@ function API:commit(method, url, req, payload, retries)
 
 		end
 
-		client:error('%i - %s : %s %s', res.code, res.reason, method, url)
+		local errMsg = f('%i - %s : %s %s', res.code, res.reason, method, url)
+		if options.logFullErrors then
+			errMsg = errMsg .. "\n" .. msg
+		end
+		client:error(errMsg)
+
 		return nil, msg, delay
 
 	end
