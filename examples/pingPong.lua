@@ -1,6 +1,11 @@
 local discordia = require("discordia")
 local client = discordia.Client()
 
+-- enables receiving message.content so it is not empty
+-- make sure you also enable it in Developer Portal
+-- see https://github.com/SinisterRectus/Discordia/discussions/369
+client:enableIntents(discordia.enums.gatewayIntent.messageContent)
+
 client:on("ready", function() -- bot is ready
 	print("Logged in as " .. client.user.username)
 end)

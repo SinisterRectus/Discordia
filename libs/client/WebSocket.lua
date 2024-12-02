@@ -17,6 +17,9 @@ local TEXT   = 1
 local BINARY = 2
 local CLOSE  = 8
 
+local CLOSE_CODE     = '\003\232' -- code: 1000
+local RECONNECT_CODE = '\015\160' -- code: 4000
+
 local function connect(url, path)
 	local options = assert(ws_parseUrl(url))
 	options.pathname = path
@@ -113,7 +116,7 @@ end
 function WebSocket:disconnect(reconnect)
 	if not self._write then return end
 	self._reconnect = not not reconnect
-	self._write()
+	self._write {opcode = CLOSE, payload = reconnect and RECONNECT_CODE or CLOSE_CODE}
 	self._read = nil
 	self._write = nil
 end
