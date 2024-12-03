@@ -5,6 +5,8 @@ local channelType = assert(enums.channelType)
 local insert = table.insert
 local null = json.null
 
+local THREAD_TYPES = require('constants').THREAD_TYPES
+
 local function warning(client, object, id, event)
 	return client:warning('Uncached %s (%s) on %s', object, id, event)
 end
@@ -26,13 +28,20 @@ end
 
 local function getChannel(client, d)
 	local channel = client:getChannel(d.channel_id)
-	if not channel and not d.guild_id then
-		channel = client._api:getChannel(d.channel_id)
-		if channel then
-			if channel.type == channelType.private then
-				channel = client._private_channels:_insert(channel)
-			elseif channel.type == channelType.group then
-				channel = client._group_channels:_insert(channel)
+	if channel and channel._messages then
+		return channel
+	end
+
+	local data = client._api:getChannel(d.channel_id)
+	if data then
+		if data.type == channelType.private then
+			channel = client._private_channels:_insert(data)
+		elseif data.type == channelType.group then
+			channel = client._group_channels:_insert(data)
+		elseif THREAD_TYPES[data.type] then
+			local parent_channel = getChannel(client, {channel_id = data.parent_id})
+			if parent_channel then
+				channel = parent_channel._thread_channels:_insert(data, parent_channel)
 			end
 		end
 	end
@@ -324,6 +333,10 @@ function EventHandler.MESSAGE_CREATE(d, client)
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_CREATE') end
 	local message = channel._messages:_insert(d)
+	if THREAD_TYPES[channel._type] then
+		channel._message_count = channel._message_count + 1
+		channel._total_message_sent = channel._total_message_sent + 1
+	end
 	return client:emit('messageCreate', message)
 end
 
@@ -343,6 +356,9 @@ end
 function EventHandler.MESSAGE_DELETE(d, client) -- message object not provided
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE') end
+	if THREAD_TYPES[channel._type] then
+		channel._message_count = channel._message_count - 1
+	end
 	local message = channel._messages:_delete(d.id)
 	if message then
 		return client:emit('messageDelete', message)
@@ -354,6 +370,9 @@ end
 function EventHandler.MESSAGE_DELETE_BULK(d, client)
 	local channel = getChannel(client, d)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'MESSAGE_DELETE_BULK') end
+	if THREAD_TYPES[channel._type] then
+		channel._message_count = channel._message_count - #d.ids
+	end
 	for _, id in ipairs(d.ids) do
 		local message = channel._messages:_delete(id)
 		if message then
@@ -552,21 +571,95 @@ function EventHandler.AUTO_MODERATION_ACTION_EXECUTION(d, client)
 end
 
 function EventHandler.THREAD_CREATE(d, client)
+	local parent_channel = client:getChannel(d.parent_id)
+	if not parent_channel then return warning(client, 'GuildChannel', d.parent_id, 'THREAD_CREATE') end
+	local channel = parent_channel._thread_channels:_insert(d, parent_channel)
+	return client:emit('threadCreate', channel, d.newly_created)
 end
 
 function EventHandler.THREAD_UPDATE(d, client)
+	local parent_channel = client:getChannel(d.parent_id)
+	if not parent_channel then return warning(client, 'GuildChannel', d.parent_id, 'THREAD_UPDATE') end
+	local channel = parent_channel._thread_channels:_insert(d, parent_channel)
+	return client:emit('threadUpdate', channel)
 end
 
 function EventHandler.THREAD_DELETE(d, client)
+	local parent_channel = client:getChannel(d.parent_id)
+	if not parent_channel then return warning(client, 'GuildChannel', d.parent_id, 'THREAD_REMOVE') end
+	if not d.thread_metadata then
+		return client:emit('threadDeleteUncached', d, parent_channel)
+	end
+	local channel = parent_channel._thread_channels:_remove(d)
+	return client:emit('threadDelete', channel)
+end
+
+local function clearStaleThreads(threads)
+	for thread in threads:iter() do
+		if thread._thread_metadata.archived then
+			threads:_delete(thread.id)
+		end
+	end
 end
 
 function EventHandler.THREAD_LIST_SYNC(d, client)
+	local guild = client._guilds:get(d.guild_id)
+	if not guild then return warning(client, 'Guild', d.guild_id, 'THREAD_LIST_SYNC') end
+	local synchedThreads = {}
+	-- remove archived threads from cache to save space
+	if d.channel_ids then
+		for _, channel_id in ipairs(d.channel_ids) do
+			local channel = client:getChannel(channel_id)
+			if channel then
+				clearStaleThreads(channel._thread_channels)
+			else
+				warning(client, 'GuildChannel', channel_id, 'THREAD_LIST_SYNC')
+			end
+		end
+	else
+		clearStaleThreads(guild._thread_channels)
+	end
+	-- load and sync the new GuildThreadChannel data
+	for _, data in ipairs(d.threads) do
+		local channel = client:getChannel(data.parent_id)
+		if channel then
+			insert(synchedThreads, channel._thread_channels:_insert(data, channel))
+		else
+			warning(client, 'GuildChannel', data.parent_id, 'THREAD_LIST_SYNC')
+		end
+	end
+	-- load and sync new ThreadMember data
+	for _, data in ipairs(d.members) do
+		local thread = guild._thread_channels:get(data.id)
+		if thread then
+			thread._members:_insert(data)
+		else
+			warning(client, 'GuildThreadChannel', data.id, 'THREAD_LIST_SYNC')
+		end
+	end
+	return client:emit('threadListSync', synchedThreads, guild)
 end
 
 function EventHandler.THREAD_MEMBER_UPDATE(d, client)
+	local thread = client:getChannel(d.id)
+	if not thread then return warning(client, 'GuildThreadChannel', d.id, 'THREAD_MEMBER_UPDATE') end
+	local member = thread._members:_insert(d)
+	return client:emit('threadMemberUpdate', member)
 end
 
 function EventHandler.THREAD_MEMBERS_UPDATE(d, client)
+	local thread = client:getChannel(d.id)
+	if not thread then return warning(client, 'GuildThreadChannel', d.id, 'THREAD_MEMBERS_UPDATE') end
+	thread._member_count = d.member_count
+	if d.added_members then
+		thread._members:_load(d.added_members)
+	end
+	if d.removed_member_ids then
+		for _, id in ipairs(d.removed_member_ids) do
+			thread._members:_delete(id)
+		end
+	end
+	return client:emit('threadMembersUpdate', thread)
 end
 
 function EventHandler.GUILD_STICKERS_UPDATE(d, client)
