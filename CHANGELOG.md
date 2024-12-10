@@ -1,5 +1,31 @@
 # Changelog
 
+## 2.13.0
+- Added support for Discord timestamp mention formats (@Bilal2453)
+	- Added `Date.parseDiscordTimestamp`
+	- Added `Date.fromDiscordTimestamp`
+	- Added `Date:toDiscordTimestamp`
+- Added `Message:crosspost` and `GuildTextChannel:follow` for announcement channels (@Bilal2453)
+- Added `timestampStyle` enumerations:
+	- Added `shortTime`
+	- Added `longTime`
+	- Added `shortDate`
+	- Added `longDate`
+	- Added `shortDateTime`
+	- Added `longDateTime`
+	- Added `relativeTime`
+- Added `notificationSetting.media` enumeration
+- Added `permiossion.createExpressions` enumeration
+- Added `permiossion.createEvents` enumeration
+- Added `reactionAddAny`, `reactionRemoveAny`, and `reactionRemoveAllAny` events
+- Updated voice to support new encryption modes and gateway v8 (@trumedian)
+- Updated default avatar algorithm to support non-discriminated users
+- Updated dependencies to support new location under luvit organization
+- Fixed `class.isClass` and `class.isObject` returning `nil` instead of `false`
+- Fixed websocket closing to include a proper close code
+- Fixed a bug in `Member:getPermissions`
+- Fixed a bug in data consistency for deleted objects
+
 ## 2.12.0
 - Added support for stickers (@Ta-noshii)
 	- Added `Sticker` class
