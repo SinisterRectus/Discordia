@@ -10,10 +10,10 @@ local Iterable = require('iterables/Iterable')
 
 local SecondaryCache = require('class')('SecondaryCache', Iterable)
 
-function SecondaryCache:__init(array, primary)
+function SecondaryCache:__init(array, primary, parent)
 	local objects = {}
 	for _, data in ipairs(array) do
-		local obj = primary:_insert(data)
+		local obj = primary:_insert(data, parent)
 		objects[obj:__hash()] = obj
 	end
 	self._count = #array
@@ -29,8 +29,8 @@ function SecondaryCache:__len()
 	return self._count
 end
 
-function SecondaryCache:_insert(data)
-	local obj = self._primary:_insert(data)
+function SecondaryCache:_insert(data, parent)
+	local obj = self._primary:_insert(data, parent)
 	local k = obj:__hash()
 	if not self._objects[k] then
 		self._objects[k] = obj
@@ -47,6 +47,16 @@ function SecondaryCache:_remove(data)
 		self._count = self._count - 1
 	end
 	return obj
+end
+
+function SecondaryCache:_delete(k)
+	local old = self._objects[k]
+	if old then
+		self._objects[k] = nil
+		self._count = self._count - 1
+	end
+	self._primary:_delete(k)
+	return old
 end
 
 --[=[
