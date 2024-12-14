@@ -180,6 +180,18 @@ function Role:setColor(color)
 end
 
 --[=[
+@m setIcon
+@t http
+@p icon Base64-Resolvable
+@r boolean
+@d Sets the role's icon.
+]=]
+function Role:setIcon(icon)
+	icon = icon and Resolver.base64(icon)
+	return self:_modify({icon = icon or json.null})
+end
+
+--[=[
 @m setPermissions
 @t http
 @p permissions Permissions-Resolvable
@@ -326,6 +338,11 @@ end
 --[=[@p name string The name of the role. This should be between 1 and 100 characters in length.]=]
 function get.name(self)
 	return self._name
+end
+
+--[=[@p icon string The icon hash of the role. A string that can be used to construct an icon URL.]=]
+function get.icon(self)
+	return self._icon
 end
 
 --[=[@p position number The position of the role, where 0 is the lowest.]=]
