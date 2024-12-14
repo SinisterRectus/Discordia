@@ -235,6 +235,32 @@ enums.messageFlag = enum {
 	isVoiceMessage             = flag(13),
 }
 
+enums.userFlag = enum {
+	staff                      = flag(0),
+	partner                    = flag(1),
+	hypesquad                  = flag(2),
+	bugHunterLevel1            = flag(3),
+	-- unused                  = flag(4),
+	-- unused                  = flag(5),
+	houseBravery               = flag(6),
+	houseBrilliance            = flag(7),
+	houseBalance               = flag(8),
+	earlyNitroSupporter        = flag(9),
+	teamPseudoUser             = flag(10),
+	-- unused                  = flag(11),
+	-- unused                  = flag(12),
+	-- unused                  = flag(13),
+	bugHunterLevel2            = flag(14),
+	-- unused                  = flag(15),
+	verifiedBot                = flag(16),
+	verifiedDeveloper          = flag(17),
+	certifiedModerator         = flag(18),
+	botHttpInteractions        = flag(19),
+	-- unused                  = flag(20),
+	-- unused                  = flag(21),
+	activeDeveloper            = flag(22)
+}
+
 enums.gatewayIntent = enum {
 	guilds                = flag(0),
 	guildMembers          = flag(1), -- privileged
