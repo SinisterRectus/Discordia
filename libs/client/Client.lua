@@ -67,6 +67,7 @@ local defaultOptions = {
 	bitrate = 64000,
 	logFile = 'discordia.log',
 	logLevel = logLevel.info,
+	logFullErrors = false,
 	gatewayFile = 'gateway.json',
 	dateTime = '%F %T',
 	syncGuilds = false,
