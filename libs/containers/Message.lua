@@ -393,6 +393,22 @@ function Message:reply(content)
 	return self._parent:send(content)
 end
 
+--[=[
+@m crosspost
+@t http
+@r Message
+@d Publish this announcement message to all following channels.
+Returns the current Message object, for compatibility reasons.
+]=]
+function Message:crosspost()
+	local data, err = self.client._api:crosspostMessage(self._parent._id, self._id)
+	if data then
+		return self._parent._messages:_insert(data)
+	else
+		return nil, err
+	end
+end
+
 --[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]
 function get.reactions(self)
 	if not self._reactions then
@@ -463,7 +479,7 @@ function get.mentionedChannels(self)
 	return self._mentioned_channels
 end
 
---[=[@p Sticker ArrayIterable An iterable array of all stickers that are sent in this message.]=]
+--[=[@p stickers ArrayIterable An iterable array of all stickers that are sent in this message.]=]
 function get.stickers(self)
 	if not self._stickers then
 		local client = self.client
@@ -479,7 +495,7 @@ function get.stickers(self)
 	return self._stickers
 end
 
---[=[@p Sticker The first sticker that is sent in this message.]=]
+--[=[@p sticker Sticker The first sticker that is sent in this message.]=]
 function get.sticker(self)
 	return self.stickers and self.stickers.first or nil
 end

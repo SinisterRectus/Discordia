@@ -278,6 +278,7 @@ end
 
 --[=[
 @m run
+@t ws
 @p token string
 @op presence table
 @r nil
@@ -649,10 +650,11 @@ end
 --[=[
 @m setStatus
 @t ws
-@p status string
+@p status string/nil
 @r nil
 @d Sets the current user's status on all shards that are managed by this client.
 See the `status` enumeration for acceptable status values.
+Passing `nil` removes previously set status.
 ]=]
 function Client:setStatus(status)
 	if type(status) == 'string' then
@@ -677,12 +679,13 @@ end
 --[=[
 @m setActivity
 @t ws
-@p activity string/table
+@p activity string/table/nil
 @r nil
 @d Sets the current user's activity on all shards that are managed by this client.
 If a string is passed, it is treated as the activity name. If a table is passed, it
 must have a `name` field and may optionally have a `url` or `type` field. Pass `nil` to
 remove the activity status.
+Passing `nil` removes previously set activities.
 ]=]
 function Client:setActivity(activity)
 	if type(activity) == 'string' then
@@ -709,10 +712,11 @@ end
 --[=[
 @m setAFK
 @t ws
-@p afk boolean
+@p afk boolean/nil
 @r nil
 @d Set the current user's AFK status on all shards that are managed by this client.
 This generally applies to user accounts and their push notifications.
+Passing `nil` removes AFK status.
 ]=]
 function Client:setAFK(afk)
 	if type(afk) == 'boolean' then
