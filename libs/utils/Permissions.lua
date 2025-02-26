@@ -228,7 +228,7 @@ end
 
 --[=[
 @m complement
-@p other Permissions
+@op other Permissions
 @r Permissions
 @d Returns a new Permissions object that contains the permissions that are not
 in `self`, but are in `other` (or the set of all permissions if omitted).
