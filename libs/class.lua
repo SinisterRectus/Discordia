@@ -35,18 +35,13 @@ local function isObject(obj)
 end
 
 local function isSubclass(sub, cls)
-	if isClass(sub) and isClass(cls) then
-		if sub == cls then
+	if not isClass(sub) or not isClass(cls) then return false end
+	if sub == cls then return true end
+	for _, base in ipairs(sub.__bases) do
+		if isSubclass(base, cls) then
 			return true
-		else
-			for _, base in ipairs(sub.__bases) do
-				if isSubclass(base, cls) then
-					return true
-				end
-			end
 		end
 	end
-	return false
 end
 
 local function isInstance(obj, cls)
@@ -69,15 +64,12 @@ local function _getPrimitive(v)
 end
 
 local function serialize(obj)
-	if isObject(obj) then
-		local ret = {}
-		for k, v in pairs(obj.__getters) do
-			ret[k] = _getPrimitive(v(obj))
-		end
-		return ret
-	else
-		return _getPrimitive(obj)
+	if not isObject(obj) return _getPrimitive(obj) end
+	local ret = {}
+	for k, v in pairs(obj.__getters) do
+		ret[k] = _getPrimitive(v(obj))
 	end
+	return ret
 end
 
 local rawtype = type
@@ -133,29 +125,20 @@ return setmetatable({
 	local n = #pool
 
 	function class:__index(k)
-		if getters[k] then
-			return getters[k](self)
-		elseif pool[k] then
-			return rawget(self, pool[k])
-		else
-			return class[k]
-		end
+		if getters[k] then return getters[k](self) end
+		if pool[k] then return rawget(self, pool[k]) end
+		return class[k]
 	end
 
 	function class:__newindex(k, v)
-		if setters[k] then
-			return setters[k](self, v)
-		elseif class[k] or getters[k] then
-			return error(format('Cannot overwrite protected property: %s.%s', name, k))
-		elseif k:find('_', 1, true) ~= 1 then
-			return error(format('Cannot write property to object without leading underscore: %s.%s', name, k))
-		else
-			if not pool[k] then
-				n = n + 1
-				pool[k] = n
-			end
-			return rawset(self, pool[k], v)
+		if setters[k] then return setters[k](self, v) end
+		if class[k] or getters[k] then return error(format('Cannot overwrite protected property: %s.%s', name, k)) end
+		if k:find('_', 1, true) ~= 1 then return error(format('Cannot write property to object without leading underscore: %s.%s', name, k)) end
+		if not pool[k] then
+			n = n + 1
+			pool[k] = n
 		end
+		return rawset(self, pool[k], v)
 	end
 
 	names[name] = class
