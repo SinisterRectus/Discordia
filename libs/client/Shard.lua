@@ -47,8 +47,6 @@ local ignore = {
 	['INTEGRATION_DELETE'] = true,
 	['EMBEDDED_ACTIVITY_UPDATE'] = true,
 	['GIFT_CODE_UPDATE'] = true,
-	['GUILD_JOIN_REQUEST_UPDATE'] = true,
-	['GUILD_JOIN_REQUEST_DELETE'] = true,
 	['APPLICATION_COMMAND_PERMISSIONS_UPDATE'] = true,
 }
 
