@@ -325,18 +325,18 @@ function EventHandler.GUILD_JOIN_REQUEST_UPDATE(d, client)
 	local user = client:getUser(d.request.user_id)
 	local form_responses = d.request.form_responses
 	if status == "SUBMITTED" then
-		return client:emit('memberApplicationSubmitted', user, form_responses)
+		return client:emit('guildJoinRequestSubmitted', user, form_responses)
 	elseif  status == "APPROVED" then
-		return client:emit('memberApplicationApproved', user, form_responses)
+		return client:emit('guildJoinRequestApproved', user, form_responses)
 	elseif  status == "REJECTED" then
 		local rejection_reason = d.request.rejection_reason
-		return client:emit('memberApplicationRejected', user, form_responses, rejection_reason)
+		return client:emit('guildJoinRequestRejected', user, form_responses, rejection_reason)
 	end
 end
 
 function EventHandler.GUILD_JOIN_REQUEST_DELETE(d, client)
 	local user = client:getUser(d.user_id)
-	return client:emit('memberApplicationDelete', user)
+	return client:emit('guildJoinRequestDelete', user)
 end
 
 function EventHandler.MESSAGE_CREATE(d, client)
