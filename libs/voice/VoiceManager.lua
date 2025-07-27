@@ -25,7 +25,7 @@ function VoiceManager:_prepareConnection(state, connection)
 		return self._client:error('Cannot prepare voice connection: libsodium not found')
 	end
 	local socket = VoiceSocket(state, connection, self)
-	local url = 'wss://' .. state.endpoint:gsub(':%d*$', '')
+	local url = 'wss://' .. state.endpoint
 	local path = format('/?v=%i', GATEWAY_VERSION_VOICE)
 	return wrap(socket.connect)(socket, url, path)
 end
