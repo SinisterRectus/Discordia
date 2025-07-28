@@ -69,6 +69,7 @@ local defaultOptions = {
 	logLevel = logLevel.info,
 	gatewayFile = 'gateway.json',
 	dateTime = '%F %T',
+	prettyNewlines = true,
 	syncGuilds = false,
 	gatewayIntents = 3243773, -- all non-privileged intents
 }
@@ -115,7 +116,7 @@ function Client:__init(options)
 	self._private_channels = Cache({}, PrivateChannel, self)
 	self._relationships = Cache({}, Relationship, self)
 	self._webhooks = WeakCache({}, Webhook, self) -- used for audit logs
-	self._logger = Logger(options.logLevel, options.dateTime, options.logFile)
+	self._logger = Logger(options.logLevel, options.dateTime, options.logFile, options.prettyNewlines)
 	self._voice = VoiceManager(self)
 	self._role_map = {}
 	self._emoji_map = {}
