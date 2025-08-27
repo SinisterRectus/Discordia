@@ -17,6 +17,7 @@ local insert = table.insert
 local null = json.null
 local format = string.format
 local messageFlag = assert(enums.messageFlag)
+local channelType = assert(enums.channelType)
 local band, bor, bnot = bit.band, bit.bor, bit.bnot
 
 local Message, get = require('class')('Message', Snowflake)
@@ -26,7 +27,7 @@ function Message:__init(data, parent)
 	self._author = self.client._users:_insert(data.author)
 	if data.member then
 		data.member.user = data.author
-		self._parent._parent._members:_insert(data.member)
+		self._parent.guild._members:_insert(data.member)
 	end
 	self._timestamp = nil -- waste of space; can be calculated from Snowflake ID
 	if data.reactions and #data.reactions > 0 then
@@ -60,7 +61,7 @@ function Message:_loadMore(data)
 			mentions[user.id] = true
 			if user.member then
 				user.member.user = user
-				self._parent._parent._members:_insert(user.member)
+				self._parent.guild._members:_insert(user.member)
 			else
 				self.client._users:_insert(user)
 			end
@@ -407,6 +408,21 @@ function Message:crosspost()
 	else
 		return nil, err
 	end
+end
+
+--[=[
+@m startThread
+@t http
+@p channelData string/table
+@r boolean
+@d Creates a new thread channel with this message as the starter message.
+There can only exist one thread per one message.
+Threads started from a message are always public.
+
+Equivalent to `Message.channel:startThread(channelData, self)`.
+]=]
+function Message:startThread(channelData)
+	return self._channel:startThread(channelData, self)
 end
 
 --[=[@p reactions Cache An iterable cache of all reactions that exist for this message.]=]

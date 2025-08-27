@@ -3,10 +3,12 @@ local ffi = require('ffi')
 local ssl = require('openssl')
 local class = require('class')
 local enums = require('enums')
+local Date = require('utils/Date')
 
 local permission = assert(enums.permission)
 local gatewayIntent = assert(enums.gatewayIntent)
 local actionType = assert(enums.actionType)
+local channelFlag = assert(enums.channelFlag)
 local messageFlag = assert(enums.messageFlag)
 local base64 = ssl.base64
 local readFileSync = fs.readFileSync
@@ -45,6 +47,8 @@ function Resolver.userId(obj)
 			return obj.id
 		elseif isInstance(obj, classes.Member) then
 			return obj.user.id
+		elseif isInstance(obj, classes.ThreadMember) then
+			return obj.id
 		elseif isInstance(obj, classes.Message) then
 			return obj.author.id
 		elseif isInstance(obj, classes.Guild) then
@@ -211,6 +215,17 @@ function Resolver.messageFlag(obj)
 	return n
 end
 
+function Resolver.channelFlag(obj)
+	local t = type(obj)
+	local n = nil
+	if t == 'string' then
+		n = channelFlag[obj]
+	elseif t == 'number' then
+		n = channelFlag(obj) and obj
+	end
+	return n
+end
+
 function Resolver.base64(obj)
 	if type(obj) == 'string' then
 		if obj:find('data:.*;base64,') == 1 then
@@ -221,6 +236,20 @@ function Resolver.base64(obj)
 			return nil, err
 		end
 		return 'data:;base64,' .. base64(data)
+	end
+	return nil
+end
+
+function Resolver.isoTimestamp(obj)
+	local t = type(obj)
+	if isInstance(obj, Date) then
+		return obj:toISO()
+	elseif t == 'table' then
+		return Date.fromTable(obj):toISO()
+	elseif t == 'number' then
+		return Date.fromSeconds(obj):toISO()
+	elseif t == 'string' then
+		return obj
 	end
 	return nil
 end

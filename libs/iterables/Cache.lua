@@ -13,6 +13,22 @@ local Cache = require('class')('Cache', Iterable)
 
 local meta = {__mode = 'v'}
 
+local function hash(data)
+	-- local meta = getmetatable(data) -- debug
+	-- assert(meta and meta.__jsontype == 'object') -- debug
+	if data.id then -- snowflakes
+		return data.id
+	elseif data.user then -- members
+		return data.user.id
+	elseif data.emoji then -- reactions
+		return data.emoji.id ~= null and data.emoji.id or data.emoji.name
+	elseif data.code then -- invites
+		return data.code
+	else
+		return nil, 'json data could not be hashed'
+	end
+end
+
 function Cache:__init(array, constructor, parent)
 	local objects = {}
 	for _, data in ipairs(array) do
@@ -24,6 +40,7 @@ function Cache:__init(array, constructor, parent)
 	self._constructor = constructor
 	self._parent = parent
 	self._deleted = setmetatable({}, meta)
+	self._hash = hash
 end
 
 function Cache:__pairs()
@@ -47,24 +64,8 @@ local function remove(self, k, obj)
 	return obj
 end
 
-local function hash(data)
-	-- local meta = getmetatable(data) -- debug
-	-- assert(meta and meta.__jsontype == 'object') -- debug
-	if data.id then -- snowflakes
-		return data.id
-	elseif data.user then -- members
-		return data.user.id
-	elseif data.emoji then -- reactions
-		return data.emoji.id ~= null and data.emoji.id or data.emoji.name
-	elseif data.code then -- invites
-		return data.code
-	else
-		return nil, 'json data could not be hashed'
-	end
-end
-
-function Cache:_insert(data)
-	local k = assert(hash(data))
+function Cache:_insert(data, parent)
+	local k = assert(self._hash(data))
 	local old = self._objects[k]
 	if old then
 		old:_load(data)
@@ -74,13 +75,13 @@ function Cache:_insert(data)
 		deleted:_load(data)
 		return deleted
 	else
-		local obj = self._constructor(data, self._parent)
+		local obj = self._constructor(data, parent or self._parent)
 		return insert(self, k, obj)
 	end
 end
 
 function Cache:_remove(data)
-	local k = assert(hash(data))
+	local k = assert(self._hash(data))
 	local old = self._objects[k]
 	if old then
 		old:_load(data)

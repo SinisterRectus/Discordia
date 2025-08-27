@@ -16,6 +16,7 @@ local Resolver = require('client/Resolver')
 local AuditLogEntry = require('containers/AuditLogEntry')
 local GuildTextChannel = require('containers/GuildTextChannel')
 local GuildVoiceChannel = require('containers/GuildVoiceChannel')
+local GuildThreadChannel = require('containers/GuildThreadChannel')
 local GuildCategoryChannel = require('containers/GuildCategoryChannel')
 local Snowflake = require('containers/abstract/Snowflake')
 
@@ -36,6 +37,7 @@ function Guild:__init(data, parent)
 	self._members = Cache({}, Member, self)
 	self._text_channels = Cache({}, GuildTextChannel, self)
 	self._voice_channels = Cache({}, GuildVoiceChannel, self)
+	self._thread_channels = Cache({}, GuildThreadChannel)
 	self._categories = Cache({}, GuildCategoryChannel, self)
 	self._voice_states = {}
 	if not data.unavailable then
@@ -83,6 +85,8 @@ function Guild:_makeAvailable(data)
 		end
 	end
 
+	self:_loadThreads(data)
+
 	return self:_loadMembers(data)
 
 end
@@ -98,6 +102,17 @@ function Guild:_loadMembers(data)
 	end
 	if self._large and self.client._options.cacheAllMembers then
 		return self:requestMembers()
+	end
+end
+
+function Guild:_loadThreads(data)
+	if data.threads then
+		for _, thread in ipairs(data.threads) do
+			local parent = self:getChannel(thread.parent_id)
+			if parent then
+				parent._thread_channels:_insert(thread, parent)
+			end
+		end
 	end
 end
 
@@ -219,7 +234,7 @@ end
 ]=]
 function Guild:getChannel(id)
 	id = Resolver.channelId(id)
-	return self._text_channels:get(id) or self._voice_channels:get(id) or self._categories:get(id)
+	return self._text_channels:get(id) or self._voice_channels:get(id) or self._thread_channels:get(id) or self._categories:get(id)
 end
 
 --[=[
@@ -951,6 +966,11 @@ end
 --[=[@p voiceChannels Cache An iterable cache of all voice channels that exist in this guild.]=]
 function get.voiceChannels(self)
 	return self._voice_channels
+end
+
+--[=[@p threadChannels Cache An iterable cache of all active thread channels that exist in this guild.]=]
+function get.threadChannels(self)
+	return self._thread_channels
 end
 
 --[=[@p categories Cache An iterable cache of all channel categories that exist in this guild.]=]

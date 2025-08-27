@@ -218,6 +218,12 @@ enums.permission = enum {
 	sendVoiceMessages     = flag(46),
 }
 
+enums.channelFlag = enum {
+	pinned            = flag(0),
+	requireTag        = flag(1),
+	hideMediaDownload = flag(2),
+}
+
 enums.messageFlag = enum {
 	crossposted                = flag(0),
 	isCrosspost                = flag(1),

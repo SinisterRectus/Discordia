@@ -554,7 +554,10 @@ function Client:getChannel(id)
 	id = Resolver.channelId(id)
 	local guild = self._channel_map[id]
 	if guild then
-		return guild._text_channels:get(id) or guild._voice_channels:get(id) or guild._categories:get(id)
+		return guild._text_channels:get(id)
+			or guild._voice_channels:get(id)
+			or guild._thread_channels:get(id)
+			or guild._categories:get(id)
 	else
 		return self._private_channels:get(id) or self._group_channels:get(id)
 	end

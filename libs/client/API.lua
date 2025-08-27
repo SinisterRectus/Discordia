@@ -745,6 +745,66 @@ function API:getCurrentApplicationInformation() -- Client:run
 	return self:request("GET", endpoint)
 end
 
+function API:getThreadMember(channel_id, user_id)
+	local endpoint = f(endpoints.THREAD_MEMBER, channel_id, user_id)
+	return self:request("GET", endpoint)
+end
+
+function API:getThreadMembers(channel_id, query)
+	local endpoint = f(endpoints.THREAD_MEMBERS, channel_id)
+	return self:request("GET", endpoint, nil, query)
+end
+
+function API:addThreadMember(channel_id, user_id)
+	local endpoint = f(endpoints.THREAD_MEMBER, channel_id, user_id)
+	return self:request("PUT", endpoint)
+end
+
+function API:removeThreadMember(channel_id, user_id)
+	local endpoint = f(endpoints.THREAD_MEMBER, channel_id, user_id)
+	return self:request("DELETE", endpoint)
+end
+
+function API:getCurrentThreadMember(channel_id)
+	local endpoint = f(endpoints.THREAD_MEMBER, channel_id)
+	return self:request("GET", endpoint)
+end
+
+function API:joinThread(channel_id)
+	local endpoint = f(endpoints.THREAD_MEMBER_ME, channel_id)
+	return self:request("PUT", endpoint)
+end
+
+function API:leaveThread(channel_id)
+	local endpoint = f(endpoints.THREAD_MEMBER_ME, channel_id)
+	return self:request("DELETE", endpoint)
+end
+
+function API:startThreadWithMessage(channel_id, message_id, payload)
+	local endpoint = f(endpoints.THREAD_START, channel_id, message_id)
+	return self:request("POST", endpoint, payload)
+end
+
+function API:startThreadWithoutMessage(channel_id, payload)
+	local endpoint = f(endpoints.THREAD_START_WITHOUT_MESSAGE, channel_id)
+	return self:request("POST", endpoint, payload)
+end
+
+function API:listArchivedPublicThreads(channel_id, query)
+	local endpoint = f(endpoints.THREAD_ARCHIVED, channel_id)
+	return self:request("GET", endpoint, nil, query)
+end
+
+function API:listArchivedPrivateThreads(channel_id, query)
+	local endpoint = f(endpoints.THREAD_ARCHIVED_PRIVATE, channel_id)
+	return self:request("GET", endpoint, nil, query)
+end
+
+function API:listJoinedArchivedPrivateThreads(channel_id, query)
+	local endpoint = f(endpoints.THREAD_JOINED_ARCHIVED_PRIVATE, channel_id)
+	return self:request("GET", endpoint, nil, query)
+end
+
 -- end of auto-generated methods --
 
 return API
