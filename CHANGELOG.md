@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.13.1
+- Fixed a bug causing invalid voice gateway sessions
+
 ## 2.13.0
 - Added support for Discord timestamp mention formats (@Bilal2453)
 	- Added `Date.parseDiscordTimestamp`
