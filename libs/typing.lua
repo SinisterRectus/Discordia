@@ -22,6 +22,13 @@ local function checkType(expected, obj)
 	return obj
 end
 
+local function checkValue(obj)
+	if obj == nil then
+		typeError('value', 'nil')
+	end
+	return obj
+end
+
 local function checkNumber(obj, base, mn, mx)
 	local success, n = pcall(tonumber, obj, base)
 	if not success or not n then
@@ -74,6 +81,7 @@ end
 
 return {
 	checkType = checkType,
+	checkValue = checkValue,
 	checkNumber = checkNumber,
 	checkInteger = checkInteger,
 	checkCallable = checkCallable,
