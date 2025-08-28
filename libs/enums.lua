@@ -10,7 +10,7 @@ local function enum(tbl)
 	end
 	return setmetatable({}, {
 		__index = function(_, k)
-			if not tbl[k] then
+			if tbl[k] == nil then
 				return error('invalid enumeration name: ' .. tostring(k))
 			end
 			return tbl[k]
@@ -27,15 +27,15 @@ local function enum(tbl)
 		end,
 		__call = function(_, v)
 			if tbl[v] then
-				return v, tbl[v]
+				return tbl[v]
 			end
 			local n = tonumber(v)
 			if call[n] then
-				return call[n], n
+				return n
 			end
 			local s = tostring(v)
 			if call[s] then
-				return call[s], s
+				return s
 			end
 			return error('invalid enumeration: ' .. tostring(v))
 		end,

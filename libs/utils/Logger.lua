@@ -3,10 +3,7 @@ local class = require('../class')
 local enums = require('../enums')
 local typing = require('../typing')
 
-local date = os.date
-local format = string.format
-local insert, concat = table.insert, table.concat
-local checkEnum, checkType = typing.checkEnum, typing.checkType
+local checkType = typing.checkType
 
 local stdout
 if uv.guess_handle(1) == 'tty' then
@@ -31,27 +28,27 @@ local colors = {
 }
 
 local labels = {
-	{'[CRT]', colors.magenta},
-	{'[ERR]', colors.red},
-	{'[WRN]', colors.yellow},
-	{'[INF]', colors.green},
-	{'[DBG]', colors.cyan},
+	[enums.logLevel.critical] = {'[CRT]', colors.magenta},
+	[enums.logLevel.error]    = {'[ERR]', colors.red},
+	[enums.logLevel.warning]  = {'[WRN]', colors.yellow},
+	[enums.logLevel.info]     = {'[INF]', colors.green},
+	[enums.logLevel.debug]    = {'[DBG]', colors.cyan},
 }
 
 for _, v in ipairs(labels) do
-	v[3] = format('\27[%i;%im%s\27[0m', 0, v[2], v[1])
+	v[3] = string.format('\27[%i;%im%s\27[0m', 0, v[2], v[1])
 end
 
 local Logger = class('Logger')
 
 function Logger:__init(level)
-	self._level = checkEnum(enums.logLevel, level)
+	self._level = enums.logLevel(level)
 	self._stream = stdout
 	self._useColors = true
 end
 
 function Logger:setLevel(level)
-	self._level = checkEnum(enums.logLevel, level)
+	self._level = enums.logLevel(level)
 end
 
 function Logger:setDateFormat(dateFormat)
@@ -60,7 +57,7 @@ end
 
 function Logger:setStream(stream)
 	local t = type(stream)
-	if t == 'table' or t == 'userdata' and type(stream.write) == 'function' then
+	if (t == 'table' or t == 'userdata') and type(stream.write) == 'function' then
 		self._stream = stream
 	else
 		self._stream = nil
@@ -86,12 +83,16 @@ end
 
 function Logger:log(level, msg, ...)
 
-	level = checkEnum(enums.logLevel, level)
+	level = enums.logLevel(level)
 	if self._level < level then return end
 
-	msg = format(checkType('string', msg), ...)
+	msg = checkType('string', msg)
+	if select('#', ...) > 0 then
+		msg = string.format(msg, ...)
+	end
+
 	local label = labels[level]
-	local buf = {date(self._dateFormat), SEP, label[1], SEP}
+	local buf = {os.date(self._dateFormat), SEP, label[1], SEP}
 
 	local i, j = msg:find('\n')
 	if i then
@@ -99,30 +100,30 @@ function Logger:log(level, msg, ...)
 		local space2 = string.rep(' ', #buf[3])
 		local n = 1
 		while i do
-			insert(buf, msg:sub(n, i))
-			insert(buf, space1)
-			insert(buf, SEP)
-			insert(buf, space2)
-			insert(buf, SEP)
+			table.insert(buf, msg:sub(n, i))
+			table.insert(buf, space1)
+			table.insert(buf, SEP)
+			table.insert(buf, space2)
+			table.insert(buf, SEP)
 			n = j + 1
 			i, j = msg:find('\n', n)
 		end
-		insert(buf, msg:sub(n))
+		table.insert(buf, msg:sub(n))
 	else
-		insert(buf, msg)
+		table.insert(buf, msg)
 	end
 
-	insert(buf, '\n')
+	table.insert(buf, '\n')
 
 	if self._file then
-		uv.fs_write(self._file, concat(buf))
+		uv.fs_write(self._file, table.concat(buf))
 	end
 
 	if self._stream then
 		if self._useColors then
 			buf[3] = label[3]
 		end
-		self._stream:write(concat(buf))
+		self._stream:write(table.concat(buf))
 	end
 
 	return msg

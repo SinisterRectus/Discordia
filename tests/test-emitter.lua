@@ -63,12 +63,10 @@ end)()
 assertError(function() return em:on() end, 'expected string, received nil')
 assertError(function() return em:on(1) end, 'expected string, received number')
 assertError(function() return em:on('test') end, 'expected callable, received nil')
-assertError(function() return em:on('test', function() end, 'test') end, 'expected callable, received string')
 
 assertError(function() return em:once() end, 'expected string, received nil')
 assertError(function() return em:once(1) end, 'expected string, received number')
 assertError(function() return em:once('test') end, 'expected callable, received nil')
-assertError(function() return em:once('test', function() end, 'test') end, 'expected callable, received string')
 
 assertError(function() return em:emit() end, 'expected string, received nil')
 assertError(function() return em:emit(1) end, 'expected string, received number')

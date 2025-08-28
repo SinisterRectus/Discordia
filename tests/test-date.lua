@@ -90,15 +90,15 @@ assertEqual(Date.fromISO('2020-03-13T20Z'), Date.fromTableUTC {
 })
 assertEqual(Date.fromISO('2020-03-13T20:54+01'), Date.fromTableUTC {
 	year = 2020, month = 3, day = 13,
-	hour = 20 + 1, min = 54,
+	hour = 20 - 1, min = 54,
 })
 assertEqual(Date.fromISO('2020-03-13T20:54:47+01:30'), Date.fromTableUTC {
 	year = 2020, month = 3, day = 13,
-	hour = 20 + 1, min = 54 + 30, sec = 47,
+	hour = 20 - 1, min = 54 - 30, sec = 47,
 })
 assertEqual(Date.fromISO('2020-03-13T20:54:47.234567-01:30'), Date.fromTableUTC {
 	year = 2020, month = 3, day = 13,
-	hour = 20 - 1, min = 54 - 30, sec = 47, usec = 234567,
+	hour = 20 + 1, min = 54 + 30, sec = 47, usec = 234567,
 })
 
 assertTrue(Date(1) == Date(1))

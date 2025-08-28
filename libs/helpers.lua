@@ -1,18 +1,5 @@
 local uv = require('uv')
 
--- local function merge(sink, source)
--- 	for k, v in pairs(source) do
--- 		sink[k] = v
--- 	end
--- 	return sink
--- end
-
--- local function has(tbl, value)
--- 	for _, v in pairs(tbl) do
--- 		if v == value then return true end
--- 	end
--- end
-
 local function benchmark(n, fn, ...)
 
 	local _ = {}

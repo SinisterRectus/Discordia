@@ -801,6 +801,8 @@ function BigInt:__lt(other)
 		local comp = compare(a, b)
 		if comp == nil then
 			return false
+		elseif a.sign == 1 then
+			return not comp
 		else
 			return comp
 		end
@@ -818,6 +820,8 @@ function BigInt:__le(other)
 		local comp = compare(a, b)
 		if comp == nil then
 			return true
+		elseif a.sign == 1 then
+			return not comp
 		else
 			return comp
 		end

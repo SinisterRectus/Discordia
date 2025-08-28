@@ -3,12 +3,9 @@ local typing = require('../typing')
 
 local isInstance = class.isInstance
 local checkNumber = typing.checkNumber
-local min, max, abs, floor = math.min, math.max, math.abs, math.floor
-local lshift, rshift, band, bor = bit.lshift, bit.rshift, bit.band, bit.bor
-local format = string.format
 
 local function clamp(n, mn, mx)
-	return min(max(n, mn), mx)
+	return math.min(math.max(n, mn), mx)
 end
 
 local function lerp(a, b, t)
@@ -16,15 +13,15 @@ local function lerp(a, b, t)
 end
 
 local function round(n)
-	return floor(n + 0.5)
+	return math.floor(n + 0.5)
 end
 
 local function getByte(n, m)
-	return band(rshift(n, m), 0xFF)
+	return bit.band(bit.rshift(n, m), 0xFF)
 end
 
 local function checkByte(n, m)
-	return lshift(clamp(round(checkNumber(n)), 0, 0xFF), m)
+	return bit.lshift(clamp(round(checkNumber(n)), 0, 0xFF), m)
 end
 
 local function checkValue(n, base)
@@ -40,7 +37,7 @@ local function checkAngle(n)
 end
 
 local function fromHue(h, c, m)
-	local x = c * (1 - abs(h / 60 % 2 - 1))
+	local x = c * (1 - math.abs(h / 60 % 2 - 1))
 	local r, g, b
 	if h < 60 then
 		r, g, b = c, x, 0
@@ -62,8 +59,8 @@ local function toHue(r, g, b)
 	r = r / 0xFF
 	g = g / 0xFF
 	b = b / 0xFF
-	local v = max(r, g, b)
-	local c = v - min(r, g, b)
+	local v = math.max(r, g, b)
+	local c = v - math.min(r, g, b)
 	local h
 	if c == 0 then
 		h = 0
@@ -99,7 +96,7 @@ function Color.fromHex(hex)
 end
 
 function Color.fromRGB(r, g, b)
-	return Color(bor(checkByte(r, 16), checkByte(g, 8), checkByte(b, 0)))
+	return Color(bit.bor(checkByte(r, 16), checkByte(g, 8), checkByte(b, 0)))
 end
 
 function Color.fromHSV(h, s, v)
@@ -116,7 +113,7 @@ function Color.fromHSL(h, s, l)
 	h = checkAngle(h)
 	s = checkFloat(s)
 	l = checkFloat(l)
-	local c = (1 - abs(2 * l - 1)) * s
+	local c = (1 - math.abs(2 * l - 1)) * s
 	local m = l - c * 0.5
 	local r, g, b = fromHue(h, c, m)
 	return Color.fromRGB(r, g, b)
@@ -183,7 +180,7 @@ function Color:lerp(other, t)
 end
 
 function Color:toString()
-	return format('#%s (%i, %i, %i)', self:toHex(), self:toRGB())
+	return string.format('#%s (%i, %i, %i)', self:toHex(), self:toRGB())
 end
 
 function Color:toDec()
@@ -191,7 +188,7 @@ function Color:toDec()
 end
 
 function Color:toHex()
-	return format('%06X', self._n)
+	return string.format('%06X', self._n)
 end
 
 function Color:toRGB()
@@ -207,7 +204,7 @@ end
 function Color:toHSL()
 	local h, c, v = toHue(self:toRGB())
 	local l = v - c * 0.5
-	local s = (l == 0 or l == 1) and 0 or c / (1 - abs(2 * v - c - 1))
+	local s = (l == 0 or l == 1) and 0 or c / (1 - math.abs(2 * v - c - 1))
 	return h, s, l
 end
 

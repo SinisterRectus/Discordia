@@ -1,8 +1,7 @@
 local json = require('json')
-local f = string.format
 
 local function typeError(expected, received)
-	return error(f('expected %s, received %s', expected, received))
+	return error(string.format('expected %s, received %s', expected, received))
 end
 
 local function opt(obj, fn, extra)
@@ -66,16 +65,11 @@ local function checkSnowflake(obj)
 	if t == 'string' and tonumber(obj) then
 		return obj
 	elseif t == 'number' and obj < 2^32 then
-		return f('%i', obj)
+		return string.format('%i', obj)
 	elseif t == 'table' then
 		return checkSnowflake(obj.id)
 	end
-	return error('Snowflake ID should be an integral string')
-end
-
-local function checkEnum(enum, obj)
-	local _, v = enum(obj)
-	return v
+	typeError('snowflake', t)
 end
 
 return {
@@ -84,5 +78,4 @@ return {
 	checkInteger = checkInteger,
 	checkCallable = checkCallable,
 	checkSnowflake = checkSnowflake,
-	checkEnum = checkEnum,
 }

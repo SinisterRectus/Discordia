@@ -63,6 +63,18 @@ assertTrue(two <= two)
 assertTrue(one <= two)
 assertTrue(two >= one)
 
+assertTrue(one ~= -one)
+assertTrue(-one < one)
+assertTrue(one > -one)
+assertTrue(-one <= one)
+assertTrue(one >= -one)
+
+assertTrue(-one ~= -two)
+assertTrue(-two < -one)
+assertTrue(-one > -two)
+assertTrue(-two <= -one)
+assertTrue(-one >= -two)
+
 assertFalse(one == two)
 assertFalse(two == one)
 assertFalse(one ~= one)

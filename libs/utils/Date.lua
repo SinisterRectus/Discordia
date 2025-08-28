@@ -6,14 +6,9 @@ local constants = require('../constants')
 
 local Time = require('./Time')
 
-local gettimeofday = uv.gettimeofday
 local isInstance = class.isInstance
 local checkInteger, checkType = typing.checkInteger, typing.checkType
-local checkEnum = typing.checkEnum
 local checkSnowflake = typing.checkSnowflake
-local floor, fmod, modf = math.floor, math.fmod, math.modf
-local format = string.format
-local date, time, difftime = os.date, os.time, os.difftime
 
 local MS_PER_S = constants.MS_PER_S
 local US_PER_MS = constants.US_PER_MS
@@ -21,11 +16,11 @@ local US_PER_S = US_PER_MS * MS_PER_S
 local DISCORD_EPOCH = constants.DISCORD_EPOCH
 
 local function offset()
-	return difftime(time(), time(date('!*t')))
+	return os.difftime(os.time(), os.time(os.date('!*t')))
 end
 
 local function decompose(a, b, c)
-	return modf(a / b), fmod(a, b) * c
+	return math.modf(a / b), math.fmod(a, b) * c
 end
 
 local function normalize(x, y, z)
@@ -51,15 +46,15 @@ local properties = { -- name, pattern, default
 local function toTime(tbl, utc)
 	local new = {}
 	for _, v in ipairs(properties.date) do
-		new[v[1]] = floor(tbl[v[1]] or v[3])
+		new[v[1]] = math.floor(tbl[v[1]] or v[3])
 	end
 	for _, v in ipairs(properties.time) do
-		new[v[1]] = floor(tbl[v[1]] or v[3])
+		new[v[1]] = math.floor(tbl[v[1]] or v[3])
 	end
 	if utc then
 		new.isdst = false
 	end
-	local sec = time(new)
+	local sec = os.time(new)
 	if not sec then
 		return error('date could not be converted to time')
 	end
@@ -70,7 +65,7 @@ local function toTime(tbl, utc)
 end
 
 local function toDate(fmt, t)
-	local d = date(fmt, t)
+	local d = os.date(fmt, t)
 	if not d then
 		return error('time could not be converted to date')
 	end
@@ -91,7 +86,7 @@ function Date:__init(s, us)
 		s = s and checkInteger(s, 10, 0) or 0
 		us = us and checkInteger(us, 10, 0) or 0
 	else
-		s, us = gettimeofday()
+		s, us = uv.gettimeofday()
 	end
 	self._s, self._us = s, us
 end
@@ -173,11 +168,11 @@ function Date.fromISO(str)
 			if z ~= 'Z' and o ~= '00:00' then
 				if z == '+' then
 					for k, v in pairs(parseString(properties.time, {}, o)) do
-						tbl[k] = tbl[k] + v
+						tbl[k] = tbl[k] - v
 					end
 				elseif z == '-' then
 					for k, v in pairs(parseString(properties.time, {}, o)) do
-						tbl[k] = tbl[k] - v
+						tbl[k] = tbl[k] + v
 					end
 				end
 			end
@@ -191,7 +186,7 @@ function Date.fromISO(str)
 end
 
 function Date.fromSnowflake(id)
-	return Date.fromMilliseconds(floor(checkSnowflake(id) / 2^22) + DISCORD_EPOCH)
+	return Date.fromMilliseconds(math.floor(checkSnowflake(id) / 2^22) + DISCORD_EPOCH)
 end
 
 function Date.fromTable(tbl)
@@ -217,14 +212,14 @@ end
 function Date:toISO()
 	local s, us = self:toParts()
 	if us > 0 then
-		return toDate('!%FT%T', s) .. format('.%06i', us)
+		return toDate('!%FT%T', s) .. string.format('.%06i', us)
 	else
 		return toDate('!%FT%T', s)
 	end
 end
 
 function Date:toSnowflake()
-	return format('%i', (self:toMilliseconds() - DISCORD_EPOCH) * 2^22)
+	return string.format('%i', (self:toMilliseconds() - DISCORD_EPOCH) * 2^22)
 end
 
 function Date:toTable()
@@ -262,11 +257,11 @@ function Date:toParts()
 end
 
 function Date:toMention(style)
-	local t = floor(self:toSeconds())
+	local t = math.floor(self:toSeconds())
 	if style then
-		return format('<t:%s:%s>', t, checkEnum(enums.timestampStyle, style))
+		return string.format('<t:%s:%s>', t, enums.timestampStyle(style))
 	else
-		return format('<t:%s>', t)
+		return string.format('<t:%s>', t)
 	end
 end
 

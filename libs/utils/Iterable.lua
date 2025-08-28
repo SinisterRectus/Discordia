@@ -1,7 +1,6 @@
 local class = require('../class')
 local typing = require('typing')
 
-local insert, sort = table.insert, table.sort
 local checkType, checkCallable = typing.checkType, typing.checkCallable
 
 local Iterable = class('Iterable')
@@ -63,7 +62,7 @@ function Iterable:get(k)
 end
 
 function Iterable:sort(sorter)
-	sort(self._arr, checkType('function', sorter))
+	return table.sort(self._arr, checkType('function', sorter))
 end
 
 function Iterable:iter()
@@ -80,7 +79,7 @@ function Iterable:filter(fn)
 	local new = {}
 	for _, v in ipairs(self._arr) do
 		if fn(v) then
-			insert(new, v)
+			table.insert(new, v)
 		end
 	end
 	return Iterable(new, self._key)
@@ -116,7 +115,7 @@ end
 function Iterable:toArray()
 	local ret = {}
 	for _, v in ipairs(self._arr) do
-		insert(ret, v)
+		table.insert(ret, v)
 	end
 	return ret
 end
@@ -149,7 +148,7 @@ function Iterable:select(...)
 		for i = 1, n do
 			row[i] = v[keys[i]]
 		end
-		insert(rows, row)
+		table.insert(rows, row)
 	end
 	return rows
 end

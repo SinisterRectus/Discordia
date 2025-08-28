@@ -2,8 +2,6 @@ local class = require('../class')
 local typing = require('../typing')
 local constants = require('../constants')
 
-local fmod, modf = math.fmod, math.modf
-local insert, concat = table.insert, table.concat
 local isInstance = class.isInstance
 local checkNumber = typing.checkNumber
 
@@ -25,7 +23,7 @@ local units = {
 }
 
 local function decompose(a, b)
-	return modf(a / b), fmod(a, b)
+	return math.modf(a / b), math.fmod(a, b)
 end
 
 local Time, get = class('Time')
@@ -92,12 +90,12 @@ function Time:toString()
 		local n
 		n, v = decompose(v, unit[2])
 		if n == 1 or n == -1 then
-			insert(ret, n .. ' ' .. unit[1]:sub(1, -2))
+			table.insert(ret, n .. ' ' .. unit[1]:sub(1, -2))
 		elseif n ~= 0 then
-			insert(ret, n .. ' ' .. unit[1])
+			table.insert(ret, n .. ' ' .. unit[1])
 		end
 	end
-	return #ret > 0 and concat(ret, ', ') or '0 ' .. units[#units][1]
+	return #ret > 0 and table.concat(ret, ', ') or '0 ' .. units[#units][1]
 end
 
 function Time.fromWeeks(t)
