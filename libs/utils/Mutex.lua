@@ -1,45 +1,34 @@
 local class = require('../class')
-local typing = require('../typing')
 local helpers = require('../helpers')
 
-local setTimeout = helpers.setTimeout
 local assertResume = helpers.assertResume
-local checkNumber = typing.checkNumber
 
 local Mutex = class('Mutex')
 
 function Mutex:__init()
 	self._queue = {}
-	self._active = false
+	self._owner = nil
 end
 
-function Mutex:lock(prepend)
-	if self._active then
-		local thread = coroutine.running()
-		if prepend then
-			table.insert(self._queue, 1, thread)
-		else
-			table.insert(self._queue, thread)
-		end
+function Mutex:lock()
+	local thread = coroutine.running()
+	if self._owner then
+		assert(self._owner ~= thread, 'coroutine already locked')
+		table.insert(self._queue, thread)
 		return coroutine.yield()
 	else
-		self._active = true
+		self._owner = thread
 	end
 end
 
 function Mutex:unlock()
-	if self._active then
-		local thread = table.remove(self._queue, 1)
-		if thread then
-			return assertResume(thread)
-		else
-			self._active = false
-		end
+	assert(self._owner == coroutine.running(), 'mutex is not owned by current coroutine')
+	if #self._queue > 0 then
+		self._owner = table.remove(self._queue, 1)
+		return assertResume(self._owner)
+	else
+		self._owner = nil
 	end
-end
-
-function Mutex:unlockAfter(delay)
-	return setTimeout(checkNumber(delay, 10, 0), self.unlock, self)
 end
 
 return Mutex

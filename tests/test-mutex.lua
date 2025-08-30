@@ -41,20 +41,19 @@ do
 	end
 end
 
-do
+assertError(function()
 	local mutex = Mutex()
-	local done = {}
-	for i = n, 1, -1 do
-		run(function()
-			mutex:lock()
-			mutex:unlockAfter(a ^ i)
-			done[i] = true
-			for j = i, n do
-				assertTrue(done[j])
-			end
-		end)
-	end
-end
+	mutex:lock()
+	mutex:lock()
+end, 'coroutine already locked')
 
-assertError(function() return Mutex():unlockAfter() end, 'expected number, received nil')
-assertError(function() return Mutex():unlockAfter(-1) end, 'expected minimum 0, received -1')
+assertError(function()
+	local mutex = Mutex()
+	mutex:unlock()
+end, 'mutex is not owned by current coroutine')
+
+assertError(function()
+	local mutex = Mutex()
+	mutex:lock()
+	run(mutex.unlock, mutex)
+end, 'mutex is not owned by current coroutine')
