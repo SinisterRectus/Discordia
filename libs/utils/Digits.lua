@@ -1,5 +1,3 @@
-local typing = require('../typing')
-
 local DEFAULT_BASE = 10
 
 local codec = setmetatable({}, {__index = function(_, k) return k end})
@@ -22,7 +20,8 @@ local prefixes = {
 -- "Digits" is a private class-like structure, not meant to be exposed publicly
 
 local Digits = setmetatable({}, {__call = function(self, base)
-	return setmetatable({base = typing.checkInteger(base, 10, 2)}, self)
+	assert(type(base) == 'number' and base > 1)
+	return setmetatable({base = base}, self)
 end})
 
 function Digits.isInstance(obj)
@@ -65,6 +64,12 @@ function Digits:trim()
 	while i > 0 and self[i] == 0 do
 		self[i] = nil
 		i = i - 1
+	end
+end
+
+function Digits:fill(n)
+	for i = 1, n do
+		self[i] = self[i] or 0
 	end
 end
 
@@ -281,7 +286,7 @@ function Digits.fromString(str, inputBase, outputBase) -- BE string to LE array
 		end
 	end
 
-	digits.sign = #digits > 0 and sign
+	digits.sign = #digits > 0 and sign or nil
 
 	return digits
 
@@ -301,19 +306,11 @@ function Digits:convert(outputBase)
 	return new
 end
 
-function Digits:toString(outputBase)
-
-	if #self == 0 then
-		return '0'
-	elseif #self == 1 and self[1] == 1 then
-		if self.sign == 0 then
-			return '1'
-		elseif self.sign == 1 then
-			return '-1'
-		end
-	end
+function Digits:toString(outputBase, len)
 
 	outputBase = outputBase or DEFAULT_BASE
+	len = len or 1
+
 	if self.base ~= outputBase then
 		self = self:convert(outputBase)
 	end
@@ -322,6 +319,10 @@ function Digits:toString(outputBase)
 
 	if self.sign == 1 then
 		table.insert(buf, '-')
+	end
+
+	for _ = 1, len - #self do
+		table.insert(buf, '0')
 	end
 
 	for i = #self, 1, -1 do

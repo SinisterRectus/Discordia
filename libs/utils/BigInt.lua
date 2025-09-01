@@ -168,8 +168,10 @@ function BigInt:__init(obj, inputBase)
 	self._digits = checkDigits(obj, inputBase and checkBase(inputBase), nil, true)
 end
 
-function BigInt:toString(outputBase)
-	return self._digits:toString(outputBase and checkBase(outputBase))
+function BigInt:toString(outputBase, len)
+	outputBase = outputBase and checkBase(outputBase)
+	len = len and typing.checkInteger(len, 10, 1)
+	return self._digits:toString(outputBase, len)
 end
 
 function BigInt:toNumber()
