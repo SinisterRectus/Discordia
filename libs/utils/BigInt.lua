@@ -1,43 +1,9 @@
 local class = require('../class')
 local typing = require('../typing')
 
-local meta = {__index = function() return 0 end}
-local function array(base)
-	return setmetatable({base = typing.checkInteger(base, 10, 2)}, meta)
-end
+local Digits = require('./Digits')
 
-local codec = setmetatable({}, {__index = function(_, k) return k end})
-for n, char in ('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'):gmatch('()(.)') do
-	codec[n - 1] = char
-end
-
-local DEFAULT_BASE = 10
 local STORAGE_BASE = 2^16
-
-local function positiveOne(base)
-	local digits = array(base)
-	digits[1] = 1
-	return digits
-end
-
-local function negativeOne(base)
-	local digits = array(base)
-	digits[1] = 1
-	digits.sign = 1
-	return digits
-end
-
-local bitops = {
-	['AND'] = function(a, b) return a == 1 and b == 1 end,
-	['OR'] = function(a, b) return a == 1 or b == 1 end,
-	['XOR'] = function(a, b) return a ~= b end,
-}
-
-local prefixes = {
-	['0b'] = 02, ['0B'] = 02,
-	['0o'] = 08, ['0O'] = 08,
-	['0x'] = 16, ['0X'] = 16,
-}
 
 --[[
 Implementation Details
@@ -69,9 +35,6 @@ Storage and operations:
 	operators do not modify objects in-place and instead return new objects.
 	Therefore, in the case of m = -n, m is a new object and an explicit call to
 	the copy method is redundant.
-
-	As an optimization, digit tables are shared between BigInt objects. Do not
-	directly modify at-rest digit tables as other BigInts may reference them.
 
 	Division only supports base 2 digits and is therefore the only arithmetic
 	operation here that does not support an arbitrary base. This may change in
@@ -138,251 +101,15 @@ Output formats:
 	where string.format('%s: %s', obj.__name, obj:toString()) is the output.
 ]]
 
-local function trim(digits)
-	local i = #digits
-	while i > 0 and digits[i] == 0 do
-		digits[i] = nil
-		i = i - 1
-	end
-end
-
-local function compare(a, b) -- unsigned
-	assert(a.base == b.base)
-	local n, m = #a, #b
-	if n < m then
-		return true
-	elseif n > m then
-		return false
-	end
-	for i = n, 1, -1 do
-		if a[i] < b[i] then
-			return true
-		elseif a[i] > b[i] then
-			return false
-		end
-	end
-	return nil
-end
-
-local function setDigit(digits, i, v)
-	if v >= digits.base then
-		local n = math.floor(v / digits.base)
-		digits[i + 1] = digits[i + 1] + n
-		digits[i] = v - n * digits.base
-	elseif v < 0 then
-		local n = math.ceil(-v / digits.base)
-		digits[i + 1] = digits[i + 1] - n
-		digits[i] = v + n * digits.base
-	else
-		digits[i] = v
-	end
-end
-
-local function getSum(a, b) -- unsigned
-	assert(a.base == b.base)
-	local c = array(a.base)
-	for i = 1, math.max(#a, #b) do
-		setDigit(c, i, c[i] + a[i] + b[i])
-	end
-	return c
-end
-
-local function addInPlace(a, b) -- unsigned
-	assert(a.base == b.base)
-	for i = 1, math.max(#a, #b) do
-		setDigit(a, i, a[i] + b[i])
-	end
-end
-
-local function getDifference(a, b) -- unsigned
-	assert(a.base == b.base)
-	local n, m = #a, #b
-	assert(n >= m)
-	local c = array(a.base)
-	for i = 1, n do
-		setDigit(c, i, c[i] + a[i] - b[i])
-	end
-	trim(c)
-	return c
-end
-
-local function subtractInPlace(a, b) -- unsigned
-	assert(a.base == b.base)
-	local n, m = #a, #b
-	assert(n >= m)
-	for i = 1, n do
-		setDigit(a, i, a[i] - b[i])
-	end
-	trim(a)
-end
-
-local function getProduct(a, b) -- unsigned
-	assert(a.base == b.base)
-	local c = array(a.base)
-	for i = 1, #a do
-		for j = 1, #b do
-			local k = i + j - 1
-			setDigit(c, k, c[k] + a[i] * b[j])
-		end
-	end
-	return c
-end
-
-local function getComplement(digits, n)
-	assert(digits.base == 2)
-	local complement = array(2)
-	for i = 1, n do
-		complement[i] = math.abs(digits[i] - 1)
-	end
-	addInPlace(complement, positiveOne(2))
-	return complement
-end
-
-local function complementInPlace(digits, n)
-	assert(digits.base == 2)
-	for i = 1, n do
-		digits[i] = math.abs(digits[i] - 1)
-	end
-	addInPlace(digits, positiveOne(2))
-end
-
-local function bitop(a, b, fn)
-
-	assert(a.base == 2)
-	assert(b.base == 2)
-	local n = math.max(#a, #b)
-	local signed = fn(a.sign, b.sign)
-
-	if a.sign == 1 then
-		a = getComplement(a, n)
-	end
-
-	if b.sign == 1 then
-		b = getComplement(b, n)
-	end
-
-	local c = array(a.base)
-	for i = 1, n do
-		c[i] = fn(a[i], b[i]) and 1 or 0
-	end
-
-	if signed then
-		complementInPlace(c, n)
-		c.sign = 1
-	end
-
-	trim(c)
-	return c
-
-end
-
-local function parseUnsigned(n, base)
-	local digits = array(base)
-	while n > 0 do
-		local r = n % base
-		table.insert(digits, r)
-		n = (n - r) / base
-	end
-	return digits
-end
-
-local function parseSigned(n, base)
-	local sign = nil
-	if n < 0 then
-		sign = 1
-		n = -n
-	end
-	local digits = parseUnsigned(n, base)
-	digits.sign = sign
-	return digits
-end
-
-local function checkDigit(str, i, base)
-	local digit = tonumber(str:sub(i, i), base)
-	if not digit then
-		return error('invalid number format: ' .. str)
-	end
-	return digit
-end
-
 local function checkBase(base)
 	return typing.checkInteger(base, 10, 2, 36)
-end
-
-local function parseString(str, inputBase, outputBase) -- BE string to LE array
-
-	local digits = array(outputBase)
-
-	local a, b = 1, #str
-
-	local _, j = str:find('^%s+', a)
-	if j then a = j + 1 end -- ignore leading whitespace
-
-	local k = str:find('%s+$', a)
-	if k then b = k - 1 end -- ignore trailing whitespace
-
-	-- consume sign
-	local sign = str:sub(a, a)
-	if sign == '-' then
-		sign = 1
-		a = a + 1
-	elseif sign == '+' then
-		sign = nil
-		a = a + 1
-	else
-		sign = nil
-	end
-
-	if not inputBase then -- define inputBase
-		local prefix = prefixes[str:sub(a, a + 1)]
-		if prefix then
-			inputBase = prefix
-			a = a + 2
-		else
-			inputBase = DEFAULT_BASE
-		end
-	end
-
-	local _, z = str:find('^0+', a)
-	if z then a = z + 1 end -- ignore leading zeroes
-
-	if inputBase == outputBase then
-		for i = b, a, -1 do
-			local digit = checkDigit(str, i, inputBase)
-			table.insert(digits, digit)
-		end
-	else
-		local base = parseUnsigned(inputBase, outputBase)
-		for i = a, b, 1 do
-			local digit = parseUnsigned(checkDigit(str, i, inputBase), outputBase)
-			digits = getProduct(digits, base)
-			addInPlace(digits, digit)
-		end
-	end
-
-	digits.sign = #digits > 0 and sign
-
-	return digits
-
-end
-
-local function convertDigits(old, outputBase)
-	local new = array(outputBase)
-	local base = parseUnsigned(old.base, outputBase)
-	for i = #old, 1, -1 do
-		local digit = parseUnsigned(old[i], outputBase)
-		new = getProduct(new, base)
-		addInPlace(new, digit)
-	end
-	new.sign = rawget(old, 'sign')
-	return new
 end
 
 local BigInt = class('BigInt')
 
 function BigInt._debug(base) STORAGE_BASE = base end
 
-local function checkDigits(obj, inputBase, outputBase)
+local function checkDigits(obj, inputBase, outputBase, makeCopy)
 
 	outputBase = outputBase or STORAGE_BASE
 
@@ -404,11 +131,11 @@ local function checkDigits(obj, inputBase, outputBase)
 			error('number too large')
 		end
 
-		return parseSigned(n, outputBase)
+		return Digits.fromNumber(n, outputBase)
 
 	elseif t == 'string' then
 
-		return parseString(obj, inputBase, outputBase)
+		return Digits.fromString(obj, inputBase, outputBase)
 
 	elseif t == 'table' then
 
@@ -419,16 +146,16 @@ local function checkDigits(obj, inputBase, outputBase)
 		local digits
 		if class.isInstance(obj, BigInt) then
 			digits = obj._digits
-		elseif getmetatable(obj) == meta then
+		elseif Digits.isInstance(obj) then
 			digits = obj
 		else
 			error('invalid digit table')
 		end
 
 		if digits.base == outputBase then
-			return digits
+			return makeCopy and digits:copy() or digits
 		else
-			return convertDigits(digits, outputBase)
+			return digits:convert(outputBase)
 		end
 
 	end
@@ -438,48 +165,15 @@ local function checkDigits(obj, inputBase, outputBase)
 end
 
 function BigInt:__init(obj, inputBase)
-	self._digits = checkDigits(obj, inputBase and checkBase(inputBase))
+	self._digits = checkDigits(obj, inputBase and checkBase(inputBase), nil, true)
 end
 
 function BigInt:toString(outputBase)
-
-	local digits = self._digits
-	if #digits == 0 then
-		return '0'
-	elseif #digits == 1 and digits[1] == 1 then
-		if digits.sign == 0 then
-			return '1'
-		elseif digits.sign == 1 then
-			return '-1'
-		end
-	end
-
-	outputBase = outputBase and checkBase(outputBase) or DEFAULT_BASE
-	if digits.base ~= outputBase then
-		digits = convertDigits(digits, outputBase)
-	end
-
-	local buf = {}
-
-	if digits.sign == 1 then
-		table.insert(buf, '-')
-	end
-
-	for i = #digits, 1, -1 do
-		table.insert(buf, codec[digits[i]])
-	end
-
-	return table.concat(buf)
-
+	return self._digits:toString(outputBase and checkBase(outputBase))
 end
 
 function BigInt:toNumber()
-	local n = 0
-	local digits = self._digits
-	for i = #digits, 1, -1 do
-		n = n * digits.base + digits[i]
-	end
-	return digits.sign == 1 and -n or n
+	return self._digits:toNumber()
 end
 
 function BigInt:copy()
@@ -499,17 +193,17 @@ function BigInt:__add(other)
 	end
 
 	if a.sign == b.sign then
-		local c = getSum(a, b)
+		local c = a:getSum(b)
 		c.sign = rawget(a, 'sign')
 		return BigInt(c)
 	else
-		local comp = compare(a, b)
+		local comp = a:compare(b)
 		if comp == true then
-			local c = getDifference(b, a)
+			local c = b:getDifference(a)
 			c.sign = rawget(b, 'sign')
 			return BigInt(c)
 		elseif comp == false then
-			local c = getDifference(a, b)
+			local c = a:getDifference(b)
 			c.sign = rawget(a, 'sign')
 			return BigInt(c)
 		elseif comp == nil then
@@ -532,19 +226,19 @@ function BigInt:__sub(other)
 	end
 
 	if a.sign ~= b.sign then
-		local c = getSum(a, b)
+		local c = a:getSum(b)
 		c.sign = rawget(a, 'sign')
 		return BigInt(c)
 	else
-		local comp = compare(a, b)
+		local comp = a:compare(b)
 		if comp == true then
-			local c = getDifference(b, a)
+			local c = b:getDifference(a)
 			if #c > 0 and a.sign == 0 then
 				c.sign = 1
 			end
 			return BigInt(c)
 		elseif comp == false then
-			local c = getDifference(a, b)
+			local c = a:getDifference(b)
 			c.sign = rawget(a, 'sign')
 			return BigInt(c)
 		elseif comp == nil then
@@ -582,7 +276,7 @@ function BigInt:__mul(other)
 		end
 	end
 
-	local c = getProduct(a, b)
+	local c = a:getProduct(b)
 	if a.sign ~= b.sign then
 		c.sign = 1
 	end
@@ -610,7 +304,7 @@ function BigInt:__div(other)
 		return BigInt(0)
 	end
 
-	local comp = compare(a, b)
+	local comp = a:compare(b)
 
 	if comp == true then
 
@@ -622,30 +316,29 @@ function BigInt:__div(other)
 
 	elseif comp == false then -- only supports base 2
 
-		a = a.base ~= 2 and convertDigits(a, 2) or a
-		b = b.base ~= 2 and convertDigits(b, 2) or b
+		a = a.base ~= 2 and a:convert(2) or a
+		b = b.base ~= 2 and b:convert(2) or b
 
-		local c = array(2)
-		local r = array(2)
+		local c = Digits(2)
+		local r = Digits(2)
 		for i = #a, 1, -1 do
 			if #r ~= 0 or a[i] ~= 0 then
 				table.insert(r, 1, a[i])
 			end
-			if not compare(r, b) then
-				subtractInPlace(r, b)
+			if not r:compare(b) then
+				r:subtractInPlace(b)
 				c[i] = 1
 			else
 				c[i] = 0
 			end
 		end
-		trim(c)
-
+		c:trim()
 		if a.sign ~= b.sign then
 			if #r > 0 then
 				if #c == 0 then
-					c = negativeOne()
+					c = Digits.negativeOne()
 				else
-					addInPlace(c, positiveOne(c.base))
+					c:addInPlace(Digits.positiveOne(c.base))
 				end
 			end
 			c.sign = 1
@@ -686,23 +379,23 @@ function BigInt:__pow(other)
 	end
 	
 	local a = checkDigits(self)
-	local c = positiveOne(a.base)
-	local i = array(b.base)
+	local c = Digits.positiveOne(a.base)
+	local i = Digits(b.base)
 	for k, v in pairs(b) do
 		i[k] = v
 	end
 
-	local one = positiveOne(i.base)
+	local one = Digits.positiveOne(i.base)
 	if a.sign == 0 then
 		repeat
-			c = getProduct(c, a)
-			subtractInPlace(i, one)
+			c = c:getProduct(a)
+			i:subtractInPlace(one)
 		until #i == 0
 	else
 		local sign = c.sign
 		repeat
-			c = getProduct(c, a)
-			subtractInPlace(i, one)
+			c = c:getProduct(a)
+			i:subtractInPlace(one)
 			sign = math.abs(sign - 1)
 		until #i == 0
 		c.sign = sign == 1 and sign or nil
@@ -717,7 +410,7 @@ function BigInt:__unm()
 	if #old == 0 then
 		return BigInt(0)
 	end
-	local new = array(old.base)
+	local new = Digits(old.base)
 	for i, v in ipairs(old) do
 		new[i] = v
 	end
@@ -733,7 +426,7 @@ function BigInt:__band(other)
 		return BigInt(0)
 	end
 	local a = checkDigits(self, nil, 2)
-	local c = bitop(a, b, bitops.AND)
+	local c = a:bitop(b, 'AND')
 	return BigInt(c)
 end
 
@@ -743,7 +436,7 @@ function BigInt:__bor(other)
 		return BigInt(self)
 	end
 	local a = checkDigits(self, nil, 2)
-	local c = bitop(a, b, bitops.OR)
+	local c = a:bitop(b, 'OR')
 	return BigInt(c)
 end
 
@@ -753,7 +446,7 @@ function BigInt:__bxor(other)
 		return BigInt(self)
 	end
 	local a = checkDigits(self, nil, 2)
-	local c = bitop(a, b, bitops.XOR)
+	local c = a:bitop(b, 'XOR')
 	return BigInt(c)
 end
 
@@ -796,7 +489,7 @@ function BigInt:__lt(other)
 	elseif a.sign > b.sign then
 		return true
 	else
-		local comp = compare(a, b)
+		local comp = a:compare(b)
 		if comp == nil then
 			return false
 		elseif a.sign == 1 then
@@ -815,7 +508,7 @@ function BigInt:__le(other)
 	elseif a.sign > b.sign then
 		return true
 	else
-		local comp = compare(a, b)
+		local comp = a:compare(b)
 		if comp == nil then
 			return true
 		elseif a.sign == 1 then
