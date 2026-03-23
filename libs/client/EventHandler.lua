@@ -52,6 +52,7 @@ function EventHandler.READY(d, client, shard)
 	shard:emit('READY')
 
 	shard._session_id = d.session_id
+	shard._resume_gateway_url = d.resume_gateway_url
 	client._user = client._users:_insert(d.user)
 
 	local guilds = client._guilds
