@@ -533,7 +533,7 @@ end
 
 function EventHandler.WEBHOOKS_UPDATE(d, client) -- webhook object is not provided
 	local guild = client._guilds:get(d.guild_id)
-	if not guild then return warning(client, 'Guild', d.guild_id, 'WEBHOOKS_UDPATE') end
+	if not guild then return warning(client, 'Guild', d.guild_id, 'WEBHOOKS_UPDATE') end
 	local channel = guild._text_channels:get(d.channel_id)
 	if not channel then return warning(client, 'TextChannel', d.channel_id, 'WEBHOOKS_UPDATE') end
 	return client:emit('webhooksUpdate', channel)
