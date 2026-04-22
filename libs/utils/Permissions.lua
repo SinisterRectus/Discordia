@@ -13,10 +13,12 @@ local Resolver = require('client/Resolver')
 local permission = assert(enums.permission)
 
 local format = string.format
+local ffi = require('ffi')
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
+local function ULL(n) return ffi.new('uint64_t', n or 0) end
 local sort, insert, concat = table.sort, table.insert, table.concat
 
-local ALL = 0
+local ALL = ULL(0)
 for _, value in pairs(permission) do
 	ALL = bor(ALL, value)
 end
@@ -24,7 +26,7 @@ end
 local Permissions, get = require('class')('Permissions')
 
 function Permissions:__init(value)
-	self._value = (tonumber(value) or 0) + 0
+	self._value = (tonumber(value) or 0) + ULL(0)
 end
 
 --[=[
@@ -82,7 +84,7 @@ local function getPerm(i, ...)
 	if not n then
 		return error('Invalid permission: ' .. tostring(v), 2)
 	end
-	return n + 0
+	return n + ULL(0)
 end
 
 --[=[
@@ -150,7 +152,7 @@ end
 @d Disables all permissions values.
 ]=]
 function Permissions:disableAll()
-	self._value = 0
+	self._value = ULL(0)
 end
 
 --[=[
