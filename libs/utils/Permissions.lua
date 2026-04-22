@@ -13,20 +13,32 @@ local Resolver = require('client/Resolver')
 local permission = assert(enums.permission)
 
 local format = string.format
-local ffi = require('ffi')
+local ok, ffi = pcall(require, 'ffi')
+if not ok then ffi = nil end
+if not ffi then
+	error('ffi unavailable: 64-bit permission bitmasks require LuaJIT ffi')
+end
 local band, bor, bnot, bxor = bit.band, bit.bor, bit.bnot, bit.bxor
-local function ULL(n) return ffi.new('uint64_t', n or 0) end
 local sort, insert, concat = table.sort, table.insert, table.concat
 
-local ALL = ULL(0)
+local function toULL(v)
+	if ffi.istype('uint64_t', v) then
+		return v
+	end
+	return ffi.new('uint64_t', tonumber(v) or 0)
+end
+
+local ZERO = toULL(0)
+
+local ALL = ZERO
 for _, value in pairs(permission) do
-	ALL = bor(ALL, value)
+	ALL = bor(ALL, toULL(value))
 end
 
 local Permissions, get = require('class')('Permissions')
 
 function Permissions:__init(value)
-	self._value = (tonumber(value) or 0) + ULL(0)
+	self._value = toULL(value)
 end
 
 --[=[
@@ -84,7 +96,7 @@ local function getPerm(i, ...)
 	if not n then
 		return error('Invalid permission: ' .. tostring(v), 2)
 	end
-	return n + ULL(0)
+	return toULL(n)
 end
 
 --[=[
@@ -152,7 +164,7 @@ end
 @d Disables all permissions values.
 ]=]
 function Permissions:disableAll()
-	self._value = ULL(0)
+	self._value = ZERO
 end
 
 --[=[
@@ -174,7 +186,7 @@ function Permissions:toTable()
 	local ret = {}
 	local value = self._value
 	for k, v in pairs(permission) do
-		ret[k] = band(value, v) > 0
+		ret[k] = band(value, toULL(v)) > 0
 	end
 	return ret
 end
@@ -188,7 +200,7 @@ function Permissions:toArray()
 	local ret = {}
 	local value = self._value
 	for k, v in pairs(permission) do
-		if band(value, v) > 0 then
+		if band(value, toULL(v)) > 0 then
 			insert(ret, k)
 		end
 	end
@@ -213,7 +225,7 @@ end
 @d Returns a new Permissions object that contains the permissions that are in
 both `self` and `other` (bitwise AND).
 ]=]
-function Permissions:intersection(other) -- in both
+function Permissions:intersection(other)
 	return Permissions(band(self._value, other._value))
 end
 
@@ -224,7 +236,7 @@ end
 @d Returns a new Permissions object that contains the permissions that are not
 in `self` or `other` (bitwise XOR).
 ]=]
-function Permissions:difference(other) -- not in both
+function Permissions:difference(other)
 	return Permissions(bxor(self._value, other._value))
 end
 
@@ -235,7 +247,7 @@ end
 @d Returns a new Permissions object that contains the permissions that are not
 in `self`, but are in `other` (or the set of all permissions if omitted).
 ]=]
-function Permissions:complement(other) -- in other not in self
+function Permissions:complement(other)
 	local value = other and other._value or ALL
 	return Permissions(band(bnot(self._value), value))
 end
