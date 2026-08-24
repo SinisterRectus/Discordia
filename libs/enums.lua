@@ -76,6 +76,96 @@ enum 'logLevel' {
 
 ---- begin generated code ----
 
+enum "actionType" {
+	typingStart = "TYPING_START", -- User started typing in a channel
+	inviteCreate = "INVITE_CREATE", -- Invite to a channel was created
+	inviteDelete = "INVITE_DELETE", -- Invite to a channel was deleted
+	webhooksUpdate = "WEBHOOKS_UPDATE", -- Guild channel webhook was created, updated, or deleted
+	channelCreate = "CHANNEL_CREATE", -- New guild channel created
+	voiceChannelStatusUpdate = "VOICE_CHANNEL_STATUS_UPDATE", -- Voice channel status was updated
+	channelUpdate = "CHANNEL_UPDATE", -- Channel was updated
+	channelDelete = "CHANNEL_DELETE", -- Channel was deleted
+	channelPinsUpdate = "CHANNEL_PINS_UPDATE", -- Message was pinned or unpinned
+	threadCreate = "THREAD_CREATE", -- Thread created, also sent when being added to a private thread
+	threadUpdate = "THREAD_UPDATE", -- Thread was updated
+	threadDelete = "THREAD_DELETE", -- Thread was deleted
+	threadListSync = "THREAD_LIST_SYNC", -- Sent when gaining access to a channel, contains all active threads in that channel
+	threadMemberUpdate = "THREAD_MEMBER_UPDATE", -- Thread member for the current user was updated
+	threadMembersUpdate = "THREAD_MEMBERS_UPDATE", -- Some user(s) were added to or removed from a thread
+	guildCreate = "GUILD_CREATE", -- Lazy-load for unavailable guild, guild became available, or user joined a new guild
+	guildUpdate = "GUILD_UPDATE", -- Guild was updated
+	guildDelete = "GUILD_DELETE", -- Guild became unavailable, or user left/was removed from a guild
+	guildEmojisUpdate = "GUILD_EMOJIS_UPDATE", -- Guild emojis were updated
+	guildStickersUpdate = "GUILD_STICKERS_UPDATE", -- Guild stickers were updated
+	guildIntegrationsUpdate = "GUILD_INTEGRATIONS_UPDATE", -- Guild integration was updated
+	guildMemberAdd = "GUILD_MEMBER_ADD", -- New user joined a guild
+	guildMemberUpdate = "GUILD_MEMBER_UPDATE", -- Guild member was updated
+	guildMemberRemove = "GUILD_MEMBER_REMOVE", -- User was removed from a guild
+	guildBanAdd = "GUILD_BAN_ADD", -- User was banned from a guild
+	guildBanRemove = "GUILD_BAN_REMOVE", -- User was unbanned from a guild
+	guildRoleCreate = "GUILD_ROLE_CREATE", -- Guild role was created
+	guildRoleUpdate = "GUILD_ROLE_UPDATE", -- Guild role was updated
+	guildRoleDelete = "GUILD_ROLE_DELETE", -- Guild role was deleted
+	guildMembersChunk = "GUILD_MEMBERS_CHUNK", -- Response to Request Guild Members
+	messageCreate = "MESSAGE_CREATE", -- Message was created
+	messageUpdate = "MESSAGE_UPDATE", -- Message was edited
+	messageDelete = "MESSAGE_DELETE", -- Message was deleted
+	messageDeleteBulk = "MESSAGE_DELETE_BULK", -- Multiple messages were deleted at once
+	messageReactionAdd = "MESSAGE_REACTION_ADD", -- User reacted to a message
+	messageReactionRemove = "MESSAGE_REACTION_REMOVE", -- User removed a reaction from a message
+	messageReactionRemoveAll = "MESSAGE_REACTION_REMOVE_ALL", -- All reactions were explicitly removed from a message
+	messageReactionRemoveEmoji = "MESSAGE_REACTION_REMOVE_EMOJI", -- All reactions for a given emoji were explicitly removed from a message
+	userUpdate = "USER_UPDATE", -- Properties about the user changed
+	entitlementCreate = "ENTITLEMENT_CREATE", -- Entitlement was created
+	entitlementUpdate = "ENTITLEMENT_UPDATE", -- Entitlement was updated
+	entitlementDelete = "ENTITLEMENT_DELETE", -- Entitlement was deleted
+	ready = "READY", -- Contains the initial state information
+	resumed = "RESUMED", -- Response to Resume
+	presenceUpdate = "PRESENCE_UPDATE", -- User was updated
+	voiceStateUpdate = "VOICE_STATE_UPDATE", -- Someone joined, left, or moved a voice channel
+	voiceServerUpdate = "VOICE_SERVER_UPDATE", -- Guild's voice server was updated
+	lobbyMessageCreate = "LOBBY_MESSAGE_CREATE", -- Sent when a message is created in a lobby
+	lobbyMessageUpdate = "LOBBY_MESSAGE_UPDATE", -- Sent when a message is updated in a lobby
+	lobbyMessageDelete = "LOBBY_MESSAGE_DELETE", -- Sent when a message is deleted from a lobby
+	gameDirectMessageCreate = "GAME_DIRECT_MESSAGE_CREATE", -- Sent when a direct message is created during an active Social SDK session
+	gameDirectMessageDelete = "GAME_DIRECT_MESSAGE_DELETE", -- Sent when a direct message is deleted during an active Social SDK session
+	gameDirectMessageUpdate = "GAME_DIRECT_MESSAGE_UPDATE", -- Sent when a direct message is updated during an active Social SDK session
+	interactionCreate = "INTERACTION_CREATE", -- User used an interaction, such as an Application Command
+	integrationCreate = "INTEGRATION_CREATE", -- Guild integration was created
+	integrationUpdate = "INTEGRATION_UPDATE", -- Guild integration was updated
+	integrationDelete = "INTEGRATION_DELETE", -- Guild integration was deleted
+	applicationCommandPermissionsUpdate = "APPLICATION_COMMAND_PERMISSIONS_UPDATE", -- Application command permission was updated
+	applicationAuthorized = "APPLICATION_AUTHORIZED", -- Sent when an app was authorized by a user to a server or their account
+	applicationDeauthorized = "APPLICATION_DEAUTHORIZED", -- Sent when an app was deauthorized by a user
+	stageInstanceCreate = "STAGE_INSTANCE_CREATE", -- Stage instance was created
+	stageInstanceUpdate = "STAGE_INSTANCE_UPDATE", -- Stage instance was updated
+	stageInstanceDelete = "STAGE_INSTANCE_DELETE", -- Stage instance was deleted or closed
+	guildAuditLogEntryCreate = "GUILD_AUDIT_LOG_ENTRY_CREATE", -- A guild audit log entry was created
+	guildScheduledEventCreate = "GUILD_SCHEDULED_EVENT_CREATE", -- Guild scheduled event was created
+	guildScheduledEventUpdate = "GUILD_SCHEDULED_EVENT_UPDATE", -- Guild scheduled event was updated
+	guildScheduledEventDelete = "GUILD_SCHEDULED_EVENT_DELETE", -- Guild scheduled event was deleted
+	guildScheduledEventUserAdd = "GUILD_SCHEDULED_EVENT_USER_ADD", -- User subscribed to a guild scheduled event
+	guildScheduledEventUserRemove = "GUILD_SCHEDULED_EVENT_USER_REMOVE", -- User unsubscribed from a guild scheduled event
+	autoModerationRuleCreate = "AUTO_MODERATION_RULE_CREATE", -- Auto Moderation rule was created
+	autoModerationRuleUpdate = "AUTO_MODERATION_RULE_UPDATE", -- Auto Moderation rule was updated
+	autoModerationRuleDelete = "AUTO_MODERATION_RULE_DELETE", -- Auto Moderation rule was deleted
+	autoModerationActionExecution = "AUTO_MODERATION_ACTION_EXECUTION", -- Auto Moderation rule was triggered and an action was executed (.e.g. a message was blocked)
+	guildSoundboardSoundsUpdate = "GUILD_SOUNDBOARD_SOUNDS_UPDATE",
+	guildSoundboardSoundCreate = "GUILD_SOUNDBOARD_SOUND_CREATE",
+	guildSoundboardSoundUpdate = "GUILD_SOUNDBOARD_SOUND_UPDATE",
+	guildSoundboardSoundDelete = "GUILD_SOUNDBOARD_SOUND_DELETE",
+	questUserEnrollment = "QUEST_USER_ENROLLMENT", -- User was added to a Quest (currently unavailable)
+	rateLimited = "RATE_LIMITED",
+}
+
+enum "activityActionType" {
+	join = 1,
+	spectate = 2,
+	listen = 3,
+	joinRequest = 5,
+	streamRequest = 6,
+}
+
 enum "afkTimeout" {
 	oneMinute = 60,
 	fiveMinutes = 300,
@@ -91,6 +181,8 @@ enum "allowedMentionType" {
 }
 
 enum "applicationCommandHandler" {
+	appHandler = 1, -- The app handles the interaction using an interaction token
+	discordLaunchActivity = 2, -- Discord handles the interaction by launching an Activity and sending a follow-up message without coordinating with the app
 }
 
 enum "applicationCommandOptionType" {
@@ -120,6 +212,12 @@ enum "applicationCommandType" {
 	primaryEntryPoint = 4, -- A command that represents the primary way to use an application (e.g. launching an Activity)
 }
 
+enum "applicationEventWebhooksStatu" {
+	disabled = 1, -- Webhook events are disabled by developer
+	enabled = 2, -- Webhook events are enabled by developer
+	disabledByDiscord = 3, -- Webhook events are disabled by Discord, usually due to inactivity
+}
+
 enum "applicationExplicitContentFilterType" {
 	inherit = 0, -- inherit guild content filter setting
 	always = 1, -- interactions will always be scanned
@@ -131,6 +229,9 @@ enum "applicationIdentityProviderAuthType" {
 	epicOnlineServicesIdToken = "EPIC_ONLINE_SERVICES_ID_TOKEN",
 	steamSessionTicket = "STEAM_SESSION_TICKET",
 	unityServicesIdToken = "UNITY_SERVICES_ID_TOKEN",
+	discordBotIssuedAccessToken = "DISCORD_BOT_ISSUED_ACCESS_TOKEN",
+	appleIdToken = "APPLE_ID_TOKEN",
+	playstationNetworkIdToken = "PLAYSTATION_NETWORK_ID_TOKEN",
 }
 
 enum "applicationIntegrationType" {
@@ -215,7 +316,19 @@ enum "auditLogActionType" {
 	homeSettingsUpdate = 191,
 	voiceChannelStatusCreate = 192,
 	voiceChannelStatusDelete = 193,
+	guildScheduledEventExceptionCreate = 200, -- Scheduled event exception was created
+	guildScheduledEventExceptionUpdate = 201, -- Scheduled event exception was updated
+	guildScheduledEventExceptionDelete = 202, -- Scheduled event exception was deleted
 	guildProfileUpdate = 211,
+}
+
+enum "authorType" {
+	user = "user",
+	bot = "bot",
+	webhook = "webhook",
+	noUser = "-user",
+	noBot = "-bot",
+	noWebhook = "-webhook",
 }
 
 enum "automodActionType" {
@@ -238,10 +351,10 @@ enum "automodKeywordPresetType" {
 
 enum "automodTriggerType" {
 	keyword = 1, -- Check if content contains words from a list of keywords or matches regex
-	spamLink = 2, -- DEPRECATED
 	mlSpam = 3, -- Check if content represents generic spam
 	defaultKeywordList = 4, -- Check if content contains words from internal pre-defined wordsets
 	mentionSpam = 5, -- Check if content contains more unique mentions than allowed
+	userProfile = 6, -- Check if user profile fields contains words from a list of keywords or matches regex
 }
 
 enum "availableLocalesEnum" {
@@ -345,9 +458,12 @@ enum "connectedAccountVisibility" {
 enum "embeddedActivityLocationKind" {
 	guildChannel = "gc", -- guild channel
 	privateChannel = "pc", -- private channel
+	party = "party", -- party
 }
 
 enum "entitlementOwnerType" {
+	guild = 1, -- A guild subscription
+	user = 2, -- A user subscription
 }
 
 enum "entitlementTenantFulfillmentStatusResponse" {
@@ -398,6 +514,7 @@ enum "guildFeature" {
 	partnered = "PARTNERED", -- guild is partnered
 	previewEnabled = "PREVIEW_ENABLED", -- guild can be previewed before joining via Membership Screening or the directory
 	raidAlertsDisabled = "RAID_ALERTS_DISABLED", -- guild has disabled activity alerts in the configured safety alerts channel
+	pruneRequiresAdmin = "PRUNE_REQUIRES_ADMIN", -- guild has restricted member prune to administrators and the guild owner
 	roleIcons = "ROLE_ICONS", -- guild is able to set role icons
 	roleSubscriptionsAvailableForPurchase = "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE", -- guild has role subscriptions that can be purchased
 	roleSubscriptionsEnabled = "ROLE_SUBSCRIPTIONS_ENABLED", -- guild has enabled role subscriptions
@@ -406,11 +523,26 @@ enum "guildFeature" {
 	verified = "VERIFIED", -- guild is verified
 	vipRegions = "VIP_REGIONS", -- guild has access to set 384kbps bitrate in voice (previously VIP voice servers)
 	welcomeScreenEnabled = "WELCOME_SCREEN_ENABLED", -- guild has enabled the welcome screen
+	officialGameGuild = "OFFICIAL_GAME_GUILD", -- guild is an official guild for one or more games
+}
+
+enum "guildJoinRequestApplicationStatu" {
+	started = "STARTED", -- Applicant started but not yet submitted join request
+	submitted = "SUBMITTED", -- Applicant submitted join request that is awaiting review
+	rejected = "REJECTED", -- Join request rejected
+	approved = "APPROVED", -- Join request approved
 }
 
 enum "guildMFALevel" {
 	none = 0, -- Guild has no MFA/2FA requirement for moderation actions
 	elevated = 1, -- Guild has a 2FA requirement for moderation actions
+}
+
+enum "guildMemberVerificationFormFieldType" {
+	terms = "TERMS", -- Field requiring applicant to acknowledge list of terms
+	textInput = "TEXT_INPUT", -- Short text input field
+	paragraph = "PARAGRAPH", -- Long-form text input field
+	multipleChoice = "MULTIPLE_CHOICE", -- Field where applicant selects one of many options
 }
 
 enum "guildNSFWContentLevel" {
@@ -443,6 +575,32 @@ enum "guildScheduledEventStatuse" {
 	canceled = 4,
 }
 
+enum "guildScheduledEventUserResponse" {
+	uninterested = 0, -- User is not interested in the event
+	interested = 1, -- User is interested in the event
+}
+
+enum "hasOption" {
+	link = "link",
+	embed = "embed",
+	file = "file",
+	image = "image",
+	video = "video",
+	sound = "sound",
+	sticker = "sticker",
+	poll = "poll",
+	snapshot = "snapshot",
+	noLink = "-link",
+	noEmbed = "-embed",
+	noFile = "-file",
+	noImage = "-image",
+	noVideo = "-video",
+	noSound = "-sound",
+	noSticker = "-sticker",
+	noPoll = "-poll",
+	noSnapshot = "-snapshot",
+}
+
 enum "integrationExpireBehaviorType" {
 	removeRole = 0, -- Remove role
 	kick = 1, -- Kick
@@ -472,6 +630,7 @@ enum "interactionCallbackType" {
 	applicationCommandAutocompleteResult = 8,
 	modal = 9,
 	launchActivity = 12,
+	socialLayerSkuPurchaseEligibility = 13,
 }
 
 enum "interactionContextType" {
@@ -486,6 +645,7 @@ enum "interactionType" {
 	messageComponent = 3, -- Sent when a user interacts with a message component previously sent by your application
 	applicationCommandAutocomplete = 4, -- Sent when a user is filling in an autocomplete option in a chat command
 	modalSubmit = 5, -- Sent when a user submits a modal previously sent by your application
+	socialLayerSkuPurchaseEligibility = 6, -- Sent when Discord is checking if a user can purchase a Social Layer SKU
 }
 
 enum "inviteTargetType" {
@@ -522,6 +682,10 @@ enum "messageComponentType" {
 	separator = 14, -- Separator component
 	container = 17, -- Container component
 	label = 18, -- Label component
+	fileUpload = 19, -- File upload component
+	radioGroup = 21, -- Radio group component
+	checkboxGroup = 22, -- Checkbox group component
+	checkbox = 23, -- Checkbox component
 }
 
 enum "messageReferenceType" {
@@ -588,6 +752,18 @@ enum "metadataItemType" {
 }
 
 enum "nameplatePalette" {
+	crimson = "crimson", -- Crimson color palette
+	berry = "berry", -- Berry color palette
+	sky = "sky", -- Sky color palette
+	teal = "teal", -- Teal color palette
+	forest = "forest", -- Forest color palette
+	bubbleGum = "bubble_gum", -- Bubble gum color palette
+	violet = "violet", -- Violet color palette
+	cobalt = "cobalt", -- Cobalt color palette
+	clover = "clover", -- Clover color palette
+	lemon = "lemon", -- Lemon color palette
+	white = "white", -- White color palette
+	black = "black", -- Black color palette
 }
 
 enum "newMemberActionType" {
@@ -638,6 +814,7 @@ enum "onboardingPromptType" {
 }
 
 enum "pollLayoutType" {
+	default = 1, -- The, uhm, default layout type.
 }
 
 enum "premiumGuildTier" {
@@ -663,10 +840,61 @@ enum "reactionType" {
 	burst = 1, -- Burst reaction type
 }
 
+enum "recurrenceRuleFrequency" {
+	daily = 3,
+	weekly = 2,
+	monthly = 1,
+	yearly = 0,
+}
+
+enum "recurrenceRuleMonth" {
+	january = 1,
+	february = 2,
+	march = 3,
+	april = 4,
+	may = 5,
+	june = 6,
+	july = 7,
+	august = 8,
+	september = 9,
+	october = 10,
+	november = 11,
+	december = 12,
+}
+
+enum "recurrenceRuleWeekday" {
+	monday = 0,
+	tuesday = 1,
+	wednesday = 2,
+	thursday = 3,
+	friday = 4,
+	saturday = 5,
+	sunday = 6,
+}
+
+enum "sKUIneligibilityReason" {
+	other = 0, -- Other / catch-all
+	ownsSkuOrBundleComponent = 1, -- User already owns this SKU or one of its components
+	platformRestriction = 2, -- User account is not on an eligible platform
+}
+
+enum "searchableEmbedType" {
+	image = "image",
+	video = "video",
+	gifv = "gif",
+	sound = "sound",
+	article = "article",
+}
+
 enum "snowflakeSelectDefaultValueType" {
 	user = "user",
 	role = "role",
 	channel = "channel",
+}
+
+enum "sortingMode" {
+	relevance = "relevance",
+	timestamp = "timestamp",
 }
 
 enum "sortingOrder" {
@@ -676,7 +904,7 @@ enum "sortingOrder" {
 
 enum "stageInstancesPrivacyLevel" {
 	public = 1, -- The Stage instance is visible publicly. (deprecated)
-	guildOnly = 2, -- The Stage instance is visible publicly. (deprecated)
+	guildOnly = 2, -- The Stage instance is visible to only guild members.
 }
 
 enum "stickerFormatType" {
@@ -689,6 +917,25 @@ enum "stickerFormatType" {
 enum "stickerType" {
 	standard = 1, -- an official sticker in a pack, part of Nitro or in a removed purchasable pack
 	guild = 2, -- a sticker uploaded to a guild for the guild's members
+}
+
+enum "subscriptionResponseStatusType" {
+	active = 0, -- Subscription is active and scheduled to renew
+	inactive = 1, -- Subscription is inactive and not being charged
+	ending = 2, -- Subscription is active but will not renew
+}
+
+enum "targetUsersJobStatusType" {
+	unspecified = 0, -- The default value.
+	processing = 1, -- The job is still being processed.
+	completed = 2, -- The job has been completed successfully.
+	failed = 3, -- The job has failed, see error_message field for more details.
+}
+
+enum "teamMemberRole" {
+	admin = "admin", -- Admins have similar access as owners, except they cannot take destructive actions on the team or team-owned apps.
+	developer = "developer", -- Developers can access information about team-owned apps, like the client secret or public key. They can also take limited actions on team-owned apps, like configuring interaction endpoints or resetting the bot token. Members with the Developer role cannot manage the team or its members, or take destructive actions on team-owned apps.
+	readOnly = "read_only", -- Read-only members can access information about a team and any team-owned apps. Some examples include getting the IDs of applications and exporting payout records. Members can also invite bots associated with team-owned apps that are marked private.
 }
 
 enum "teamMembershipState" {

@@ -528,6 +528,12 @@ function API:listMyPrivateArchivedThreads(channel_id, query) return self:request
 	query = query,
 } end
 
+function API:updateVoiceChannelStatus(channel_id, body) return self:request {
+	method = "PUT",
+	path = f("/channels/%s/voice-status", channel_id),
+	body = assert(body),
+} end
+
 function API:createWebhook(channel_id, body) return self:request {
 	method = "POST",
 	path = f("/channels/%s/webhooks", channel_id),
@@ -552,11 +558,6 @@ function API:getBotGateway() return self:request {
 function API:getGuildTemplate(code) return self:request {
 	method = "GET",
 	path = f("/guilds/templates/%s", code),
-} end
-
-function API:deleteGuild(guild_id) return self:request {
-	method = "DELETE",
-	path = f("/guilds/%s", guild_id),
 } end
 
 function API:getGuild(guild_id, query) return self:request {
@@ -677,6 +678,12 @@ function API:updateGuildEmoji(guild_id, emoji_id, body) return self:request {
 	body = assert(body),
 } end
 
+function API:updateGuildIncidentActions(guild_id, body) return self:request {
+	method = "PUT",
+	path = f("/guilds/%s/incident-actions", guild_id),
+	body = assert(body),
+} end
+
 function API:listGuildIntegrations(guild_id) return self:request {
 	method = "GET",
 	path = f("/guilds/%s/integrations", guild_id),
@@ -742,10 +749,10 @@ function API:deleteGuildMemberRole(guild_id, user_id, role_id) return self:reque
 	path = f("/guilds/%s/members/%s/roles/%s", guild_id, user_id, role_id),
 } end
 
-function API:setGuildMfaLevel(guild_id, body) return self:request {
-	method = "POST",
-	path = f("/guilds/%s/mfa", guild_id),
-	body = assert(body),
+function API:guildSearch(guild_id, query) return self:request {
+	method = "GET",
+	path = f("/guilds/%s/messages/search", guild_id),
+	query = query,
 } end
 
 function API:getGuildNewMemberWelcome(guild_id) return self:request {
@@ -786,6 +793,18 @@ function API:listGuildVoiceRegions(guild_id) return self:request {
 	path = f("/guilds/%s/regions", guild_id),
 } end
 
+function API:getGuildJoinRequests(guild_id, query) return self:request {
+	method = "GET",
+	path = f("/guilds/%s/requests", guild_id),
+	query = query,
+} end
+
+function API:actionGuildJoinRequest(guild_id, request_id, body) return self:request {
+	method = "PATCH",
+	path = f("/guilds/%s/requests/%s", guild_id, request_id),
+	body = assert(body),
+} end
+
 function API:bulkUpdateGuildRoles(guild_id, body) return self:request {
 	method = "PATCH",
 	path = f("/guilds/%s/roles", guild_id),
@@ -801,6 +820,11 @@ function API:createGuildRole(guild_id, body) return self:request {
 function API:listGuildRoles(guild_id) return self:request {
 	method = "GET",
 	path = f("/guilds/%s/roles", guild_id),
+} end
+
+function API:guildRoleMemberCounts(guild_id) return self:request {
+	method = "GET",
+	path = f("/guilds/%s/roles/member-counts", guild_id),
 } end
 
 function API:deleteGuildRole(guild_id, role_id) return self:request {
@@ -848,9 +872,38 @@ function API:updateGuildScheduledEvent(guild_id, guild_scheduled_event_id, body)
 	body = assert(body),
 } end
 
+function API:createGuildScheduledEventException(guild_id, guild_scheduled_event_id, body) return self:request {
+	method = "POST",
+	path = f("/guilds/%s/scheduled-events/%s/exceptions", guild_id, guild_scheduled_event_id),
+	body = assert(body),
+} end
+
+function API:deleteGuildScheduledEventException(guild_id, guild_scheduled_event_id, exception_id) return self:request {
+	method = "DELETE",
+	path = f("/guilds/%s/scheduled-events/%s/exceptions/%s", guild_id, guild_scheduled_event_id, exception_id),
+} end
+
+function API:updateGuildScheduledEventException(guild_id, guild_scheduled_event_id, exception_id, body) return self:request {
+	method = "PATCH",
+	path = f("/guilds/%s/scheduled-events/%s/exceptions/%s", guild_id, guild_scheduled_event_id, exception_id),
+	body = assert(body),
+} end
+
 function API:listGuildScheduledEventUsers(guild_id, guild_scheduled_event_id, query) return self:request {
 	method = "GET",
 	path = f("/guilds/%s/scheduled-events/%s/users", guild_id, guild_scheduled_event_id),
+	query = query,
+} end
+
+function API:countGuildScheduledEventUsers(guild_id, guild_scheduled_event_id, query) return self:request {
+	method = "GET",
+	path = f("/guilds/%s/scheduled-events/%s/users/counts", guild_id, guild_scheduled_event_id),
+	query = query,
+} end
+
+function API:listGuildScheduledEventExceptionUsers(guild_id, guild_scheduled_event_id, guild_scheduled_event_exception_id, query) return self:request {
+	method = "GET",
+	path = f("/guilds/%s/scheduled-events/%s/%s/users", guild_id, guild_scheduled_event_id, guild_scheduled_event_exception_id),
 	query = query,
 } end
 
@@ -1022,6 +1075,21 @@ function API:inviteRevoke(code) return self:request {
 	path = f("/invites/%s", code),
 } end
 
+function API:getInviteTargetUsers(code) return self:request {
+	method = "GET",
+	path = f("/invites/%s/target-users", code),
+} end
+
+function API:updateInviteTargetUsers(code) return self:request {
+	method = "PUT",
+	path = f("/invites/%s/target-users", code),
+} end
+
+function API:getInviteTargetUsersJobStatus(code) return self:request {
+	method = "GET",
+	path = f("/invites/%s/target-users/job-status", code),
+} end
+
 function API:createLobby(body) return self:request {
 	method = "POST",
 	path = "/lobbies",
@@ -1032,6 +1100,11 @@ function API:createOrJoinLobby(body) return self:request {
 	method = "PUT",
 	path = "/lobbies",
 	body = assert(body),
+} end
+
+function API:deleteLobby(lobby_id) return self:request {
+	method = "DELETE",
+	path = f("/lobbies/%s", lobby_id),
 } end
 
 function API:editLobby(lobby_id, body) return self:request {
@@ -1095,6 +1168,12 @@ function API:getLobbyMessages(lobby_id, query) return self:request {
 	query = query,
 } end
 
+function API:updateLobbyMessageExternalModerationMetadata(lobby_id, message_id, body) return self:request {
+	method = "PUT",
+	path = f("/lobbies/%s/messages/%s/moderation-metadata", lobby_id, message_id),
+	body = assert(body),
+} end
+
 function API:getMyOauth2Authorization() return self:request {
 	method = "GET",
 	path = "/oauth2/@me",
@@ -1115,9 +1194,21 @@ function API:getOpenidConnectUserinfo() return self:request {
 	path = "/oauth2/userinfo",
 } end
 
+function API:updateUserMessageExternalModerationMetadata(user_id_1, user_id_2, message_id, body) return self:request {
+	method = "PUT",
+	path = f("/partner-sdk/dms/%s/%s/messages/%s/moderation-metadata", user_id_1, user_id_2, message_id),
+	body = assert(body),
+} end
+
 function API:partnerSdkUnmergeProvisionalAccount(body) return self:request {
 	method = "POST",
 	path = "/partner-sdk/provisional-accounts/unmerge",
+	body = assert(body),
+} end
+
+function API:botPartnerSdkUnmergeProvisionalAccount(body) return self:request {
+	method = "POST",
+	path = "/partner-sdk/provisional-accounts/unmerge/bot",
 	body = assert(body),
 } end
 
@@ -1131,6 +1222,18 @@ function API:botPartnerSdkToken(body) return self:request {
 	method = "POST",
 	path = "/partner-sdk/token/bot",
 	body = assert(body),
+} end
+
+function API:getSkuSubscriptions(sku_id, query) return self:request {
+	method = "GET",
+	path = f("/skus/%s/subscriptions", sku_id),
+	query = query,
+} end
+
+function API:getSkuSubscription(sku_id, subscription_id, query) return self:request {
+	method = "GET",
+	path = f("/skus/%s/subscriptions/%s", sku_id, subscription_id),
+	query = query,
 } end
 
 function API:getSoundboardDefaultSounds() return self:request {
@@ -1184,6 +1287,12 @@ function API:updateMyUser(body) return self:request {
 	method = "PATCH",
 	path = "/users/@me",
 	body = assert(body),
+} end
+
+function API:getCurrentUserApplicationEntitlements(application_id, query) return self:request {
+	method = "GET",
+	path = f("/users/@me/applications/%s/entitlements", application_id),
+	query = query,
 } end
 
 function API:deleteApplicationUserRoleConnection(application_id) return self:request {

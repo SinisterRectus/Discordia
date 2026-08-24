@@ -27,7 +27,7 @@ return {
 	dependencies = {
 		'luvit/coro-http@3.2.4',
 		'luvit/coro-websocket@3.1.1',
-		'luvit/secure-socket@1.2.4',
+		'luvit/secure-socket@1.2.5',
 	},
 	tags = {'discord', 'api'},
 	license = 'MIT',
