@@ -176,6 +176,11 @@ function VoiceConnection:_cleanup(err)
 	self._channel._connection = nil
 	self._dave_encryptor:destroy()
 	self._dave_session:destroy()
+
+	if self._key_ratchet then
+		pcall(self._key_ratchet.destroy, self._key_ratchet)
+	end
+
 	self:_continue(nil, err or 'connection closed')
 end
 

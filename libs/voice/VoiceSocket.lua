@@ -81,6 +81,15 @@ function VoiceSocket:handleDisconnect()
 	self._connection:_cleanup()
 end
 
+function VoiceSocket:handleKeyRatchetChange()
+	if self._connection._key_ratchet then
+		pcall(self._connection._key_ratchet.destroy, self._connection._key_ratchet)
+	end
+
+	self._connection._key_ratchet = self._connection._dave_session:getKeyRatchet(self._client.user.id)
+	self._connection._dave_encryptor:setKeyRatchet(self._connection._key_ratchet)
+end
+
 function VoiceSocket:handlePayload(payload)
 
 	local manager = self._manager
@@ -173,7 +182,7 @@ function VoiceSocket:handlePayload(payload)
 
 		self._connection._dave_session:setProtocolVersion(self._connection._dave_protocol_version)
 		self._connection._dave_session:reset()
-		self._connection._dave_encryptor:setKeyRatchet(self._connection._dave_session:getKeyRatchet(self._client.user.id))
+		self:handleKeyRatchetChange()
 
 		self._connection._dave_ready = true
 
@@ -205,7 +214,7 @@ function VoiceSocket:handlePayload(payload)
 
 		if commit_result and not commit_result.isFailed() then
 			if transition_id == 0 then
-				self._connection._dave_encryptor:setKeyRatchet(self._connection._dave_session:getKeyRatchet(self._client.user.id))
+				self:handleKeyRatchetChange()
 				self._connection._dave_ready = true
 			else
 				self:sendTransitionReady(transition_id)
@@ -221,7 +230,7 @@ function VoiceSocket:handlePayload(payload)
 
 		if welcome_result then
 			if transition_id == 0 then
-				self._connection._dave_encryptor:setKeyRatchet(self._connection._dave_session:getKeyRatchet(self._client.user.id))
+				self:handleKeyRatchetChange()
 				self._connection._dave_ready = true
 			else
 				self:sendTransitionReady(transition_id)
