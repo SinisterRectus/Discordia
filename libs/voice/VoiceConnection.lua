@@ -134,7 +134,7 @@ function VoiceConnection:_prepare(key, socket)
 
 	self._ready = true
 	self:_continue(true)
-	
+
 end
 
 function VoiceConnection:_await()
