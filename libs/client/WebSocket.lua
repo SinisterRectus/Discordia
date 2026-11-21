@@ -111,7 +111,7 @@ function WebSocket:_send(op, d, identify)
 	local success, err
 	if identify or self._session_id then
 		if self._write then
-			if self._voice and op == 26 or op == 28 then -- MLS
+			if self._voice and (op == 26 or op == 28) then -- MLS
 				success, err = self._write {opcode = BINARY, payload = string.char(op) .. d}
 			else
 				success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
