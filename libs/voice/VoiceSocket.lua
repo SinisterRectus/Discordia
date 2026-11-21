@@ -22,29 +22,29 @@ if sodium.aead_aes256_gcm then -- AEAD AES256-GCM is only available if the hardw
 	table.insert(SUPPORTED_ENCRYPTION_MODES, 1, 'aead_aes256_gcm_rtpsize')
 end
 
-local IDENTIFY = 0
-local SELECT_PROTOCOL = 1
-local READY = 2
-local HEARTBEAT = 3
-local DESCRIPTION = 4
-local SPEAKING = 5
-local HEARTBEAT_ACK = 6
-local RESUME = 7
-local HELLO = 8
-local RESUMED = 9
-local CLIENTS_CONNECT = 11
-local CLIENT_DISCONNECT = 13
-local DAVE_PREPARE_TRANSITION = 21
-local DAVE_EXECUTE_TRANSITION = 22
-local DAVE_TRANSITION_READY = 23
-local DAVE_PREPARE_EPOCH = 24
-local MLS_EXTERNAL_SENDER = 25
-local MLS_KEY_PACKAGE = 26
-local MLS_PROPOSALS = 27
-local MLS_COMMIT_WELCOME = 28
+local IDENTIFY                       = 0
+local SELECT_PROTOCOL                = 1
+local READY                          = 2
+local HEARTBEAT                      = 3
+local DESCRIPTION                    = 4
+local SPEAKING                       = 5
+local HEARTBEAT_ACK                  = 6
+local RESUME                         = 7
+local HELLO                          = 8
+local RESUMED                        = 9
+local CLIENTS_CONNECT                = 11
+local CLIENT_DISCONNECT              = 13
+local DAVE_PREPARE_TRANSITION        = 21
+local DAVE_EXECUTE_TRANSITION        = 22
+local DAVE_TRANSITION_READY          = 23
+local DAVE_PREPARE_EPOCH             = 24
+local MLS_EXTERNAL_SENDER            = 25
+local MLS_KEY_PACKAGE                = 26
+local MLS_PROPOSALS                  = 27
+local MLS_COMMIT_WELCOME             = 28
 local MLS_ANNOUNCE_COMMIT_TRANSITION = 29
-local MLS_WELCOME = 30
-local MLS_INVALID_COMMIT_WELCOME = 31
+local MLS_WELCOME                    = 30
+local MLS_INVALID_COMMIT_WELCOME     = 31
 
 local function checkMode(modes)
 	for _, ENCRYPTION_MODE in ipairs(SUPPORTED_ENCRYPTION_MODES) do
