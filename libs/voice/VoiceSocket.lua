@@ -88,6 +88,8 @@ function VoiceSocket:handleKeyRatchetChange()
 
 	self._connection._key_ratchet = self._connection._dave_session:getKeyRatchet(self._client.user.id)
 	self._connection._dave_encryptor:setKeyRatchet(self._connection._key_ratchet)
+
+	self._connection._dave_ready = true
 end
 
 function VoiceSocket:handlePayload(payload)
@@ -184,8 +186,6 @@ function VoiceSocket:handlePayload(payload)
 		self._connection._dave_session:reset()
 		self:handleKeyRatchetChange()
 
-		self._connection._dave_ready = true
-
 	elseif op == DAVE_PREPARE_EPOCH then
 
 		if d.epoch == 1 then
@@ -215,7 +215,6 @@ function VoiceSocket:handlePayload(payload)
 		if commit_result and not commit_result.isFailed() then
 			if transition_id == 0 then
 				self:handleKeyRatchetChange()
-				self._connection._dave_ready = true
 			else
 				self:sendTransitionReady(transition_id)
 			end
@@ -231,7 +230,6 @@ function VoiceSocket:handlePayload(payload)
 		if welcome_result then
 			if transition_id == 0 then
 				self:handleKeyRatchetChange()
-				self._connection._dave_ready = true
 			else
 				self:sendTransitionReady(transition_id)
 			end
