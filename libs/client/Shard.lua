@@ -247,10 +247,11 @@ function Shard:updateStatus(presence)
 	return self:_send(STATUS_UPDATE, presence)
 end
 
-function Shard:updateVoice(guild_id, channel_id, self_mute, self_deaf)
+function Shard:updateVoice(guild_id, channel_id, max_dave_protocol_version, self_mute, self_deaf)
 	return self:_send(VOICE_STATE_UPDATE, {
 		guild_id = guild_id,
 		channel_id = channel_id or null,
+		max_dave_protocol_version = max_dave_protocol_version,
 		self_mute = self_mute or false,
 		self_deaf = self_deaf or false,
 	})

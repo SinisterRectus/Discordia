@@ -14,6 +14,10 @@ local bit = require('bit')
 local constants = require('constants')
 local opus = require('voice/opus') or {}
 local sodium = require('voice/sodium') or {}
+local ok, dave = pcall(require, 'litdave')
+if not ok then
+	dave = {}
+end
 
 local CHANNELS = 2
 local SAMPLE_RATE = 48000 -- Hz
@@ -76,6 +80,25 @@ local VoiceConnection, get = require('class')('VoiceConnection')
 function VoiceConnection:__init(channel)
 	self._channel = channel
 	self._pending = {}
+
+	-- must be this early because of CLIENTS_CONNECT
+	dave.setLogSinkCallback(function(severity, _, _, message)
+		if severity > dave.enums.loggingSeverity.INFO then
+			if severity == dave.enums.loggingSeverity.WARNING then
+				if self._client then
+					self._client:warning("DAVE : " .. message)
+				else
+					error(message)
+				end
+			elseif severity == dave.enums.loggingSeverity.ERROR then
+				error(message)
+			end
+		end
+	end)
+	self._dave_session = dave.Session:new(nil, nil, function(_, reason)
+		self._client:warning("MLS : " .. reason)
+	end)
+	self._dave_encryptor = dave.Encryptor:new()
 end
 
 function VoiceConnection:_prepare(key, socket)
@@ -107,9 +130,11 @@ function VoiceConnection:_prepare(key, socket)
 	self:setBitrate(self._client._options.bitrate)
 	self:setComplexity(COMPLEXITY)
 
+	self._dave_session:init(self._dave_protocol_version, self._channel.id, self._client.user.id)
+
 	self._ready = true
 	self:_continue(true)
-
+	
 end
 
 function VoiceConnection:_await()
@@ -149,6 +174,8 @@ function VoiceConnection:_cleanup(err)
 	self._ready = nil
 	self._channel._parent._connection = nil
 	self._channel._connection = nil
+	self._dave_encryptor:destroy()
+	self._dave_session:destroy()
 	self:_continue(nil, err or 'connection closed')
 end
 
@@ -198,6 +225,16 @@ function VoiceConnection:setComplexity(complexity)
 	self._encoder:set(opus.SET_COMPLEXITY_REQUEST, complexity)
 end
 
+--[=[
+@m isReady
+@t mem
+@r boolean
+@d Returns whether the connection is ready (including DAVE, if applicable).
+]=]
+function VoiceConnection:isReady()
+	return not not self._ready and (self._dave_protocol_version == 0 or not not self._dave_ready)
+end
+
 function VoiceConnection:_createAudioPacket(opus_data, opus_len, ssrc, key)
 	local s, t, n = self._s, self._t, self._n
 
@@ -213,6 +250,21 @@ function VoiceConnection:_createAudioPacket(opus_data, opus_len, ssrc, key)
 
 	local nonce = self._crypto.nonce(n)
 	local nonce_padding = ffi.string(nonce, 4)
+
+	if self._dave_protocol_version > 0 then
+		if not self._dave_ready then
+			opus_data = "\248\255\254" -- silent frame
+			opus_len = 3
+		else
+			local dave_encryption_result = self._dave_encryptor:encrypt(dave.enums.codec.OPUS, ssrc, ffi.string(opus_data, opus_len))
+			if dave_encryption_result.getResultCode() ~= dave.enums.decryptorResultCode.SUCCESS then
+				return nil, "failed to encrypt with DAVE with error code " .. dave_encryption_result.getResultCode()
+			end
+
+			opus_data = dave_encryption_result.getFrame()
+			opus_len = #opus_data
+		end
+	end
 
 	local ciphertext, ciphertext_len = self._crypto.encrypt(opus_data, opus_len, header, #header, nonce, key)
 	if not ciphertext then

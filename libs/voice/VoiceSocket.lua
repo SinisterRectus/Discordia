@@ -3,6 +3,10 @@ local class = require('class')
 local timer = require('timer')
 local enums = require('enums')
 local sodium = require('voice/sodium') or {}
+local ok, dave = pcall(require, 'litdave')
+if not ok then
+	dave = {}
+end
 
 local WebSocket = require('client/WebSocket')
 
@@ -18,16 +22,29 @@ if sodium.aead_aes256_gcm then -- AEAD AES256-GCM is only available if the hardw
 	table.insert(SUPPORTED_ENCRYPTION_MODES, 1, 'aead_aes256_gcm_rtpsize')
 end
 
-local IDENTIFY        = 0
+local IDENTIFY = 0
 local SELECT_PROTOCOL = 1
-local READY           = 2
-local HEARTBEAT       = 3
-local DESCRIPTION     = 4
-local SPEAKING        = 5
-local HEARTBEAT_ACK   = 6
-local RESUME          = 7
-local HELLO           = 8
-local RESUMED         = 9
+local READY = 2
+local HEARTBEAT = 3
+local DESCRIPTION = 4
+local SPEAKING = 5
+local HEARTBEAT_ACK = 6
+local RESUME = 7
+local HELLO = 8
+local RESUMED = 9
+local CLIENTS_CONNECT = 11
+local CLIENT_DISCONNECT = 13
+local DAVE_PREPARE_TRANSITION = 21
+local DAVE_EXECUTE_TRANSITION = 22
+local DAVE_TRANSITION_READY = 23
+local DAVE_PREPARE_EPOCH = 24
+local MLS_EXTERNAL_SENDER = 25
+local MLS_KEY_PACKAGE = 26
+local MLS_PROPOSALS = 27
+local MLS_COMMIT_WELCOME = 28
+local MLS_ANNOUNCE_COMMIT_TRANSITION = 29
+local MLS_WELCOME = 30
+local MLS_INVALID_COMMIT_WELCOME = 31
 
 local function checkMode(modes)
 	for _, ENCRYPTION_MODE in ipairs(SUPPORTED_ENCRYPTION_MODES) do
@@ -56,6 +73,7 @@ function VoiceSocket:__init(state, connection, manager)
 	self._connection = connection
 	self._session_id = state.session_id
 	self._seq_ack = -1
+	self._voice = true
 end
 
 function VoiceSocket:handleDisconnect()
@@ -73,7 +91,7 @@ function VoiceSocket:handlePayload(payload)
 	if payload.seq then
 		self._seq_ack = payload.seq
 	end
-
+	
 	self:debug('WebSocket OP %s', op)
 
 	if op == HELLO then
@@ -91,6 +109,8 @@ function VoiceSocket:handlePayload(payload)
 			self._mode = mode
 			self._ssrc = d.ssrc
 			self:handshake(d.ip, d.port)
+
+			self._connection._dave_encryptor:assignSsrcToCodec(d.ssrc, dave.enums.codec.OPUS)
 		else
 			self:error('No supported encryption mode available')
 			self:disconnect()
@@ -101,6 +121,12 @@ function VoiceSocket:handlePayload(payload)
 		self:info('Received RESUMED')
 
 	elseif op == DESCRIPTION then
+
+		if d.dave_protocol_version then -- if Discord changes version of (or disables) E2EE
+			self._state.max_dave_protocol_version = d.dave_protocol_version
+			self._connection._dave_protocol_version = d.dave_protocol_version
+			self._connection._dave_session:setProtocolVersion(d.dave_protocol_version)
+		end
 
 		if d.mode == self._mode then
 			self._connection:_prepare(d.secret_key, self)
@@ -117,9 +143,92 @@ function VoiceSocket:handlePayload(payload)
 
 		return -- TODO
 
-	elseif op == 12 or op == 13 then
+	elseif op == 12 or op == 18 or op == 20 then
 
 		return -- ignore
+
+	elseif op == CLIENTS_CONNECT then
+
+		if d.user_ids then
+			for _, user_id in pairs(d.user_ids) do
+				self._connection._dave_session:addRecognizedUser(user_id)
+			end
+		end
+
+	elseif op == CLIENT_DISCONNECT then
+
+		self._connection._dave_session:removeRecognizedUser(d.user_id)
+
+	elseif op == DAVE_PREPARE_TRANSITION then
+
+		self._connection._dave_protocol_version_pending = d.protocol_version
+		self:sendTransitionReady(d.transition_id)
+
+	elseif op == DAVE_EXECUTE_TRANSITION then
+
+		if self._connection._dave_protocol_version_pending then
+			self._connection._dave_protocol_version = self._connection._dave_protocol_version_pending
+			self._connection._dave_protocol_version_pending = nil
+		end
+
+		self._connection._dave_session:setProtocolVersion(self._connection._dave_protocol_version)
+		self._connection._dave_session:reset()
+		self._connection._dave_encryptor:setKeyRatchet(self._connection._dave_session:getKeyRatchet(self._client.user.id))
+
+		self._connection._dave_ready = true
+
+	elseif op == DAVE_PREPARE_EPOCH then
+
+		if d.epoch == 1 then
+			self._connection._dave_ready = false
+			self._connection._dave_protocol_version = d.protocol_version
+			self._connection._dave_session:init(self._connection._dave_protocol_version, self._connection._channel.id, self._client.user.id)
+			self:setKeyPackage()
+		end
+
+	elseif op == MLS_EXTERNAL_SENDER then
+
+		self._connection._dave_session:setExternalSender(payload.binary)
+		self:setKeyPackage()
+
+	elseif op == MLS_PROPOSALS then
+
+		local welcome_result = self._connection._dave_session:processProposals(payload.binary)
+		if welcome_result then
+			self:commitWelcome(welcome_result)
+		end
+
+	elseif op == MLS_ANNOUNCE_COMMIT_TRANSITION then
+
+		local transition_id = tonumber(string.unpack(">I2", payload.binary))
+		local commit_result = self._connection._dave_session:processCommit(payload.binary:sub(3))
+
+		if commit_result and not commit_result.isFailed() then
+			if transition_id == 0 then
+				self._connection._dave_encryptor:setKeyRatchet(self._connection._dave_session:getKeyRatchet(self._client.user.id))
+				self._connection._dave_ready = true
+			else
+				self:sendTransitionReady(transition_id)
+			end
+		else
+			self:handleInvalidCommitWelcome(transition_id)
+		end
+
+	elseif op == MLS_WELCOME then
+
+		local transition_id = tonumber(string.unpack(">I2", payload.binary))
+		local welcome_result = self._connection._dave_session:processWelcome(payload.binary:sub(3))
+
+		if welcome_result then
+			if transition_id == 0 then
+				self._connection._dave_encryptor:setKeyRatchet(self._connection._dave_session:getKeyRatchet(self._client.user.id))
+				self._connection._dave_ready = true
+			else
+				self:sendTransitionReady(transition_id)
+			end
+		else
+			self:handleInvalidCommitWelcome(transition_id)
+		end
 
 	elseif op then
 
@@ -127,6 +236,12 @@ function VoiceSocket:handlePayload(payload)
 
 	end
 
+end
+
+function VoiceSocket:handleInvalidCommitWelcome(transition_id)
+	self:sendInvalidCommitWelcome(transition_id)
+	self._connection._dave_session:init(self._connection._dave_protocol_version, self._connection._channel.id, self._client.user.id)
+	self:setKeyPackage()
 end
 
 local function loop(self)
@@ -157,11 +272,16 @@ end
 
 function VoiceSocket:identify()
 	local state = self._state
+	if state.max_dave_protocol_version == nil then -- if not present yet
+		state.max_dave_protocol_version = dave.maxSupportedProtocolVersion
+	end
+
 	return self:_send(IDENTIFY, {
 		server_id = state.guild_id,
 		user_id = state.user_id,
 		session_id = state.session_id,
 		token = state.token,
+		max_dave_protocol_version = state.max_dave_protocol_version
 	}, true)
 end
 
@@ -207,6 +327,26 @@ function VoiceSocket:setSpeaking(speaking)
 		speaking = speaking,
 		delay = 0,
 		ssrc = self._ssrc,
+	})
+end
+
+function VoiceSocket:setKeyPackage()
+	return self:_send(MLS_KEY_PACKAGE, self._connection._dave_session:getMarshalledKeyPackage())
+end
+
+function VoiceSocket:commitWelcome(welcome_result)
+	return self:_send(MLS_COMMIT_WELCOME, welcome_result)
+end
+
+function VoiceSocket:sendTransitionReady(transition_id)
+	return self:_send(DAVE_TRANSITION_READY, {
+		transition_id = transition_id
+	})
+end
+
+function VoiceSocket:sendInvalidCommitWelcome(transition_id)
+	return self:_send(MLS_INVALID_COMMIT_WELCOME, {
+		transition_id = transition_id
 	})
 end
 
