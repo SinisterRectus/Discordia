@@ -5,6 +5,10 @@ and communicate via voice chat.
 ]=]
 
 local json = require('json')
+local ok, dave = pcall(require, 'litdave')
+if not ok then
+	dave = {}
+end
 
 local GuildChannel = require('containers/abstract/GuildChannel')
 local VoiceConnection = require('voice/VoiceConnection')
@@ -64,7 +68,11 @@ function GuildVoiceChannel:join()
 		local guild = self._parent
 		local client = guild._parent
 
-		success, err = client._shards[guild.shardId]:updateVoice(guild._id, self._id)
+		if not next(dave) then
+			return nil, client:error('Cannot prepare voice connection: litdave not found')
+		end
+
+		success, err = client._shards[guild.shardId]:updateVoice(guild._id, self._id, dave.maxSupportedProtocolVersion)
 
 		if not success then
 			return nil, err

@@ -83,6 +83,15 @@ function WebSocket:parseMessage(message)
 
 	elseif opcode == BINARY then
 
+		if self._voice then -- for VoiceSocket
+			local seq, op = string.unpack(">I2B", payload)
+			return {
+				["seq"] = seq,
+				["op"] = op,
+				["binary"] = payload:sub(4)
+			}, payload
+		end
+
 		payload = inflate(payload, 1)
 		return decode(payload, 1, null), payload
 
@@ -102,7 +111,11 @@ function WebSocket:_send(op, d, identify)
 	local success, err
 	if identify or self._session_id then
 		if self._write then
-			success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
+			if self._voice and (op == 26 or op == 28) then -- MLS
+				success, err = self._write {opcode = BINARY, payload = string.char(op) .. d}
+			else
+				success, err = self._write {opcode = TEXT, payload = encode {op = op, d = d}}
+			end
 		else
 			success, err = false, 'Not connected to gateway'
 		end
