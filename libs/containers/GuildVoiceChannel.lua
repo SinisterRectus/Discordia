@@ -64,7 +64,7 @@ function GuildVoiceChannel:join()
 		end
 
 	else
-		
+
 		local guild = self._parent
 		local client = guild._parent
 

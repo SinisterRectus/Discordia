@@ -91,7 +91,7 @@ function VoiceSocket:handlePayload(payload)
 	if payload.seq then
 		self._seq_ack = payload.seq
 	end
-	
+
 	self:debug('WebSocket OP %s', op)
 
 	if op == HELLO then
